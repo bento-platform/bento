@@ -1,0 +1,6 @@
+# Web
+docker rm bentov2-web --force
+docker rmi bentov2-web:0.0.1 --force
+make build-dev
+
+#...

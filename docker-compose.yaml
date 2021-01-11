@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  web:
+    build:
+      context: ${PWD}/lib/web
+      args:
+        BASE_IMAGE: node
+        BASE_IMAGE_VERSION: buster-slim #15.5.1-alpine3.10
+        BENTO_WEB_REPO: ${BENTO_WEB_REPO}
+        BENTO_WEB_BRANCH: ${BENTO_WEB_BRANCH}
+    image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION}
+    container_name: ${BENTOV2_WEB_CONTAINER_NAME}
+    ports:
+       - "${BENTOV2_WEB_EXTERNAL_PORT}:${BENTOV2_WEB_INTERNAL_PORT}"
+    environment:
+      - INTERNAL_PORT=${BENTOV2_WEB_INTERNAL_PORT}
