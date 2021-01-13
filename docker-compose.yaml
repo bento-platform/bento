@@ -1,6 +1,5 @@
 version: '3.7'
 
-
 secrets:
   metadata-app-secret:
     file: $PWD/tmp/secrets/metadata-app-secret
@@ -15,25 +14,23 @@ services:
     build:
       context: $PWD/lib/ingress
       args:
-        BASE_IMAGE: openresty/openresty #nginx
-        BASE_IMAGE_VERSION: alpine-fat #1.19.6-alpine
-    image: bentov2-ingress:0.0.1
-    container_name: bentov2-ingress
+        BASE_IMAGE: ${BENTO_INGRESS_BASE_IMAGE}
+        BASE_IMAGE_VERSION: ${BENTO_INGRESS_BASE_IMAGE_VERSION}
+    image: ${BENTOV2_INGRESS_IMAGE}:${BENTOV2_INGRESS_VERSION}
+    container_name: ${BENTOV2_INGRESS_CONTAINER_NAME}
     networks: 
       - bridge-net
     ports:
       - "80:80"
       - "443:443"
-    # volumes: 
-    #   - $PWD/lib/ingress/nginx.conf:/etc/nginx/nginx.conf
 
 
   web:
     build:
       context: $PWD/lib/web
       args:
-        BASE_IMAGE: node
-        BASE_IMAGE_VERSION: 15.5.1-alpine3.10
+        BASE_IMAGE: ${BENTOV2_WEB_BASE_IMAGE}
+        BASE_IMAGE_VERSION: ${BENTOV2_WEB_BASE_IMAGE_VERSION}
         BENTO_WEB_REPO: ${BENTO_WEB_REPO}
         BENTO_WEB_BRANCH: ${BENTO_WEB_BRANCH}
     image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION}
@@ -42,23 +39,21 @@ services:
       - bridge-net
     ports:
        - "${BENTOV2_WEB_EXTERNAL_PORT}:${BENTOV2_WEB_INTERNAL_PORT}"
-    environment:
-      - INTERNAL_PORT=${BENTOV2_WEB_INTERNAL_PORT}
 
 
   katsu:
     build:
       context: $PWD/lib/katsu
       args:
-        BASE_IMAGE:  python
-        BASE_IMAGE_VERSION: 3.6-alpine
+        BASE_IMAGE:  ${BENTOV2_KATSU_BASE_IMAGE}
+        BASE_IMAGE_VERSION: ${BENTOV2_KATSU_BASE_IMAGE_VERSION}
         KATSU_REPO: ${KATSU_REPO}
         KATSU_BRANCH: ${KATSU_BRANCH}
         KATSU_TAG: ${KATSU_TAG}
     image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION}
-    container_name: bentov2-katsu
+    container_name: ${BENTOV2_KATSU_CONTAINER_NAME}
     ports:
-      - "${BENTOV2_KATSU_INTERNAL_PORT}:${BENTOV2_KATSU_EXTERNAL_PORT}"
+      - "${BENTOV2_KATSU_EXTERNAL_PORT}:${BENTOV2_KATSU_INTERNAL_PORT}"
     networks: 
       - bridge-net
     depends_on:
@@ -67,9 +62,9 @@ services:
       - CHORD_URL="${CHORD_METADATA_HOST}"
       - CHORD_PERMISSIONS="${CHORD_METADATA_AUTH}"
       - CHORD_DEBUG="${CHORD_METADATA_DEBUG}"
-      - POSTGRES_HOST=bentov2-katsu-db
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=devpassword123
+      - POSTGRES_HOST=${BENTOV2_KATSU_DB_CONTAINER_NAME}
+      - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
+      - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
     configs:
       - source: chord-metadata-settings
         target: /katsu/metadata/settings.py
@@ -87,19 +82,21 @@ services:
       - |
         python manage.py makemigrations
         python manage.py migrate
-        python manage.py runserver 0.0.0.0:8000
+        python manage.py runserver 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT}
 
 
   katsu-db:
-    image: postgres:13-alpine
-    container_name: bentov2-katsu-db
+    image: ${BENTOV2_KATSU_DB_IMAGE}:${BENTOV2_KATSU_DB_VERSION}
+    container_name: ${BENTOV2_KATSU_DB_CONTAINER_NAME}
     networks: 
       - bridge-net
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=devpassword123
+      - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
+      - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
       #- POSTGRES_PASSWORD_FILE="/run/secrets/metadata_db_secret"
-      - POSTGRES_DB=metadata
+      - POSTGRES_DB=${BENTOV2_KATSU_DB}
+    # ports: 
+    #   - 5432
     secrets:
       - source: metadata-db-user
         target: metadata_db_user

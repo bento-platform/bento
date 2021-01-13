@@ -1,7 +1,9 @@
 # Makefile for BentoV2
-
 include .env
 
+
+
+# Run
 run-dev:
 	docker-compose up -d
 
@@ -15,6 +17,8 @@ run-dev-katsu:
 	docker-compose up -d katsu
 
 
+
+# Build
 build-dev-ingress:
 	docker-compose build ingress
 
@@ -25,6 +29,21 @@ build-dev-katsu:
 	docker-compose build katsu
 
 
+
+# Clean up
+clean-dev: clean-dev-ingress clean-dev-web clean-dev-katsu
+
+clean-dev-ingress:
+	docker rm bentov2-ingress --force; \
+	docker rmi bentov2-ingress:0.0.1 --force;
+
+clean-dev-web:
+	docker rm bentov2-web --force; \
+	docker rmi bentov2-web:0.0.1 --force;
+	
+clean-dev-katsu:
+	docker rm bentov2-katsu --force; \
+	docker rmi bentov2-katsu:0.0.1 --force;
 
 
 
