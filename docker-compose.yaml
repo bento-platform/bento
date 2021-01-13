@@ -25,6 +25,22 @@ services:
       - "443:443"
 
 
+  auth:
+    image: ${BENTOV2_AUTH_IMAGE}:${BENTOV2_AUTH_VERSION}
+    container_name: ${BENTOV2_AUTH_CONTAINER_NAME}
+    command: ["-b", "${BENTOV2_AUTH_SERVICE_HOST}", "-Dkeycloak.migration.strategy=IGNORE_EXISTING"]
+    ports:
+       - "${BENTOV2_AUTH_EXTERNAL_PORT}:${BENTOV2_AUTH_INTERNAL_PORT}"
+    environment: 
+      - KEYCLOAK_USER=${BENTOV2_AUTH_ADMIN_USER}
+      - KEYCLOAK_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
+    networks:
+      - bridge-net
+    # volumes:
+    #   - ./keycloak/data/keycloak-db:/opt/jboss/keycloak/standalone/data
+    #   - ./keycloak/data/standalone-ha.xml:/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
+
+
   web:
     build:
       context: $PWD/lib/web

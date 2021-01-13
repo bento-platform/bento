@@ -10,6 +10,9 @@ run-dev:
 run-dev-ingress:
 	docker-compose up -d ingress
 
+run-dev-auth:
+	docker-compose up -d auth
+
 run-dev-web:
 	docker-compose up -d web
 
@@ -21,6 +24,9 @@ run-dev-katsu:
 # Build
 build-dev-ingress:
 	docker-compose build ingress
+
+# build-dev-auth:
+# 	docker-compose build auth
 
 build-dev-web:
 	docker-compose build web
@@ -37,10 +43,13 @@ clean-dev-ingress:
 	docker rm bentov2-ingress --force; \
 	docker rmi bentov2-ingress:0.0.1 --force;
 
+clean-dev-auth:
+	docker rm bentov2-auth --force; 
+
 clean-dev-web:
 	docker rm bentov2-web --force; \
 	docker rmi bentov2-web:0.0.1 --force;
-	
+
 clean-dev-katsu:
 	docker rm bentov2-katsu --force; \
 	docker rmi bentov2-katsu:0.0.1 --force;
