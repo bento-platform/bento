@@ -5,11 +5,9 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 
 USER root
 
-RUN apt-get update
-RUN apt-get install git nginx -y
-# \
-#            npm
-RUN apt-get upgrade -y
+RUN apk update
+RUN apk add git nginx
+RUN apk upgrade
 
 COPY nginx.conf /etc/nginx/conf.d/nginx.conf
 
@@ -33,6 +31,10 @@ RUN npm install
 
 RUN npm run build
 
-# temp (for dev only)
-#ENTRYPOINT [ "npm", "run", "watch" ]
+# fix crash at runtime
+RUN mkdir /run/nginx
+RUN touch /run/nginx/nginx.pid 
+#\ && chown -R api-gatway:api-gatway /run/nginx.pid /cache/nginx
+
+# Run
 CMD ["nginx", "-g", "daemon off;"]

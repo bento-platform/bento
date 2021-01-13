@@ -1,1 +1,5 @@
 .env
+
+tmp
+
+lib/ingress/certs*

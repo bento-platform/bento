@@ -1,6 +1,14 @@
-# Web
-docker rm bentov2-web --force
-docker rmi bentov2-web:0.0.1 --force
-make build-dev
+# Ingress
+docker rm bentov2-ingress --force; \
+docker rmi bentov2-ingress:0.0.1 --force; \
+make run-dev-ingress
 
-#...
+# Web
+docker rm bentov2-web --force; \
+docker rmi bentov2-web:0.0.1 --force; \
+make run-dev-web
+
+# Katsu, Katsu-DB
+docker rm bentov2-katsu --force; \
+docker rmi bentov2-katsu:0.0.1 --force; \
+make run-dev-katsu
