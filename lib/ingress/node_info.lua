@@ -2,11 +2,11 @@
 
 local cjson = require("cjson")
 
-local auth_file = assert(io.open(ngx.var.chord_auth_config))
+local auth_file = assert(io.open("/usr/local/openresty/nginx/auth_config.json"))
 local auth_params = cjson.decode(auth_file:read("*all"))
 auth_file:close()
 
-local config_file = assert(io.open(ngx.var.chord_instance_config))
+local config_file = assert(io.open("/usr/local/openresty/nginx/instance_config.json"))
 local config_params = cjson.decode(config_file:read("*all"))
 config_file:close()
 
