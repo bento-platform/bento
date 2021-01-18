@@ -49,7 +49,7 @@ build-dev-katsu:
 
 
 # Clean up
-clean-dev: clean-dev-ingress clean-dev-auth clean-dev-web clean-dev-service-registry clean-dev-katsu
+clean-dev: clean-dev-ingress clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-service-registry clean-dev-katsu
 
 clean-dev-ingress:
 	docker rm bentov2-ingress --force; \
@@ -74,7 +74,7 @@ clean-dev-katsu:
 	docker rm bentov2-katsu --force; \
 	docker rmi bentov2-katsu:0.0.1 --force;
 	
-	docker rm bentov2-katsu-db:0.0.1 --force;
+	docker rm bentov2-katsu-db --force;
 
 
 
