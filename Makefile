@@ -13,6 +13,9 @@ run-dev-ingress:
 run-dev-auth:
 	docker-compose up -d auth
 
+run-dev-drop-box:
+	docker-compose up -d drop-box
+
 run-dev-service-registry:
 	docker-compose up -d service-registry
 
@@ -30,6 +33,9 @@ build-dev-ingress:
 
 # build-dev-auth:
 # 	docker-compose build auth
+
+build-dev-drop-box:
+	docker-compose build drop-box
 
 build-dev-service-registry:
 	docker-compose build service-registry
@@ -55,6 +61,10 @@ clean-dev-auth:
 clean-dev-web:
 	docker rm bentov2-web --force; \
 	docker rmi bentov2-web:0.0.1 --force;
+
+clean-dev-drop-box:
+	docker rm bentov2-drop-box --force; \
+	docker rmi bentov2-drop-box:0.0.1 --force;
 
 clean-dev-service-registry:
 	docker rm bentov2-service-registry --force; \
