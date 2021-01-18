@@ -1,5 +1,5 @@
 {
-  "OIDC_DISCOVERY_URI": "http://127.0.0.1:8080/auth/realms/master/.well-known/openid-configuration",
+  "OIDC_DISCOVERY_URI": "https://bentov2auth.local/auth/realms/master/.well-known/openid-configuration",
   "CLIENT_ID": "chord1",
   "CLIENT_SECRET": "a1979eea-5020-4900-98ba-b1bdb85a61b1",
   "OWNER_IDS": ["72c27365-6e4c-496e-a16d-1061f82a1e24"]

@@ -120,6 +120,46 @@ services:
         target: metadata_db_secret
 
 
+  service-registry:
+    build:
+      context: $PWD/lib/service-registry
+      args:
+        BASE_IMAGE: ${BENTOV2_SERVICE_REGISTRY_BASE_IMAGE}
+        BASE_IMAGE_VERSION: ${BENTOV2_SERVICE_REGISTRY_BASE_IMAGE_VERSION}
+        REPO: ${BENTO_SERVICE_REGISTRY_REPO}
+        BRANCH: ${BENTO_SERVICE_REGISTRY_BRANCH}
+        TAG: ${BENTO_SERVICE_REGISTRY_TAG}
+    image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION}
+    container_name: ${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}
+    environment: 
+      # Runtime
+      - FLASK_DEBUG=False
+      - FLASK_APP=bento_service_registry.app
+
+      # Following the chord_services.json schema
+      # (https://github.com/c3g/chord_singularity/blob/master/chord_services.schema.json)
+      # A list of services on a single domain which are registered in the service
+      # registry instance.
+      - CHORD_SERVICES=chord_services.json
+
+      # Common URL base for all services
+      - CHORD_URL=${BENTOV2_PUBLIC_URL}
+
+      # Timeout, in seconds (integers only), for contacting services from the JSON
+      - CONTACT_TIMEOUT=1
+
+      # Service ID for the /service-info endpoint
+      - SERVICE_ID=ca.c3g.bento:${BENTOV2_SERVICE_REGISTRY_VERSION}
+
+      # Python path template for the services, off of the CHORD_URL value
+      # Currently only supports artifact-based paths
+      - URL_PATH_FORMAT=api/{artifact}
+    networks: 
+      - bridge-net
+    ports:
+       - "${BENTOV2_SERVICE_REGISTRY_EXTERNAL_PORT}:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}"
+
+
 networks: 
   bridge-net:
     external: true

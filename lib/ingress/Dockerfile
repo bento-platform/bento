@@ -19,7 +19,6 @@ COPY node_info.lua /usr/local/openresty/nginx/node_info.lua
 COPY proxy_auth.lua /usr/local/openresty/nginx/proxy_auth.lua
 
 
-COPY chord_services.json /usr/local/openresty/nginx/chord_services.json
 COPY instance_auth.json /usr/local/openresty/nginx/instance_auth.json
 COPY instance_config.json /usr/local/openresty/nginx/instance_config.json
 COPY auth_config.json /usr/local/openresty/nginx/auth_config.json

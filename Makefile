@@ -13,6 +13,9 @@ run-dev-ingress:
 run-dev-auth:
 	docker-compose up -d auth
 
+run-dev-service-registry:
+	docker-compose up -d service-registry
+
 run-dev-web:
 	docker-compose up -d web
 
@@ -28,6 +31,9 @@ build-dev-ingress:
 # build-dev-auth:
 # 	docker-compose build auth
 
+build-dev-service-registry:
+	docker-compose build service-registry
+
 build-dev-web:
 	docker-compose build web
 	
@@ -37,7 +43,7 @@ build-dev-katsu:
 
 
 # Clean up
-clean-dev: clean-dev-ingress clean-dev-web clean-dev-katsu
+clean-dev: clean-dev-ingress clean-dev-auth clean-dev-web clean-dev-service-registry clean-dev-katsu
 
 clean-dev-ingress:
 	docker rm bentov2-ingress --force; \
@@ -50,10 +56,15 @@ clean-dev-web:
 	docker rm bentov2-web --force; \
 	docker rmi bentov2-web:0.0.1 --force;
 
+clean-dev-service-registry:
+	docker rm bentov2-service-registry --force; \
+	docker rmi bentov2-service-registry:0.0.1 --force;
+
 clean-dev-katsu:
 	docker rm bentov2-katsu --force; \
 	docker rmi bentov2-katsu:0.0.1 --force;
-
+	
+	docker rm bentov2-katsu-db:0.0.1 --force;
 
 
 
