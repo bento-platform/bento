@@ -3,3 +3,9 @@
 tmp
 
 lib/ingress/certs*
+
+# ignore data directories
+lib/*/data
+
+# ignored submodule directories
+lib/service-registry/bento_service_registry

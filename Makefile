@@ -1,5 +1,10 @@
 # Makefile for BentoV2
-include .env
+
+# import global variables
+env ?= .env
+
+include $(env)
+export $(shell sed 's/=.*//' $(env))
 
 
 
@@ -76,6 +81,10 @@ clean-dev-katsu:
 	
 	docker rm bentov2-katsu-db --force;
 
+
+
+auth-setup:
+	sh $(PWD)/etc/scripts/setup.sh
 
 
 #>>>

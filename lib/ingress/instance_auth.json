@@ -1,9 +1,9 @@
 {
     "https://bentov2.local/": {
-      "OIDC_DISCOVERY_URI": "https://bentov2auth.local/auth/realms/master/.well-known/openid-configuration",
-      "CLIENT_ID": "chord1",
-      "CLIENT_SECRET": "a1979eea-5020-4900-98ba-b1bdb85a61b1",
-      "OWNER_IDS": ["72c27365-6e4c-496e-a16d-1061f82a1e24"]
+      "OIDC_DISCOVERY_URI": "https://bentov2auth.local/auth/realms/bentov2/.well-known/openid-configuration",
+      "CLIENT_ID": "local_bentov2",
+      "CLIENT_SECRET": "9e06c4eb-1381-467f-8d66-3c6b9be5d81a",
+      "OWNER_IDS": ["b761e351-1922-4547-9533-d0cf0118b286"]
     }
 }
   

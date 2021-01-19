@@ -66,7 +66,8 @@ local chord_private_mode = not (not config_params["CHORD_PRIVATE_MODE"])
 
 -- If in production, validate the SSL certificate if HTTPS is being used (for
 -- non-Lua folks, this is a ternary - ssl_verify = !chord_debug)
-local opts_ssl_verify = chord_debug and "no" or "yes"
+local opts_ssl_verify = "no"
+--chord_debug and "no" or "yes"
 
 -- If in production, enforce CHORD_URL as the base for redirect
 local opts_redirect_uri = OIDC_CALLBACK_PATH
@@ -122,7 +123,7 @@ local is_private_uri = chord_permissions and (
 --  - "deny" --> return 401
 --  - nil    --> return 302 to sign-in page
 --           --> always the case if the path requested is SIGN_IN
-local auth_mode = "pass"
+local auth_mode = nil
 print(ngx_var_uri)
 if ngx_var_uri and ngx_var_uri ~= SIGN_IN_PATH then
   if is_private_uri then

@@ -5,7 +5,7 @@
   "BENTO_FEDERATION_MODE": true,
   "BENTO_FRONTEND_REPOSITORY": "https://github.com/bento-platform/bento_web.git",
   "BENTO_FRONTEND_VERSION": "master",
-  "CHORD_URL": "https://bentov2.local",
+  "CHORD_URL": "https://bentov2.local/",
   "CHORD_REGISTRY_URL": "https://bentov2.local",
   "LISTEN_ON": "unix:/chord/tmp/nginx.sock"
 }

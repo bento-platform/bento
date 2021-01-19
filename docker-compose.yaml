@@ -39,9 +39,9 @@ services:
       - KEYCLOAK_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
     networks:
       - bridge-net
-    # volumes:
-    #   - ./keycloak/data/keycloak-db:/opt/jboss/keycloak/standalone/data
-    #   - ./keycloak/data/standalone-ha.xml:/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
+    volumes:
+      - ./lib/auth/data:/opt/jboss/keycloak/standalone/data
+      - ./lib/auth/data/standalone-ha.xml:/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
 
 
   web:
