@@ -30,6 +30,8 @@ run-dev-web:
 run-dev-katsu:
 	docker-compose up -d katsu
 
+run-dev-logging:
+	docker-compose up -d logging
 
 
 # Build
@@ -50,6 +52,9 @@ build-dev-web:
 	
 build-dev-katsu:
 	docker-compose build katsu
+
+build-dev-logging:
+	docker-compose build logging
 
 
 
@@ -80,6 +85,10 @@ clean-dev-katsu:
 	docker rmi bentov2-katsu:0.0.1 --force;
 	
 	docker rm bentov2-katsu-db --force;
+
+clean-dev-logging:
+	docker rm bentov2-logging --force; \
+	docker rmi bentov2-logging:0.0.1 --force;
 
 
 

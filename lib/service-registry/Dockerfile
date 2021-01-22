@@ -24,12 +24,13 @@ ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}"
+#RUN git clone "${REPO}"
+COPY bento_service_registry  /service-registry/bento_service_registry
 RUN ls /service-registry
 WORKDIR /service-registry/bento_service_registry
-RUN git fetch
-RUN git checkout "${BRANCH}"
-RUN git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
+#RUN git fetch
+#RUN git checkout "${BRANCH}"
+#RUN git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
 
 RUN pip install -r requirements.txt
 

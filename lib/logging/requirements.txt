@@ -1,0 +1,3 @@
+bento_lib[flask]==0.11.0
+Flask==1.1.2
+boto3==1.14
