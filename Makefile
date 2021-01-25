@@ -33,6 +33,8 @@ run-dev-katsu:
 run-dev-logging:
 	docker-compose up -d logging
 
+run-dev-drs:
+	docker-compose up -d drs
 
 # Build
 build-dev-ingress:
@@ -56,6 +58,8 @@ build-dev-katsu:
 build-dev-logging:
 	docker-compose build logging
 
+build-dev-drs:
+	docker-compose build drs
 
 
 # Clean up
@@ -89,6 +93,10 @@ clean-dev-katsu:
 clean-dev-logging:
 	docker rm bentov2-logging --force; \
 	docker rmi bentov2-logging:0.0.1 --force;
+
+clean-dev-drs:
+	docker rm bentov2-drs --force; \
+	docker rmi bentov2-drs:0.0.1 --force;
 
 
 
