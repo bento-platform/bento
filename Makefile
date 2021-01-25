@@ -36,6 +36,11 @@ run-dev-logging:
 run-dev-drs:
 	docker-compose up -d drs
 
+run-dev-variant:
+	docker-compose up -d variant
+
+
+
 # Build
 build-dev-ingress:
 	docker-compose build ingress
@@ -60,6 +65,10 @@ build-dev-logging:
 
 build-dev-drs:
 	docker-compose build drs
+
+build-dev-variant:
+	docker-compose build variant
+
 
 
 # Clean up
@@ -97,6 +106,11 @@ clean-dev-logging:
 clean-dev-drs:
 	docker rm bentov2-drs --force; \
 	docker rmi bentov2-drs:0.0.1 --force;
+
+clean-dev-variant:
+	docker rm bentov2-variant --force; \
+	docker rmi bentov2-variant:0.0.1 --force;
+
 
 
 

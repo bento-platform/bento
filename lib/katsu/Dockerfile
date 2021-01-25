@@ -59,6 +59,9 @@ RUN git submodule update --init
 # Install dependencies
 RUN pip install -r requirements.txt
 
+# TEMP
+COPY settings.py ./chord_metadata_service/metadata/settings.py
+
 # # Pull subdirectories
 # WORKDIR /app/katsu/chord_metadata_service/dats
 # RUN git pull
