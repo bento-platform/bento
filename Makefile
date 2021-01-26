@@ -39,6 +39,8 @@ run-dev-drs:
 run-dev-variant:
 	docker-compose up -d variant
 
+run-dev-notification:
+	docker-compose up -d notification
 
 
 # Build
@@ -69,10 +71,12 @@ build-dev-drs:
 build-dev-variant:
 	docker-compose build variant
 
+build-dev-notification:
+	docker-compose build notification
 
 
 # Clean up
-clean-dev: clean-dev-ingress clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-service-registry clean-dev-katsu
+clean-dev: clean-dev-ingress clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-service-registry clean-dev-katsu clean-dev-drs clean-dev-variant clean-dev-notification
 
 clean-dev-ingress:
 	docker rm bentov2-ingress --force; \
@@ -110,6 +114,10 @@ clean-dev-drs:
 clean-dev-variant:
 	docker rm bentov2-variant --force; \
 	docker rmi bentov2-variant:0.0.1 --force;
+
+clean-dev-notification:
+	docker rm bentov2-notification --force; \
+	docker rmi bentov2-notification:0.0.1 --force;
 
 
 
