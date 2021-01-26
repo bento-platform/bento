@@ -273,11 +273,14 @@ services:
     environment: 
       - FLASK_DEBUG=False
       - FLASK_APP=app
+      - DATABASE=/notification/data
 
     networks: 
       - bridge-net
+    # depends_on:
+    #   - redis
     ports:
-       - "${BENTOV2_NOTIFICATION_EXTERNAL_PORT}:${BENTOV2_NOTIFICATION_INTERNAL_PORT}"
+       - ${BENTOV2_NOTIFICATION_EXTERNAL_PORT}:${BENTOV2_NOTIFICATION_INTERNAL_PORT}
 
 networks: 
   bridge-net:
