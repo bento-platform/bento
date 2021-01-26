@@ -42,6 +42,8 @@ run-dev-variant:
 run-dev-notification:
 	docker-compose up -d notification
 
+run-dev-federation:
+	docker-compose up -d federation
 
 # Build
 build-dev-ingress:
@@ -73,6 +75,9 @@ build-dev-variant:
 
 build-dev-notification:
 	docker-compose build notification
+
+build-dev-federation:
+	docker-compose build federation
 
 
 # Clean up
@@ -118,6 +123,10 @@ clean-dev-variant:
 clean-dev-notification:
 	docker rm bentov2-notification --force; \
 	docker rmi bentov2-notification:0.0.1 --force;
+
+clean-dev-federation:
+	docker rm bentov2-federation --force; \
+	docker rmi bentov2-federation:0.0.1 --force;
 
 
 
