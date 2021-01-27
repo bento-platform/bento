@@ -42,8 +42,8 @@ services:
     networks:
       - bridge-net
     volumes:
-      - ./lib/auth/data:/opt/jboss/keycloak/standalone/data
-      - ./lib/auth/data/standalone-ha.xml:/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
+      - ${BENTOV2_AUTH_VOL_DIR}:/opt/jboss/keycloak/standalone/data
+      - ${BENTOV2_AUTH_VOL_DIR}/standalone-ha.xml:/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
 
 
   web:
@@ -123,6 +123,8 @@ services:
         target: metadata_db_user
       - source: metadata-db-secret
         target: metadata_db_secret
+    volumes: 
+      - ${BENTOV2_KATSU_DB_VOL_DIR}:/var/lib/postgresql/data
 
 
   drop-box:
@@ -282,6 +284,9 @@ services:
       - bridge-net
     ports:
        - ${BENTOV2_NOTIFICATION_EXTERNAL_PORT}:${BENTOV2_NOTIFICATION_INTERNAL_PORT}
+    volumes:
+      - ${BENTOV2_NOTIFICATION_VOL_DIR}:/notification/data
+
 
 
   federation:
@@ -311,6 +316,8 @@ services:
       - bridge-net
     ports:
        - ${BENTOV2_FEDERATION_EXTERNAL_PORT}:${BENTOV2_FEDERATION_INTERNAL_PORT}
+    volumes:
+      - ${BENTOV2_FEDERATION_VOL_DIR}:/federation/data
 
 
   event-relay:

@@ -2,7 +2,8 @@
 
 tmp
 
-lib/ingress/certs*
+# ignore TLS certificates
+lib/ingress/certs
 
 # ignore data directories
 lib/*/data
