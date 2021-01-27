@@ -276,7 +276,8 @@ services:
       - FLASK_DEBUG=False
       - FLASK_APP=app
       - DATABASE=/notification/data
-
+      - REDIS_HOST=${BENTOV2_REDIS_CONTAINER_NAME}
+      - REDIS_PORT=${BENTOV2_REDIS_INTERNAL_PORT}
     networks: 
       - bridge-net
     ports:
@@ -310,6 +311,16 @@ services:
       - bridge-net
     ports:
        - ${BENTOV2_FEDERATION_EXTERNAL_PORT}:${BENTOV2_FEDERATION_INTERNAL_PORT}
+
+
+  redis:
+    image: ${BENTOV2_REDIS_BASE_IMAGE}:${BENTOV2_REDIS_BASE_IMAGE_VERSION}
+    container_name: ${BENTOV2_REDIS_CONTAINER_NAME}
+    networks: 
+      - bridge-net
+    ports:
+       - ${BENTOV2_REDIS_EXTERNAL_PORT}:${BENTOV2_REDIS_INTERNAL_PORT}
+       
 
 networks: 
   bridge-net:

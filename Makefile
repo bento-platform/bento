@@ -45,6 +45,11 @@ run-dev-notification:
 run-dev-federation:
 	docker-compose up -d federation
 
+run-dev-redis:
+	docker-compose up -d redis
+
+
+
 # Build
 build-dev-ingress:
 	docker-compose build ingress
@@ -78,6 +83,9 @@ build-dev-notification:
 
 build-dev-federation:
 	docker-compose build federation
+
+build-dev-redis:
+	docker-compose build redis
 
 
 # Clean up
@@ -128,6 +136,8 @@ clean-dev-federation:
 	docker rm bentov2-federation --force; \
 	docker rmi bentov2-federation:0.0.1 --force;
 
+clean-dev-redis:
+	docker rm bentov2-redis --force
 
 
 
