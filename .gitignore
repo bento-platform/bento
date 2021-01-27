@@ -5,6 +5,9 @@ tmp
 # ignore TLS certificates
 lib/ingress/certs
 
+lib/ingress/auth_config.json
+lib/ingress/instance_auth.json
+
 # ignore data directories
 lib/*/data
 

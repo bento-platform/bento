@@ -97,6 +97,7 @@ build-dev-redis:
 # Clean up
 clean-dev: clean-dev-ingress clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-service-registry clean-dev-katsu clean-dev-drs clean-dev-variant clean-dev-notification
 
+# TODO: use env variables for container versions
 clean-dev-ingress:
 	docker rm bentov2-ingress --force; \
 	docker rmi bentov2-ingress:0.0.1 --force;
@@ -149,8 +150,15 @@ clean-dev-event-relay:
 clean-dev-redis:
 	docker rm bentov2-redis --force
 
+clean-dev-all-volume-dirs:
+	sudo rm -r lib/*/data
 
+#>>>
+# run authentication system setup
+# make auth-setup
 
+#<<<
+.PHONY: auth-setup
 auth-setup:
 	sh $(PWD)/etc/scripts/setup.sh
 

@@ -1,0 +1,6 @@
+{
+  "OIDC_DISCOVERY_URI": "https://bentov2auth.local/auth/realms/bentov2/.well-known/openid-configuration",
+  "CLIENT_ID": "bentov2_client_id",
+  "CLIENT_SECRET": "SOME-CLIENT-SECRET",
+  "OWNER_IDS": ["OWNER_ID_1", "OWNDER_ID_2"]
+}
