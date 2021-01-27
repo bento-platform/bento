@@ -313,6 +313,55 @@ services:
        - ${BENTOV2_FEDERATION_EXTERNAL_PORT}:${BENTOV2_FEDERATION_INTERNAL_PORT}
 
 
+  event-relay:
+    build:
+      context: $PWD/lib/event-relay
+      args:
+        BASE_IMAGE: ${BENTOV2_EVENT_RELAY_BASE_IMAGE}
+        BASE_IMAGE_VERSION: ${BENTOV2_EVENT_RELAY_BASE_IMAGE_VERSION}
+        REPO: ${BENTO_EVENT_RELAY_REPO}
+        BRANCH: ${BENTO_EVENT_RELAY_BRANCH}
+        TAG: ${BENTO_EVENT_RELAY_TAG}
+    image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION}
+    container_name: ${BENTOV2_EVENT_RELAY_CONTAINER_NAME}
+    environment: 
+      # If true, JSON_MESSAGES will parse all messages recieved from the subscription
+      # and de-serialize them before passing them to the socket.io connection.
+      # e.g. If the message {"test": true} is passed with JSON_MESSAGES on, the
+      # corresponding socket.io message will be:
+      # {"message": {"test": true}, "channel": "chord.something"}
+      # Otherwise, the message will be:
+      # {"message": "{\"test\": true}", "channel": "chord.something"}
+      - JSON_MESSAGES="true" 
+
+      # Default: blank, base path for the service-info endpoint
+      # If blank, the service-info endpoint will be mounted on /service-info
+      # If e.g. /base, the endpoint will be mounted on /base/service-info
+      #- SERVICE_URL_BASE_PATH=
+
+      # socket.io "path" for the server created by the service.
+      - SOCKET_IO_PATH="/socket.io"
+
+      # Connection string (URL or path to UNIX socket file) for the Redis instance.
+      - REDIS_CONNECTION=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
+
+      # Subscription pattern the Redis PubSub connection. The default is configured
+      # to be chord.* for the Bento platform, but it can be set to anything.
+      # See https://redis.io/topics/pubsub and specifically the pattern-matching.
+      - REDIS_SUBSCRIBE_PATTERN="chord.*"
+
+      # Where the service will listen for requests. Can be a UNIX socket path or a
+      # port number (e.g. 8080, which is the default value if nothing is set.)
+      # Will also check the SERVICE_SOCKET environment variable for legacy reasons
+      # related to the Bento platform.
+      #- SERVICE_LISTEN_ON="/path/to/event_relay.sock"
+    networks: 
+      - bridge-net
+    ports:
+       - ${BENTOV2_EVENT_RELAY_EXTERNAL_PORT}:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}
+
+
+
   redis:
     image: ${BENTOV2_REDIS_BASE_IMAGE}:${BENTOV2_REDIS_BASE_IMAGE_VERSION}
     container_name: ${BENTOV2_REDIS_CONTAINER_NAME}

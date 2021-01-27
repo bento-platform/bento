@@ -45,6 +45,9 @@ run-dev-notification:
 run-dev-federation:
 	docker-compose up -d federation
 
+run-dev-event-relay:
+	docker-compose up -d event-relay
+
 run-dev-redis:
 	docker-compose up -d redis
 
@@ -83,6 +86,9 @@ build-dev-notification:
 
 build-dev-federation:
 	docker-compose build federation
+
+build-dev-event-relay:
+	docker-compose build event-relay
 
 build-dev-redis:
 	docker-compose build redis
@@ -135,6 +141,10 @@ clean-dev-notification:
 clean-dev-federation:
 	docker rm bentov2-federation --force; \
 	docker rmi bentov2-federation:0.0.1 --force;
+
+clean-dev-event-relay:
+	docker rm bentov2-event-relay --force; \
+	docker rmi bentov2-event-relay:0.0.1 --force;
 
 clean-dev-redis:
 	docker rm bentov2-redis --force
