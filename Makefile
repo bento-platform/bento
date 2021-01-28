@@ -48,6 +48,9 @@ run-dev-federation:
 run-dev-event-relay:
 	docker-compose up -d event-relay
 
+run-dev-wes:
+	docker-compose up -d wes
+
 run-dev-redis:
 	docker-compose up -d redis
 
@@ -89,6 +92,9 @@ build-dev-federation:
 
 build-dev-event-relay:
 	docker-compose build event-relay
+
+build-dev-wes:
+	docker-compose build wes
 
 build-dev-redis:
 	docker-compose build redis
@@ -149,6 +155,10 @@ clean-dev-event-relay:
 
 clean-dev-redis:
 	docker rm bentov2-redis --force
+
+clean-dev-wes:
+	docker rm bentov2-wes --force; \
+	docker rmi bentov2-wes:0.0.1 --force;
 
 clean-dev-all-volume-dirs:
 	sudo rm -r lib/*/data
