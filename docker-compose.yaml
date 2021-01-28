@@ -143,14 +143,17 @@ services:
       - FLASK_DEBUG=False
       - FLASK_APP=bento_drop_box_service.app
       # Storage
-      - MINIO_URL=${BENTOV2_DROP_BOX_MINIO_URL}
-      - MINIO_USERNAME=${BENTOV2_DROP_BOX_MINIO_USERNAME}
-      - MINIO_PASSWORD=${BENTOV2_DROP_BOX_MINIO_PASSWORD}
-      - MINIO_BUCKET=${BENTOV2_DROP_BOX_MINIO_BUCKET}
+      # - MINIO_URL=${BENTOV2_DROP_BOX_MINIO_URL}
+      # - MINIO_USERNAME=${BENTOV2_DROP_BOX_MINIO_USERNAME}
+      # - MINIO_PASSWORD=${BENTOV2_DROP_BOX_MINIO_PASSWORD}
+      # - MINIO_BUCKET=${BENTOV2_DROP_BOX_MINIO_BUCKET}
+      - SERVICE_DATA=/data
     networks: 
       - bridge-net
     ports:
        - "${BENTOV2_DROP_BOX_EXTERNAL_PORT}:${BENTOV2_DROP_BOX_INTERNAL_PORT}"
+    volumes:
+      - ./lib/drop-box/data-x:/data
 
 
   service-registry:
@@ -362,6 +365,8 @@ services:
       # Will also check the SERVICE_SOCKET environment variable for legacy reasons
       # related to the Bento platform.
       #- SERVICE_LISTEN_ON="/path/to/event_relay.sock"
+    depends_on:
+      - redis
     networks: 
       - bridge-net
     ports:
@@ -387,7 +392,7 @@ services:
       - DATABASE=bento_wes.db
       - SERVICE_ID=
       - SERVICE_TEMP=tmp
-      - SERVICE_URL_BASE_PATH=/
+      - SERVICE_URL_BASE_PATH=/api/wes
       - WOM_TOOL_LOCATION=/wes/womtool.jar
       - WRITE_OUTPUT_TO_DRS=False
       - DRS_DEDUPLICATE=True

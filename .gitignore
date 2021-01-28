@@ -10,6 +10,7 @@ lib/ingress/instance_auth.json
 
 # ignore data directories
 lib/*/data
+lib/*/data-x
 
 # ignored submodule directories
 lib/service-registry/bento_service_registry

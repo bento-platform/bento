@@ -42,5 +42,6 @@ RUN ["pip", "install", "-r", "requirements.txt"]
 WORKDIR /wes/bento_wes/bento_wes
 
 COPY chord_services.json ./chord_services.json
+COPY startup.sh ./startup.sh
 
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["sh", "startup.sh"]
