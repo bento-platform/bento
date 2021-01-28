@@ -22,6 +22,8 @@ RUN apt-get install git
 RUN mkdir /wes
 WORKDIR /wes
 
+RUN wget -cO - https://github.com/broadinstitute/cromwell/releases/download/55/womtool-55.jar > womtool.jar
+
 COPY chord_services.json ./chord_services.json
 
 ARG REPO
