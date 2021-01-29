@@ -56,6 +56,8 @@ run-dev-redis:
 
 
 
+
+
 # Build
 build-dev-ingress:
 	docker-compose build ingress
@@ -98,6 +100,8 @@ build-dev-wes:
 
 build-dev-redis:
 	docker-compose build redis
+
+
 
 
 # Clean up
@@ -162,6 +166,9 @@ clean-dev-wes:
 
 clean-dev-all-volume-dirs:
 	sudo rm -r lib/*/data
+
+
+
 
 #>>>
 # run authentication system setup

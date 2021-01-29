@@ -389,11 +389,22 @@ services:
       - CHORD_URL=${BENTOV2_PUBLIC_URL}
       - CELERY_RESULT_BACKEND=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
       - CELERY_BROKER_URL=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
-      - DATABASE=bento_wes.db
+      - DATABASE=/wes/data/bento_wes.db
       - SERVICE_ID=
-      - SERVICE_TEMP=tmp
+      - SERVICE_TEMP=/wes/tmp
       - SERVICE_URL_BASE_PATH=/api/wes
-      - WOM_TOOL_LOCATION=/wes/womtool.jar
+      - WOM_TOOL_LOCATION=
+      #/wes/womtool.jar
+      # Allow-list (comma-separated) for hosts that workflow files can be downloaded
+      # from - prevents possibly insecure WDLs from being ran
+      - WORKFLOW_HOST_ALLOW_LIST=bentov2.local,${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
+
+      # DRS configuration options:
+      # - Where the DRS instance to use is located. Technically, if not set this 
+      #   defaults to using a different environment variable, NGINX_INTERNAL_SOCKET,
+      #   as a path to a Bento instance's internal NGINX UNIX socket and adding a 
+      #   path to the actual DRS instance
+      - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
       - WRITE_OUTPUT_TO_DRS=False
       - DRS_DEDUPLICATE=True
       - DRS_SKIP_TYPES=
@@ -401,6 +412,8 @@ services:
       - bridge-net
     ports:
        - ${BENTOV2_WES_EXTERNAL_PORT}:${BENTOV2_WES_INTERNAL_PORT}
+    volumes:
+      - ${BENTOV2_WES_VOL_DIR}:/wes/data
 
 
   redis:
