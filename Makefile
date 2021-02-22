@@ -59,6 +59,10 @@ run-dev-redis:
 
 
 # Build
+build-dev-common-base:
+	docker-compose -f docker-compose.base.yaml build common-alpine-python
+
+
 build-dev-ingress:
 	docker-compose build ingress
 
@@ -106,6 +110,11 @@ build-dev-redis:
 
 # Clean up
 clean-dev: clean-dev-ingress clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-service-registry clean-dev-katsu clean-dev-drs clean-dev-variant clean-dev-notification
+
+
+clean-dev-common-base:
+	docker rmi bentov2-common-alpine-python:0.0.1 --force;
+
 
 # TODO: use env variables for container versions
 clean-dev-ingress:
@@ -163,6 +172,7 @@ clean-dev-redis:
 clean-dev-wes:
 	docker rm bentov2-wes --force; \
 	docker rmi bentov2-wes:0.0.1 --force;
+
 
 clean-dev-all-volume-dirs:
 	sudo rm -r lib/*/data
