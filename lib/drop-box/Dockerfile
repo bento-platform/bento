@@ -3,20 +3,8 @@ ARG BASE_IMAGE_VERSION
 
 FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 
+# TODO: change
 USER root
-
-RUN apk update
-# RUN apk upgrade
-
-RUN apk add git
-RUN apk add --no-cache --virtual .build-deps gcc musl-dev libffi-dev postgresql-dev 
-# RUN apk add postgresql-dev
-
-#RUN apt-get update
-#RUN apt-get upgrade
-
-#RUN apt-get install git
-
 
 RUN mkdir /drop-box
 WORKDIR /drop-box

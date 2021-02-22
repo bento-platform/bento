@@ -6,13 +6,6 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 # TODO: change USER
 USER root
 
-RUN apk update
-RUN apk upgrade
-
-RUN apk add git 
-RUN apk add --no-cache postgresql-libs
-RUN apk add --no-cache --virtual .build-deps gcc musl-dev make postgresql-dev
-#libffi-dev zlib-dev bzip2-dev xz-dev 
 ENV LIBRARY_PATH=/lib:/usr/lib
 
 WORKDIR /federation

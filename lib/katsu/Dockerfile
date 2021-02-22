@@ -5,40 +5,13 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 
 LABEL Maintainer="Bento Project"
 
-WORKDIR /
-
+# TODO: change USER
 USER root
 
-# Install dependencies
-RUN apk update
-
-RUN apk add --no-cache \
-	gcc musl-dev libffi-dev openssl-dev python3-dev \
-	autoconf \
-	automake \
-	bash \
-	build-base \
-	bzip2-dev \
-	curl \
-	curl-dev \
-	gcc \
-	git \
-	libcurl \
-	libressl-dev \
-	linux-headers \
-	make \
-	musl-dev \
-	perl \
-	xz-dev \
-	yaml-dev \
-	zlib-dev
-
-RUN apk add postgresql-dev \
-	postgresql-libs
+WORKDIR /
 
 RUN mkdir /app
 WORKDIR /app
-
 
 ARG KATSU_REPO
 ARG KATSU_TAG
@@ -46,18 +19,22 @@ ARG KATSU_TAG
 # Clone the repo
 RUN git clone "${KATSU_REPO}"
 
-RUN ls
 WORKDIR /app/katsu
-RUN git fetch
-RUN git checkout develop
-RUN git submodule update --init
+RUN git fetch; \
+    git checkout develop; \
+    git submodule update --init
 
-# Trigger this at run time
+# Trigger this at run time 
+# (now runs from docker-compose)
 #CMD ["runserver", "0.0.0.0:8000"]
 #
 
 # Install dependencies
-RUN pip install -r requirements.txt
+# -- fixes PEP 517 build error --
+RUN pip install cryptography==2.8; \
+# --
+    pip install -r requirements.txt
+
 
 # TEMP
 COPY settings.py ./chord_metadata_service/metadata/settings.py

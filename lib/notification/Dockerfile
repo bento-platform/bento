@@ -6,13 +6,6 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 # TODO: change USER
 USER root
 
-RUN apk update
-RUN apk upgrade
-
-RUN apk add git 
-RUN apk add --no-cache postgresql-libs
-RUN apk add --no-cache --virtual .build-deps gcc musl-dev make postgresql-dev
-
 WORKDIR /notification
 
 # Create data directory
