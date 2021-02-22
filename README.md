@@ -14,20 +14,20 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 # Installation
 ## Create self-signed TLS certificates
 After setting both the bentoV2 and its authorization URLs in the project `.env` file, you can create the corresponding TLS certificates for local development with the following steps;
-- From the project root, run `mkdir -p ./lib/ingress/certs/dev/auth`
-- Then run `openssl req -newkey rsa:2048 -nodes -keyout ./lib/ingress/certs/dev/privkey1.key -x509 -days 365 -out ./lib/ingress/certs/dev/fullchain1.crt` to create the bentov2 certs **(ensure the domain names in `.env` and the certs line up)**
-- Then, if you're running an OIDC provider container locally <b>(default is currently Keycloak)</b>, run `openssl req -newkey rsa:2048 -nodes -keyout ./lib/ingress/certs/dev/auth/auth_privkey1.key -x509 -days 365 -out ./lib/ingress/certs/dev/auth/auth_fullchain1.crt`
+- From the project root, run `mkdir -p ./lib/gateway/certs/dev/auth`
+- Then run `openssl req -newkey rsa:2048 -nodes -keyout ./lib/gateway/certs/dev/privkey1.key -x509 -days 365 -out ./lib/gateway/certs/dev/fullchain1.crt` to create the bentov2 certs **(ensure the domain names in `.env` and the certs line up)**
+- Then, if you're running an OIDC provider container locally <b>(default is currently Keycloak)</b>, run `openssl req -newkey rsa:2048 -nodes -keyout ./lib/gateway/certs/dev/auth/auth_privkey1.key -x509 -days 365 -out ./lib/gateway/certs/dev/auth/auth_fullchain1.crt`
 
 > TODO: parameterize these directories in `.env`
 
 <br/>
 
 
-## Boot the ingress controller <b>(NGINX by default)</b>
+## Boot the gateway controller <b>(NGINX by default)</b>
 
 Once the certificates are ready, run 
 
-- `make run-dev-ingress` 
+- `make run-dev-gateway` 
 
 to kickstart the cluster. Next, if necessary, run
 
@@ -35,7 +35,7 @@ to kickstart the cluster. Next, if necessary, run
 
 to boot and configure the local OIDC provider <b>(Keycloak)</b> container.
 
-> Note: by <b>default</b>, the `ingress` service needs to be running for this to work as the configuration will pass via the URL set in the `.env` file.
+> Note: by <b>default</b>, the `gateway` service needs to be running for this to work as the configuration will pass via the URL set in the `.env` file.
 
 <br/>
 

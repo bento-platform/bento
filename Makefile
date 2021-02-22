@@ -12,8 +12,8 @@ export $(shell sed 's/=.*//' $(env))
 run-dev:
 	docker-compose up -d
 
-run-dev-ingress:
-	docker-compose up -d ingress
+run-dev-gateway:
+	docker-compose up -d gateway
 
 run-dev-auth:
 	docker-compose up -d auth
@@ -63,8 +63,8 @@ build-dev-common-base:
 	docker-compose -f docker-compose.base.yaml build common-alpine-python
 
 
-build-dev-ingress:
-	docker-compose build ingress
+build-dev-gateway:
+	docker-compose build gateway
 
 # build-dev-auth:
 # 	docker-compose build auth
@@ -109,7 +109,7 @@ build-dev-redis:
 
 
 # Clean up
-clean-dev: clean-dev-ingress clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-service-registry clean-dev-katsu clean-dev-drs clean-dev-variant clean-dev-notification
+clean-dev: clean-dev-gateway clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-service-registry clean-dev-katsu clean-dev-drs clean-dev-variant clean-dev-notification
 
 
 clean-dev-common-base:
@@ -117,9 +117,9 @@ clean-dev-common-base:
 
 
 # TODO: use env variables for container versions
-clean-dev-ingress:
-	docker rm bentov2-ingress --force; \
-	docker rmi bentov2-ingress:0.0.1 --force;
+clean-dev-gateway:
+	docker rm bentov2-gateway --force; \
+	docker rmi bentov2-gateway:0.0.1 --force;
 
 clean-dev-auth:
 	docker rm bentov2-auth --force; 

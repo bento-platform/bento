@@ -3,10 +3,10 @@
 tmp
 
 # ignore TLS certificates
-lib/ingress/certs
+lib/gateway/certs
 
-lib/ingress/auth_config.json
-lib/ingress/instance_auth.json
+lib/gateway/auth_config.json
+lib/gateway/instance_auth.json
 
 # ignore data directories
 lib/*/data
