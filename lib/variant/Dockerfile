@@ -7,19 +7,19 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 # TODO: change USER
 USER root
 
-# RUN apk update
+RUN apk update
 # RUN apk upgrade
 
-# RUN apk add git 
+RUN apk add git 
 # RUN apk add --no-cache postgresql-libs
-# RUN apk add --no-cache --virtual .build-deps gcc musl-dev make zlib-dev bzip2-dev xz-dev postgresql-dev 
+RUN apk add --no-cache --virtual .build-deps gcc musl-dev make zlib-dev bzip2-dev xz-dev postgresql-dev 
 # #libffi-dev
 ENV LIBRARY_PATH=/lib:/usr/lib
 
-RUN apt-get update
+#RUN apt-get update
 #RUN apt-get upgrade
 
-RUN apt-get install git  postgresql -y
+#RUN apt-get install git  postgresql -y
 
 
 WORKDIR /variant
