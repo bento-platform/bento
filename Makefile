@@ -109,7 +109,7 @@ build-dev-redis:
 
 
 # Clean up
-clean-dev: clean-dev-gateway clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-service-registry clean-dev-katsu clean-dev-drs clean-dev-variant clean-dev-notification
+clean-dev: clean-dev-gateway clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-service-registry clean-dev-katsu clean-dev-drs clean-dev-variant clean-dev-federation clean-dev-wes clean-dev-logging clean-dev-notification
 
 
 clean-dev-common-base:

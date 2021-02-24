@@ -6,7 +6,11 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 # TODO: change USER
 USER root
 
-RUN mkdir /wes
+RUN mkdir /wes; \
+    # for temp data
+    mkdir /wes/tmp; \
+    mkdir /data
+
 WORKDIR /wes
 
 #RUN wget -cO - https://github.com/broadinstitute/cromwell/releases/download/55/womtool-55.jar > womtool.jar

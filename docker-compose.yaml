@@ -387,7 +387,7 @@ services:
     container_name: ${BENTOV2_WES_CONTAINER_NAME}
     environment: 
       - CHORD_SERVICES=/wes/chord_services.json
-      - CHORD_URL=${BENTOV2_PUBLIC_URL}
+      - CHORD_URL=${BENTOV2_PUBLIC_URL_TRAILING_SLASH}
       - CELERY_RESULT_BACKEND=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
       - CELERY_BROKER_URL=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
       - DATABASE=/wes/data/bento_wes.db
@@ -409,12 +409,15 @@ services:
       - WRITE_OUTPUT_TO_DRS=False
       - DRS_DEDUPLICATE=True
       - DRS_SKIP_TYPES=
+      - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PUBLIC_URL}/api/auth/ott
+      - FLASK_ENV=development
     networks: 
       - bridge-net
     ports:
        - ${BENTOV2_WES_EXTERNAL_PORT}:${BENTOV2_WES_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_WES_VOL_DIR}:/wes/data
+      - ./lib/drop-box/data-x:/data
 
 
   redis:

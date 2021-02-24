@@ -30,10 +30,12 @@ RUN git fetch; \
 #
 
 # Install dependencies
+RUN pip install --upgrade pip;
 # -- fixes PEP 517 build error --
-RUN pip install cryptography==2.8; \
+#RUN pip install cryptography==2.8; 
+RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
 # --
-    pip install -r requirements.txt
+RUN pip install -r requirements.txt;
 
 
 # TEMP
