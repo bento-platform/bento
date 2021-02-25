@@ -352,7 +352,26 @@ local ONE_TIME_TOKENS_GENERATE_PATH = "/api/auth/ott/generate"
 local ONE_TIME_TOKENS_INVALIDATE_PATH = "/api/auth/ott/invalidate"
 local ONE_TIME_TOKENS_INVALIDATE_ALL_PATH = "/api/auth/ott/invalidate_all"
 
-local REDIS_SOCKET = "unix:/chord/tmp/redis.sock"
+-- TODO: Make this configurable
+local REDIS_CONNECTION_STRING = "bentov2-redis:6379"
+
+local REDIS_SOCKET
+local REDIS_HOST
+local REDIS_PORT
+
+if REDIS_CONNECTION_STRING:match("^unix") then
+  REDIS_SOCKET = REDIS_CONNECTION_STRING
+else  -- Treat as host/port
+  -- Format: localhost:6379
+  local port_sep = REDIS_CONNECTION_STRING:find(":")
+  if port_sep == nil then
+    REDIS_HOST = REDIS_CONNECTION_STRING
+    REDIS_PORT = 6379  -- Default Redis port
+  else
+    REDIS_HOST = REDIS_CONNECTION_STRING:sub(1, port_sep-1)
+    REDIS_PORT = tonumber(REDIS_CONNECTION_STRING:sub(port_sep+1, #REDIS_CONNECTION_STRING))
+  end
+end
 
 -- Create an un-connected Redis object
 local red_ok
@@ -362,6 +381,15 @@ if red_err then
     ngx.HTTP_INTERNAL_SERVER_ERROR,
     "application/json",
     cjson.encode({message=red_err, tag="ott redis conn", user_role=nil}))
+end
+
+-- Function to handle common Redis connection tasks
+local redis_connect = function ()
+  if REDIS_SOCKET then
+    return red:connect(REDIS_SOCKET)
+  else
+    return red:connect(REDIS_HOST, REDIS_PORT)
+  end
 end
 
 -- Load auth configuration for setting up lua-resty-oidconnect
@@ -450,7 +478,9 @@ local opts = {
 }
 
 -- Cache commonly-used ngx.var.uri and ngx.var.request_method to save expensive access calls
-local URI = ngx.var.uri or ""
+-- local URI = ngx.var.uri or ""
+local URI = ngx.var.original_uri or ngx.var.uri or ""
+
 local REQUEST_METHOD = ngx.var.request_method or "GET"
 
 -- Track if the current request is to an API
@@ -537,7 +567,7 @@ if ott_header and not URI:match("^/api/auth") then
   -- The auth namespace check should theoretically be handled by the scope
   -- validation anyway, but manually check it as a last resort
 
-  red_ok, red_err = red:connect(REDIS_SOCKET)
+  red_ok, red_err = redis_connect()
   if red_err then  -- Error occurred while connecting to Redis
     err_redis("redis conn")
     goto script_end
@@ -574,7 +604,10 @@ if ott_header and not URI:match("^/api/auth") then
     -- Invalid call made with the token (out of scope)
     -- We're harsh here and still delete the token out of security concerns
     uncached_response(ngx.HTTP_FORBIDDEN, "application/json",
-      cjson.encode({message="Out-of-scope one-time token", tag="ott out of scope", user_role=nil}))
+      cjson.encode({
+        message="Out-of-scope one-time token (scope: " .. scope .. ", URI prefix: " .. URI:sub(1, #scope) .. ")",
+        tag="ott out of scope",
+        user_role=nil}))
   end
 
   -- No nested auth header is set; OTTs cannot be used to bootstrap a full bearer token
@@ -589,7 +622,7 @@ else
   -- Check bearer token if set
   -- Adapted from https://github.com/zmartzone/lua-resty-openidc/issues/266#issuecomment-542771402
   local auth_header = ngx.req.get_headers()["Authorization"]
-  if is_private_uri and auth_header and auth_header:match("^Bearer .+") then
+  if auth_header and auth_header:match("^Bearer .+") then
     -- A Bearer auth header is set, use it instead of session through introspection
     local res, err = openidc.introspect(opts)
     if err == nil and res.active then
@@ -758,7 +791,7 @@ elseif URI == ONE_TIME_TOKENS_GENERATE_PATH then
     goto script_end
   end
 
-  red_ok, red_err = red:connect(REDIS_SOCKET)
+  red_ok, red_err = redis_connect()
   if red_err then
     err_redis("redis conn")
     goto script_end
@@ -827,7 +860,7 @@ elseif URI == ONE_TIME_TOKENS_INVALIDATE_PATH then
     goto script_end
   end
 
-  red_ok, red_err = red:connect(REDIS_SOCKET)
+  red_ok, red_err = redis_connect()
   if red_err then
     err_redis("redis conn")
     goto script_end
@@ -861,7 +894,7 @@ elseif URI == ONE_TIME_TOKENS_INVALIDATE_ALL_PATH then
     goto script_end
   end
 
-  red_ok, red_err = red:connect(REDIS_SOCKET)
+  red_ok, red_err = redis_connect()
   if red_err then
     err_redis("redis conn")
     goto script_end
