@@ -18,22 +18,33 @@ ARG BENTO_WEB_REPO
 ARG BENTO_WEB_BRANCH
 
 
-RUN git clone "${BENTO_WEB_REPO}"
-WORKDIR /web/bento_web
-RUN git fetch && \
-    git checkout "${BENTO_WEB_BRANCH}" && \
-    git pull
+ARG BENTO_WEB_IS_DEBUG
+RUN mkdir bento_web/
 
-RUN rm -rf package-lock.json npm-shrinkwrap.json node_modules && \
-    npm cache clean --force && \
-    npm cache verify && \
-    npm install && \
-    npm run build-dev
+RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
+    echo "Building Web in Development Mode" ; \
+    \
+    else \
+    git clone "${BENTO_WEB_REPO}" && \
+    \
+    cd ./bento_web && \
+    \
+    git fetch && \
+    git checkout "${BENTO_WEB_BRANCH}" && \
+    git pull ; \
+    fi
+
+RUN ls -la
+
+# Copy startup scripts
+COPY ./dev_startup.sh /web/dev_startup.sh
+COPY ./startup.sh /web/startup.sh
+
+WORKDIR /web/bento_web
+
 
 # fix crash at runtime
 RUN mkdir /run/nginx && \
     touch /run/nginx/nginx.pid 
 #\ && chown -R api-gatway:api-gatway /run/nginx.pid /cache/nginx
-
-# Run
-CMD ["nginx", "-g", "daemon off;"]
+RUN npm config set unsafe-perm true

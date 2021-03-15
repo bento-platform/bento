@@ -8,9 +8,18 @@ export $(shell sed 's/=.*//' $(env))
 
 
 
+# Local directories
+data-dirs:
+	mkdir -p ${BENTOV2_AUTH_VOL_DIR}
+	mkdir -p ${BENTOV2_KATSU_DB_VOL_DIR}
+	mkdir -p ${BENTOV2_NOTIFICATION_VOL_DIR}
+	mkdir -p ${BENTOV2_FEDERATION_VOL_DIR}
+	mkdir -p ${BENTOV2_WES_VOL_DIR}
+	mkdir -p ${BENTOV2_REDIS_VOL_DIR}
+
 # Run
 run-dev:
-	docker-compose up -d
+	docker-compose up -f docker-compose.dev.yaml -f docker-compose.yaml up -d
 
 run-dev-gateway:
 	docker-compose up -d gateway
@@ -25,7 +34,7 @@ run-dev-service-registry:
 	docker-compose up -d service-registry
 
 run-dev-web:
-	docker-compose up -d web
+	docker-compose -f docker-compose.dev.yaml -f docker-compose.yaml up -d web
 
 run-dev-katsu:
 	docker-compose up -d katsu
@@ -118,6 +127,7 @@ clean-dev-common-base:
 
 # TODO: use env variables for container versions
 clean-dev-gateway:
+	docker-compose stop gateway;
 	docker rm bentov2-gateway --force; \
 	docker rmi bentov2-gateway:0.0.1 --force;
 
@@ -125,6 +135,7 @@ clean-dev-auth:
 	docker rm bentov2-auth --force; 
 
 clean-dev-web:
+	docker-compose stop web;
 	docker rm bentov2-web --force; \
 	docker rmi bentov2-web:0.0.1 --force;
 
