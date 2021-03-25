@@ -17,14 +17,16 @@ ARG TAG
 
 RUN git clone "${REPO}"
 RUN ls /drs
-
 WORKDIR /drs/chord_drs
+
 RUN git fetch
 RUN git checkout "${BRANCH}"
 RUN git pull $(echo "${REPO}")
 # refs/tags/${TAG}:refs/tags/${TAG}
-RUN mkdir -p ./data/obj && \
-    mkdir -p ./data/db;
+
+RUN mkdir -p /drs/chord_drs/data/obj && \
+    mkdir -p /drs/chord_drs/data/db;
+
 # Remove comment if custom requirements are needed
 #COPY requirements.txt ./requirements.txt
 
