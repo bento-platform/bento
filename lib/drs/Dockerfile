@@ -6,7 +6,8 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 # TODO: change USER
 USER root
 
-RUN mkdir /drs;
+RUN mkdir /drs && \
+    mkdir /wes;
 
 WORKDIR /drs
 
@@ -20,8 +21,8 @@ RUN ls /drs
 WORKDIR /drs/chord_drs
 RUN git fetch
 RUN git checkout "${BRANCH}"
-RUN git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
-
+RUN git pull $(echo "${REPO}")
+# refs/tags/${TAG}:refs/tags/${TAG}
 RUN mkdir -p ./data/obj && \
     mkdir -p ./data/db;
 # Remove comment if custom requirements are needed

@@ -11,17 +11,25 @@ USER root
 WORKDIR /
 
 RUN mkdir /app
+RUN mkdir /app/tmp && \
+    chmod 777 /app/tmp
+
 WORKDIR /app
 
 ARG KATSU_REPO
+ARG KATSU_BRANCH
 ARG KATSU_TAG
 
 # Clone the repo
 RUN git clone "${KATSU_REPO}"
 
 WORKDIR /app/katsu
-RUN git fetch; \
-    git checkout develop; \
+
+RUN git config user.name "docker" && \
+    git config user.email "docker@bento.v2" && \
+    git fetch && \
+    git checkout "${KATSU_BRANCH}" && \ 
+    git pull $(echo "${KATSU_REPO}") && \
     git submodule update --init
 
 # Trigger this at run time 

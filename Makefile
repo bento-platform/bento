@@ -19,7 +19,8 @@ data-dirs:
 
 # Run
 run-dev:
-	docker-compose up -f docker-compose.dev.yaml -f docker-compose.yaml up -d
+	docker-compose up -d
+	# docker-compose -f docker-compose.dev.yaml -f docker-compose.yaml up -d
 
 run-dev-gateway:
 	docker-compose up -d gateway
@@ -34,7 +35,8 @@ run-dev-service-registry:
 	docker-compose up -d service-registry
 
 run-dev-web:
-	docker-compose -f docker-compose.dev.yaml -f docker-compose.yaml up -d web
+	docker-compose up -d web
+	#docker-compose -f docker-compose.dev.yaml -f docker-compose.yaml up -d web
 
 run-dev-katsu:
 	docker-compose up -d katsu
@@ -118,7 +120,11 @@ build-dev-redis:
 
 
 # Clean up
-clean-dev: clean-dev-gateway clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-service-registry clean-dev-katsu clean-dev-drs clean-dev-variant clean-dev-federation clean-dev-wes clean-dev-logging clean-dev-notification
+clean-dev: clean-dev-gateway \
+		   clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-drs \
+		   clean-dev-service-registry clean-dev-katsu clean-dev-drs \
+		   clean-dev-variant clean-dev-federation clean-dev-wes \
+		   clean-dev-logging clean-dev-notification clean-dev-event-relay
 
 
 clean-dev-common-base:

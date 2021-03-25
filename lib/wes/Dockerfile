@@ -25,9 +25,13 @@ RUN git clone "${REPO}"
 RUN ls /wes
 
 WORKDIR /wes/bento_wes
-RUN git fetch
-RUN git checkout "${BRANCH}"
-RUN git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
+
+RUN git config user.name "docker" && \
+    git config user.email "docker@bento.v2" && \
+    git fetch && \
+    git checkout "${BRANCH}" && \ 
+    git pull $(echo "${REPO}")
+#refs/tags/${TAG}:refs/tags/${TAG}
 
 RUN ["pip", "install", "-r", "requirements.txt"]
 

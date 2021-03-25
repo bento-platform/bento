@@ -92,6 +92,8 @@ services:
       - POSTGRES_HOST=${BENTOV2_KATSU_DB_CONTAINER_NAME}
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
       - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
+      - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
+      - SERVICE_TEMP=/app/tmp
     configs:
       - source: chord-metadata-settings
         target: /katsu/metadata/settings.py
@@ -246,6 +248,8 @@ services:
        - "${BENTOV2_DRS_EXTERNAL_PORT}:${BENTOV2_DRS_INTERNAL_PORT}"
     volumes:
       - ./lib/drs/data:/drs/chord_drs/data
+      - ./lib/wes/tmp:/wes/tmp
+
 
 
   variant:
@@ -415,7 +419,7 @@ services:
       #   as a path to a Bento instance's internal NGINX UNIX socket and adding a 
       #   path to the actual DRS instance
       - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
-      - WRITE_OUTPUT_TO_DRS=False
+      - WRITE_OUTPUT_TO_DRS=True
       - DRS_DEDUPLICATE=True
       - DRS_SKIP_TYPES=
       - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PUBLIC_URL}/api/auth/ott
@@ -428,6 +432,7 @@ services:
        - ${BENTOV2_WES_EXTERNAL_PORT}:${BENTOV2_WES_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_WES_VOL_DIR}:/wes/data
+      - ./lib/wes/tmp:/wes/tmp
       - ./lib/drop-box/data-x:/data
 
 

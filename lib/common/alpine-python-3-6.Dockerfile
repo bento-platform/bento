@@ -15,6 +15,7 @@ RUN apk update; \
 		bash \
 		build-base \
 		bzip2-dev \
+		cargo \
 		curl \
 		curl-dev \
 		gcc \
