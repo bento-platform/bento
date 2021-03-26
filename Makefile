@@ -18,51 +18,55 @@ data-dirs:
 	mkdir -p ${BENTOV2_REDIS_VOL_DIR}
 
 # Run
-run-dev:
+run:
 	docker-compose up -d
 	# docker-compose -f docker-compose.dev.yaml -f docker-compose.yaml up -d
 
-run-dev-gateway:
+run-gateway:
 	docker-compose up -d gateway
 
-run-dev-auth:
+run-auth:
 	docker-compose up -d auth
 
-run-dev-drop-box:
+run-drop-box:
 	docker-compose up -d drop-box
 
-run-dev-service-registry:
+run-service-registry:
 	docker-compose up -d service-registry
 
-run-dev-web:
+run-web:
 	docker-compose up -d web
-	#docker-compose -f docker-compose.dev.yaml -f docker-compose.yaml up -d web
 
-run-dev-katsu:
+# For local development
+run-web-dev:
+	docker-compose -f docker-compose.dev.yaml -f docker-compose.yaml up -d web
+#
+
+run-katsu:
 	docker-compose up -d katsu
 
-run-dev-logging:
+run-logging:
 	docker-compose up -d logging
 
-run-dev-drs:
+run-drs:
 	docker-compose up -d drs
 
-run-dev-variant:
+run-variant:
 	docker-compose up -d variant
 
-run-dev-notification:
+run-notification:
 	docker-compose up -d notification
 
-run-dev-federation:
+run-federation:
 	docker-compose up -d federation
 
-run-dev-event-relay:
+run-event-relay:
 	docker-compose up -d event-relay
 
-run-dev-wes:
+run-wes:
 	docker-compose up -d wes
 
-run-dev-redis:
+run-redis:
 	docker-compose up -d redis
 
 
@@ -70,128 +74,126 @@ run-dev-redis:
 
 
 # Build
-build-dev-common-base:
+build-common-base:
 	docker-compose -f docker-compose.base.yaml build common-alpine-python
 
 
-build-dev-gateway:
+build-gateway:
 	docker-compose build gateway
 
-# build-dev-auth:
+# build-auth:
 # 	docker-compose build auth
 
-build-dev-drop-box:
+build-drop-box:
 	docker-compose build drop-box
 
-build-dev-service-registry:
+build-service-registry:
 	docker-compose build service-registry
 
-build-dev-web:
+build-web:
 	docker-compose build web
 	
-build-dev-katsu:
+build-katsu:
 	docker-compose build katsu
 
-build-dev-logging:
+build-logging:
 	docker-compose build logging
 
-build-dev-drs:
+build-drs:
 	docker-compose build drs
 
-build-dev-variant:
+build-variant:
 	docker-compose build variant
 
-build-dev-notification:
+build-notification:
 	docker-compose build notification
 
-build-dev-federation:
+build-federation:
 	docker-compose build federation
 
-build-dev-event-relay:
+build-event-relay:
 	docker-compose build event-relay
 
-build-dev-wes:
+build-wes:
 	docker-compose build wes
 
-build-dev-redis:
+build-redis:
 	docker-compose build redis
 
 
 
 
 # Clean up
-clean-dev: clean-dev-gateway \
-		   clean-dev-auth clean-dev-web clean-dev-drop-box clean-dev-drs \
-		   clean-dev-service-registry clean-dev-katsu clean-dev-drs \
-		   clean-dev-variant clean-dev-federation clean-dev-wes \
-		   clean-dev-logging clean-dev-notification clean-dev-event-relay
-
-
-clean-dev-common-base:
+clean-common-base:
 	docker rmi bentov2-common-alpine-python:0.0.1 --force;
 
+clean: clean-gateway \
+		clean-auth clean-web clean-drop-box clean-drs \
+		clean-service-registry clean-katsu clean-drs \
+		clean-variant clean-federation clean-wes \
+		clean-logging clean-notification clean-event-relay
 
 # TODO: use env variables for container versions
-clean-dev-gateway:
+clean-gateway:
 	docker-compose stop gateway;
 	docker rm bentov2-gateway --force; \
 	docker rmi bentov2-gateway:0.0.1 --force;
 
-clean-dev-auth:
+clean-auth:
 	docker rm bentov2-auth --force; 
 
-clean-dev-web:
+clean-web:
 	docker-compose stop web;
 	docker rm bentov2-web --force; \
 	docker rmi bentov2-web:0.0.1 --force;
 
-clean-dev-drop-box:
+clean-drop-box:
 	docker rm bentov2-drop-box --force; \
 	docker rmi bentov2-drop-box:0.0.1 --force;
 
-clean-dev-service-registry:
+clean-service-registry:
 	docker rm bentov2-service-registry --force; \
 	docker rmi bentov2-service-registry:0.0.1 --force;
 
-clean-dev-katsu:
+clean-katsu:
 	docker rm bentov2-katsu --force; \
 	docker rmi bentov2-katsu:0.0.1 --force;
 	
 	docker rm bentov2-katsu-db --force;
 
-clean-dev-logging:
+clean-logging:
 	docker rm bentov2-logging --force; \
 	docker rmi bentov2-logging:0.0.1 --force;
 
-clean-dev-drs:
+clean-drs:
 	docker rm bentov2-drs --force; \
 	docker rmi bentov2-drs:0.0.1 --force;
 
-clean-dev-variant:
+clean-variant:
 	docker rm bentov2-variant --force; \
 	docker rmi bentov2-variant:0.0.1 --force;
 
-clean-dev-notification:
+clean-notification:
 	docker rm bentov2-notification --force; \
 	docker rmi bentov2-notification:0.0.1 --force;
 
-clean-dev-federation:
+clean-federation:
 	docker rm bentov2-federation --force; \
 	docker rmi bentov2-federation:0.0.1 --force;
 
-clean-dev-event-relay:
+clean-event-relay:
 	docker rm bentov2-event-relay --force; \
 	docker rmi bentov2-event-relay:0.0.1 --force;
 
-clean-dev-redis:
+clean-redis:
 	docker rm bentov2-redis --force
 
-clean-dev-wes:
+clean-wes:
 	docker rm bentov2-wes --force; \
 	docker rmi bentov2-wes:0.0.1 --force;
 
 
-clean-dev-all-volume-dirs:
+clean-all-volume-dirs:
 	sudo rm -r lib/*/data
 
 
@@ -245,8 +247,8 @@ swarm-secrets:
 
 
 #<<<
-.PHONY: clean-dev-secrets
-clean-dev-secrets:
+.PHONY: clean-secrets
+clean-secrets:
 	rm -rf $(PWD)/tmp/secrets
 
 #>>>
