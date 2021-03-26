@@ -17,3 +17,4 @@ lib/*/data-x
 
 # ignored submodule directories
 lib/service-registry/bento_service_registry
+lib/web/bento_web
