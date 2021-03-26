@@ -59,6 +59,14 @@ to boot and configure the local OIDC provider <b>(Keycloak)</b> container.
 
 <br/>
 
+Initialize the cluster configs secrets
+
+```
+make init-chord-services
+make init-dirs
+make docker-secrets
+```
+
 ## Start the cluster
 Next, run 
 

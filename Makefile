@@ -24,10 +24,14 @@ data-dirs:
 #<<<
 .PHONY: init-chord-services
 init-chord-services:
+
+	# copy instance_config to gateway	
+	envsubst < ${PWD}/etc/templates/instance_config.example.json > $(PWD)/lib/gateway/instance_config.json;
+
 	# copy services json to the microservices that need it
-	cp $(PWD)/etc/templates/chord_services.json $(PWD)/lib/logging/chord_services.json;
-	cp $(PWD)/etc/templates/chord_services.json $(PWD)/lib/service-registry/chord_services.json;
-	cp $(PWD)/etc/templates/chord_services.json $(PWD)/lib/wes/chord_services.json;
+	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/logging/chord_services.json;
+	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/service-registry/chord_services.json;
+	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/wes/chord_services.json;
 
 
 # Run
@@ -226,14 +230,17 @@ auth-setup:
 	sh $(PWD)/etc/scripts/setup.sh
 
 
+
 #>>>
 # create non-repo directories
 # make mkdir
 
 #<<<
-.PHONY: mkdir
-mkdir:
+.PHONY: init-dirs
+init-dirs:
 	mkdir -p $(PWD)/tmp/secrets
+
+
 
 #>>>
 # create secrets for CanDIG services
@@ -241,11 +248,10 @@ mkdir:
 
 #<<<
 .PHONY: docker-secrets
-dev-docker-secrets:
+docker-secrets:
 	# AuthN Admin secrets
 	@echo ${BENTOV2_AUTH_ADMIN_USER} > $(PWD)/tmp/secrets/keycloak-admin-user
 	@echo ${BENTOV2_AUTH_ADMIN_PASSWORD} > $(PWD)/tmp/secrets/keycloak-admin-password
-
 
 	# Database
 	@echo admin > $(PWD)/tmp/secrets/metadata-db-user
@@ -253,14 +259,9 @@ dev-docker-secrets:
 	@echo devpassword123 > $(PWD)/tmp/secrets/metadata-db-secret
 
 
+	docker secret create keycloak-admin-user $(PWD)/tmp/secrets/keycloak-admin-user
+	docker secret create keycloak-admin-password $(PWD)/tmp/secrets/keycloak-admin-password
 
-#>>>
-# create docker swarm compatbile secrets
-# make swarm-secrets
-
-#<<<
-.PHONY: swarm-secrets
-swarm-secrets:
 	docker secret create metadata-app-secret $(PWD)/tmp/secrets/metadata-app-secret
 	docker secret create metadata-db-user $(PWD)/tmp/secrets/metadata-db-user
 	docker secret create metadata-db-secret $(PWD)/tmp/secrets/metadata-db-secret
@@ -274,6 +275,12 @@ swarm-secrets:
 clean-secrets:
 	rm -rf $(PWD)/tmp/secrets
 
+	docker secret rm keycloak-admin-user
+	docker secret rm keycloak-admin-password
+
+	docker secret rm metadata-app-secret
+	docker secret rm metadata-db-user
+	docker secret rm metadata-db-secret
 
 #>>>
 # clean docker secrets
