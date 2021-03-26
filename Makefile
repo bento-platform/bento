@@ -17,6 +17,19 @@ data-dirs:
 	mkdir -p ${BENTOV2_WES_VOL_DIR}
 	mkdir -p ${BENTOV2_REDIS_VOL_DIR}
 
+
+#>>>
+# init chord services
+
+#<<<
+.PHONY: init-chord-services
+init-chord-services:
+	# copy services json to the microservices that need it
+	cp $(PWD)/etc/templates/chord_services.json $(PWD)/lib/logging/chord_services.json;
+	cp $(PWD)/etc/templates/chord_services.json $(PWD)/lib/service-registry/chord_services.json;
+	cp $(PWD)/etc/templates/chord_services.json $(PWD)/lib/wes/chord_services.json;
+
+
 # Run
 run:
 	docker-compose up -d
@@ -253,13 +266,21 @@ swarm-secrets:
 	docker secret create metadata-db-secret $(PWD)/tmp/secrets/metadata-db-secret
 
 
+#>>>
+# clean docker secrets
+
 #<<<
 .PHONY: clean-secrets
 clean-secrets:
 	rm -rf $(PWD)/tmp/secrets
 
+
 #>>>
-# remove all stacks
-# make clean-stack
+# clean docker secrets
+
+#<<<
+.PHONY: clean-chord-services
+clean-chord-services:
+	rm $(PWD)/lib/*/chord_services.json
 
 

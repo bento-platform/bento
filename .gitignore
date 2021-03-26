@@ -15,6 +15,9 @@ lib/web/bento_web/*
 lib/*/data
 lib/*/data-x
 
+# ignore chord_services in lib
+lib/*/chord_services.json
+
 # ignored submodule directories
 lib/service-registry/bento_service_registry
 lib/web/bento_web
