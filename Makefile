@@ -122,6 +122,10 @@ build-redis:
 
 
 
+stop:
+	docker-compose down;
+
+
 
 # Clean up
 clean-common-base:
@@ -217,9 +221,6 @@ auth-setup:
 .PHONY: mkdir
 mkdir:
 	mkdir -p $(PWD)/tmp/secrets
-	touch  $(PWD)/tmp/secrets/metadata-db-user
-	touch  $(PWD)/tmp/secrets/metadata-app-secret
-	touch  $(PWD)/tmp/secrets/metadata-db-secret
 
 #>>>
 # create secrets for CanDIG services
@@ -227,7 +228,13 @@ mkdir:
 
 #<<<
 .PHONY: docker-secrets
-dev-docker-secrets: 
+dev-docker-secrets:
+	# AuthN Admin secrets
+	@echo ${BENTOV2_AUTH_ADMIN_USER} > $(PWD)/tmp/secrets/keycloak-admin-user
+	@echo ${BENTOV2_AUTH_ADMIN_PASSWORD} > $(PWD)/tmp/secrets/keycloak-admin-password
+
+
+	# Database
 	@echo admin > $(PWD)/tmp/secrets/metadata-db-user
 	@echo dev-app > $(PWD)/tmp/secrets/metadata-app-secret
 	@echo devpassword123 > $(PWD)/tmp/secrets/metadata-db-secret

@@ -3,6 +3,11 @@ version: '3.7'
 #TODO: volumes
 
 secrets:
+  keycloak-admin-user:
+    file: $PWD/tmp/secrets/keycloak-admin-user
+  keycloak-admin-password:
+    file: $PWD/tmp/secrets/keycloak-admin-password
+
   metadata-app-secret:
     file: $PWD/tmp/secrets/metadata-app-secret
   metadata-db-user:
@@ -39,14 +44,19 @@ services:
     command: ["-b", "${BENTOV2_AUTH_SERVICE_HOST}", "-Dkeycloak.migration.strategy=IGNORE_EXISTING"]
     ports:
        - "${BENTOV2_AUTH_EXTERNAL_PORT}:${BENTOV2_AUTH_INTERNAL_PORT}"
-    environment: 
-      - KEYCLOAK_USER=${BENTOV2_AUTH_ADMIN_USER}
-      - KEYCLOAK_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
     networks:
       - bridge-net
     volumes:
       - ${BENTOV2_AUTH_VOL_DIR}:/opt/jboss/keycloak/standalone/data
       - ${BENTOV2_AUTH_VOL_DIR}/standalone-ha.xml:/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
+    environment: 
+      - KEYCLOAK_USER_FILE=/run/secrets/keycloak-admin-user
+      - KEYCLOAK_PASSWORD_FILE=/run/secrets/keycloak-admin-password
+    secrets:
+      - source: keycloak-admin-user
+        target: /run/secrets/keycloak-admin-user
+      - source: keycloak-admin-password
+        target: /run/secrets/keycloak-admin-password
 
 
   web:
