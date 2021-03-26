@@ -6,7 +6,7 @@ tmp
 lib/gateway/certs
 
 lib/gateway/auth_config.json
-lib/gateway/instance_auth.json
+lib/gateway/instance_config.json
 
 # ignore dev repos
 lib/web/bento_web/*
@@ -17,6 +17,7 @@ lib/*/data-x
 
 # ignore chord_services in lib
 lib/*/chord_services.json
+
 
 # ignored submodule directories
 lib/service-registry/bento_service_registry

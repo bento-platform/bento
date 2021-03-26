@@ -21,9 +21,10 @@ RUN git clone "${REPO}"
 RUN ls /federation
 
 WORKDIR /federation/bento_federation_service
-RUN git fetch
-RUN git checkout "${BRANCH}"
-RUN git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
+
+RUN git fetch && \
+    git checkout "${BRANCH}" && \
+    git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
 
 RUN ["pip", "install", "-r", "requirements.txt"]
 
