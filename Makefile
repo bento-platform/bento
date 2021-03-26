@@ -227,7 +227,7 @@ clean-all-volume-dirs:
 #<<<
 .PHONY: auth-setup
 auth-setup:
-	sh $(PWD)/etc/scripts/setup.sh
+	bash $(PWD)/etc/scripts/setup.sh
 
 
 

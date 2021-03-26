@@ -17,7 +17,7 @@ After setting both the bentoV2 and its authorization URLs in the project `.env` 
 
 From the project root, run 
 ```
-mkdir -p ./lib/gateway/certs/dev/auth`
+mkdir -p ./lib/gateway/certs/dev/auth
 ```
 
 Then run 

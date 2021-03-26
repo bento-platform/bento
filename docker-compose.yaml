@@ -48,7 +48,6 @@ services:
       - bridge-net
     volumes:
       - ${BENTOV2_AUTH_VOL_DIR}:/opt/jboss/keycloak/standalone/data
-      - ${BENTOV2_AUTH_VOL_DIR}/standalone-ha.xml:/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
     environment: 
       - KEYCLOAK_USER_FILE=/run/secrets/keycloak-admin-user
       - KEYCLOAK_PASSWORD_FILE=/run/secrets/keycloak-admin-password
