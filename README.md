@@ -14,9 +14,25 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 # Installation
 ## Create self-signed TLS certificates
 After setting both the bentoV2 and its authorization URLs in the project `.env` file, you can create the corresponding TLS certificates for local development with the following steps;
-- From the project root, run `mkdir -p ./lib/gateway/certs/dev/auth`
-- Then run `openssl req -newkey rsa:2048 -nodes -keyout ./lib/gateway/certs/dev/privkey1.key -x509 -days 365 -out ./lib/gateway/certs/dev/fullchain1.crt` to create the bentov2 certs **(ensure the domain names in `.env` and the certs line up)**
-- Then, if you're running an OIDC provider container locally <b>(default is currently Keycloak)</b>, run `openssl req -newkey rsa:2048 -nodes -keyout ./lib/gateway/certs/dev/auth/auth_privkey1.key -x509 -days 365 -out ./lib/gateway/certs/dev/auth/auth_fullchain1.crt`
+
+From the project root, run 
+```
+mkdir -p ./lib/gateway/certs/dev/auth`
+```
+
+Then run 
+```
+openssl req -newkey rsa:2048 -nodes -keyout ./lib/gateway/certs/dev/privkey1.key -x509 -days 365 -out ./lib/gateway/certs/dev/fullchain1.crt
+```
+to create the bentov2 certs **(ensure the domain names in `.env` and the certs match up)**
+
+Next, if you're running an OIDC provider container locally <b>(default is currently Keycloak)</b>, run 
+```
+openssl req -newkey rsa:2048 -nodes \
+    -keyout ./lib/gateway/certs/dev/auth/auth_privkey1.key -x509 \
+    -days 365 \
+    -out ./lib/gateway/certs/dev/auth/auth_fullchain1.crt
+```
 
 > TODO: parameterize these directories in `.env`
 
@@ -27,11 +43,15 @@ After setting both the bentoV2 and its authorization URLs in the project `.env` 
 
 Once the certificates are ready, run 
 
-- `make run-dev-gateway` 
+```
+make run-gateway
+```
 
 to kickstart the cluster. Next, if necessary, run
 
-- `make auth-setup`
+```
+make auth-setup
+```
 
 to boot and configure the local OIDC provider <b>(Keycloak)</b> container.
 
@@ -42,6 +62,8 @@ to boot and configure the local OIDC provider <b>(Keycloak)</b> container.
 ## Start the cluster
 Next, run 
 
-- `make run-dev`
+```
+make run
+```
 
 to trigger the series of build events using `docker-compose`.
