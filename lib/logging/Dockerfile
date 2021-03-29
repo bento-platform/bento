@@ -17,9 +17,10 @@ RUN git clone "${REPO}"
 RUN ls /logging
 
 WORKDIR /logging/bento_log_service
-RUN git fetch
-RUN git checkout "${BRANCH}"
-RUN git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
+
+RUN git fetch && \
+    git checkout "${BRANCH}" && \
+    git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
 
 COPY requirements.txt ./requirements.txt
 

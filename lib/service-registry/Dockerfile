@@ -14,19 +14,18 @@ ARG BRANCH
 ARG TAG
 
 #RUN git clone "${REPO}"
-COPY bento_service_registry  /service-registry/bento_service_registry
+COPY bento_service_registry /service-registry/bento_service_registry
 RUN ls /service-registry
 WORKDIR /service-registry/bento_service_registry
-#RUN git fetch
-#RUN git checkout "${BRANCH}"
-#RUN git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
+# RUN git fetch && \
+#     git checkout "${BRANCH}" && \
+#     git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
 
 RUN pip install -r requirements.txt
 
-COPY chord_services.json  /service-registry/bento_service_registry/chord_services.json
-
-WORKDIR /service-registry/bento_service_registry
-
+COPY chord_services.json /service-registry/bento_service_registry/chord_services.json
 
 # Run
+WORKDIR /service-registry/bento_service_registry
+
 CMD ["flask", "run", "--host=0.0.0.0"]

@@ -10,8 +10,8 @@ USER root
 
 WORKDIR /
 
-RUN mkdir /app
-RUN mkdir /app/tmp && \
+RUN mkdir /app && \
+    mkdir /app/tmp && \
     chmod 777 /app/tmp
 
 WORKDIR /app
@@ -38,9 +38,7 @@ RUN git config user.name "docker" && \
 #
 
 # Install dependencies
-RUN pip install --upgrade pip;
 # -- fixes PEP 517 build error --
-#RUN pip install cryptography==2.8; 
 RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
 # --
 RUN pip install -r requirements.txt;

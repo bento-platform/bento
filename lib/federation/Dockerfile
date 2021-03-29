@@ -17,8 +17,8 @@ ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}"
-RUN ls /federation
+RUN git clone "${REPO}" && \
+    ls /federation
 
 WORKDIR /federation/bento_federation_service
 

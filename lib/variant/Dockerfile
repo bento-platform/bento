@@ -9,22 +9,20 @@ USER root
 
 WORKDIR /variant
 
-# # Create data directory
-# RUN mkdir -p "${DATA}"
-
 ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}"
-RUN ls /variant
+RUN git clone "${REPO}" && \
+    ls /variant
 
 RUN mkdir -p /variant/data
 
 WORKDIR /variant/bento_variant_service
-RUN git fetch
-RUN git checkout "${BRANCH}"
-RUN git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
+
+RUN git fetch && \
+    git checkout "${BRANCH}" && \
+    git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
 
 RUN ["pip", "install", "-r", "requirements.txt"]
 

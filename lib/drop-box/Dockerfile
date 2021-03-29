@@ -13,12 +13,12 @@ ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}"
-RUN ls /drop-box
+RUN git clone "${REPO}" && \
+    ls /drop-box;
 WORKDIR /drop-box/bento_drop_box_service
-RUN git fetch
-RUN git checkout "${BRANCH}"
-RUN git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
+RUN git fetch && \
+    git checkout "${BRANCH}" && \
+    git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
 
 # Remove comment if custom requirements are needed
 COPY requirements.txt ./requirements.txt
