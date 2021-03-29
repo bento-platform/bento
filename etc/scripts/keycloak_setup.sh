@@ -94,6 +94,13 @@ add_users() {
   docker restart ${BENTOV2_AUTH_CONTAINER_NAME}
 }
 
+get_user_id () {
+  KUID=$(curl \
+    -H "Authorization: bearer ${KC_TOKEN}" \
+    "${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/users" $DEV_FLAG 2> /dev/null )
+  echo ${KUID} | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj[0]["id"])'
+}
+
 ###############
 
 get_token () {
@@ -156,7 +163,7 @@ set_client () {
     "standardFlowEnabled": true,
     "publicClient": false,
     "redirectUris": [
-      "'${CANDIG_PUBLIC_URL}${redirect}'"
+      "'${BENTOV2_PUBLIC_URL}${redirect}'"
     ],
     "attributes": {
       "saml.assertion.signature": "false",
@@ -212,7 +219,7 @@ echo ">> .. created..."
 
 
 echo ">> Setting client BENTOV2_AUTH_CLIENT_ID .."
-set_client ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID} "${TYK_LISTEN_PATH}" ${KC_LOGIN_REDIRECT_PATH}
+set_client ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID} "${TYK_LISTEN_PATH}" ${BENTOV2_AUTH_LOGIN_REDIRECT_PATH}
 echo ">> .. set..."
 
 echo ">> Getting KC_SECRET .."
@@ -237,3 +244,16 @@ echo
 echo ">> .. waiting for keycloak to restart..."
 while !  docker logs --tail 5  ${BENTOV2_AUTH_CONTAINER_NAME} | grep "Admin console listening on http://127.0.0.1:9990" ; do sleep 1 ; done
 echo ">> .. ready..."
+
+
+echo ">> Getting fresh KC_TOKEN .."
+KC_TOKEN=$(get_token)
+#echo ">> retrieved KC_TOKEN ${KC_TOKEN}"
+echo ">> .. got it..."
+
+
+echo ">> Getting user id .."
+export KEYCLOAK_USER_ID=$(get_user_id)
+echo "** Retrieved KEYCLOAK_USER_ID as ${KEYCLOAK_USER_ID} **"
+echo ">> .. got it..."
+echo

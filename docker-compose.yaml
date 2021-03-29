@@ -49,6 +49,7 @@ services:
     volumes:
       - ${BENTOV2_AUTH_VOL_DIR}:/opt/jboss/keycloak/standalone/data
     environment: 
+      - PROXY_ADDRESS_FORWARDING=true
       - KEYCLOAK_USER_FILE=/run/secrets/keycloak-admin-user
       - KEYCLOAK_PASSWORD_FILE=/run/secrets/keycloak-admin-password
     secrets:

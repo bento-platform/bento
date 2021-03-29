@@ -227,7 +227,10 @@ clean-all-volume-dirs:
 #<<<
 .PHONY: auth-setup
 auth-setup:
+	$(MAKE) run-gateway
 	bash $(PWD)/etc/scripts/setup.sh
+	$(MAKE) clean-gateway
+	$(MAKE) run-gateway
 
 
 

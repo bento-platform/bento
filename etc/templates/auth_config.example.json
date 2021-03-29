@@ -2,5 +2,5 @@
   "OIDC_DISCOVERY_URI": "${BENTOV2_AUTH_PUBLIC_URL}/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration",
   "CLIENT_ID": "${BENTOV2_AUTH_CLIENT_ID}",
   "CLIENT_SECRET": "${KC_SECRET}",
-  "OWNER_IDS": ["OWNER_ID_1", "OWNDER_ID_2"]
+  "OWNER_IDS": ["${KEYCLOAK_USER_ID}"]
 }
