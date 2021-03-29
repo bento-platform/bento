@@ -35,7 +35,7 @@ init-chord-services:
 
 
 # Run
-run:
+run-all:
 	docker-compose up -d
 	# docker-compose -f docker-compose.dev.yaml -f docker-compose.yaml up -d
 
@@ -139,7 +139,7 @@ build-redis:
 
 
 
-stop:
+stop-all:
 	docker-compose down;
 
 
@@ -148,7 +148,7 @@ stop:
 clean-common-base:
 	docker rmi bentov2-common-alpine-python:0.0.1 --force;
 
-clean: clean-gateway \
+clean-all: clean-gateway \
 		clean-auth clean-web clean-drop-box clean-drs \
 		clean-service-registry clean-katsu clean-drs \
 		clean-variant clean-federation clean-wes \

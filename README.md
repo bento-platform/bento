@@ -22,7 +22,9 @@ mkdir -p ./lib/gateway/certs/dev/auth
 
 Then run 
 ```
-openssl req -newkey rsa:2048 -nodes -keyout ./lib/gateway/certs/dev/privkey1.key -x509 -days 365 -out ./lib/gateway/certs/dev/fullchain1.crt
+openssl req -newkey rsa:2048 -nodes \
+    -keyout ./lib/gateway/certs/dev/privkey1.key -x509 \
+    -days 365 -out ./lib/gateway/certs/dev/fullchain1.crt
 ```
 to create the bentov2 certs **(ensure the domain names in `.env` and the certs match up)**
 
@@ -38,10 +40,23 @@ openssl req -newkey rsa:2048 -nodes \
 
 <br/>
 
-
 ## Boot the gateway controller <b>(NGINX by default)</b>
 
-Once the certificates are ready, run 
+> Note: `make` commands seen here aren't the only tools for operating this cluster. See the `Makefile` for further documentation.
+
+<br/>
+
+Once the certificates are ready, 
+
+<br/>
+
+Initialize the cluster configs secrets
+
+```
+make init-chord-services
+make init-dirs
+make docker-secrets
+```
 
 ```
 make run-gateway
@@ -57,21 +72,32 @@ to boot and configure the local OIDC provider <b>(Keycloak)</b> container.
 
 > Note: by <b>default</b>, the `gateway` service needs to be running for this to work as the configuration will pass via the URL set in the `.env` file.
 
-<br/>
-
-Initialize the cluster configs secrets
-
-```
-make init-chord-services
-make init-dirs
-make docker-secrets
-```
+<br />
 
 ## Start the cluster
-Next, run 
+Next, run
 
 ```
-make run
+make run-all
 ```
 
-to trigger the series of build events using `docker-compose`.
+to trigger the series of initial build events (using `docker-compose`) for the rest of bento's supporting microservices, and then run them.
+
+<br />
+
+## Stop the cluster
+Run
+
+```
+make stop-all
+```
+
+to shut down the whole cluster,
+
+```
+make clean-all
+```
+to remove the docker containers and images from disk,
+
+> \* Note: application data is persisted (see `./lib/*/data [auth, drs, katsu]` directories, for example)
+
