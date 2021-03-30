@@ -103,5 +103,5 @@ make clean-all
 ```
 to remove the docker containers and images from disk,
 
-> \* Note: application data does persist (see `./lib/*/data [auth, drs, katsu]` directories, for example)
+> \* Note: application data does persist (see `./lib/[auth, drs, katsu]/data` directories, for example)
 
