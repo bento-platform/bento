@@ -38,9 +38,11 @@ openssl req -newkey rsa:2048 -nodes \
 
 > TODO: parameterize these directories in `.env`
 
+Finally, ensure that the local domain name is set in the machines `hosts` file (for Linux users, this is likely `/etc/hosts`, and in Windows, `C:\Windows\System32\drivers\etc\hosts`) pointing to either `localhost`, `127.0.0.1`, or `0.0.0.0`, depending on whichever gets the job done on your system.
+
 <br/>
 
-## Boot the gateway controller <b>(NGINX by default)</b>
+## Boot the gateway controller (<b>NGINX</b> by default)
 
 > Note: `make` commands seen here aren't the only tools for operating this cluster. See the `Makefile` for further documentation.
 
@@ -57,20 +59,22 @@ make init-chord-services
 make init-dirs
 make docker-secrets
 ```
-
+and open up the cluster's gateway with
 ```
 make run-gateway
 ```
 
-to kickstart the cluster. Next, if necessary, run
+Next, run
 
 ```
 make auth-setup
 ```
 
-to boot and configure the local OIDC provider <b>(Keycloak)</b> container.
+to boot and configure the local OIDC provider (<b>Keycloak</b>) container and reconfigure the gateway to utilize new variables generated during the OIDC configuration.
 
-> Note: by <b>default</b>, the `gateway` service needs to be running for this to work as the configuration will pass via the URL set in the `.env` file.
+> Note: by <b>default</b>, the `gateway` service *does* need to be running for this to work as the configuration will pass via the URL set in the `.env` file which points to the gateway. 
+>
+> If you do not plan to use the built-in OIDC provider, you will have to handle the `auth_config` and `instance_config` manually (see `./etc/auth/..` and `./etc/scripts/..` for further details)
 
 <br />
 
@@ -99,5 +103,5 @@ make clean-all
 ```
 to remove the docker containers and images from disk,
 
-> \* Note: application data is persisted (see `./lib/*/data [auth, drs, katsu]` directories, for example)
+> \* Note: application data does persist (see `./lib/*/data [auth, drs, katsu]` directories, for example)
 
