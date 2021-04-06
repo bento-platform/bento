@@ -57,6 +57,7 @@ Initialize the cluster configs secrets
 ```
 make init-chord-services
 make init-dirs
+make init-docker
 make docker-secrets
 ```
 and open up the cluster's gateway with

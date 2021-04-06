@@ -244,6 +244,18 @@ init-dirs:
 	mkdir -p $(PWD)/tmp/secrets
 
 
+#>>>
+# initialize docker prerequisites
+
+#<<<
+.PHONY: init-docker
+init-docker:
+	# Swarm for docker secrets
+	docker swarm init
+	
+	# Internal cluster network
+	docker network create bridge-net
+
 
 #>>>
 # create secrets for CanDIG services
