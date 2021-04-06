@@ -157,9 +157,10 @@ local opts = {
   -- refresh_session_interval = 600,
 
   iat_slack = 120,
-  -- access_token_expires_in should be shorter than $session_cookie_lifetime otherwise will never be called:
-  access_token_expires_in = 900,
-  access_token_expires_leeway = 60,
+  -- access_token_expires_in should be shorter than $session_cookie_lifetime otherwise will never be called
+  -- Keycloak defaults to 1-minute access tokens
+  access_token_expires_in = 60,
+  access_token_expires_leeway = 15,
   renew_access_token_on_expiry = true,
 }
 
@@ -331,10 +332,9 @@ else
     local res, err, _, session = openidc.authenticate(
       opts, auth_target_uri, auth_mode)
     if res == nil or err then  -- Authentication wasn't successful
-      -- Authentication wasn't successful; clear the session and
-      -- re-attempting (for a maximum of 2 times.)
+      -- Authentication wasn't successful; clear the session
       if session ~= nil then
-        if session.data.user_id ~= nil then
+        if session.data.id_token ~= nil then
           -- Destroy the current session if it exists and just expired
           session:destroy()
         elseif err then
@@ -355,20 +355,13 @@ else
     -- non-authenticated users can see the page, clear X-User and
     -- X-User-Role by setting the value to nil.
     if res ~= nil then  -- Authentication worked
-      if session.data.user_id ~= nil then
-        -- Load user_id and user_role from session if available
-        user_id = session.data.user_id
-        user_role = session.data.user_role
-        -- Close the session, since we're done loading data from it
-        session:close()
-      else
-        -- Save user_id and user_role into session for future use
-        user_id = res.id_token.sub
-        user_role = get_user_role(user_id)
-        session.data.user_id = user_id
-        session.data.user_role = user_role
-        session:save()
-      end
+      -- Set user_id from response (either new, or from session data)
+      user_id = res.id_token.sub
+
+      -- This used to be cached in session, but for easier debugging this
+      -- cache was removed. It was probably premature optimization; if
+      -- requests are all slow then maybe it's time to add that back.
+      user_role = get_user_role(user_id)
 
       -- Set user object for possible /api/auth/user response
       user = res.user
@@ -383,6 +376,8 @@ else
         if err ~= nil then ngx.log(ngx.ERR, err) end
       end
       if auth_token ~= nil then
+        -- Set Authorization header to the access token for any (immediate)
+        -- nested authorized requests to be made.
         nested_auth_header = "Bearer " .. auth_token
       end
     elseif session ~= nil then
