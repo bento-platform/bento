@@ -82,6 +82,7 @@ to boot and configure the local OIDC provider (<b>Keycloak</b>) container and re
 Next, run
 
 ```
+make build-common-base
 make run-all
 ```
 
