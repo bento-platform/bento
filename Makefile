@@ -227,7 +227,6 @@ clean-all-volume-dirs:
 #<<<
 .PHONY: auth-setup
 auth-setup:
-	$(MAKE) run-gateway
 	bash $(PWD)/etc/scripts/setup.sh
 	$(MAKE) clean-gateway
 	$(MAKE) run-gateway
@@ -252,7 +251,7 @@ init-dirs:
 init-docker:
 	# Swarm for docker secrets
 	docker swarm init
-	
+
 	# Internal cluster network
 	docker network create bridge-net
 
