@@ -26,7 +26,7 @@ openssl req -newkey rsa:2048 -nodes \
     -keyout ./lib/gateway/certs/dev/privkey1.key -x509 \
     -days 365 -out ./lib/gateway/certs/dev/fullchain1.crt
 ```
-to create the bentov2 certs **(ensure the domain names in `.env` and the certs match up)**
+to create the bentov2 cert for `bentov2.local` (or whatever other domain you use)
 
 Next, if you're running an OIDC provider container locally <b>(default is currently Keycloak)</b>, run 
 ```
@@ -35,7 +35,11 @@ openssl req -newkey rsa:2048 -nodes \
     -days 365 \
     -out ./lib/gateway/certs/dev/auth/auth_fullchain1.crt
 ```
-
+to create the bentov2 cert for `bentov2auth.local` (or whatever other domain you use)
+> Note:
+> 
+> **(ensure the domain names in `.env` and the cert Common Names match up)**
+>
 > TODO: parameterize these directories in `.env`
 
 Finally, ensure that the local domain name is set in the machines `hosts` file (for Linux users, this is likely `/etc/hosts`, and in Windows, `C:\Windows\System32\drivers\etc\hosts`) pointing to either `localhost`, `127.0.0.1`, or `0.0.0.0`, depending on whichever gets the job done on your system.
