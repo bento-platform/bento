@@ -13,7 +13,7 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 
 # Installation
 ## Create self-signed TLS certificates
-After setting both the bentoV2 and its authorization URLs in the project `.env` file, you can create the corresponding TLS certificates for local development with the following steps;
+First, setup your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development with the following steps;
 
 From the project root, run 
 ```
