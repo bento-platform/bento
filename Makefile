@@ -25,6 +25,9 @@ data-dirs:
 .PHONY: init-chord-services
 init-chord-services:
 
+	# create dummy auth_config.json "placeholder"
+	echo "{\"data\":\"this is a placeholder and should be overwritten when the authentication service is configured. if you are reading this, see the project README, and perhaps consult the 'Makefile'\"}" > $(PWD)/lib/gateway/auth_config.json;
+
 	# copy instance_config to gateway	
 	envsubst < ${PWD}/etc/templates/instance_config.example.json > $(PWD)/lib/gateway/instance_config.json;
 
