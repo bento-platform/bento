@@ -40,7 +40,6 @@ init-chord-services:
 # Run
 run-all:
 	docker-compose up -d
-	# docker-compose -f docker-compose.dev.yaml -f docker-compose.yaml up -d
 
 run-gateway:
 	docker-compose up -d gateway
