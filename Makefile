@@ -59,7 +59,7 @@ run-web: clean-web
 
 # For local development
 run-web-dev: clean-web
-	docker-compose -f docker-compose.dev.yaml -f docker-compose.yaml up -d web
+	docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d web
 #
 
 run-katsu:

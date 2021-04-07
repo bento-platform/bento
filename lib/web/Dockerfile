@@ -33,12 +33,15 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         git pull ; \
     fi
 
+
 # Copy startup scripts
+
+# TODO: parameterize and only copy the 
+# one that is used
 COPY ./dev_startup.sh /web/dev_startup.sh
 COPY ./startup.sh /web/startup.sh
 
 WORKDIR /web/bento_web
-
 
 # fix crash at runtime
 RUN mkdir /run/nginx && \

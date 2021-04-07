@@ -7,7 +7,7 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 
 ## Requirements
 - Docker >= 19.03.8
-- Docker Compose >=1.25.0
+- Docker Compose >=1.29.0
 
 <br/>
 
