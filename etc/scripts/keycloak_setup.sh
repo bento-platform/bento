@@ -2,7 +2,7 @@
 set -e
 
 # checks for dev or prod
-if [ $MODE == "dev" ]
+if [[ $MODE == "dev" ]]
   then
     DEV_FLAG="-k"
 fi
