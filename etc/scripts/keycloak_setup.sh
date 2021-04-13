@@ -219,7 +219,7 @@ echo ">> .. created..."
 
 
 echo ">> Setting client BENTOV2_AUTH_CLIENT_ID .."
-set_client ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID} "${TYK_LISTEN_PATH}" ${BENTOV2_AUTH_LOGIN_REDIRECT_PATH}
+set_client ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID} "${TYK_LISTEN_PATH}" "${BENTOV2_AUTH_LOGIN_REDIRECT_PATH}"
 echo ">> .. set..."
 
 echo ">> Getting KC_SECRET .."
