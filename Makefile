@@ -58,7 +58,7 @@ run-web: clean-web
 
 # For local development
 run-web-dev: clean-web
-	docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d web
+	docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d --force-recreate web
 #
 
 run-katsu:
@@ -94,50 +94,50 @@ run-redis:
 
 # Build
 build-common-base:
-	docker-compose -f docker-compose.base.yaml build common-alpine-python
+	docker-compose -f docker-compose.base.yaml build --no-cache common-alpine-python
 
 
 build-gateway:
-	docker-compose build gateway
+	docker-compose build --no-cache gateway
 
 # build-auth:
 # 	docker-compose build auth
 
 build-drop-box:
-	docker-compose build drop-box
+	docker-compose build --no-cache drop-box
 
 build-service-registry:
-	docker-compose build service-registry
+	docker-compose build --no-cache service-registry
 
 build-web:
-	docker-compose build web
+	docker-compose build --no-cache web
 	
 build-katsu:
-	docker-compose build katsu
+	docker-compose build --no-cache katsu
 
 build-logging:
-	docker-compose build logging
+	docker-compose build --no-cache logging
 
 build-drs:
-	docker-compose build drs
+	docker-compose build --no-cache drs
 
 build-variant:
-	docker-compose build variant
+	docker-compose build --no-cache variant
 
 build-notification:
-	docker-compose build notification
+	docker-compose build --no-cache notification
 
 build-federation:
-	docker-compose build federation
+	docker-compose build --no-cache federation
 
 build-event-relay:
-	docker-compose build event-relay
+	docker-compose build --no-cache event-relay
 
 build-wes:
-	docker-compose build wes
+	docker-compose build --no-cache wes
 
 build-redis:
-	docker-compose build redis
+	docker-compose build --no-cache redis
 
 
 
