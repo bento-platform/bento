@@ -24,6 +24,8 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         echo "Building Web in Development Mode" ; \
     \
     else \
+        echo "Building Web in Production Mode" ; \
+        \
         git clone "${BENTO_WEB_REPO}" && \
         \
         cd ./bento_web && \
@@ -31,6 +33,11 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         git fetch && \
         git checkout "${BENTO_WEB_BRANCH}" && \
         git pull ; \
+        \
+        rm -rf package-lock.json npm-shrinkwrap.json node_modules && \
+        npm cache clean --force && \
+        npm cache verify && \
+        npm install --unsafe-perm=true --allow-root; \
     fi
 
 
