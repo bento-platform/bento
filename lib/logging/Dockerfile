@@ -22,8 +22,6 @@ RUN git fetch && \
     git checkout "${BRANCH}" && \
     git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
 
-COPY requirements.txt ./requirements.txt
-
 RUN ["pip", "install", "-r", "requirements.txt"]
 
 # Run

@@ -204,6 +204,8 @@ services:
       # Common URL base for all services
       - CHORD_URL=${BENTOV2_PUBLIC_URL}
 
+      - CHORD_DEBUG=True
+
       # Timeout, in seconds (integers only), for contacting services from the JSON
       - CONTACT_TIMEOUT=1
 
