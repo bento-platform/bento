@@ -5,3 +5,4 @@ npm run build;
 
 echo "-- Toggling nginx daemon : off --";
 nginx -g 'daemon off;'
+
