@@ -34,10 +34,10 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         git checkout "${BENTO_WEB_BRANCH}" && \
         git pull ; \
         \
-        rm -rf package-lock.json npm-shrinkwrap.json node_modules && \
+        rm -rf npm-shrinkwrap.json node_modules && \
         npm cache clean --force && \
         npm cache verify && \
-        npm install --unsafe-perm=true --allow-root; \
+        npm install --save -g --unsafe-perm=true --allow-root; \
     fi
 
 
