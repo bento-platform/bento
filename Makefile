@@ -8,14 +8,6 @@ export $(shell sed 's/=.*//' $(env))
 
 
 
-# Local directories
-data-dirs:
-	mkdir -p ${BENTOV2_AUTH_VOL_DIR}
-	mkdir -p ${BENTOV2_KATSU_DB_VOL_DIR}
-	mkdir -p ${BENTOV2_NOTIFICATION_VOL_DIR}
-	mkdir -p ${BENTOV2_FEDERATION_VOL_DIR}
-	mkdir -p ${BENTOV2_WES_VOL_DIR}
-	mkdir -p ${BENTOV2_REDIS_VOL_DIR}
 
 
 #>>>
@@ -35,6 +27,80 @@ init-chord-services:
 	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/logging/chord_services.json;
 	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/service-registry/chord_services.json;
 	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/wes/chord_services.json;
+
+
+#>>>
+# create non-repo directories
+# make mkdir
+
+#<<<
+.PHONY: init-dirs
+init-dirs: data-dirs 
+	mkdir -p $(PWD)/tmp/secrets
+
+# Local directories
+data-dirs:
+	mkdir -p ${BENTOV2_AUTH_VOL_DIR}
+	mkdir -p ${BENTOV2_KATSU_DB_VOL_DIR}
+	mkdir -p ${BENTOV2_NOTIFICATION_VOL_DIR}
+	mkdir -p ${BENTOV2_FEDERATION_VOL_DIR}
+	mkdir -p ${BENTOV2_WES_VOL_DIR}
+	mkdir -p ${BENTOV2_REDIS_VOL_DIR}
+
+
+
+
+#>>>
+# run authentication system setup
+# make auth-setup
+
+#<<<
+.PHONY: auth-setup
+auth-setup:
+	bash $(PWD)/etc/scripts/setup.sh
+	$(MAKE) clean-gateway
+	$(MAKE) run-gateway
+
+
+#>>>
+# initialize docker prerequisites
+
+#<<<
+.PHONY: init-docker
+init-docker:
+	# Swarm for docker secrets
+	docker swarm init
+
+	# Internal cluster network
+	docker network create bridge-net
+
+
+#>>>
+# create secrets for CanDIG services
+# make docker-secrets
+
+#<<<
+.PHONY: docker-secrets
+docker-secrets:
+	# AuthN Admin secrets
+	@echo ${BENTOV2_AUTH_ADMIN_USER} > $(PWD)/tmp/secrets/keycloak-admin-user
+	@echo ${BENTOV2_AUTH_ADMIN_PASSWORD} > $(PWD)/tmp/secrets/keycloak-admin-password
+
+	docker secret create keycloak-admin-user $(PWD)/tmp/secrets/keycloak-admin-user
+	docker secret create keycloak-admin-password $(PWD)/tmp/secrets/keycloak-admin-password
+
+
+	# Database
+	@echo ${BENTOV2_KATSU_DB_USER} > $(PWD)/tmp/secrets/metadata-db-user
+	@echo ${BENTOV2_KATSU_DB_APP_SECRET} > $(PWD)/tmp/secrets/metadata-app-secret
+	@echo ${BENTOV2_KATSU_DB_PASSWORD} > $(PWD)/tmp/secrets/metadata-db-secret
+
+	docker secret create metadata-app-secret $(PWD)/tmp/secrets/metadata-app-secret
+	docker secret create metadata-db-user $(PWD)/tmp/secrets/metadata-db-user
+	docker secret create metadata-db-secret $(PWD)/tmp/secrets/metadata-db-secret
+
+
+
 
 
 # Run
@@ -221,66 +287,6 @@ clean-all-volume-dirs:
 
 
 
-
-#>>>
-# run authentication system setup
-# make auth-setup
-
-#<<<
-.PHONY: auth-setup
-auth-setup:
-	bash $(PWD)/etc/scripts/setup.sh
-	$(MAKE) clean-gateway
-	$(MAKE) run-gateway
-
-
-
-#>>>
-# create non-repo directories
-# make mkdir
-
-#<<<
-.PHONY: init-dirs
-init-dirs:
-	mkdir -p $(PWD)/tmp/secrets
-
-
-#>>>
-# initialize docker prerequisites
-
-#<<<
-.PHONY: init-docker
-init-docker:
-	# Swarm for docker secrets
-	docker swarm init
-
-	# Internal cluster network
-	docker network create bridge-net
-
-
-#>>>
-# create secrets for CanDIG services
-# make docker-secrets
-
-#<<<
-.PHONY: docker-secrets
-docker-secrets:
-	# AuthN Admin secrets
-	@echo ${BENTOV2_AUTH_ADMIN_USER} > $(PWD)/tmp/secrets/keycloak-admin-user
-	@echo ${BENTOV2_AUTH_ADMIN_PASSWORD} > $(PWD)/tmp/secrets/keycloak-admin-password
-
-	# Database
-	@echo admin > $(PWD)/tmp/secrets/metadata-db-user
-	@echo dev-app > $(PWD)/tmp/secrets/metadata-app-secret
-	@echo devpassword123 > $(PWD)/tmp/secrets/metadata-db-secret
-
-
-	docker secret create keycloak-admin-user $(PWD)/tmp/secrets/keycloak-admin-user
-	docker secret create keycloak-admin-password $(PWD)/tmp/secrets/keycloak-admin-password
-
-	docker secret create metadata-app-secret $(PWD)/tmp/secrets/metadata-app-secret
-	docker secret create metadata-db-user $(PWD)/tmp/secrets/metadata-db-user
-	docker secret create metadata-db-secret $(PWD)/tmp/secrets/metadata-db-secret
 
 
 #>>>
