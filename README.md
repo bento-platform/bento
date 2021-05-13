@@ -17,6 +17,8 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 cp ./etc/example.env .env
 ```
 
+And fill the `XXX_USER` and `XXX_PASSWORD` variables with custom values.
+
 ### Create self-signed TLS certificates
 
 First, setup your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development with the following steps;
