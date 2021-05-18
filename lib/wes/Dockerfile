@@ -6,6 +6,21 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 # TODO: change USER
 USER root
 
+# Install samtools from github repos (htslib needed first)
+RUN apk --update add ncurses-dev && \
+    git clone git://github.com/samtools/htslib.git && \
+    cd htslib && \
+    git submodule update --init --recursive && \
+    make && \
+    make install && \
+    cd .. && \
+    git clone git://github.com/samtools/samtools.git && \
+    cd samtools && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf htslib samtools
+
 RUN mkdir /wes; \
     # for temp data
     mkdir /wes/tmp; \
