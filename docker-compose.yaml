@@ -293,8 +293,9 @@ services:
     networks: 
       - bridge-net
     ports:
-       - "${BENTOV2_VARIANT_EXTERNAL_PORT}:${BENTOV2_VARIANT_INTERNAL_PORT}"
-
+      - "${BENTOV2_VARIANT_EXTERNAL_PORT}:${BENTOV2_VARIANT_INTERNAL_PORT}"
+    volumes:
+      - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
 
   notification:
     build:
