@@ -76,7 +76,7 @@ init-docker:
 
 
 #>>>
-# create secrets for CanDIG services
+# create secrets for Bento v2 services
 # make docker-secrets
 
 #<<<
@@ -313,3 +313,7 @@ clean-chord-services:
 	rm $(PWD)/lib/*/chord_services.json
 
 
+
+
+run-tests:
+	$(PWD)/etc/tests/integration/authx/run_tests.sh 20 firefox False
