@@ -21,15 +21,15 @@ class TestLogins():
         
         # Navigate to bentov2
         self.driver.get(self.bentov2_url)
-        time.sleep(self.debug_pause_time_seconds)
+        time.sleep(self.pause_time_seconds)
 
         # Click "Sign in" button
         self.driver.find_element_by_xpath(self.signInButtonXPath).click()
-        time.sleep(self.debug_pause_time_seconds)
+        time.sleep(self.pause_time_seconds)
 
         # Enter invalid credentials
         common.login(self.driver, u1, p1, self.expectedTitle)
-        time.sleep(self.debug_pause_time_seconds)
+        time.sleep(self.pause_time_seconds)
 
         # verify successful login
         assert "Overview" in self.driver.title
@@ -43,15 +43,15 @@ class TestLogins():
         
         # Navigate to bentov2
         self.driver.get(self.bentov2_url)
-        time.sleep(self.debug_pause_time_seconds)
+        time.sleep(self.pause_time_seconds)
 
         # Click "Sign in" button
         self.driver.find_element_by_xpath(self.signInButtonXPath).click()
-        time.sleep(self.debug_pause_time_seconds)
+        time.sleep(self.pause_time_seconds)
 
         # Enter invalid credentials
         common.login(self.driver, fake_username, fake_password, self.expectedTitle)
-        time.sleep(self.debug_pause_time_seconds)
+        time.sleep(self.pause_time_seconds)
 
         # verify invalid login
         assert "Invalid username or password." in self.driver.find_elements_by_xpath("//*[@id='kc-content-wrapper']/div[1]")[0].text
