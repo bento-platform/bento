@@ -9,32 +9,11 @@ import hmac
 import hashlib
 import random
 
+# helper functions
+import common
+
 # References:
 # https://medium.com/swlh/hacking-json-web-tokens-jwts-9122efe91e4a
-
-# -- helper functions --
-def fix_padding(data):
-    missing_padding = len(data) % 4
-    if missing_padding:
-        data += "=" * (4 - missing_padding)
-    return data
-
-
-def login(driver, username, password):
-    # ensure we were redirected
-    assert "Sign in to bentov2" in driver.title
-
-    username_input = driver.find_elements_by_xpath("//*[@id='username']")[0]
-    password_input = driver.find_elements_by_xpath("//*[@id='password']")[0]
-
-    login_button = driver.find_elements_by_xpath("//*[@id='kc-login']")[0]
-
-    username_input.send_keys(username)
-    password_input.send_keys(password)
-
-    login_button.click()
-
-# -- - --
 
 @pytest.mark.usefixtures("setup")
 class TestAuthentication():
@@ -58,7 +37,7 @@ class TestAuthentication():
         u1 = os.environ["BENTOV2_AUTH_TEST_USER"]
         p1 = os.environ["BENTOV2_AUTH_TEST_PASSWORD"]
 
-        login(self.driver, u1, p1)
+        common.login(self.driver, u1, p1, "Sign in to bentov2")
 
         # get KEYCLOAK_IDENTITY, aka: authN token
         cookies = self.driver.get_cookies()
@@ -75,7 +54,7 @@ class TestAuthentication():
         # "aCyMG_NgcE1PQojMvCKT_eTvZCV0BMhIXID7FdYB8MiBXHVIPHQWsBK12f9tyk1xnPTxjh4wAQPCDQU6HSjpJcYhzK-g4P4s1WVS9Phb_UzbFh0Xx7fyehm9uEQX3QlTRdDTZfC6k-3-TnA0JraqwHpwF927vTPW0ozCXPP8STifeFwACMMsvBTOeDEFfE20tXj_iIOnb_LBf68c_iwi56B_vR4LoKD517VnnKrn_Wgo4hoHGZUH2a2NBWym7dhIeHw1s1fh8qOlGnnxCi5a5eXFOi1ujp1xaQmzPLGPl8tWOBNg4wEL-4hfcB_DaHi5arXrLrQK4Q2EkLjM5nVELw"
         
         
-        decoded_authN_header_json = json.loads(base64.b64decode(fix_padding(authN_header)))
+        decoded_authN_header_json = json.loads(base64.b64decode(common.fix_padding(authN_header)))
         # {'alg': 'RS256', 'typ': 'JWT', 'kid': 'nlIsWC8XFbyaEKW-dH0onuGnDA-tOQfOINgIyFCzZV4'}
 
 
@@ -133,7 +112,7 @@ class TestAuthentication():
         # credentials
         u1 = os.environ["BENTOV2_AUTH_TEST_USER"]
         p1 = os.environ["BENTOV2_AUTH_TEST_PASSWORD"]
-        login(self.driver, u1, p1)
+        common.login(self.driver, u1, p1, "Sign in to bentov2")
 
         # get KEYCLOAK_IDENTITY, aka: authN token
         cookies = self.driver.get_cookies()
@@ -142,7 +121,7 @@ class TestAuthentication():
 
         authN_header, authN_payload, authN_signature = old_authN_token.split('.')
 
-        decoded_authN_header_json = json.loads(base64.b64decode(fix_padding(authN_header)))
+        decoded_authN_header_json = json.loads(base64.b64decode(common.fix_padding(authN_header)))
 
 
         # modify the authN token with 'none' alg
@@ -189,7 +168,7 @@ class TestAuthentication():
         # credentials
         u1 = os.environ["BENTOV2_AUTH_TEST_USER"]
         p1 = os.environ["BENTOV2_AUTH_TEST_PASSWORD"]
-        login(self.driver, u1, p1)
+        common.login(self.driver, u1, p1, "Sign in to bentov2")
 
         # get KEYCLOAK_IDENTITY, aka: authN token
         cookies = self.driver.get_cookies()
@@ -198,7 +177,7 @@ class TestAuthentication():
 
         authN_header, authN_payload, authN_signature = old_authN_token.split('.')
 
-        decoded_authN_header_json = json.loads(base64.b64decode(fix_padding(authN_header)))
+        decoded_authN_header_json = json.loads(base64.b64decode(common.fix_padding(authN_header)))
 
         
         # verify access with old token
@@ -237,7 +216,7 @@ class TestAuthentication():
         # credentials
         u1 = os.environ["BENTOV2_AUTH_TEST_USER"]
         p1 = os.environ["BENTOV2_AUTH_TEST_PASSWORD"]
-        login(self.driver, u1, p1)
+        common.login(self.driver, u1, p1, "Sign in to bentov2")
 
         # get KEYCLOAK_IDENTITY, aka: authN token
         cookies = self.driver.get_cookies()

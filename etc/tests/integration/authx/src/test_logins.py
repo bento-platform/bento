@@ -7,26 +7,8 @@ import time
 import requests
 import pytest
 
-
-# -- helper functions --
-def login(driver, username, password):
-    # Ensure we are on the login page
-    assert "Sign in to bentov2" in driver.title
-
-    # Retrieve credential input elements
-    username_input = driver.find_elements_by_xpath("//*[@id='username']")[0]
-    password_input = driver.find_elements_by_xpath("//*[@id='password']")[0]
-
-    login_button = driver.find_elements_by_xpath("//*[@id='kc-login']")[0]
-
-    # Enter credentials
-    username_input.send_keys(username)
-    password_input.send_keys(password)
-
-    # Click login button
-    login_button.click()
-# -- - --
-
+# helper functions
+import common
 
 @pytest.mark.usefixtures("setup")
 class TestLogins():
@@ -45,7 +27,7 @@ class TestLogins():
         time.sleep(self.debug_pause_time_seconds)
 
         # Enter invalid credentials
-        login(self.driver, u1, p1)
+        common.login(self.driver, u1, p1, "Sign in to bentov2")
         time.sleep(self.debug_pause_time_seconds)
 
         # verify successful login
@@ -67,7 +49,7 @@ class TestLogins():
         time.sleep(self.debug_pause_time_seconds)
 
         # Enter invalid credentials
-        login(self.driver, fake_username, fake_password)
+        common.login(self.driver, fake_username, fake_password, "Sign in to bentov2")
         time.sleep(self.debug_pause_time_seconds)
 
         # verify invalid login
