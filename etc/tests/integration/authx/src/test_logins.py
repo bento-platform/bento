@@ -1,5 +1,4 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 
 import os
 import unittest
@@ -12,7 +11,9 @@ import common
 
 @pytest.mark.usefixtures("setup")
 class TestLogins():
-    
+    expectedTitle = "Sign in to bentov2"
+    signInButtonXPath = "//*[@id='root']/section/main/main/div/div[2]/button"
+
     def test_login_user(self):
         # credentials
         u1 = os.environ["BENTOV2_AUTH_TEST_USER"]
@@ -23,11 +24,11 @@ class TestLogins():
         time.sleep(self.debug_pause_time_seconds)
 
         # Click "Sign in" button
-        self.driver.find_element_by_xpath("//*[@id='root']/section/main/main/div/div[2]/button").click()
+        self.driver.find_element_by_xpath(self.signInButtonXPath).click()
         time.sleep(self.debug_pause_time_seconds)
 
         # Enter invalid credentials
-        common.login(self.driver, u1, p1, "Sign in to bentov2")
+        common.login(self.driver, u1, p1, self.expectedTitle)
         time.sleep(self.debug_pause_time_seconds)
 
         # verify successful login
@@ -45,11 +46,11 @@ class TestLogins():
         time.sleep(self.debug_pause_time_seconds)
 
         # Click "Sign in" button
-        self.driver.find_element_by_xpath("//*[@id='root']/section/main/main/div/div[2]/button").click()
+        self.driver.find_element_by_xpath(self.signInButtonXPath).click()
         time.sleep(self.debug_pause_time_seconds)
 
         # Enter invalid credentials
-        common.login(self.driver, fake_username, fake_password, "Sign in to bentov2")
+        common.login(self.driver, fake_username, fake_password, self.expectedTitle)
         time.sleep(self.debug_pause_time_seconds)
 
         # verify invalid login
