@@ -317,5 +317,11 @@ clean-chord-services:
 # integration tests
 
 #<<<
+run-tests: run-unit-tests run-integration-tests
+
+run-unit-tests:
+	@echo "-- No unit tests yet! --"
+
 run-integration-tests:
-	$(PWD)/etc/tests/integration/run_tests.sh 5 firefox True
+	@echo "-- Running integration tests! --"
+	@$(PWD)/etc/tests/integration/run_tests.sh 5 firefox True
