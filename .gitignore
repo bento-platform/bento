@@ -24,9 +24,9 @@ lib/web/bento_web
 
 
 # temp test stuff
+etc/tests/*/__pycache__
 etc/tests/*/*/__pycache__
-etc/tests/*/*/*/__pycache__
 
-etc/tests/*/*/geckodriver
-etc/tests/*/*/geckodriver.log
+etc/tests/*/geckodriver
+etc/tests/*/geckodriver.log
 geckodriver.log
