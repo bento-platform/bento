@@ -313,11 +313,15 @@ clean-chord-services:
 	rm $(PWD)/lib/*/chord_services.json
 
 
+
+
 #>>>
-# integration tests
+# tests
 
 #<<<
-run-tests: run-unit-tests run-integration-tests
+run-tests: \
+		run-unit-tests \
+		run-integration-tests
 
 run-unit-tests:
 	@echo "-- No unit tests yet! --"
