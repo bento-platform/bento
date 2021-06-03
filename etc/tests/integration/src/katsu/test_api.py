@@ -12,5 +12,6 @@ class TestApi():
 
     def test_access_api_experiment_tables(self):
         
-        response = requests.get(f'{self.bentov2_url}{self.metadata_path}/tables?data-type=experiment', verify=False)
+        response = requests.get(f'{self.bentov2_url}{self.metadata_path}/tables?data-type=experiment&format=json', verify=False)
         assert response.status_code == 200
+        assert response.json() == []
