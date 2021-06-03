@@ -1,5 +1,4 @@
 from selenium import webdriver
-from pathlib import Path
 
 import os
 import unittest
@@ -120,7 +119,7 @@ class TestLogins():
         assert "chord_drop_box" in chord_drop_box.text
 
         # add a temporary test file
-        project_abs_dir = Path(__file__).parents[5]
+        project_abs_dir = self.project_root_abs_path
         temp_filename = "temp.txt"
         temp_filepath = f'{project_abs_dir}/{dropbox_project_dir}/{temp_filename}'
         with open(temp_filepath, 'w') as f:

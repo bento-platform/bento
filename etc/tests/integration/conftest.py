@@ -6,6 +6,8 @@ from selenium.webdriver.firefox.options import Options as ffOptions
 from selenium.webdriver.chrome.options import Options as chOptions
 import random
 
+from pathlib import Path
+
 # Resources
 # Firefox: http://chromedriver.chromium.org/
 # Chrome: http://github.com/mozilla/geckodriver/releases
@@ -19,9 +21,11 @@ def setup(request):
 
     headless_mode = (os.environ["HEADLESS_MODE"] == 'True')
     
+    project_root_abs_path = os.getcwd()
+
     if "login" in testname:
         driverenv = os.environ["DRIVER_ENV"]
-        common_path = f'{os.getcwd()}/etc/tests/integration/authx'
+        common_path = f'{project_root_abs_path}/etc/tests/integration'
 
         # Firefox
         fireFoxOptions = ffOptions()
@@ -51,6 +55,7 @@ def setup(request):
     bentov2_url= os.environ["BENTOV2_PUBLIC_URL"]
     bentov2auth_url= os.environ["BENTOV2_AUTH_PUBLIC_URL"]
 
+
     session = request.node
     for item in session.items:
         cls = item.getparent(pytest.Class)
@@ -58,6 +63,7 @@ def setup(request):
         setattr(cls.obj, "pause_time_seconds", 0.5)
         setattr(cls.obj, "bentov2_url", bentov2_url)
         setattr(cls.obj, "bentov2auth_url", bentov2auth_url)
+        setattr(cls.obj, "project_root_abs_path", project_root_abs_path)
 
     yield driver
     if driver != None:

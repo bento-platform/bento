@@ -315,5 +315,5 @@ clean-chord-services:
 
 
 
-run-tests:
-	$(PWD)/etc/tests/integration/authx/run_tests.sh 5 firefox True
+run-integration-tests:
+	$(PWD)/etc/tests/integration/run_tests.sh 5 firefox False
