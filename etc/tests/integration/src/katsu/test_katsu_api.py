@@ -7,11 +7,12 @@ import requests
 import pytest
 
 @pytest.mark.usefixtures("setup")
-class TestApi():
+class TestKatsuApi():
     metadata_path = "/api/metadata"
 
     def test_access_api_experiment_tables(self):
-        
+        # GET
         response = requests.get(f'{self.bentov2_url}{self.metadata_path}/tables?data-type=experiment&format=json', verify=False)
+        
         assert response.status_code == 200
         assert response.json() == []

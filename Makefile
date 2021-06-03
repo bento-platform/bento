@@ -324,4 +324,4 @@ run-unit-tests:
 
 run-integration-tests:
 	@echo "-- Running integration tests! --"
-	@$(PWD)/etc/tests/integration/run_tests.sh 5 firefox True
+	@$(PWD)/etc/tests/integration/run_tests.sh 10 firefox True
