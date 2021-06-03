@@ -313,7 +313,9 @@ clean-chord-services:
 	rm $(PWD)/lib/*/chord_services.json
 
 
+#>>>
+# integration tests
 
-
+#<<<
 run-integration-tests:
-	$(PWD)/etc/tests/integration/run_tests.sh 5 firefox False
+	$(PWD)/etc/tests/integration/run_tests.sh 5 firefox True

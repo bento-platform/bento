@@ -32,14 +32,13 @@ def setup(request):
         if headless_mode:
             fireFoxOptions.headless = True
 
-
         profile = webdriver.FirefoxProfile()
+        # TODO: parameterize dev/prod ?
         profile.accept_untrusted_certs = True
 
         driver = webdriver.Firefox(firefox_profile=profile, executable_path=f'{common_path}/geckodriver', options=fireFoxOptions)
 
 
-    
         # Randomly select (within reason) window dimensions and position
         width = random.randint(760,1900)
         height = random.randint(512,1024)
@@ -60,7 +59,7 @@ def setup(request):
     for item in session.items:
         cls = item.getparent(pytest.Class)
         setattr(cls.obj, "driver", driver)
-        setattr(cls.obj, "pause_time_seconds", 0.5)
+        setattr(cls.obj, "pause_time_seconds", 1)
         setattr(cls.obj, "bentov2_url", bentov2_url)
         setattr(cls.obj, "bentov2auth_url", bentov2auth_url)
         setattr(cls.obj, "project_root_abs_path", project_root_abs_path)
