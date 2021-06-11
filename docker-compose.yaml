@@ -297,6 +297,7 @@ services:
       - "${BENTOV2_VARIANT_EXTERNAL_PORT}:${BENTOV2_VARIANT_INTERNAL_PORT}"
     volumes:
       - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
+      - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
 
   notification:
     build:
