@@ -84,7 +84,7 @@ init-docker:
 docker-secrets:
 	# AuthN Admin secrets
 	@echo ${BENTOV2_AUTH_ADMIN_USER} > $(PWD)/tmp/secrets/keycloak-admin-user
-	@echo ${BENTOV2_AUTH_ADMIN_PASSWORD} > $(PWD)/tmp/secrets/keycloak-admin-password
+	$(MAKE) secret-keycloak-admin-password
 
 	docker secret create keycloak-admin-user $(PWD)/tmp/secrets/keycloak-admin-user
 	docker secret create keycloak-admin-password $(PWD)/tmp/secrets/keycloak-admin-password
@@ -92,8 +92,8 @@ docker-secrets:
 
 	# Database
 	@echo ${BENTOV2_KATSU_DB_USER} > $(PWD)/tmp/secrets/metadata-db-user
-	@echo ${BENTOV2_KATSU_DB_APP_SECRET} > $(PWD)/tmp/secrets/metadata-app-secret
-	@echo ${BENTOV2_KATSU_DB_PASSWORD} > $(PWD)/tmp/secrets/metadata-db-secret
+	$(MAKE) secret-metadata-app-secret
+	$(MAKE) secret-metadata-db-secret
 
 	docker secret create metadata-app-secret $(PWD)/tmp/secrets/metadata-app-secret
 	docker secret create metadata-db-user $(PWD)/tmp/secrets/metadata-db-user
@@ -220,7 +220,8 @@ clean-all: clean-gateway \
 		clean-auth clean-web clean-drop-box clean-drs \
 		clean-service-registry clean-katsu clean-drs \
 		clean-variant clean-federation clean-wes \
-		clean-logging clean-notification clean-event-relay
+		clean-logging clean-notification clean-event-relay \
+		clean-redis
 
 # TODO: use env variables for container versions
 clean-gateway:
@@ -313,3 +314,15 @@ clean-chord-services:
 	rm $(PWD)/lib/*/chord_services.json
 
 
+
+
+# -- Utils --
+
+#>>>
+# create a random secret and add it to tmp/secrets/$secret_name
+# make secret-$secret_name
+
+#<<<
+secret-%:
+	@dd if=/dev/urandom bs=1 count=16 2>/dev/null \
+		| base64 | rev | cut -b 2- | rev | tr -d '\n\r' > $(PWD)/tmp/secrets/$*
