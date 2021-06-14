@@ -84,7 +84,9 @@ init-docker:
 docker-secrets:
 	# AuthN Admin secrets
 	@echo ${BENTOV2_AUTH_ADMIN_USER} > $(PWD)/tmp/secrets/keycloak-admin-user
-	$(MAKE) secret-keycloak-admin-password
+	# temp:
+	#$(MAKE) secret-keycloak-admin-password
+	@echo ${BENTOV2_AUTH_ADMIN_PASSWORD} > $(PWD)/tmp/secrets/keycloak-admin-password
 
 	docker secret create keycloak-admin-user $(PWD)/tmp/secrets/keycloak-admin-user
 	docker secret create keycloak-admin-password $(PWD)/tmp/secrets/keycloak-admin-password
@@ -92,8 +94,11 @@ docker-secrets:
 
 	# Database
 	@echo ${BENTOV2_KATSU_DB_USER} > $(PWD)/tmp/secrets/metadata-db-user
-	$(MAKE) secret-metadata-app-secret
-	$(MAKE) secret-metadata-db-secret
+	# temp:
+	# $(MAKE) secret-metadata-app-secret
+	# $(MAKE) secret-metadata-db-secret
+	@echo ${BENTOV2_KATSU_DB_APP_SECRET} > $(PWD)/tmp/secrets/metadata-app-secret
+	@echo ${BENTOV2_KATSU_DB_PASSWORD} > $(PWD)/tmp/secrets/metadata-db-secret
 
 	docker secret create metadata-app-secret $(PWD)/tmp/secrets/metadata-app-secret
 	docker secret create metadata-db-user $(PWD)/tmp/secrets/metadata-db-user
