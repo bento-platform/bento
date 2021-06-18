@@ -19,7 +19,7 @@ ARG BENTO_WEB_BRANCH
 
 ARG BENTO_WEB_IS_DEBUG
 
-RUN mkdir bento_web/
+#RUN mkdir bento_web/
 RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         echo "Building Web in Development Mode" ; \
     \
