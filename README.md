@@ -100,6 +100,7 @@ to remove the docker containers and images from disk,
 
 > NOTE: application data does persist (see `./lib/[auth, drs, katsu]/data` directories, for example)
 
+
 <br />
 
 ## Development
@@ -120,3 +121,17 @@ make run-web-dev
 which will spin up the `web` container tethered to your local directory with a docker `volume`. Internally, `npm run watch` is executed (see `./lib/web/dev_startup.sh`) so changes made locally will be reflected in the container - the service will then recompile and render.
 
 > Note: if you get stuck on an NGINX `500 Internal Service Error`, give it another minute to spin up. If it persists, run `docker exec -it bentov2-web sh` to access the container, and then run `npm run watch` manually.
+
+
+<br />
+
+## Testing
+
+First, head on over to https://github.com/mozilla/geckodriver/releases and download the latest geckodriver.
+
+Decompress the .tar.gz or .zip and move the `geckodriver` over to the `./etc/tests/integration` directory. After that, simply run
+```
+make run-tests
+```
+
+This will run a set of both unit `(TODO)` and integration tests. See the `Makefile` for more details

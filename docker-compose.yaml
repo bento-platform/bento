@@ -77,9 +77,6 @@ services:
     # Execute npm build/install and watch, and 
     # nginx "listener" upon container startup
     entrypoint: sh /web/startup.sh
-    extends:
-      file: docker-compose.dev.yaml
-      service: web
 
 
   katsu:
@@ -277,6 +274,7 @@ services:
         REPO: ${BENTO_VARIANT_REPO}
         BRANCH: ${BENTO_VARIANT_BRANCH}
         TAG: ${BENTO_VARIANT_TAG}
+        BCFTOOLS_VERSION: ${BENTOV2_VARIANT_BCFTOOLS_VERSION}
     image: ${BENTOV2_VARIANT_IMAGE}:${BENTOV2_VARIANT_VERSION}
     container_name: ${BENTOV2_VARIANT_CONTAINER_NAME}
     environment: 
@@ -297,6 +295,7 @@ services:
       - "${BENTOV2_VARIANT_EXTERNAL_PORT}:${BENTOV2_VARIANT_INTERNAL_PORT}"
     volumes:
       - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
+      - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
 
   notification:
     build:

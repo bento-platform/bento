@@ -76,7 +76,7 @@ init-docker:
 
 
 #>>>
-# create secrets for CanDIG services
+# create secrets for Bento v2 services
 # make docker-secrets
 
 #<<<
@@ -84,6 +84,8 @@ init-docker:
 docker-secrets:
 	# AuthN Admin secrets
 	@echo ${BENTOV2_AUTH_ADMIN_USER} > $(PWD)/tmp/secrets/keycloak-admin-user
+	# temp:
+	#$(MAKE) secret-keycloak-admin-password
 	@echo ${BENTOV2_AUTH_ADMIN_PASSWORD} > $(PWD)/tmp/secrets/keycloak-admin-password
 
 	docker secret create keycloak-admin-user $(PWD)/tmp/secrets/keycloak-admin-user
@@ -92,6 +94,9 @@ docker-secrets:
 
 	# Database
 	@echo ${BENTOV2_KATSU_DB_USER} > $(PWD)/tmp/secrets/metadata-db-user
+	# temp:
+	# $(MAKE) secret-metadata-app-secret
+	# $(MAKE) secret-metadata-db-secret
 	@echo ${BENTOV2_KATSU_DB_APP_SECRET} > $(PWD)/tmp/secrets/metadata-app-secret
 	@echo ${BENTOV2_KATSU_DB_PASSWORD} > $(PWD)/tmp/secrets/metadata-db-secret
 
@@ -124,7 +129,7 @@ run-web: clean-web
 
 # For local development
 run-web-dev: clean-web
-	docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d --force-recreate web
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
 #
 
 run-katsu:
@@ -220,7 +225,8 @@ clean-all: clean-gateway \
 		clean-auth clean-web clean-drop-box clean-drs \
 		clean-service-registry clean-katsu clean-drs \
 		clean-variant clean-federation clean-wes \
-		clean-logging clean-notification clean-event-relay
+		clean-logging clean-notification clean-event-relay \
+		clean-redis
 
 # TODO: use env variables for container versions
 clean-gateway:
@@ -313,3 +319,30 @@ clean-chord-services:
 	rm $(PWD)/lib/*/chord_services.json
 
 
+
+
+#>>>
+# tests
+
+#<<<
+run-tests: \
+		run-unit-tests \
+		run-integration-tests
+
+run-unit-tests:
+	@echo "-- No unit tests yet! --"
+
+run-integration-tests:
+	@echo "-- Running integration tests! --"
+	@$(PWD)/etc/tests/integration/run_tests.sh 10 firefox True
+	
+# -- Utils --
+
+#>>>
+# create a random secret and add it to tmp/secrets/$secret_name
+# make secret-$secret_name
+
+#<<<
+secret-%:
+	@dd if=/dev/urandom bs=1 count=16 2>/dev/null \
+		| base64 | rev | cut -b 2- | rev | tr -d '\n\r' > $(PWD)/tmp/secrets/$*

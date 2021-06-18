@@ -8,7 +8,7 @@ if [[ $MODE == "dev" ]]
 fi
 echo "--- MODE : ${MODE} ---"
 
-# This script will set up a full keycloak environment on your local CanDIGv2 cluster
+# This script will set up a full keycloak environment on your local BentoV2 cluster
 
 usage () {
   echo "Make sure to set relevant environment variables!"

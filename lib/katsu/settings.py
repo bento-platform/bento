@@ -66,10 +66,10 @@ SERVICE_TEMP = os.environ.get("SERVICE_TEMP")
 NGINX_INTERNAL_SOCKET = quote(os.environ.get("NGINX_INTERNAL_SOCKET", "/chord/tmp/nginx_internal.sock"), safe="")
 DRS_URL = os.environ.get("DRS_URL", f"http+unix://{NGINX_INTERNAL_SOCKET}/api/drs").strip().rstrip("/")
 
-# Candig-specific settings
+# bentov2-specific settings
 
-INSIDE_CANDIG = os.environ.get("INSIDE_CANDIG", "false").lower() == "true"
-CANDIG_OPA_URL = os.environ.get("CANDIG_OPA_URL")
+INSIDE_BENTOV2 = os.environ.get("INSIDE_BENTOV2", "false").lower() == "true"
+BENTOV2_OPA_URL = os.environ.get("BENTOV2_OPA_URL")
 
 # Application definition
 
