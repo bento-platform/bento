@@ -77,9 +77,6 @@ services:
     # Execute npm build/install and watch, and 
     # nginx "listener" upon container startup
     entrypoint: sh /web/startup.sh
-    extends:
-      file: docker-compose.dev.yaml
-      service: web
 
 
   katsu:

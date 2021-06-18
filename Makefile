@@ -129,7 +129,7 @@ run-web: clean-web
 
 # For local development
 run-web-dev: clean-web
-	docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d --force-recreate web
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
 #
 
 run-katsu:
