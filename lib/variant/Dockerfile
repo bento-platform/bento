@@ -28,11 +28,14 @@ RUN ["pip", "install", "-r", "requirements.txt"]
 
 
 # Install BCF Tools
-RUN wget https://github.com/samtools/bcftools/releases/download/1.9/bcftools-1.9.tar.bz2
-RUN tar -vxjf bcftools-1.9.tar.bz2
-WORKDIR /variant/bento_variant_service/bcftools-1.9
+ARG BCFTOOLS_VERSION
+
+RUN wget https://github.com/samtools/bcftools/releases/download/${BCFTOOLS_VERSION}/bcftools-${BCFTOOLS_VERSION}.tar.bz2
+RUN tar -vxjf bcftools-${BCFTOOLS_VERSION}.tar.bz2
+WORKDIR /variant/bento_variant_service/bcftools-${BCFTOOLS_VERSION}
 RUN make
-ENV PATH="/variant/bento_variant_service/bcftools-1.9:${PATH}"
+ENV PATH="/variant/bento_variant_service/bcftools-${BCFTOOLS_VERSION}:${PATH}"
+
 
 
 # Run

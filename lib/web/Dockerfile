@@ -19,25 +19,29 @@ ARG BENTO_WEB_BRANCH
 
 ARG BENTO_WEB_IS_DEBUG
 
-RUN mkdir bento_web/
+#RUN mkdir bento_web/
 RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         echo "Building Web in Development Mode" ; \
+        mkdir bento_web ; \
     \
     else \
         echo "Building Web in Production Mode" ; \
+        pwd ; ls -la ; \
         \
-        git clone "${BENTO_WEB_REPO}" && \
+        git clone "${BENTO_WEB_REPO}"; \
+        pwd ; ls -la ; \
         \
-        cd ./bento_web && \
+        cd ./bento_web ; \
+        pwd ; ls -la ; \
         \
-        git fetch && \
-        git checkout "${BENTO_WEB_BRANCH}" && \
+        git fetch ; \
+        git checkout "${BENTO_WEB_BRANCH}" ; \
         git pull ; \
         \
-        rm -rf npm-shrinkwrap.json node_modules && \
-        npm cache clean --force && \
-        npm cache verify && \
-        npm install --save -g --unsafe-perm=true --allow-root; \
+        rm -rf npm-shrinkwrap.json node_modules ; \
+        npm cache clean --force ; \
+        npm cache verify ; \
+        npm install --save --unsafe-perm=true --allow-root; \
     fi
 
 
@@ -47,8 +51,6 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
 # one that is used
 COPY ./dev_startup.sh /web/dev_startup.sh
 COPY ./startup.sh /web/startup.sh
-
-WORKDIR /web/bento_web
 
 # fix crash at runtime
 RUN mkdir /run/nginx && \
