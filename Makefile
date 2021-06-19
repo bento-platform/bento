@@ -288,6 +288,11 @@ clean-wes:
 	docker rmi bentov2-wes:0.0.1 --force;
 
 
+
+#>>>
+# clean data directories
+
+#<<<
 clean-all-volume-dirs:
 	sudo rm -r lib/*/data
 
@@ -311,7 +316,7 @@ clean-secrets:
 	docker secret rm metadata-db-secret
 
 #>>>
-# clean docker secrets
+# clean docker services
 
 #<<<
 .PHONY: clean-chord-services
@@ -336,6 +341,9 @@ run-integration-tests:
 	@echo "-- Running integration tests! --"
 	@$(PWD)/etc/tests/integration/run_tests.sh 10 firefox True
 	
+
+
+
 # -- Utils --
 
 #>>>
