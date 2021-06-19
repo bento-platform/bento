@@ -68,7 +68,7 @@ DRS_URL = os.environ.get("DRS_URL", f"http+unix://{NGINX_INTERNAL_SOCKET}/api/dr
 
 # bentov2-specific settings
 
-INSIDE_BENTOV2 = os.environ.get("INSIDE_BENTOV2", "false").lower() == "true"
+INSIDE_CANDIG = os.environ.get("INSIDE_CANDIG", "false").lower() == "true"
 BENTOV2_OPA_URL = os.environ.get("BENTOV2_OPA_URL")
 
 # Application definition
@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
 
     'chord_metadata_service.chord.apps.ChordConfig',
     'chord_metadata_service.experiments.apps.ExperimentsConfig',

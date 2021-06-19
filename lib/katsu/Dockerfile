@@ -32,10 +32,6 @@ RUN git config user.name "docker" && \
     git pull $(echo "${KATSU_REPO}") && \
     git submodule update --init
 
-# Trigger this at run time 
-# (now runs from docker-compose)
-#CMD ["runserver", "0.0.0.0:8000"]
-#
 
 # Install dependencies
 # -- fixes PEP 517 build error --
