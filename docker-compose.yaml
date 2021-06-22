@@ -29,13 +29,13 @@ services:
     networks: 
       bridge-net:
         aliases:
-          - bentov2.local
-          - bentov2auth.local
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
     ports:
       - "80:80"
       - "443:443"
-    # environment: 
-    #   - REDIS_CONNECTIONS_STRING=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
+    volumes: 
+      - ${BENTOV2_GATEWAY_CERTS_DIR}:/usr/local/openresty/nginx/certs
 
 
   auth:
@@ -428,7 +428,7 @@ services:
       #/wes/womtool.jar
       # Allow-list (comma-separated) for hosts that workflow files can be downloaded
       # from - prevents possibly insecure WDLs from being ran
-      - WORKFLOW_HOST_ALLOW_LIST=bentov2.local,${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
+      - WORKFLOW_HOST_ALLOW_LIST=${BENTOV2_DOMAIN},${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
 
       # DRS configuration options:
       # - Where the DRS instance to use is located. Technically, if not set this 
