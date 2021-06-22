@@ -113,6 +113,7 @@ run-all:
 	docker-compose up -d
 
 run-gateway:
+	envsubst < ./lib/gateway/nginx.conf.tpl > ./lib/gateway/nginx.conf
 	docker-compose up -d gateway
 
 run-auth:
