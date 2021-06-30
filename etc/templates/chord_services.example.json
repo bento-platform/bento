@@ -5,7 +5,7 @@
         "artifact": "service-registry",
         "language": "python"
       },
-      "repository": "https://github.com/bento-platform/bento_service_registry@v0.4.1",
+      "repository": "${BENTO_SERVICE_REGISTRY_REPO}@${BENTO_SERVICE_REGISTRY_TAG}",
       "data_service": false,
       "wsgi": true,
       "python_module": "bento_service_registry.app",
@@ -21,7 +21,7 @@
         "artifact": "drop-box",
         "language": "python"
       },
-      "repository": "https://github.com/bento-platform/bento_drop_box_service@v0.4.1",
+      "repository": "${BENTO_DROP_BOX_REPO}@${BENTO_DROP_BOX_TAG}",
       "data_service": false,
       "wsgi": true,
       "python_module": "bento_drop_box_service.app",
@@ -39,7 +39,7 @@
         "artifact": "wes",
         "language": "python"
       },
-      "repository": "https://github.com/bento-platform/bento_wes@v0.3.2",
+      "repository": "${BENTO_WES_REPO}@${BENTO_WES_TAG}",
       "data_service": false,
       "apt_dependencies": ["openjdk-11-jre-headless"],
       "pre_install_commands": [
@@ -72,7 +72,7 @@
         "artifact": "federation",
         "language": "python"
       },
-      "repository": "https://github.com/bento-platform/bento_federation_service@v0.8.0",
+      "repository": "${BENTO_FEDERATION_REPO}@${BENTO_FEDERATION_TAG}",
       "data_service": false,
       "wsgi": false,
       "service_runnable": "bento_federation_service",
@@ -90,7 +90,7 @@
         "artifact": "notification",
         "language": "python"
       },
-      "repository": "https://github.com/bento-platform/bento_notification_service@v1.0.0",
+      "repository": "${BENTO_NOTIFICATION_REPO}@${BENTO_NOTIFICATION_TAG}",
       "data_service": false,
       "pre_start_commands": [
         "flask db upgrade"
@@ -109,7 +109,7 @@
         "artifact": "event-relay",
         "language": "javascript"
       },
-      "repository": "https://github.com/bento-platform/bento_event_relay#v0.4.0",
+      "repository": "${BENTO_EVENT_RELAY_REPO}@${BENTO_EVENT_RELAY_TAG}",
       "data_service": false,
       "wsgi": false,
       "service_runnable": "bento-event-relay",
@@ -126,7 +126,7 @@
         "artifact": "metadata",
         "language": "python"
       },
-      "repository": "https://github.com/bento-platform/katsu@v1.3.0",
+      "repository": "${KATSU_REPO}@${KATSU_TAG}",
       "data_service": true,
       "manageable_tables": true,
       "pre_start_commands": [
@@ -145,7 +145,7 @@
         "artifact": "variant",
         "language": "python"
       },
-      "repository": "https://github.com/bento-platform/bento_variant_service@v0.4.0",
+      "repository": "${BENTO_VARIANT_REPO}@${BENTO_VARIANT_TAG}",
       "data_service": true,
       "manageable_tables": true,
       "apt_dependencies": ["samtools"],
@@ -168,7 +168,7 @@
         "artifact": "drs",
         "language": "python"
       },
-      "repository": "https://github.com/c3g/chord_drs@v0.2.0",
+      "repository": "${BENTO_DRS_REPO}@${BENTO_DRS_TAG}",
       "data_service": false,
       "wsgi": true,
       "python_module": "chord_drs.app",
