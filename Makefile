@@ -23,10 +23,10 @@ init-chord-services:
 	# copy instance_config to gateway	
 	envsubst < ${PWD}/etc/templates/instance_config.example.json > $(PWD)/lib/gateway/instance_config.json;
 
-	# copy services json to the microservices that need it
-	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/logging/chord_services.json;
-	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/service-registry/chord_services.json;
-	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/wes/chord_services.json;
+	# copy services json to the microservices that need it	
+	envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/logging/chord_services.json;
+	envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/service-registry/chord_services.json; \
+	envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/wes/chord_services.json; \
 
 
 #>>>
