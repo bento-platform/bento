@@ -20,4 +20,6 @@ jobs:
 
       - name: Build & Run Web
         id: webx
-        run: make run-web
+        run: |
+          make init-docker
+          make run-web
