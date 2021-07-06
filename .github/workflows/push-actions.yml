@@ -14,6 +14,7 @@ jobs:
 
       - name: Gather Variables
         id: envx
+        run: cp ./etc/example.env .env
         run: source .env
 
       - name: Build & Run Web
