@@ -8,9 +8,12 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Gather variables
+      - name: Checkout Repo
+        id: checkout
+        uses: actions/checkout@v2
+
+      - name: Gather Variables
         id: envx
-        uses: docker/setup-buildx-action@v1
         run: source .env
 
       - name: Build & Run Web
