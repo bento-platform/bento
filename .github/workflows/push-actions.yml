@@ -26,5 +26,5 @@ jobs:
           docker ps
           pwd
           ls -lah
-          $(while ! docker logs --tail 1000 bentov2-web | grep '-- Toggling nginx daemon : off --' ; do sleep 1 ; done)
+          sleep 10
           docker logs --tail 1000 bentov2-web
