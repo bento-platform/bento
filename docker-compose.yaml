@@ -68,6 +68,7 @@ services:
         BENTO_WEB_REPO: ${BENTO_WEB_REPO}
         BENTO_WEB_BRANCH: ${BENTO_WEB_BRANCH}
         BENTO_WEB_IS_DEBUG: "false"
+        BENTO_WEB_USER: ${CURRENT_UID}
     image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION}
     container_name: ${BENTOV2_WEB_CONTAINER_NAME}
     networks: 
