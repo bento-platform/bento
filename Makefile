@@ -6,6 +6,9 @@ env ?= .env
 include $(env)
 export $(shell sed 's/=.*//' $(env))
 
+CURRENT_UID := $(shell id -u)
+export CURRENT_UID
+
 
 
 

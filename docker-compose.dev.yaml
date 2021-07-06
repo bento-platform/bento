@@ -5,6 +5,7 @@ services:
     build:
       args:
         BENTO_WEB_IS_DEBUG: "true"
+        BENTO_WEB_USER: ${CURRENT_UID}
     volumes:
       - ./lib/web/bento_web:/web/bento_web
     # Execute npm build/install and watch, and 
