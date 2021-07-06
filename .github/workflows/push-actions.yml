@@ -1,7 +1,7 @@
 name: push-actions
 on: [push]
 jobs:
-  check-push-actions:
+  check-web-build-on-push:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
@@ -9,7 +9,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Checkout Repo
-        id: checkout
+        id: checkoutx
         uses: actions/checkout@v2
 
       - name: Gather Variables
@@ -23,3 +23,6 @@ jobs:
         run: |
           make init-docker
           make run-web
+          docker ps
+          pwd
+          ls -lah
