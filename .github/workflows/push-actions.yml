@@ -4,7 +4,15 @@ jobs:
   check-push-actions:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-      - run: npm install -g bats
-      - run: bats -v
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Gather variables
+        id: envx
+        uses: docker/setup-buildx-action@v1
+        run: source .env
+
+      - name: Build & Run Web
+        id: webx
+        run: make run-web
