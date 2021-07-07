@@ -42,8 +42,8 @@ services:
     image: ${BENTOV2_AUTH_IMAGE}:${BENTOV2_AUTH_VERSION}
     container_name: ${BENTOV2_AUTH_CONTAINER_NAME}
     command: ["-b", "${BENTOV2_AUTH_SERVICE_HOST}", "-Dkeycloak.migration.strategy=IGNORE_EXISTING"]
-    ports:
-       - "${BENTOV2_AUTH_EXTERNAL_PORT}:${BENTOV2_AUTH_INTERNAL_PORT}"
+    expose:
+      - ${BENTOV2_AUTH_INTERNAL_PORT}
     networks:
       - bridge-net
     volumes:
@@ -73,8 +73,8 @@ services:
     container_name: ${BENTOV2_WEB_CONTAINER_NAME}
     networks: 
       - bridge-net
-    ports:
-       - "${BENTOV2_WEB_EXTERNAL_PORT}:${BENTOV2_WEB_INTERNAL_PORT}"
+    expose: 
+      - ${BENTOV2_WEB_INTERNAL_PORT}
     # Execute npm build/install and watch, and 
     # nginx "listener" upon container startup
     entrypoint: sh /web/startup.sh
@@ -91,8 +91,8 @@ services:
         KATSU_TAG: ${KATSU_TAG}
     image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION}
     container_name: ${BENTOV2_KATSU_CONTAINER_NAME}
-    ports:
-      - "${BENTOV2_KATSU_EXTERNAL_PORT}:${BENTOV2_KATSU_INTERNAL_PORT}"
+    expose:
+      - ${BENTOV2_KATSU_INTERNAL_PORT}
     networks: 
       - bridge-net
     depends_on:
@@ -135,10 +135,9 @@ services:
     environment:
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
       - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
-      #- POSTGRES_PASSWORD_FILE="/run/secrets/metadata_db_secret"
       - POSTGRES_DB=${BENTOV2_KATSU_DB}
-    # ports: 
-    #   - 5432
+    expose:
+      - 5432
     secrets:
       - source: metadata-db-user
         target: metadata_db_user
@@ -171,8 +170,8 @@ services:
       - SERVICE_DATA=/data
     networks: 
       - bridge-net
-    ports:
-       - "${BENTOV2_DROP_BOX_EXTERNAL_PORT}:${BENTOV2_DROP_BOX_INTERNAL_PORT}"
+    expose:
+      - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
 
@@ -215,8 +214,8 @@ services:
       - URL_PATH_FORMAT=api/{artifact}
     networks: 
       - bridge-net
-    ports:
-       - "${BENTOV2_SERVICE_REGISTRY_EXTERNAL_PORT}:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}"
+    expose:
+      - ${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
 
 
   logging:
@@ -236,8 +235,8 @@ services:
       - FLASK_APP=app
     networks: 
       - bridge-net
-    ports:
-       - "${BENTOV2_LOGGING_EXTERNAL_PORT}:${BENTOV2_LOGGING_INTERNAL_PORT}"
+    expose:
+      - ${BENTOV2_LOGGING_INTERNAL_PORT}
 
 
   drs:
@@ -259,8 +258,8 @@ services:
       - DATA=/drs/chord_drs/data/obj/  # DRS file objects, vs. the database
     networks: 
       - bridge-net
-    ports:
-       - "${BENTOV2_DRS_EXTERNAL_PORT}:${BENTOV2_DRS_INTERNAL_PORT}"
+    expose:
+      - ${BENTOV2_DRS_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
@@ -292,8 +291,8 @@ services:
 
     networks: 
       - bridge-net
-    ports:
-      - "${BENTOV2_VARIANT_EXTERNAL_PORT}:${BENTOV2_VARIANT_INTERNAL_PORT}"
+    expose:
+      - ${BENTOV2_VARIANT_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
       - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
@@ -317,8 +316,8 @@ services:
       - REDIS_PORT=${BENTOV2_REDIS_INTERNAL_PORT}
     networks: 
       - bridge-net
-    ports:
-       - ${BENTOV2_NOTIFICATION_EXTERNAL_PORT}:${BENTOV2_NOTIFICATION_INTERNAL_PORT}
+    expose:
+      - ${BENTOV2_NOTIFICATION_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_NOTIFICATION_VOL_DIR}:/notification/data
 
@@ -349,8 +348,8 @@ services:
 
     networks: 
       - bridge-net
-    ports:
-       - ${BENTOV2_FEDERATION_EXTERNAL_PORT}:${BENTOV2_FEDERATION_INTERNAL_PORT}
+    expose:
+      - ${BENTOV2_FEDERATION_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_FEDERATION_VOL_DIR}:/federation/data
 
@@ -401,8 +400,8 @@ services:
       - redis
     networks: 
       - bridge-net
-    ports:
-       - ${BENTOV2_EVENT_RELAY_EXTERNAL_PORT}:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}
+    expose:
+      - ${BENTOV2_EVENT_RELAY_INTERNAL_PORT}
 
 
   wes:
@@ -446,8 +445,8 @@ services:
 
     networks: 
       - bridge-net
-    ports:
-       - ${BENTOV2_WES_EXTERNAL_PORT}:${BENTOV2_WES_INTERNAL_PORT}
+    expose:
+      - ${BENTOV2_WES_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_WES_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
@@ -459,8 +458,8 @@ services:
     container_name: ${BENTOV2_REDIS_CONTAINER_NAME}
     networks: 
       - bridge-net
-    ports:
-       - ${BENTOV2_REDIS_EXTERNAL_PORT}:${BENTOV2_REDIS_INTERNAL_PORT}
+    expose:
+      - ${BENTOV2_REDIS_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_REDIS_VOL_DIR}:/data
 

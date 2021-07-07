@@ -17,7 +17,6 @@ export CURRENT_UID
 
 #>>>
 # init chord services
-
 #<<<
 .PHONY: init-chord-services
 init-chord-services:
@@ -36,14 +35,15 @@ init-chord-services:
 
 #>>>
 # create non-repo directories
-# make mkdir
-
 #<<<
 .PHONY: init-dirs
 init-dirs: data-dirs 
 	mkdir -p $(PWD)/tmp/secrets
 
-# Local directories
+
+#>>>
+# create data directories
+#<<<
 data-dirs:
 	mkdir -p ${BENTOV2_AUTH_VOL_DIR}
 	mkdir -p ${BENTOV2_KATSU_DB_VOL_DIR}
@@ -59,7 +59,6 @@ data-dirs:
 
 #>>>
 # initialize docker prerequisites
-
 #<<<
 .PHONY: init-docker
 init-docker:
@@ -72,8 +71,6 @@ init-docker:
 
 #>>>
 # create secrets for Bento v2 services
-# make docker-secrets
-
 #<<<
 .PHONY: docker-secrets
 docker-secrets:
@@ -103,7 +100,6 @@ docker-secrets:
 
 #>>>
 # run authentication system setup
-
 #<<<
 .PHONY: auth-setup
 auth-setup:
@@ -112,10 +108,17 @@ auth-setup:
 	$(MAKE) run-gateway
 
 
-# Run
+
+#>>>
+# run all services
+#<<<
 run-all:
 	docker-compose up -d
 
+
+#>>>
+# run a specified service
+#<<<
 run-%:
 	@if [[ $* == gateway ]]; then \
 		echo "Setting up gateway prerequisites"; \
@@ -127,17 +130,25 @@ run-%:
 
 	docker-compose up -d $*
 
-# For local development
+
+#>>>
+# run the web service using a local copy of bento_web
+# for development purposes
+#<<<
 dev-run-web: clean-web
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
-#
 
 
 
-# Build
+#>>>
+# build common base images
+#<<<
 build-common-base:
 	docker-compose -f docker-compose.base.yaml build --no-cache common-alpine-python
 
+#>>>
+# build a specified service
+#<<<
 build-%:
 	@# Don't build auth
 	@if [[ $* == auth ]]; then \
@@ -149,20 +160,40 @@ build-%:
 
 
 
+#>>>
+# stop all services
+#<<<
 stop-all:
 	docker-compose down;
 
+#>>>
+# stop a specific service
+#<<<
+stop-%:
+	docker-compose stop $*;
 
 
-# Clean up
+
+
+#>>>
+# clean up common base images
+#<<<
 clean-common-base:
 	docker rmi bentov2-common-alpine-python:0.0.1 --force;
 
+#>>>
+# clean all service containers and/or applicable images
+#<<<
 clean-all:
 	$(foreach SERVICE, $(SERVICES), \
 		$(MAKE) clean-$(SERVICE);)
 
+
+#>>>
+# clean a specific service container and/or applicable images
+
 # TODO: use env variables for container versions
+#<<<
 clean-%:
 	docker-compose stop $*;
 	
@@ -180,14 +211,12 @@ clean-%:
 
 #>>>
 # clean data directories
-
 #<<<
 clean-all-volume-dirs:
 	sudo rm -r lib/*/data
 
 #>>>
 # clean docker secrets
-
 #<<<
 .PHONY: clean-secrets
 clean-secrets:
@@ -202,7 +231,6 @@ clean-secrets:
 
 #>>>
 # clean docker services
-
 #<<<
 .PHONY: clean-chord-services
 clean-chord-services:
@@ -212,7 +240,6 @@ clean-chord-services:
 
 #>>>
 # tests
-
 #<<<
 run-tests: \
 		run-unit-tests \
@@ -231,8 +258,6 @@ run-integration-tests:
 
 #>>>
 # create a random secret and add it to tmp/secrets/$secret_name
-# make secret-$secret_name
-
 #<<<
 secret-%:
 	@dd if=/dev/urandom bs=1 count=16 2>/dev/null \
