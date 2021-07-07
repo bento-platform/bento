@@ -115,6 +115,12 @@ auth-setup:
 run-all:
 	docker-compose up -d
 
+#>>>
+# run the web service using a local copy of bento_web
+# for development purposes
+#<<<
+run-web-dev: clean-web
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
 
 #>>>
 # run a specified service
@@ -129,14 +135,6 @@ run-%:
 	fi
 
 	docker-compose up -d $*
-
-
-#>>>
-# run the web service using a local copy of bento_web
-# for development purposes
-#<<<
-dev-run-web: clean-web
-	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
 
 
 
@@ -174,7 +172,6 @@ stop-%:
 
 
 
-
 #>>>
 # clean up common base images
 #<<<
@@ -187,7 +184,6 @@ clean-common-base:
 clean-all:
 	$(foreach SERVICE, $(SERVICES), \
 		$(MAKE) clean-$(SERVICE);)
-
 
 #>>>
 # clean a specific service container and/or applicable images
