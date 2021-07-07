@@ -41,7 +41,8 @@ RUN pip install -r requirements.txt;
 
 
 # TEMP
-COPY settings.py ./chord_metadata_service/metadata/settings.py
+ARG BENTOV2_DOMAIN
+RUN sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ./chord_metadata_service/metadata/settings.py
 
 # # Pull subdirectories
 # WORKDIR /app/katsu/chord_metadata_service/dats
