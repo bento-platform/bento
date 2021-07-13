@@ -30,7 +30,6 @@ services:
       bridge-net:
         aliases:
           - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_AUTH_DOMAIN}
     ports:
       - "80:80"
       - "443:443"

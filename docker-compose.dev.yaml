@@ -15,6 +15,16 @@ services:
       file: docker-compose.yaml
       service: web
 
+  gateway:
+    # Override network aliases, adding BENTOV2_AUTH_DOMAIN
+    networks: 
+        bridge-net:
+          aliases:
+            - ${BENTOV2_DOMAIN}
+            - ${BENTOV2_AUTH_DOMAIN}
+    extends:
+      file: docker-compose.yaml
+      service: gateway
 networks: 
   bridge-net:
     external: true
