@@ -12,10 +12,14 @@ echo "Generated BENTOV2_AUTH_CLIENT_ID_64 as ${BENTOV2_AUTH_CLIENT_ID_64}"
 echo "- Done with prereqs.. -"
 # --
 
-echo
-echo "Setting up Keycloak;"
-source ${PWD}/etc/scripts/keycloak_setup.sh 
-
+if [ $USE_EXTERNAL_IDP == 1 ]
+then
+    echo "Using External IDP --";
+else
+    echo "Using Internal IDP --";
+    echo "Setting up Keycloak;";
+    source ${PWD}/etc/scripts/keycloak_setup.sh ;
+fi
 
 echo "Exporting auth_config to gateway"
 envsubst < ${PWD}/etc/templates/auth_config.example.json > ${PWD}/lib/gateway/auth_config.json;

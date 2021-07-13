@@ -118,9 +118,21 @@ run-all:
 #>>>
 # run the web service using a local copy of bento_web
 # for development purposes
+#
+#	see docker-compose.dev.yaml
 #<<<
 run-web-dev: clean-web
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
+
+#>>>
+# run the gateway service that utilizes the local idp hostname as an alias
+# for development purposes
+#
+#	see docker-compose.dev.yaml
+#<<<
+run-gateway-dev: clean-gateway
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate gateway
+
 
 #>>>
 # run a specified service
@@ -128,7 +140,17 @@ run-web-dev: clean-web
 run-%:
 	@if [[ $* == gateway ]]; then \
 		echo "Setting up gateway prerequisites"; \
-		envsubst < ./lib/gateway/nginx.conf.tpl > ./lib/gateway/nginx.conf; \
+		envsubst < ./lib/gateway/nginx.conf.tpl > ./lib/gateway/nginx.conf.pre; \
+		if [[ ${USE_EXTERNAL_IDP} == 1 ]]; then \
+			echo "Fine tuning nginx.conf to support External IDP"; \
+			\
+			sed '/-- Internal IDP Starts Here --/,/-- Internal IDP Ends Here --/d' ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
+			\
+			rm ./lib/gateway/nginx.conf.pre; \
+		else \
+			cat ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
+			rm ./lib/gateway/nginx.conf.pre; \
+		fi \
 	elif [[ $* == web ]]; then \
 		echo "Cleaning web before running"; \
 		$(MAKE) clean-web; \
