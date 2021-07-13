@@ -130,10 +130,15 @@ run-%:
 		echo "Setting up gateway prerequisites"; \
 		envsubst < ./lib/gateway/nginx.conf.tpl > ./lib/gateway/nginx.conf.pre; \
 		if [[ ${USE_EXTERNAL_IDP} == 1 ]]; then \
-			echo "Removing Internal IDP Server Block from nginx.conf"; \
+			echo "Fine tuning nginx.conf to support External IDP"; \
+			\
 			sed '/-- Internal IDP Starts Here --/,/-- Internal IDP Ends Here --/d' ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
+			sed -i 's/resolver 127.0.0.11/resolver 1.1.1.1 127.0.0.11/g' ./lib/gateway/nginx.conf; \
+			\
+			rm ./lib/gateway/nginx.conf.pre; \
 		else \
 			cat ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
+			rm ./lib/gateway/nginx.conf.pre; \
 		fi \
 	elif [[ $* == web ]]; then \
 		echo "Cleaning web before running"; \

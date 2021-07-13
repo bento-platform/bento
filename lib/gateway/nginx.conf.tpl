@@ -6,7 +6,7 @@ events {
 
 http {
     # Use the Docker embedded DNS server
-    resolver 1.1.1.1 127.0.0.11 ipv6=off;
+    resolver 127.0.0.11 ipv6=off;
 
     log_format compression '${DOLLAR}remote_addr - ${DOLLAR}remote_user [${DOLLAR}time_local] '
                             '"${DOLLAR}request" ${DOLLAR}status ${DOLLAR}body_bytes_sent '
