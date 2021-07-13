@@ -128,7 +128,13 @@ run-web-dev: clean-web
 run-%:
 	@if [[ $* == gateway ]]; then \
 		echo "Setting up gateway prerequisites"; \
-		envsubst < ./lib/gateway/nginx.conf.tpl > ./lib/gateway/nginx.conf; \
+		envsubst < ./lib/gateway/nginx.conf.tpl > ./lib/gateway/nginx.conf.pre; \
+		if [[ ${USE_EXTERNAL_IDP} == 1 ]]; then \
+			echo "Removing Internal IDP Server Block from nginx.conf"; \
+			sed '/-- Internal IDP Starts Here --/,/-- Internal IDP Ends Here --/d' ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
+		else \
+			cat ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
+		fi \
 	elif [[ $* == web ]]; then \
 		echo "Cleaning web before running"; \
 		$(MAKE) clean-web; \

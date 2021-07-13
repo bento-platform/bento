@@ -7,6 +7,39 @@ local random = require("resty.random")
 local redis = require("resty.redis")
 local str = require("resty.string")
 
+-- -- TEMP
+-- local resolver = require "resty.dns.resolver"
+-- local r, err = resolver:new{
+--     nameservers = {"1.1.1.1"},
+--     retrans = 5,  -- 5 retransmissions on receive timeout
+--     timeout = 2000,  -- 2 sec
+--     no_random = true, -- always start with first nameserver
+-- }
+
+-- if not r then
+--     ngx.say("failed to instantiate the resolver: ", err)
+--     return
+-- end
+
+-- local answers, err, tries = r:query("idp.mit.c3.ca", nil, {})
+-- if not answers then
+--     ngx.say("failed to query the DNS server: ", err)
+--     ngx.say("retry historie:\n  ", table.concat(tries, "\n  "))
+--     return
+-- end
+
+-- if answers.errcode then
+--     ngx.say("server returned error code: ", answers.errcode,
+--             ": ", answers.errstr)
+-- end
+
+-- for i, ans in ipairs(answers) do
+--     ngx.log(ngx.ERR, ans.name, " ", ans.address or ans.cname,
+--             " type:", ans.type, " class:", ans.class,
+--             " ttl:", ans.ttl)
+-- end
+-- --
+
 local uncached_response = function (status, mime, message)
   -- Helper method to return uncached responses directly from the proxy without
   -- needing an underlying service.

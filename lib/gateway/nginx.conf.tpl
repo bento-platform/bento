@@ -6,7 +6,7 @@ events {
 
 http {
     # Use the Docker embedded DNS server
-    resolver 127.0.0.11 ipv6=off;
+    resolver 1.1.1.1 127.0.0.11 ipv6=off;
 
     log_format compression '${DOLLAR}remote_addr - ${DOLLAR}remote_user [${DOLLAR}time_local] '
                             '"${DOLLAR}request" ${DOLLAR}status ${DOLLAR}body_bytes_sent '
@@ -28,8 +28,8 @@ http {
         return 301 https://${DOLLAR}host${DOLLAR}request_uri;
     }
 
-
     # All https traffic
+    # -- Internal IDP Starts Here --
     # BentoV2 Auth
     server {
         listen 443 ssl;
@@ -66,7 +66,7 @@ http {
             error_log /var/log/bentov2_auth_errors.log;
         }
     }
-
+    # -- Internal IDP Ends Here --
 
     # Bento
     server {
