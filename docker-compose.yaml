@@ -340,7 +340,7 @@ services:
       - INITIALIZE_IMMEDIATELY=false
       - CHORD_DEBUG=false
       - BENTO_FEDERATION_MODE=true
-      - CHORD_URL=${BENTOV2_PUBLIC_URL}
+      - CHORD_URL=${BENTOV2_PUBLIC_URL_TRAILING_SLASH}
       - CHORD_REGISTRY_URL=${BENTOV2_PUBLIC_URL}
       - OIDC_DISCOVERY_URI=${BENTOV2_AUTH_PUBLIC_URL}/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
       # PORT: Specified when running via ./run.py; defaults to 5000
