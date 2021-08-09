@@ -22,7 +22,7 @@ WORKDIR /variant/bento_variant_service
 
 RUN git fetch && \
     git checkout "${BRANCH}" && \
-    git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
+    git checkout tags/${TAG}
 
 RUN ["pip", "install", "-r", "requirements.txt"]
 
