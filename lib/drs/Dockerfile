@@ -21,8 +21,8 @@ RUN git clone "${REPO}" && \
 WORKDIR /drs/chord_drs
 
 RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git pull $(echo "${REPO}") && \
+    git checkout "${BRANCH}" &&  \
+    git checkout tags/${TAG} && \
     \
     mkdir -p /drs/chord_drs/data/obj && \
     mkdir -p /drs/chord_drs/data/db;

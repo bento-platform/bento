@@ -1,0 +1,30 @@
+# name: push-actions
+# on: [push]
+# jobs:
+#   check-web-build-on-push:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Set up Docker Buildx
+#         id: buildx
+#         uses: docker/setup-buildx-action@v1
+
+#       - name: Checkout Repo
+#         id: checkoutx
+#         uses: actions/checkout@v2
+
+#       - name: Gather Variables
+#         id: envx
+#         run: |
+#           cp ./etc/example.env .env
+#           source .env
+
+#       - name: Build & Run Web
+#         id: webx
+#         run: |
+#           make init-docker
+#           make run-web
+#           docker ps
+#           pwd
+#           ls -lah
+#           sleep 10
+#           docker logs --tail 1000 bentov2-web

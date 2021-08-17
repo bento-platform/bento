@@ -5,6 +5,10 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 
 USER root
 
+ARG BENTO_WEB_USER
+RUN adduser --disabled-password "$BENTO_WEB_USER"
+ENV BENTO_WEB_USER="$BENTO_WEB_USER"
+
 RUN apk update && \
     apk add git nginx && \
     apk upgrade

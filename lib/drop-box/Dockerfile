@@ -17,8 +17,8 @@ RUN git clone "${REPO}" && \
     ls /drop-box;
 WORKDIR /drop-box/bento_drop_box_service
 RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}")
+    git checkout "${BRANCH}" &&  \
+    git checkout tags/${TAG}
 
 # Remove comment if custom requirements are needed
 COPY requirements.txt ./requirements.txt

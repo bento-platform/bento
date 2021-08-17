@@ -8,6 +8,9 @@ lib/gateway/certs
 lib/gateway/auth_config.json
 lib/gateway/instance_config.json
 
+lib/gateway/nginx.conf.pre
+lib/gateway/nginx.conf
+
 # ignore dev repos
 lib/web/bento_web/*
 

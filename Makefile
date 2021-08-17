@@ -1,18 +1,22 @@
 # Makefile for BentoV2
 
-# import global variables
+#>>>
+# import and setup global variables
+
+#<<<
 env ?= .env
 
 include $(env)
 export $(shell sed 's/=.*//' $(env))
 
+SHELL = bash
 
-
+CURRENT_UID := $(shell id -u)
+export CURRENT_UID
 
 
 #>>>
 # init chord services
-
 #<<<
 .PHONY: init-chord-services
 init-chord-services:
@@ -23,22 +27,23 @@ init-chord-services:
 	# copy instance_config to gateway	
 	envsubst < ${PWD}/etc/templates/instance_config.example.json > $(PWD)/lib/gateway/instance_config.json;
 
-	# copy services json to the microservices that need it
-	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/logging/chord_services.json;
-	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/service-registry/chord_services.json;
-	cp $(PWD)/etc/templates/chord_services.example.json $(PWD)/lib/wes/chord_services.json;
+	# copy services json to the microservices that need it	
+	envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/logging/chord_services.json;
+	envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/service-registry/chord_services.json; \
+	envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/wes/chord_services.json; \
 
 
 #>>>
 # create non-repo directories
-# make mkdir
-
 #<<<
 .PHONY: init-dirs
 init-dirs: data-dirs 
 	mkdir -p $(PWD)/tmp/secrets
 
-# Local directories
+
+#>>>
+# create data directories
+#<<<
 data-dirs:
 	mkdir -p ${BENTOV2_AUTH_VOL_DIR}
 	mkdir -p ${BENTOV2_KATSU_DB_VOL_DIR}
@@ -50,21 +55,10 @@ data-dirs:
 
 
 
-#>>>
-# run authentication system setup
-# make auth-setup
-
-#<<<
-.PHONY: auth-setup
-auth-setup:
-	bash $(PWD)/etc/scripts/setup.sh
-	$(MAKE) clean-gateway
-	$(MAKE) run-gateway
 
 
 #>>>
 # initialize docker prerequisites
-
 #<<<
 .PHONY: init-docker
 init-docker:
@@ -77,8 +71,6 @@ init-docker:
 
 #>>>
 # create secrets for Bento v2 services
-# make docker-secrets
-
 #<<<
 .PHONY: docker-secrets
 docker-secrets:
@@ -106,203 +98,143 @@ docker-secrets:
 
 
 
-
-
-# Run
-run-all:
-	docker-compose up -d
-
-run-gateway:
-	docker-compose up -d gateway
-
-run-auth:
-	docker-compose up -d auth
-
-run-drop-box:
-	docker-compose up -d drop-box
-
-run-service-registry:
-	docker-compose up -d service-registry
-
-run-web: clean-web
-	docker-compose up -d web
-
-# For local development
-run-web-dev: clean-web
-	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
-#
-
-run-katsu:
-	docker-compose up -d katsu
-
-run-logging:
-	docker-compose up -d logging
-
-run-drs:
-	docker-compose up -d drs
-
-run-variant:
-	docker-compose up -d variant
-
-run-notification:
-	docker-compose up -d notification
-
-run-federation:
-	docker-compose up -d federation
-
-run-event-relay:
-	docker-compose up -d event-relay
-
-run-wes:
-	docker-compose up -d wes
-
-run-redis:
-	docker-compose up -d redis
-
-
-
-
-
-# Build
-build-common-base:
-	docker-compose -f docker-compose.base.yaml build --no-cache common-alpine-python
-
-
-build-gateway:
-	docker-compose build --no-cache gateway
-
-# build-auth:
-# 	docker-compose build auth
-
-build-drop-box:
-	docker-compose build --no-cache drop-box
-
-build-service-registry:
-	docker-compose build --no-cache service-registry
-
-build-web:
-	docker-compose build --no-cache web
-	
-build-katsu:
-	docker-compose build --no-cache katsu
-
-build-logging:
-	docker-compose build --no-cache logging
-
-build-drs:
-	docker-compose build --no-cache drs
-
-build-variant:
-	docker-compose build --no-cache variant
-
-build-notification:
-	docker-compose build --no-cache notification
-
-build-federation:
-	docker-compose build --no-cache federation
-
-build-event-relay:
-	docker-compose build --no-cache event-relay
-
-build-wes:
-	docker-compose build --no-cache wes
-
-build-redis:
-	docker-compose build --no-cache redis
-
-
-
-stop-all:
-	docker-compose down;
-
-
-
-# Clean up
-clean-common-base:
-	docker rmi bentov2-common-alpine-python:0.0.1 --force;
-
-clean-all: clean-gateway \
-		clean-auth clean-web clean-drop-box clean-drs \
-		clean-service-registry clean-katsu clean-drs \
-		clean-variant clean-federation clean-wes \
-		clean-logging clean-notification clean-event-relay \
-		clean-redis
-
-# TODO: use env variables for container versions
-clean-gateway:
-	docker-compose stop gateway;
-	docker rm bentov2-gateway --force; \
-	docker rmi bentov2-gateway:0.0.1 --force;
-
-clean-auth:
-	docker rm bentov2-auth --force; 
-
-clean-web:
-	docker-compose stop web;
-	docker rm bentov2-web --force; \
-	docker rmi bentov2-web:0.0.1 --force;
-
-clean-drop-box:
-	docker rm bentov2-drop-box --force; \
-	docker rmi bentov2-drop-box:0.0.1 --force;
-
-clean-service-registry:
-	docker rm bentov2-service-registry --force; \
-	docker rmi bentov2-service-registry:0.0.1 --force;
-
-clean-katsu:
-	docker rm bentov2-katsu --force; \
-	docker rmi bentov2-katsu:0.0.1 --force;
-	
-	docker rm bentov2-katsu-db --force;
-
-clean-logging:
-	docker rm bentov2-logging --force; \
-	docker rmi bentov2-logging:0.0.1 --force;
-
-clean-drs:
-	docker rm bentov2-drs --force; \
-	docker rmi bentov2-drs:0.0.1 --force;
-
-clean-variant:
-	docker rm bentov2-variant --force; \
-	docker rmi bentov2-variant:0.0.1 --force;
-
-clean-notification:
-	docker rm bentov2-notification --force; \
-	docker rmi bentov2-notification:0.0.1 --force;
-
-clean-federation:
-	docker rm bentov2-federation --force; \
-	docker rmi bentov2-federation:0.0.1 --force;
-
-clean-event-relay:
-	docker rm bentov2-event-relay --force; \
-	docker rmi bentov2-event-relay:0.0.1 --force;
-
-clean-redis:
-	docker rm bentov2-redis --force
-
-clean-wes:
-	docker rm bentov2-wes --force; \
-	docker rmi bentov2-wes:0.0.1 --force;
+#>>>
+# run authentication system setup
+#<<<
+.PHONY: auth-setup
+auth-setup:
+	bash $(PWD)/etc/scripts/setup.sh
+	$(MAKE) clean-gateway
+	$(MAKE) run-gateway
 
 
 
 #>>>
-# clean data directories
+# run all services
+#<<<
+run-all:
+	docker-compose up -d
 
+#>>>
+# run the web service using a local copy of bento_web
+# for development purposes
+#
+#	see docker-compose.dev.yaml
+#<<<
+run-web-dev: clean-web
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
+
+#>>>
+# run the gateway service that utilizes the local idp hostname as an alias
+# for development purposes
+#
+#	see docker-compose.dev.yaml
+#<<<
+run-gateway-dev: clean-gateway
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate gateway
+
+
+#>>>
+# run a specified service
+#<<<
+run-%:
+	@if [[ $* == gateway ]]; then \
+		echo "Setting up gateway prerequisites"; \
+		envsubst < ./lib/gateway/nginx.conf.tpl > ./lib/gateway/nginx.conf.pre; \
+		if [[ ${USE_EXTERNAL_IDP} == 1 ]]; then \
+			echo "Fine tuning nginx.conf to support External IDP"; \
+			\
+			sed '/-- Internal IDP Starts Here --/,/-- Internal IDP Ends Here --/d' ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
+			\
+			rm ./lib/gateway/nginx.conf.pre; \
+		else \
+			cat ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
+			rm ./lib/gateway/nginx.conf.pre; \
+		fi \
+	elif [[ $* == web ]]; then \
+		echo "Cleaning web before running"; \
+		$(MAKE) clean-web; \
+	fi
+
+	docker-compose up -d $*
+
+
+
+#>>>
+# build common base images
+#<<<
+build-common-base:
+	docker-compose -f docker-compose.base.yaml build --no-cache common-alpine-python
+
+#>>>
+# build a specified service
+#<<<
+build-%:
+	@# Don't build auth
+	@if [[ $* == auth ]]; then \
+		echo "Auth doens't need to be built! Aborting --"; \
+		exit 1; \
+	fi
+
+	docker-compose build --no-cache $*
+
+
+
+#>>>
+# stop all services
+#<<<
+stop-all:
+	docker-compose down;
+
+#>>>
+# stop a specific service
+#<<<
+stop-%:
+	docker-compose stop $*;
+
+
+
+#>>>
+# clean up common base images
+#<<<
+clean-common-base:
+	docker rmi bentov2-common-alpine-python:0.0.1 --force;
+
+#>>>
+# clean all service containers and/or applicable images
+#<<<
+clean-all:
+	$(foreach SERVICE, $(SERVICES), \
+		$(MAKE) clean-$(SERVICE);)
+
+#>>>
+# clean a specific service container and/or applicable images
+
+# TODO: use env variables for container versions
+#<<<
+clean-%:
+	docker-compose stop $*;
+	
+	docker rm bentov2-$* --force; 
+	
+	@# Some services don't need their images removed
+	@if [[ $* != auth && $* != redis ]]; then \
+		docker rmi bentov2-$*:0.0.1 --force; \
+	fi
+
+	@# Katsu also needs it's database to be stopped
+	@if [[ $* == katsu ]]; then \
+		docker rm bentov2-katsu-db --force; \
+	fi
+
+#>>>
+# clean data directories
 #<<<
 clean-all-volume-dirs:
 	sudo rm -r lib/*/data
 
-
-
-
-
 #>>>
 # clean docker secrets
-
 #<<<
 .PHONY: clean-secrets
 clean-secrets:
@@ -317,7 +249,6 @@ clean-secrets:
 
 #>>>
 # clean docker services
-
 #<<<
 .PHONY: clean-chord-services
 clean-chord-services:
@@ -325,10 +256,8 @@ clean-chord-services:
 
 
 
-
 #>>>
 # tests
-
 #<<<
 run-tests: \
 		run-unit-tests \
@@ -343,14 +272,12 @@ run-integration-tests:
 	
 
 
-
 # -- Utils --
 
 #>>>
 # create a random secret and add it to tmp/secrets/$secret_name
-# make secret-$secret_name
-
 #<<<
 secret-%:
 	@dd if=/dev/urandom bs=1 count=16 2>/dev/null \
 		| base64 | rev | cut -b 2- | rev | tr -d '\n\r' > $(PWD)/tmp/secrets/$*
+

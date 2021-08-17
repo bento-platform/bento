@@ -44,9 +44,8 @@ WORKDIR /wes/bento_wes
 RUN git config user.name "docker" && \
     git config user.email "docker@bento.v2" && \
     git fetch && \
-    git checkout "${BRANCH}" && \ 
-    git pull $(echo "${REPO}")
-#refs/tags/${TAG}:refs/tags/${TAG}
+    git checkout "${BRANCH}" && \
+    git checkout tags/${TAG}
 
 RUN ["pip", "install", "-r", "requirements.txt"]
 

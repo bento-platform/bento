@@ -28,8 +28,8 @@ WORKDIR /app/katsu
 RUN git config user.name "docker" && \
     git config user.email "docker@bento.v2" && \
     git fetch && \
-    git checkout "${KATSU_BRANCH}" && \ 
-    git pull $(echo "${KATSU_REPO}") && \
+    git checkout "${KATSU_BRANCH}" && \
+    git checkout tags/${KATSU_TAG} && \
     git submodule update --init
 
 
@@ -41,7 +41,8 @@ RUN pip install -r requirements.txt;
 
 
 # TEMP
-COPY settings.py ./chord_metadata_service/metadata/settings.py
+ARG BENTOV2_DOMAIN
+RUN sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ./chord_metadata_service/metadata/settings.py
 
 # # Pull subdirectories
 # WORKDIR /app/katsu/chord_metadata_service/dats
