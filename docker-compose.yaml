@@ -380,7 +380,7 @@ services:
       #- SERVICE_URL_BASE_PATH=
 
       # socket.io "path" for the server created by the service.
-      - SOCKET_IO_PATH="/socket.io"
+      - SOCKET_IO_PATH="${BENTOV2_EVENT_RELAY_SOCKET_IO_PATH}"
 
       # Connection string (URL or path to UNIX socket file) for the Redis instance.
       - REDIS_CONNECTION=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
