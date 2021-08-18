@@ -140,6 +140,13 @@ run-gateway-dev: clean-gateway
 run-variant-dev: clean-variant
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate variant
 
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-katsu-dev: clean-katsu
+	export DOCKERFILE=Dockerfile.dev && docker-compose -f docker-compose.yaml up -d --force-recreate katsu
+
 
 #>>>
 # run a specified service
@@ -163,7 +170,7 @@ run-%:
 		$(MAKE) clean-web; \
 	fi
 
-	docker-compose up -d $*
+	export DOCKERFILE=Dockerfile && docker-compose up -d $*
 
 
 
