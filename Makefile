@@ -133,6 +133,13 @@ run-web-dev: clean-web
 run-gateway-dev: clean-gateway
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate gateway
 
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-variant-dev: clean-variant
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate variant
+
 
 #>>>
 # run a specified service

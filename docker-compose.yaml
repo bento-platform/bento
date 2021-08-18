@@ -274,6 +274,7 @@ services:
   variant:
     build:
       context: $PWD/lib/variant
+      dockerfile: Dockerfile.prod
       args:
         BASE_IMAGE: ${BENTOV2_VARIANT_BASE_IMAGE}
         BASE_IMAGE_VERSION: ${BENTOV2_VARIANT_BASE_IMAGE_VERSION}
