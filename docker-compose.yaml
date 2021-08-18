@@ -256,6 +256,12 @@ services:
       - FLASK_APP=app
       - DATABASE=/drs/chord_drs/data/db/  # slightly confused naming, folder for database to go in
       - DATA=/drs/chord_drs/data/obj/  # DRS file objects, vs. the database
+      - VARIANT_SERVICE_URL=http://${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT}
+
+    depends_on:
+      - variant # wait for `variant` service to start so `drs`
+                # service can ping variant service notifying it
+                # can query for ingested variants upon startup 
     networks: 
       - bridge-net
     expose:
@@ -287,9 +293,7 @@ services:
       - INITIALIZE_IMMEDIATELY=${BENTOV2_VARIANT_INITIALIZE_IMMEDIATELY}
       - DATA=${BENTOV2_VARIANT_DATA}
       - CHORD_URL=${BENTOV2_VARIANT_CHORD_URL}
-    depends_on:
-      - drs # wait for `drs` service to start so `variant`
-            # service can query for ingested variants upon startup 
+
     networks: 
       - bridge-net
     expose:
