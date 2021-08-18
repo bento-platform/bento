@@ -287,7 +287,9 @@ services:
       - INITIALIZE_IMMEDIATELY=${BENTOV2_VARIANT_INITIALIZE_IMMEDIATELY}
       - DATA=${BENTOV2_VARIANT_DATA}
       - CHORD_URL=${BENTOV2_VARIANT_CHORD_URL}
-
+    depends_on:
+      - drs # wait for `drs` service to start so `variant`
+            # service can query for ingested variants upon startup 
     networks: 
       - bridge-net
     expose:
