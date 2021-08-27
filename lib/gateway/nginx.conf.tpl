@@ -36,8 +36,8 @@ http {
 
         server_name ${BENTOV2_AUTH_DOMAIN};
 
-        ssl_certificate /usr/local/openresty/nginx/certs/auth_fullchain1.crt;
-        ssl_certificate_key /usr/local/openresty/nginx/certs/auth_privkey1.key;
+        ssl_certificate ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_AUTH_FULLCHAIN_RELATIVE_PATH};
+        ssl_certificate_key ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_AUTH_PRIVKEY_RELATIVE_PATH};
 
 
         # Security --
@@ -74,8 +74,8 @@ http {
 
         server_name ${BENTOV2_DOMAIN};
 
-        ssl_certificate /usr/local/openresty/nginx/certs/fullchain1.crt;
-        ssl_certificate_key /usr/local/openresty/nginx/certs/privkey1.key;
+        ssl_certificate ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_FULLCHAIN_RELATIVE_PATH};
+        ssl_certificate_key ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_PRIVKEY_RELATIVE_PATH};
 
         # Security --
         add_header X-Frame-Options "SAMEORIGIN";

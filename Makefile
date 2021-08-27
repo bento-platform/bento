@@ -25,7 +25,7 @@ init-chord-services:
 	echo "{\"data\":\"this is a placeholder and should be overwritten when the authentication service is configured. if you are reading this, see the project README, and perhaps consult the 'Makefile'\"}" > $(PWD)/lib/gateway/auth_config.json;
 
 	# copy instance_config to gateway	
-	envsubst < ${PWD}/etc/templates/instance_config.example.json > $(PWD)/lib/gateway/instance_config.json;
+	envsubst < ${PWD}/etc/templates/instance_config.json.tpl > $(PWD)/lib/gateway/instance_config.json;
 
 	# copy services json to the microservices that need it	
 	envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/logging/chord_services.json;
@@ -141,7 +141,7 @@ run-%:
 	@if [[ $* == gateway ]]; then \
 		echo "Setting up gateway prerequisites"; \
 		envsubst < ./lib/gateway/nginx.conf.tpl > ./lib/gateway/nginx.conf.pre; \
-		if [[ ${USE_EXTERNAL_IDP} == 1 ]]; then \
+		if [[ ${BENTOV2_USE_EXTERNAL_IDP} == 1 ]]; then \
 			echo "Fine tuning nginx.conf to support External IDP"; \
 			\
 			sed '/-- Internal IDP Starts Here --/,/-- Internal IDP Ends Here --/d' ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
