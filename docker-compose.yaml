@@ -34,7 +34,7 @@ services:
       - "80:80"
       - "443:443"
     volumes: 
-      - ${BENTOV2_GATEWAY_CERTS_DIR}:/usr/local/openresty/nginx/certs
+      - ${BENTOV2_GATEWAY_CERTS_DIR}:${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}
 
 
   auth:

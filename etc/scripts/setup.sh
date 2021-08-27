@@ -12,7 +12,7 @@ echo "Generated BENTOV2_AUTH_CLIENT_ID_64 as ${BENTOV2_AUTH_CLIENT_ID_64}"
 echo "- Done with prereqs.. -"
 # --
 
-if [ $USE_EXTERNAL_IDP == 1 ]
+if [ $BENTOV2_USE_EXTERNAL_IDP == 1 ]
 then
     echo "Using External IDP --";
 else
