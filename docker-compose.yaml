@@ -124,7 +124,7 @@ services:
       - |
         python manage.py makemigrations
         python manage.py migrate
-        python manage.py runserver 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT}
+        gunicorn chord_metadata_service.metadata.wsgi:application -w 2 --threads 2 -b 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT} 
 
 
   katsu-db:
@@ -233,6 +233,7 @@ services:
       # Runtime
       - FLASK_DEBUG=False
       - FLASK_APP=app
+      - INTERNAL_PORT=${BENTOV2_LOGGING_INTERNAL_PORT}
     networks: 
       - bridge-net
     expose:

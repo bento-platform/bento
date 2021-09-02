@@ -24,9 +24,12 @@ RUN git fetch && \
 
 RUN pip install -r requirements.txt
 
-COPY chord_services.json /service-registry/bento_service_registry/chord_services.json
+COPY chord_services.json /service-registry/bento_service_registry/bento_service_registry/chord_services.json
 
 # Run
 WORKDIR /service-registry/bento_service_registry
 
-CMD ["flask", "run", "--host=0.0.0.0"]
+COPY ./gunicorn_starter.sh .
+RUN chmod 775 ./gunicorn_starter.sh
+
+ENTRYPOINT [ "./gunicorn_starter.sh" ]

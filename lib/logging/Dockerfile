@@ -29,4 +29,8 @@ WORKDIR /logging/bento_log_service/bento_log_service
 
 COPY chord_services.json ./chord_services.json
 
-CMD ["flask", "run", "--host=0.0.0.0"]
+COPY ./gunicorn_starter.sh .
+RUN chmod 775 ./gunicorn_starter.sh
+
+# Run
+ENTRYPOINT [ "./gunicorn_starter.sh" ]
