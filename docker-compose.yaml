@@ -212,6 +212,9 @@ services:
       # Python path template for the services, off of the CHORD_URL value
       # Currently only supports artifact-based paths
       - URL_PATH_FORMAT=api/{artifact}
+
+      - INTERNAL_PORT=${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
+
     networks: 
       - bridge-net
     expose:
@@ -258,6 +261,8 @@ services:
       - DATABASE=/drs/chord_drs/data/db/  # slightly confused naming, folder for database to go in
       - DATA=/drs/chord_drs/data/obj/  # DRS file objects, vs. the database
       - VARIANT_SERVICE_URL=http://${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT}
+      
+      - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
 
     depends_on:
       - variant # wait for `variant` service to start so `drs`
@@ -295,6 +300,8 @@ services:
       - DATA=${BENTOV2_VARIANT_DATA}
       - CHORD_URL=${BENTOV2_VARIANT_CHORD_URL}
 
+      - INTERNAL_PORT=${BENTOV2_VARIANT_INTERNAL_PORT}
+
     networks: 
       - bridge-net
     expose:
@@ -320,6 +327,9 @@ services:
       - DATABASE=/notification/data
       - REDIS_HOST=${BENTOV2_REDIS_CONTAINER_NAME}
       - REDIS_PORT=${BENTOV2_REDIS_INTERNAL_PORT}
+
+      - INTERNAL_PORT=${BENTOV2_NOTIFICATION_INTERNAL_PORT}
+    
     networks: 
       - bridge-net
     expose:
@@ -448,6 +458,8 @@ services:
       - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PUBLIC_URL}/api/auth/ott
       - FLASK_ENV=development
       - CHORD_DEBUG=True
+
+      - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
 
     networks: 
       - bridge-net

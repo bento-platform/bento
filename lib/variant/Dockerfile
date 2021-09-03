@@ -32,6 +32,7 @@ ARG BCFTOOLS_VERSION
 
 RUN wget https://github.com/samtools/bcftools/releases/download/${BCFTOOLS_VERSION}/bcftools-${BCFTOOLS_VERSION}.tar.bz2
 RUN tar -vxjf bcftools-${BCFTOOLS_VERSION}.tar.bz2
+
 WORKDIR /variant/bento_variant_service/bcftools-${BCFTOOLS_VERSION}
 RUN make
 ENV PATH="/variant/bento_variant_service/bcftools-${BCFTOOLS_VERSION}:${PATH}"
@@ -39,6 +40,10 @@ ENV PATH="/variant/bento_variant_service/bcftools-${BCFTOOLS_VERSION}:${PATH}"
 
 
 # Run
-WORKDIR /variant/bento_variant_service/bento_variant_service
+WORKDIR /variant/bento_variant_service
 
-CMD ["flask", "run", "--host=0.0.0.0"]
+# CMD ["flask", "run", "--host=0.0.0.0"]
+COPY ./gunicorn_starter.sh .
+RUN chmod 775 ./gunicorn_starter.sh
+
+CMD [ "./gunicorn_starter.sh" ]
