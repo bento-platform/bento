@@ -36,3 +36,4 @@ RUN apk update; \
 		zlib-dev
 
 RUN python -m pip install --upgrade pip
+RUN pip install gunicorn
