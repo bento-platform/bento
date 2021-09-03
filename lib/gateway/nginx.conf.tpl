@@ -114,9 +114,9 @@ http {
             access_by_lua_file /usr/local/openresty/nginx/proxy_auth.lua;
             #try_files ${DOLLAR}uri /index.html;
 
-            set ${DOLLAR}upstream_cancogen http://bentov2-web:3000;
+            set ${DOLLAR}upstream_web http://${BENTOV2_WEB_CONTAINER_NAME}:${BENTOV2_WEB_INTERNAL_PORT};
 
-            proxy_pass    ${DOLLAR}upstream_cancogen;
+            proxy_pass    ${DOLLAR}upstream_web;
             error_log /var/log/bentov2_web_errors.log;
 
         }
@@ -167,7 +167,7 @@ http {
             rewrite /api/metadata/(.*) /${DOLLAR}1  break;
 
             # Forward request to the katsu
-            proxy_pass    http://bentov2-katsu:8000/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args; 
+            proxy_pass    http://${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args; 
 
             # Errors
             error_log /var/log/bentov2_metadata_errors.log;
@@ -208,7 +208,7 @@ http {
             rewrite /api/drop-box/(.*) /${DOLLAR}1  break;
 
             # Forward request to the drop-box
-            proxy_pass  http://bentov2-drop-box:5000/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${BENTOV2_DROP_BOX_CONTAINER_NAME}:${BENTOV2_DROP_BOX_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_drop_box_errors.log;
@@ -248,7 +248,7 @@ http {
             rewrite /api/service-registry/(.*) /${DOLLAR}1  break;
 
             # Forward request to the service-registry
-            proxy_pass  http://bentov2-service-registry:5000/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_service_registry_errors.log;
@@ -288,7 +288,7 @@ http {
             rewrite /api/log-service/(.*) /${DOLLAR}1  break;
 
             # Forward request to the log-service
-            proxy_pass  http://bentov2-logging:5000/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${BENTOV2_LOGGING_CONTAINER_NAME}:${BENTOV2_LOGGING_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_logging_errors.log;
@@ -328,7 +328,7 @@ http {
             rewrite /api/drs/(.*) /${DOLLAR}1  break;
 
             # Forward request to DRS
-            proxy_pass  http://bentov2-drs:5000/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_drs_errors.log;
@@ -368,7 +368,7 @@ http {
             rewrite /api/variant/(.*) /${DOLLAR}1  break;
 
             # Forward request to variant service
-            proxy_pass  http://bentov2-variant:5000/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_variant_errors.log;
@@ -408,7 +408,7 @@ http {
             rewrite /api/notification/(.*) /${DOLLAR}1  break;
 
             # Forward request to notification service
-            proxy_pass  http://bentov2-notification:5000/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${BENTOV2_NOTIFICATION_CONTAINER_NAME}:${BENTOV2_NOTIFICATION_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_notification_errors.log;
@@ -447,7 +447,7 @@ http {
             rewrite /api/federation/(.*) /${DOLLAR}1  break;
 
             # Forward request to federation service
-            proxy_pass  http://bentov2-federation:5000/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${BENTOV2_FEDERATION_CONTAINER_NAME}:${BENTOV2_FEDERATION_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_federation_errors.log;
@@ -486,7 +486,7 @@ http {
             rewrite /api/event-relay/(.*) /${DOLLAR}1  break;
 
             # Forward request to event-relay service
-            proxy_pass  http://bentov2-event-relay:8080/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${BENTOV2_EVENT_RELAY_CONTAINER_NAME}:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_event_relay_errors.log;
@@ -526,7 +526,7 @@ http {
             rewrite /api/wes/(.*) /${DOLLAR}1  break;
 
             # Forward request to wes service
-            proxy_pass  http://bentov2-wes:5000/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${BENTOV2_WES_CONTAINER_NAME}:${BENTOV2_WES_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_wes_errors.log;
