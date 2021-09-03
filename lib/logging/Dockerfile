@@ -25,12 +25,11 @@ RUN git fetch && \
 RUN ["pip", "install", "-r", "requirements.txt"]
 
 # Run
-WORKDIR /logging/bento_log_service/bento_log_service
+WORKDIR /logging/bento_log_service
 
 COPY chord_services.json ./chord_services.json
 
 COPY ./gunicorn_starter.sh .
 RUN chmod 775 ./gunicorn_starter.sh
 
-# Run
 ENTRYPOINT [ "./gunicorn_starter.sh" ]
