@@ -22,6 +22,11 @@ services:
     extends:
       file: docker-compose.yaml
       service: variant
+    command: |
+      pip install -r requirements.txt
+    volumes: 
+      - ./bento_variant_service:/variant/bento_variant_service/bento_variant_service
+
 
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
