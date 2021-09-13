@@ -14,14 +14,18 @@ ARG BRANCH
 ARG TAG
 
 RUN mkdir -p /variant/data
+RUN mkdir -p /variant/bento_variant_service
 
 RUN echo "Building Variant in Development Mode" ; 
-COPY ./bento_variant_service bento_variant_service
+COPY ./bento_variant_service/requirements.txt bento_variant_service/requirements.txt
+
 
 WORKDIR /variant/bento_variant_service
 
 RUN ["pip", "install", "-r", "requirements.txt"]
     
+
+
 
 
 # Install BCF Tools
@@ -36,6 +40,5 @@ ENV PATH="/variant/bento_variant_service/bcftools-${BCFTOOLS_VERSION}:${PATH}"
 
 
 # Run
-WORKDIR /variant/bento_variant_service/bento_variant_service
+WORKDIR /variant/bento_variant_service
 
-CMD ["flask", "run", "--host=0.0.0.0"]

@@ -22,11 +22,15 @@ services:
     extends:
       file: docker-compose.yaml
       service: variant
-    command: |
-      pip install -r requirements.txt
+    command: >
+      sh -c  "ls -lah &&
+              cd bento_variant_service/bento_variant_service &&
+              ls -lah &&
+              flask run --host=0.0.0.0"
     volumes: 
-      - ./bento_variant_service:/variant/bento_variant_service/bento_variant_service
-
+      - ./lib/variant/bento_variant_service:/variant/bento_variant_service/bento_variant_service
+      - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
+      - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
 
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN

@@ -137,7 +137,7 @@ run-gateway-dev: clean-gateway
 # ...
 #	see docker-compose.dev.yaml
 #<<<
-run-variant-dev: clean-variant
+run-variant-dev: #clean-variant
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate variant
 
 #>>>
