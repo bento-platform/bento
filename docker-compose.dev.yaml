@@ -15,6 +15,14 @@ services:
       file: docker-compose.yaml
       service: web
 
+  variant:
+    build:
+      context: $PWD/lib/variant
+      dockerfile: Dockerfile.dev
+    extends:
+      file: docker-compose.yaml
+      service: variant
+
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
     networks: 

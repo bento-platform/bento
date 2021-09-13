@@ -82,6 +82,7 @@ services:
   katsu:
     build:
       context: $PWD/lib/katsu
+      dockerfile: ${DOCKERFILE}
       args:
         BASE_IMAGE:  ${BENTOV2_KATSU_BASE_IMAGE}
         BASE_IMAGE_VERSION: ${BENTOV2_KATSU_BASE_IMAGE_VERSION}
@@ -280,6 +281,7 @@ services:
   variant:
     build:
       context: $PWD/lib/variant
+      dockerfile: Dockerfile.prod
       args:
         BASE_IMAGE: ${BENTOV2_VARIANT_BASE_IMAGE}
         BASE_IMAGE_VERSION: ${BENTOV2_VARIANT_BASE_IMAGE_VERSION}

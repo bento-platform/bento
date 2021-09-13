@@ -1,0 +1,38 @@
+ARG BASE_IMAGE
+ARG BASE_IMAGE_VERSION
+
+FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
+
+LABEL Maintainer="Bento Project"
+
+# TODO: change USER
+USER root
+
+WORKDIR /
+
+RUN mkdir /app && \
+    mkdir /app/tmp && \
+    chmod 777 /app/tmp
+
+WORKDIR /app
+
+ARG KATSU_REPO
+ARG KATSU_BRANCH
+ARG KATSU_TAG
+
+# Copy the repo
+RUN echo "Building Katsu in Development Mode" ; 
+COPY ./katsu katsu
+
+WORKDIR /app/katsu
+
+# Install dependencies
+# -- fixes PEP 517 build error --
+RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
+# --
+RUN pip install -r requirements.txt;
+
+
+ARG BENTOV2_DOMAIN
+RUN sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ./chord_metadata_service/metadata/settings.py
+
