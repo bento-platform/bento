@@ -1,5 +1,13 @@
 version: '3.7'
 
+secrets:
+  metadata-app-secret:
+    file: $PWD/tmp/secrets/metadata-app-secret
+  metadata-db-user:
+    file: $PWD/tmp/secrets/metadata-db-user
+  metadata-db-secret:
+    file: $PWD/tmp/secrets/metadata-db-secret
+
 services:
   web:
     build:
@@ -42,6 +50,28 @@ services:
     extends:
       file: docker-compose.yaml
       service: gateway
+
+  katsu:
+    build:
+      context: $PWD/lib/katsu
+      dockerfile: Dockerfile.dev
+    networks: 
+      - bridge-net
+    depends_on:
+      - katsu-db
+    extends:
+      file: docker-compose.katsu.yaml
+      service: katsu
+    volumes: 
+      - ./lib/katsu/katsu:/app/katsu
+
+  katsu-db:
+    networks: 
+      - bridge-net
+    extends:
+      file: docker-compose.katsu.yaml
+      service: katsu-db
+
 networks: 
   bridge-net:
     external: true

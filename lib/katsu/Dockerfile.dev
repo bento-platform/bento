@@ -20,9 +20,11 @@ ARG KATSU_REPO
 ARG KATSU_BRANCH
 ARG KATSU_TAG
 
-# Copy the repo
 RUN echo "Building Katsu in Development Mode" ; 
-COPY ./katsu katsu
+# Copy the repo requirements.txt and install them
+# directly in the container before loading the project
+# directory as a volume
+COPY ./katsu/requirements.txt katsu/requirements.txt
 
 WORKDIR /app/katsu
 
@@ -33,6 +35,8 @@ RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
 RUN pip install -r requirements.txt;
 
 
+# TEMP: modify settings.py file to allow for domain host name to be
+# allowed to make calls
 ARG BENTOV2_DOMAIN
-RUN sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ./chord_metadata_service/metadata/settings.py
+CMD sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ./chord_metadata_service/metadata/settings.py
 

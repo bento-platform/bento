@@ -40,17 +40,7 @@ RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
 RUN pip install -r requirements.txt;
 
 
-# TEMP
+# TEMP: modify settings.py file to allow for domain host name to be
+# allowed to make calls
 ARG BENTOV2_DOMAIN
-RUN sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ./chord_metadata_service/metadata/settings.py
-
-# # Pull subdirectories
-# WORKDIR /app/katsu/chord_metadata_service/dats
-# RUN git pull
-
-# Navigate back to the main repo
-# WORKDIR /app/katsu
-
-# At runtime
-#ENTRYPOINT ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
+CMD sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ./chord_metadata_service/metadata/settings.py

@@ -145,7 +145,7 @@ run-variant-dev: clean-variant
 #	see docker-compose.dev.yaml
 #<<<
 run-katsu-dev: clean-katsu
-	export DOCKERFILE=Dockerfile.dev && docker-compose -f docker-compose.yaml up -d --force-recreate katsu
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate katsu
 
 
 #>>>
