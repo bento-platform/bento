@@ -1,5 +1,13 @@
 version: '3.7'
 
+secrets:
+  metadata-app-secret:
+    file: $PWD/tmp/secrets/metadata-app-secret
+  metadata-db-user:
+    file: $PWD/tmp/secrets/metadata-db-user
+  metadata-db-secret:
+    file: $PWD/tmp/secrets/metadata-db-secret
+
 services:
   web:
     build:
@@ -15,6 +23,23 @@ services:
       file: docker-compose.yaml
       service: web
 
+  variant:
+    build:
+      context: $PWD/lib/variant
+      dockerfile: Dockerfile.dev
+    extends:
+      file: docker-compose.yaml
+      service: variant
+    command: >
+      sh -c  "ls -lah &&
+              cd bento_variant_service/bento_variant_service &&
+              ls -lah &&
+              flask run --host=0.0.0.0"
+    volumes: 
+      - ./lib/variant/bento_variant_service:/variant/bento_variant_service/bento_variant_service
+      - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
+      - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
+
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
     networks: 
@@ -25,6 +50,28 @@ services:
     extends:
       file: docker-compose.yaml
       service: gateway
+
+  katsu:
+    build:
+      context: $PWD/lib/katsu
+      dockerfile: Dockerfile.dev
+    networks: 
+      - bridge-net
+    depends_on:
+      - katsu-db
+    extends:
+      file: $PWD/lib/katsu/docker-compose.katsu.yaml
+      service: katsu
+    volumes: 
+      - ./lib/katsu/katsu:/app/katsu
+
+  katsu-db:
+    networks: 
+      - bridge-net
+    extends:
+      file: $PWD/lib/katsu/docker-compose.katsu.yaml
+      service: katsu-db
+
 networks: 
   bridge-net:
     external: true

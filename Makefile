@@ -133,6 +133,20 @@ run-web-dev: clean-web
 run-gateway-dev: clean-gateway
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate gateway
 
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-variant-dev: clean-variant
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate variant
+
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-katsu-dev: clean-katsu
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate katsu
+
 
 #>>>
 # run a specified service
@@ -156,7 +170,7 @@ run-%:
 		$(MAKE) clean-web; \
 	fi
 
-	docker-compose up -d $*
+	export DOCKERFILE=Dockerfile && docker-compose up -d $*
 
 
 
@@ -165,6 +179,7 @@ run-%:
 #<<<
 build-common-base:
 	docker-compose -f docker-compose.base.yaml build --no-cache common-alpine-python
+	#docker-compose -f docker-compose.base.yaml build --no-cache common-debian-python
 
 #>>>
 # build a specified service
