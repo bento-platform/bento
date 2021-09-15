@@ -170,7 +170,7 @@ run-%:
 		$(MAKE) clean-web; \
 	fi
 
-	export DOCKERFILE=Dockerfile && docker-compose up -d $*
+	docker-compose up -d $*
 
 
 
