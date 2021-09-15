@@ -20,10 +20,12 @@ ARG KATSU_REPO
 ARG KATSU_BRANCH
 ARG KATSU_TAG
 
+ARG PROJECT_DIRECTORY
+
 # Clone the repo
 RUN git clone "${KATSU_REPO}"
 
-WORKDIR /app/katsu
+WORKDIR ${PROJECT_DIRECTORY}
 
 RUN git config user.name "docker" && \
     git config user.email "docker@bento.v2" && \
@@ -43,4 +45,4 @@ RUN pip install -r requirements.txt;
 # TEMP: modify settings.py file to allow for domain host name to be
 # allowed to make calls
 ARG BENTOV2_DOMAIN
-CMD sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ./chord_metadata_service/metadata/settings.py
+RUN sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ${PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py

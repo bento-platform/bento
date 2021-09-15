@@ -78,6 +78,7 @@ services:
     # nginx "listener" upon container startup
     entrypoint: sh /web/startup.sh
 
+
   katsu:
     build:
       context: $PWD/lib/katsu
@@ -87,7 +88,7 @@ services:
     depends_on:
       - katsu-db
     extends:
-      file: docker-compose.katsu.yaml
+      file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu
 
 
@@ -95,7 +96,7 @@ services:
     networks: 
       - bridge-net
     extends:
-      file: docker-compose.katsu.yaml
+      file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu-db
 
 

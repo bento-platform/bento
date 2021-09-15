@@ -20,13 +20,15 @@ ARG KATSU_REPO
 ARG KATSU_BRANCH
 ARG KATSU_TAG
 
+ARG PROJECT_DIRECTORY
+
 RUN echo "Building Katsu in Development Mode" ; 
 # Copy the repo requirements.txt and install them
 # directly in the container before loading the project
 # directory as a volume
-COPY ./katsu/requirements.txt katsu/requirements.txt
+COPY ./katsu/requirements.txt ${PROJECT_DIRECTORY}/requirements.txt
 
-WORKDIR /app/katsu
+WORKDIR ${PROJECT_DIRECTORY}
 
 # Install dependencies
 # -- fixes PEP 517 build error --
@@ -38,5 +40,5 @@ RUN pip install -r requirements.txt;
 # TEMP: modify settings.py file to allow for domain host name to be
 # allowed to make calls
 ARG BENTOV2_DOMAIN
-CMD sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ./chord_metadata_service/metadata/settings.py
+CMD sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ${PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py
 
