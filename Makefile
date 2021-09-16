@@ -115,6 +115,11 @@ auth-setup:
 run-all:
 	docker-compose up -d
 
+	@if [[ ${BENTOV2_USE_EXTERNAL_IDP} == 1 ]]; then \
+		echo "-- Cleaning up redundant bentov2-auth from "run-all" --"; \
+		$(MAKE) clean-auth; \
+	fi \
+
 #>>>
 # run the web service using a local copy of bento_web
 # for development purposes
