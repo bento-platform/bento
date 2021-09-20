@@ -1,36 +1,48 @@
 # Makefile for BentoV2
 
 #>>>
-# import and setup global variables
-
+# import and setup global environment variables
 #<<<
 env ?= .env
 
 include $(env)
 export $(shell sed 's/=.*//' $(env))
 
+#>>>
+# set default shell
+#<<<
 SHELL = bash
 
+#>>>
+# provide host-level user id as an 
+# environment variable for containers to use
+#<<<
 CURRENT_UID := $(shell id -u)
 export CURRENT_UID
 
 
 #>>>
-# init chord services
+# init chord service configuration files
 #<<<
 .PHONY: init-chord-services
 init-chord-services:
+	@echo "-- Initializing CHORD service configuration files  --"
 
-	# create dummy auth_config.json "placeholder"
-	echo "{\"data\":\"this is a placeholder and should be overwritten when the authentication service is configured. if you are reading this, see the project README, and perhaps consult the 'Makefile'\"}" > $(PWD)/lib/gateway/auth_config.json;
+	@# create dummy auth_config.json "placeholder"
+	@echo "- Creating a "dummy" auth_config.json to be overwritten later.."
+	@echo "{\"data\":\"this is a placeholder and should be overwritten when the authentication service is configured. if you are reading this, see the project README, and perhaps consult the 'Makefile'\"}" > $(PWD)/lib/gateway/auth_config.json;
 
-	# copy instance_config to gateway	
-	envsubst < ${PWD}/etc/templates/instance_config.json.tpl > $(PWD)/lib/gateway/instance_config.json;
+	@# copy instance_config to gateway	
+	@echo "- Copying instance_config.json to lib/gateway"
+	@envsubst < ${PWD}/etc/templates/instance_config.json.tpl > $(PWD)/lib/gateway/instance_config.json;
 
-	# copy services json to the microservices that need it	
-	envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/logging/chord_services.json;
-	envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/service-registry/chord_services.json; \
-	envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/wes/chord_services.json; \
+	@# copy services json to the microservices that need it	
+	@echo "- Providing a complete chord_services.json to lib/[logging, service-registry, wes]"
+	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/logging/chord_services.json;
+	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/service-registry/chord_services.json;
+	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/wes/chord_services.json;
+
+	@echo "-- Done --"
 
 
 #>>>
@@ -38,6 +50,8 @@ init-chord-services:
 #<<<
 .PHONY: init-dirs
 init-dirs: data-dirs 
+	@echo "-- Initializing temporary and data directories --"
+	@echo "- Creating temporary secrets dir"
 	mkdir -p $(PWD)/tmp/secrets
 
 
@@ -45,6 +59,7 @@ init-dirs: data-dirs
 # create data directories
 #<<<
 data-dirs:
+	@echo "- Creating data dirs"
 	mkdir -p ${BENTOV2_AUTH_VOL_DIR}
 	mkdir -p ${BENTOV2_KATSU_DB_VOL_DIR}
 	mkdir -p ${BENTOV2_NOTIFICATION_VOL_DIR}
@@ -62,11 +77,13 @@ data-dirs:
 #<<<
 .PHONY: init-docker
 init-docker:
-	# Swarm for docker secrets
-	docker swarm init
+	@# Swarm for docker secrets
+	@echo "-- Initializing Docker Swarm for docker secrets (this may crash if already set) --"
+	@docker swarm init &
 
-	# Internal cluster network
-	docker network create bridge-net
+	@# Internal cluster network
+	@echo "-- Initializing Docker Network (this may crash if already set) --"
+	@docker network create bridge-net
 
 
 #>>>
@@ -74,27 +91,37 @@ init-docker:
 #<<<
 .PHONY: docker-secrets
 docker-secrets:
-	# AuthN Admin secrets
-	@echo ${BENTOV2_AUTH_ADMIN_USER} > $(PWD)/tmp/secrets/keycloak-admin-user
-	# temp:
-	#$(MAKE) secret-keycloak-admin-password
-	@echo ${BENTOV2_AUTH_ADMIN_PASSWORD} > $(PWD)/tmp/secrets/keycloak-admin-password
+	@echo "-- Creating Docker Secrets --"
 
-	docker secret create keycloak-admin-user $(PWD)/tmp/secrets/keycloak-admin-user
-	docker secret create keycloak-admin-password $(PWD)/tmp/secrets/keycloak-admin-password
+	@# AuthN Admin secrets
+	@# User:
+	@echo "- Creating Admin User" && \
+		echo ${BENTOV2_AUTH_ADMIN_USER} > $(PWD)/tmp/secrets/keycloak-admin-user && \
+		docker secret create keycloak-admin-user $(PWD)/tmp/secrets/keycloak-admin-user &
+
+	@# Password:
+	@# TODO: use 'secret' generator
+	@#$(MAKE) secret-keycloak-admin-password
+	@echo "- Creating Admin Password" && \
+		echo ${BENTOV2_AUTH_ADMIN_PASSWORD} > $(PWD)/tmp/secrets/keycloak-admin-password && \
+		docker secret create keycloak-admin-password $(PWD)/tmp/secrets/keycloak-admin-password &
 
 
-	# Database
-	@echo ${BENTOV2_KATSU_DB_USER} > $(PWD)/tmp/secrets/metadata-db-user
-	# temp:
-	# $(MAKE) secret-metadata-app-secret
-	# $(MAKE) secret-metadata-db-secret
-	@echo ${BENTOV2_KATSU_DB_APP_SECRET} > $(PWD)/tmp/secrets/metadata-app-secret
-	@echo ${BENTOV2_KATSU_DB_PASSWORD} > $(PWD)/tmp/secrets/metadata-db-secret
+	@# Database
+	@# User:
+	@echo "- Creating Metadata User" && \
+		echo ${BENTOV2_KATSU_DB_USER} > $(PWD)/tmp/secrets/metadata-db-user && \
+		docker secret create metadata-db-user $(PWD)/tmp/secrets/metadata-db-user &
 
-	docker secret create metadata-app-secret $(PWD)/tmp/secrets/metadata-app-secret
-	docker secret create metadata-db-user $(PWD)/tmp/secrets/metadata-db-user
-	docker secret create metadata-db-secret $(PWD)/tmp/secrets/metadata-db-secret
+	@# Passwords:
+	@# TODO: use 'secret' generator
+	@# $(MAKE) secret-metadata-app-secret
+	@# $(MAKE) secret-metadata-db-secret
+	@echo "- Creating Metadata Password/Secrets" && \
+		echo ${BENTOV2_KATSU_DB_APP_SECRET} > $(PWD)/tmp/secrets/metadata-app-secret && \
+		docker secret create metadata-app-secret $(PWD)/tmp/secrets/metadata-app-secret && \
+		echo ${BENTOV2_KATSU_DB_PASSWORD} > $(PWD)/tmp/secrets/metadata-db-secret && \
+		docker secret create metadata-db-secret $(PWD)/tmp/secrets/metadata-db-secret
 
 
 
@@ -115,6 +142,11 @@ auth-setup:
 run-all:
 	docker-compose up -d
 
+	@if [[ ${BENTOV2_USE_EXTERNAL_IDP} == 1 ]]; then \
+		echo "-- Cleaning up redundant bentov2-auth from "run-all" --"; \
+		$(MAKE) clean-auth; \
+	fi \
+
 #>>>
 # run the web service using a local copy of bento_web
 # for development purposes
@@ -132,6 +164,20 @@ run-web-dev: clean-web
 #<<<
 run-gateway-dev: clean-gateway
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate gateway
+
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-variant-dev: clean-variant
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate variant
+
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-katsu-dev: clean-katsu
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate katsu
 
 
 #>>>
@@ -165,6 +211,7 @@ run-%:
 #<<<
 build-common-base:
 	docker-compose -f docker-compose.base.yaml build --no-cache common-alpine-python
+	#docker-compose -f docker-compose.base.yaml build --no-cache common-debian-python
 
 #>>>
 # build a specified service

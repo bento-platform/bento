@@ -23,13 +23,9 @@ WORKDIR /notification/bento_notification_service
 RUN git fetch && \
     git checkout "${BRANCH}" && \
     git checkout tags/${TAG}
-
+    
 RUN ["pip", "install", "-r", "requirements.txt"]
 
-
 # Run
-WORKDIR /notification/bento_notification_service/bento_notification_service
-
 COPY startup.sh ./startup.sh
-
 ENTRYPOINT [ "sh", "./startup.sh" ]

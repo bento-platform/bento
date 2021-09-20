@@ -20,12 +20,12 @@ RUN git fetch && \
     git checkout "${BRANCH}" &&  \
     git checkout tags/${TAG}
 
-# Remove comment if custom requirements are needed
-COPY requirements.txt ./requirements.txt
-
 RUN pip install -r requirements.txt
 
 WORKDIR /drop-box/bento_drop_box_service
 
+COPY ./gunicorn_starter.sh .
+RUN chmod 775 ./gunicorn_starter.sh
+
 # Run
-CMD ["flask", "run", "--host=0.0.0.0"]
+ENTRYPOINT [ "./gunicorn_starter.sh" ]
