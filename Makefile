@@ -153,11 +153,6 @@ auth-setup:
 run-all:
 	$(foreach SERVICE, $(SERVICES), \
 		$(MAKE) run-$(SERVICE) &) 
-	
-	@if [[ ${BENTOV2_USE_EXTERNAL_IDP} == 1 ]]; then \
-		echo "-- Cleaning up redundant bentov2-auth from "run-all" --"; \
-		$(MAKE) clean-auth; \
-	fi
 
 	watch -n 2 'docker ps'
 
@@ -216,6 +211,11 @@ run-%:
 	elif [[ $* == web ]]; then \
 		echo "Cleaning web before running"; \
 		$(MAKE) clean-web; \
+	fi
+
+	@if [[ $* == auth && ${BENTOV2_USE_EXTERNAL_IDP} == 1 ]]; then \
+		echo "Auth doens't need to be built! Skipping --"; \
+		exit 1; \
 	fi
 
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
