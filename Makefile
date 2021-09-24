@@ -20,6 +20,13 @@ SHELL = bash
 CURRENT_UID := $(shell id -u)
 export CURRENT_UID
 
+#>>>
+# provide a timestamp of command execution time
+# as an environment variable for logging
+#<<<
+EXECUTED_NOW=$(shell date +%FT%T%Z)
+export EXECUTED_NOW
+
 
 #>>>
 # init chord service configuration files
@@ -53,6 +60,9 @@ init-dirs: data-dirs
 	@echo "-- Initializing temporary and data directories --"
 	@echo "- Creating temporary secrets dir"
 	mkdir -p $(PWD)/tmp/secrets
+
+	@echo "- Creating temporary deployment logs dir"
+	mkdir -p $(PWD)/tmp/logs/deployments
 
 
 #>>>
@@ -138,14 +148,15 @@ auth-setup:
 
 #>>>
 # run all services
+# - each service runs (and maybe builds) on it's own background process to complete faster
 #<<<
 run-all:
-	docker-compose up -d
+	$(foreach SERVICE, $(SERVICES), \
+		$(MAKE) run-$(SERVICE) &) 
 
-	@if [[ ${BENTOV2_USE_EXTERNAL_IDP} == 1 ]]; then \
-		echo "-- Cleaning up redundant bentov2-auth from "run-all" --"; \
-		$(MAKE) clean-auth; \
-	fi \
+	watch -n 2 'docker ps'
+
+
 
 #>>>
 # run the web service using a local copy of bento_web
@@ -202,7 +213,15 @@ run-%:
 		$(MAKE) clean-web; \
 	fi
 
-	docker-compose up -d $*
+	@if [[ $* == auth && ${BENTOV2_USE_EXTERNAL_IDP} == 1 ]]; then \
+		echo "Auth doens't need to be built! Skipping --"; \
+		exit 1; \
+	fi
+
+	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
+
+	@echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
+		docker-compose up -d $* &> tmp/logs/${EXECUTED_NOW}/$*/run.log &
 
 
 
@@ -214,6 +233,17 @@ build-common-base:
 	#docker-compose -f docker-compose.base.yaml build --no-cache common-debian-python
 
 #>>>
+# build all service images
+# - each service building runs on it's own background process to complete faster
+#<<<
+build-all:
+	$(foreach SERVICE, $(SERVICES), \
+		$(MAKE) build-$(SERVICE) &) 
+	
+	watch -n 2 'docker ps'
+
+
+#>>>
 # build a specified service
 #<<<
 build-%:
@@ -223,7 +253,9 @@ build-%:
 		exit 1; \
 	fi
 
-	docker-compose build --no-cache $*
+	@mkdir -p tmp/logs/${EXECUTED_NOW}/$* 
+	@echo "-- Building $* --" && \
+		docker-compose build --no-cache $* &> tmp/logs/${EXECUTED_NOW}/$*/build.log
 
 
 
@@ -249,10 +281,11 @@ clean-common-base:
 
 #>>>
 # clean all service containers and/or applicable images
+# - each service cleaning runs on it's own background process to complete faster
 #<<<
 clean-all:
 	$(foreach SERVICE, $(SERVICES), \
-		$(MAKE) clean-$(SERVICE);)
+		$(MAKE) clean-$(SERVICE) &)
 
 #>>>
 # clean a specific service container and/or applicable images
@@ -260,19 +293,22 @@ clean-all:
 # TODO: use env variables for container versions
 #<<<
 clean-%:
-	docker-compose stop $*;
+	@mkdir -p tmp/logs/${EXECUTED_NOW}/$* && \
+		echo "-- Stopping $* --" && \
+		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log
 	
-	docker rm bentov2-$* --force; 
+	@echo "-- Removing bentov2-$* container --" && \
+		docker rm bentov2-$* --force &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
 	
 	@# Some services don't need their images removed
 	@if [[ $* != auth && $* != redis ]]; then \
 		docker rmi bentov2-$*:0.0.1 --force; \
-	fi
+	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
 
 	@# Katsu also needs it's database to be stopped
 	@if [[ $* == katsu ]]; then \
 		docker rm bentov2-katsu-db --force; \
-	fi
+	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
 
 #>>>
 # clean data directories
