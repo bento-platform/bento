@@ -52,7 +52,7 @@ services:
     container_name: ${BENTOV2_KATSU_DB_CONTAINER_NAME}
     environment:
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
-      - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
+      - POSTGRES_PASSWORD_FILE=/run/secrets/metadata_db_secret
       - POSTGRES_DB=${BENTOV2_KATSU_DB}
     expose:
       - 5432
