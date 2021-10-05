@@ -96,6 +96,22 @@ init-docker:
 	@docker network create bridge-net
 
 
+init-gohan:
+	@cd lib && \
+	\
+	if [ ! -d "./gohan" ]; then \
+		echo "-- Cloning Gohan --" ; \
+		git clone ${GOHAN_REPO} ; \
+	else \
+		echo "-- Gohan already cloned --" ; \
+	fi && \
+	\
+	cd gohan && \
+	\
+	git checkout "${GOHAN_BRANCH}" && \
+	git pull && \
+    git checkout tags/${GOHAN_TAG}
+
 #>>>
 # create secrets for Bento v2 services
 #<<<
@@ -220,8 +236,18 @@ run-%:
 
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
 
-	@echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
-		docker-compose up -d $* &> tmp/logs/${EXECUTED_NOW}/$*/run.log &
+	@if [[ $* == gohan ]]; then \
+		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/ run logs for details! --" && \
+		cd lib/gohan && \
+		$(MAKE) clean-api &> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
+		$(MAKE) build-api-container &>> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
+		$(MAKE) run-api &>> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
+		\
+		$(MAKE) run-elasticsearch &> ../../tmp/logs/${EXECUTED_NOW}/$*/elasticsearch_run.log & \
+	else \
+		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
+		docker-compose up -d $* &> tmp/logs/${EXECUTED_NOW}/$*/run.log & \
+	fi
 
 
 
