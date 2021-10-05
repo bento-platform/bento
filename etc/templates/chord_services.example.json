@@ -188,7 +188,7 @@
         "artifact": "log-service",
         "language": "python"
       },
-      "repository": "https://github.com/bento-platform/bento_log_service@v0.1.0",
+      "repository": "${BENTO_LOGGING_REPO}@${BENTO_LOGGING_TAG}",
       "data_service": false,
       "wsgi": true,
       "python_module": "bento_log_service.app",
@@ -196,6 +196,15 @@
       "run_environment": {
         "CHORD_SERVICES": "/chord/chord_services.json"
       }
+    },
+    {
+      "type": {
+        "organization": "ca.c3g.chord",
+        "artifact": "gohan",
+        "language": "go"
+      },
+      "repository": "${GOHAN_REPO}@${GOHAN_TAG}",
+      "data_service": false
     }
   ]
   
