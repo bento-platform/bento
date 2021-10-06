@@ -240,7 +240,6 @@ run-%:
 		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/ run logs for details! --" && \
 		cd lib/gohan && \
 		$(MAKE) clean-api &> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
-		$(MAKE) build-api-container &>> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
 		$(MAKE) run-api &>> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
 		\
 		$(MAKE) run-elasticsearch &> ../../tmp/logs/${EXECUTED_NOW}/$*/elasticsearch_run.log & \
