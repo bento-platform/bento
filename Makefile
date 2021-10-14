@@ -206,6 +206,14 @@ run-variant-dev: clean-variant
 run-katsu-dev: clean-katsu
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate katsu
 
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-wes-dev: 
+	#clean-wes
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate wes
+
 
 #>>>
 # run a specified service
