@@ -373,58 +373,17 @@ services:
     expose:
       - ${BENTOV2_EVENT_RELAY_INTERNAL_PORT}
 
-
   wes:
     build:
       context: $PWD/lib/wes
-      args:
-        BASE_IMAGE: ${BENTOV2_WES_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_WES_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_WES_REPO}
-        BRANCH: ${BENTO_WES_BRANCH}
-        TAG: ${BENTO_WES_TAG}
-    image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION}
-    container_name: ${BENTOV2_WES_CONTAINER_NAME}
-    environment: 
-      - CHORD_SERVICES=/wes/chord_services.json
-      - CHORD_URL=${BENTOV2_PUBLIC_URL_TRAILING_SLASH}
-      - CELERY_RESULT_BACKEND=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
-      - CELERY_BROKER_URL=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
-      - DATABASE=/wes/data/bento_wes.db
-      - SERVICE_ID=
-      - SERVICE_TEMP=/wes/tmp
-      - SERVICE_URL_BASE_PATH=/api/wes
-      - WOM_TOOL_LOCATION=
-      #/wes/womtool.jar
-      # Allow-list (comma-separated) for hosts that workflow files can be downloaded
-      # from - prevents possibly insecure WDLs from being ran
-      - WORKFLOW_HOST_ALLOW_LIST=${BENTOV2_DOMAIN},${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
-
-      # DRS configuration options:
-      # - Where the DRS instance to use is located. Technically, if not set this 
-      #   defaults to using a different environment variable, NGINX_INTERNAL_SOCKET,
-      #   as a path to a Bento instance's internal NGINX UNIX socket and adding a 
-      #   path to the actual DRS instance
-      - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
-      - WRITE_OUTPUT_TO_DRS=True
-      - DRS_DEDUPLICATE=True
-      - DRS_SKIP_TYPES=
-      - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PUBLIC_URL}/api/auth/ott
-      - FLASK_ENV=development
-      - CHORD_DEBUG=True
-
-      - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
-
+      dockerfile: Dockerfile.dev
     networks: 
       - bridge-net
-    expose:
-      - ${BENTOV2_WES_INTERNAL_PORT}
-    mem_limit: ${BENTOV2_WES_MEM_LIMIT}
-    volumes:
-      - ${BENTOV2_WES_VOL_DIR}:/wes/data
-      - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
-      - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
-
+    extends:
+      file: $PWD/lib/wes/docker-compose.wes.yaml
+      service: wes
+    volumes: 
+      - ./lib/wes/bento_wes:/app/wes
 
   redis:
     image: ${BENTOV2_REDIS_BASE_IMAGE}:${BENTOV2_REDIS_BASE_IMAGE_VERSION}

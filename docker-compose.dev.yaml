@@ -72,6 +72,20 @@ services:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu-db
 
+  wes:
+    build:
+      context: $PWD/lib/wes
+      dockerfile: Dockerfile.dev
+    networks: 
+      - bridge-net
+    extends:
+      file: $PWD/lib/wes/docker-compose.wes.yaml
+      service: wes
+    volumes: 
+      - ./lib/wes/bento_wes:/wes/bento_wes
+    ports:
+      - "5000:5000"
+
 networks: 
   bridge-net:
     external: true
