@@ -45,6 +45,14 @@ services:
         python manage.py makemigrations
         python manage.py migrate
         gunicorn chord_metadata_service.metadata.wsgi:application -w 2 --threads 2 -b 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT} 
+    mem_limit: ${BENTOV2_KATSU_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_KATSU_CPUS}
+    cpu_shares: 1024
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_KATSU_INTERNAL_PORT}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   katsu-db:
@@ -63,3 +71,11 @@ services:
         target: metadata_db_secret
     volumes: 
       - ${BENTOV2_KATSU_DB_VOL_DIR}:/var/lib/postgresql/data
+    mem_limit: ${BENTOV2_KATSU_DB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_KATSU_DB_CPUS}
+    cpu_shares: 1024
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTOV2_KATSU_DB}", "-U", "${BENTOV2_KATSU_DB_USER}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
