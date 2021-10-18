@@ -376,14 +376,12 @@ services:
   wes:
     build:
       context: $PWD/lib/wes
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     networks: 
       - bridge-net
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes
-    volumes: 
-      - ./lib/wes/bento_wes:/app/wes
 
   redis:
     image: ${BENTOV2_REDIS_BASE_IMAGE}:${BENTOV2_REDIS_BASE_IMAGE_VERSION}
