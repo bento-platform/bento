@@ -35,6 +35,10 @@ Then run
 openssl req -newkey rsa:2048 -nodes \
     -keyout ./lib/gateway/certs/privkey1.key -x509 \
     -days 365 -out ./lib/gateway/certs/fullchain1.crt
+
+openssl req -newkey rsa:2048 -nodes \
+    -keyout ./lib/gateway/certs/portal_privkey1.key -x509 \
+    -days 365 -out ./lib/gateway/certs/portal_fullchain1.crt
 ```
 to create the bentov2 cert for `bentov2.local` (or whatever other domain you use)
 
