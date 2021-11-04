@@ -30,6 +30,7 @@ services:
       bridge-net:
         aliases:
           - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
     ports:
       - "80:80"
       - "443:443"
@@ -184,7 +185,7 @@ services:
       - CHORD_SERVICES=chord_services.json
 
       # Common URL base for all services
-      - CHORD_URL=${BENTOV2_PUBLIC_URL}
+      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
 
       - CHORD_DEBUG=True
 
@@ -381,8 +382,8 @@ services:
       - INITIALIZE_IMMEDIATELY=false
       - CHORD_DEBUG=false
       - BENTO_FEDERATION_MODE=true
-      - CHORD_URL=${BENTOV2_PUBLIC_URL_TRAILING_SLASH}
-      - CHORD_REGISTRY_URL=${BENTOV2_PUBLIC_URL}
+      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
+      - CHORD_REGISTRY_URL=${BENTOV2_PORTAL_PUBLIC_URL}
       - OIDC_DISCOVERY_URI=${BENTOV2_AUTH_PUBLIC_URL}/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
       # PORT: Specified when running via ./run.py; defaults to 5000
       # SERVICE_URL_BASE_PATH: Base URL fragment (e.g. /test/) for endpoints

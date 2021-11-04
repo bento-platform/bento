@@ -10,7 +10,7 @@ services:
         KATSU_REPO: ${KATSU_REPO}
         KATSU_BRANCH: ${KATSU_BRANCH}
         KATSU_TAG: ${KATSU_TAG}
-        BENTOV2_DOMAIN: ${BENTOV2_DOMAIN}
+        BENTOV2_PORTAL_DOMAIN: ${BENTOV2_PORTAL_DOMAIN}
         PROJECT_DIRECTORY: ${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}
     image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION}
     container_name: ${BENTOV2_KATSU_CONTAINER_NAME}
@@ -26,7 +26,7 @@ services:
       - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
       - SERVICE_TEMP=/app/tmp
       - DJANGO_SETTINGS_MODULE=chord_metadata_service.metadata.settings
-      - BENTOV2_DOMAIN=${BENTOV2_DOMAIN}
+      - BENTOV2_PORTAL_DOMAIN=${BENTOV2_PORTAL_DOMAIN}
     configs:
       - source: chord-metadata-settings
         target: /katsu/metadata/settings.py
