@@ -22,7 +22,7 @@ services:
       - CHORD_DEBUG="${CHORD_METADATA_DEBUG}"
       - POSTGRES_HOST=${BENTOV2_KATSU_DB_CONTAINER_NAME}
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
-      - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
+      - POSTGRES_PASSWORD_FILE=/run/secrets/metadata_db_secret
       - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
       - SERVICE_TEMP=/app/tmp
       - DJANGO_SETTINGS_MODULE=chord_metadata_service.metadata.settings
