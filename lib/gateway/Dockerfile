@@ -18,4 +18,5 @@ COPY auth_config.json /usr/local/openresty/nginx/auth_config.json
 
 # Update and install dependencies
 RUN apk update && \
+    apk add git && \
     /usr/local/openresty/luajit/bin/luarocks install lua-resty-openidc
