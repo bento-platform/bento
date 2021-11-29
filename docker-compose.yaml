@@ -369,40 +369,13 @@ services:
   federation:
     build:
       context: $PWD/lib/federation
-      args:
-        BASE_IMAGE: ${BENTOV2_FEDERATION_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_FEDERATION_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_FEDERATION_REPO}
-        BRANCH: ${BENTO_FEDERATION_BRANCH}
-        TAG: ${BENTO_FEDERATION_TAG}
-    image: ${BENTOV2_FEDERATION_IMAGE}:${BENTOV2_FEDERATION_VERSION}
-    container_name: ${BENTOV2_FEDERATION_CONTAINER_NAME}
-    environment: 
-      - DATABASE=/federation/data/federation.db
-      - INITIALIZE_IMMEDIATELY=false
-      - CHORD_DEBUG=false
-      - BENTO_FEDERATION_MODE=true
-      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
-      - CHORD_REGISTRY_URL=${BENTOV2_PORTAL_PUBLIC_URL}
-      - OIDC_DISCOVERY_URI=${BENTOV2_AUTH_PUBLIC_URL}/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
-      # PORT: Specified when running via ./run.py; defaults to 5000
-      # SERVICE_URL_BASE_PATH: Base URL fragment (e.g. /test/) for endpoints
-      # SOCKET: Specifies Unix socket location for production deployment
-
+      dockerfile: Dockerfile
     networks: 
       - bridge-net
-    expose:
-      - ${BENTOV2_FEDERATION_INTERNAL_PORT}
-    volumes:
-      - ${BENTOV2_FEDERATION_VOL_DIR}:/federation/data
-    mem_limit: ${BENTOV2_FEDERATION_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_FEDERATION_CPUS}
-    cpu_shares: 512
-    healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_FEDERATION_INTERNAL_PORT}" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+    extends:
+      file: $PWD/lib/federation/docker-compose.federation.yaml
+      service: federation
+
 
 
   event-relay:
