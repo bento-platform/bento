@@ -73,6 +73,24 @@ services:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu-db
 
+  federation:
+    build:
+      context: $PWD/lib/federation
+      dockerfile: Dockerfile.dev
+    networks: 
+      - bridge-net
+    extends:
+      file: $PWD/lib/federation/docker-compose.federation.yaml
+      service: federation
+    volumes: 
+      - ./lib/federation/bento_federation_service:/federation/bento_federation_service
+    ports:
+      - "5000:5000"
+    # -- Temp
+    command: >
+      sh -c  "sed -i 's/body=request_body,$$/body=request_body,validate_cert=False,/g' ./bento_federation_service/utils.py &&
+              python run.py"
+
   wes:
     build:
       context: $PWD/lib/wes

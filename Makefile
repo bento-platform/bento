@@ -210,6 +210,13 @@ run-katsu-dev: clean-katsu
 # ...
 #	see docker-compose.dev.yaml
 #<<<
+run-federation-dev: 
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate federation
+
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
 run-wes-dev: 
 	#clean-wes
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate wes
