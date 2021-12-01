@@ -277,6 +277,7 @@ services:
     volumes:
       - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
+      - ${GOHAN_API_DRS_BRIDGE_HOST_DIR}:${GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
     mem_limit: ${BENTOV2_DRS_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_DRS_CPUS}
     cpu_shares: 512
