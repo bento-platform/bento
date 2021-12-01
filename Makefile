@@ -114,7 +114,12 @@ init-gohan:
 	git fetch && \
 	git checkout "${GOHAN_BRANCH}" && \
 	git pull && \
-    git checkout tags/${GOHAN_TAG}
+	if [[ -n "${GOHAN_TAG}" ]]; then \
+    	git checkout tags/${GOHAN_TAG} ; \
+	else \
+		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
+	fi
+
 
 #>>>
 # create secrets for Bento v2 services
