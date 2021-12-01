@@ -4,9 +4,12 @@
 # import and setup global environment variables
 #<<<
 env ?= .env
+gohan_env ?= ./lib/gohan/.env
 
 include $(env)
+include $(gohan_env)
 export $(shell sed 's/=.*//' $(env))
+export $(shell sed 's/=.*//' $(gohan_env))
 
 #>>>
 # set default shell
@@ -108,6 +111,7 @@ init-gohan:
 	\
 	cd gohan && \
 	\
+	git fetch && \
 	git checkout "${GOHAN_BRANCH}" && \
 	git pull && \
     git checkout tags/${GOHAN_TAG}
