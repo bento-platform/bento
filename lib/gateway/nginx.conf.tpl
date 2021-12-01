@@ -609,7 +609,7 @@ http {
             rewrite /api/gohan/(.*) /${DOLLAR}1  break;
 
             # Forward request to wes service
-            proxy_pass  http://${BENTOV2_GOHAN_API_CONTAINER_NAME}:${BENTOV2_GOHAN_API_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${GOHAN_API_CONTAINER_NAME}:${GOHAN_API_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_gohan_api_errors.log;
