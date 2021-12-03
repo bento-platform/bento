@@ -323,6 +323,14 @@ stop-%:
 
 
 #>>>
+# inspect a specific service
+#<<<
+inspect-%:
+	watch 'docker logs bentov2-$* | tail -n 25'
+
+
+
+#>>>
 # clean up common base images
 #<<<
 clean-common-base:
