@@ -24,7 +24,7 @@ services:
       # PORT: Specified when running via ./run.py; defaults to 5000
       # SERVICE_URL_BASE_PATH: Base URL fragment (e.g. /test/) for endpoints
       # SOCKET: Specifies Unix socket location for production deployment
-      - USE_GOHAN=false
+      - USE_GOHAN=true
 
     networks: 
       - bridge-net
