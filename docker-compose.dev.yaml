@@ -104,6 +104,11 @@ services:
       service: wes
     volumes: 
       - ./lib/wes/bento_wes:/wes/bento_wes
+
+      - ./lib/wes/data:/wes/data
+      - ./lib/wes/tmp:/wes/tmp
+
+      - ./lib/drop-box/data-x:/data
     ports:
       - "5000:5000"
 
