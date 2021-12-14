@@ -15,7 +15,7 @@
 #       - name: Gather Variables
 #         id: envx
 #         run: |
-#           cp ./etc/example.env .env
+#           cp ./etc/bento.env .env
 #           source .env
 
 #       - name: Build & Run Web
