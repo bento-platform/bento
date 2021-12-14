@@ -88,10 +88,8 @@ services:
       - ./lib/federation/bento_federation_service:/federation/bento_federation_service
     ports:
       - "5000:5000"
-    # -- Temp
     command: >
       sh -c "python run.py"
-    #"sed -i 's/body=request_body,$$/body=request_body,validate_cert=False,/g' ./bento_federation_service/utils.py &&
 
   wes:
     build:
@@ -104,11 +102,6 @@ services:
       service: wes
     volumes: 
       - ./lib/wes/bento_wes:/wes/bento_wes
-
-      - ./lib/wes/data:/wes/data
-      - ./lib/wes/tmp:/wes/tmp
-
-      - ./lib/drop-box/data-x:/data
     ports:
       - "5000:5000"
 
