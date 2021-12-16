@@ -14,7 +14,7 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 ### Setup configuration file
 
 ```
-cp ./etc/example.env .env
+cp ./etc/bento.env .env
 ```
 
 And fill the `XXX_USER` and `XXX_PASSWORD` variables with custom values.
