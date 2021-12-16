@@ -42,7 +42,8 @@ RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
 RUN pip install -r requirements.txt;
 
 
-# TEMP: modify settings.py file to allow for domain host name to be
-# allowed to make calls
-ARG BENTOV2_DOMAIN
-RUN sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_DOMAIN}\"/" ${PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py
+# TEMP: modify settings.py file to allow for 
+# localhost+port & domain host name to be allowed to make calls
+ARG BENTOV2_PORTAL_DOMAIN
+RUN sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_PORTAL_DOMAIN}\"/" ${PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py
+RUN sed -i "s/\[CHORD_HOST or \"localhost\"\]/\[CHORD_HOST or \"localhost:8000\"\]/" ${PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py

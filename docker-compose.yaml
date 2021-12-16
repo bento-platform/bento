@@ -30,11 +30,20 @@ services:
       bridge-net:
         aliases:
           - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
     ports:
       - "80:80"
       - "443:443"
     volumes: 
       - ${BENTOV2_GATEWAY_CERTS_DIR}:${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}
+    mem_limit: ${BENTOV2_GATEWAY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_GATEWAY_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:443", "-k" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   auth:
@@ -56,6 +65,14 @@ services:
         target: /run/secrets/keycloak-admin-user
       - source: keycloak-admin-password
         target: /run/secrets/keycloak-admin-password
+    mem_limit: ${BENTOV2_AUTH_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_AUTH_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:443", "-k" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   web:
@@ -77,6 +94,14 @@ services:
     # Execute npm build/install and watch, and 
     # nginx "listener" upon container startup
     entrypoint: sh /web/startup.sh
+    mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_WEB_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "wget", "-q0-", "http://localhost:${BENTOV2_WEB_INTERNAL_PORT}", "&&", "echo" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   katsu:
@@ -127,6 +152,14 @@ services:
       - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
+    mem_limit: ${BENTOV2_DROP_BOX_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_DROP_BOX_CPUS}
+    cpu_shares: 1024
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   service-registry:
@@ -152,7 +185,7 @@ services:
       - CHORD_SERVICES=chord_services.json
 
       # Common URL base for all services
-      - CHORD_URL=${BENTOV2_PUBLIC_URL}
+      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
 
       - CHORD_DEBUG=True
 
@@ -172,6 +205,14 @@ services:
       - bridge-net
     expose:
       - ${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
+    mem_limit: ${BENTOV2_SERVICE_REGISTRY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_SERVICE_REGISTRY_CPUS}
+    cpu_shares: 256
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   logging:
@@ -194,6 +235,14 @@ services:
       - bridge-net
     expose:
       - ${BENTOV2_LOGGING_INTERNAL_PORT}
+    mem_limit: ${BENTOV2_LOGGING_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_LOGGING_CPUS}
+    cpu_shares: 256
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:${BENTOV2_LOGGING_INTERNAL_PORT}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   drs:
@@ -228,6 +277,15 @@ services:
     volumes:
       - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
+      - ${GOHAN_API_DRS_BRIDGE_HOST_DIR}:${GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
+    mem_limit: ${BENTOV2_DRS_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_DRS_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:${BENTOV2_DRS_INTERNAL_PORT}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   variant:
@@ -263,6 +321,15 @@ services:
     volumes:
       - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
       - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
+    mem_limit: ${BENTOV2_VARIANT_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_VARIANT_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:${BENTOV2_VARIANT_INTERNAL_PORT}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+
 
   notification:
     build:
@@ -290,38 +357,26 @@ services:
       - ${BENTOV2_NOTIFICATION_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_NOTIFICATION_VOL_DIR}:/notification/data
-
+    mem_limit: ${BENTOV2_NOTIFICATION_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_NOTIFICATION_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:${BENTOV2_NOTIFICATION_INTERNAL_PORT}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   federation:
     build:
       context: $PWD/lib/federation
-      args:
-        BASE_IMAGE: ${BENTOV2_FEDERATION_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_FEDERATION_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_FEDERATION_REPO}
-        BRANCH: ${BENTO_FEDERATION_BRANCH}
-        TAG: ${BENTO_FEDERATION_TAG}
-    image: ${BENTOV2_FEDERATION_IMAGE}:${BENTOV2_FEDERATION_VERSION}
-    container_name: ${BENTOV2_FEDERATION_CONTAINER_NAME}
-    environment: 
-      - DATABASE=/federation/data/federation.db
-      - INITIALIZE_IMMEDIATELY=false
-      - CHORD_DEBUG=false
-      - BENTO_FEDERATION_MODE=true
-      - CHORD_URL=${BENTOV2_PUBLIC_URL_TRAILING_SLASH}
-      - CHORD_REGISTRY_URL=${BENTOV2_PUBLIC_URL}
-      - OIDC_DISCOVERY_URI=${BENTOV2_AUTH_PUBLIC_URL}/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
-      # PORT: Specified when running via ./run.py; defaults to 5000
-      # SERVICE_URL_BASE_PATH: Base URL fragment (e.g. /test/) for endpoints
-      # SOCKET: Specifies Unix socket location for production deployment
-
+      dockerfile: Dockerfile
     networks: 
       - bridge-net
-    expose:
-      - ${BENTOV2_FEDERATION_INTERNAL_PORT}
-    volumes:
-      - ${BENTOV2_FEDERATION_VOL_DIR}:/federation/data
+    extends:
+      file: $PWD/lib/federation/docker-compose.federation.yaml
+      service: federation
+
 
 
   event-relay:
@@ -372,57 +427,25 @@ services:
       - bridge-net
     expose:
       - ${BENTOV2_EVENT_RELAY_INTERNAL_PORT}
+    mem_limit: ${BENTOV2_EVENT_RELAY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_EVENT_RELAY_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   wes:
     build:
       context: $PWD/lib/wes
-      args:
-        BASE_IMAGE: ${BENTOV2_WES_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_WES_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_WES_REPO}
-        BRANCH: ${BENTO_WES_BRANCH}
-        TAG: ${BENTO_WES_TAG}
-    image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION}
-    container_name: ${BENTOV2_WES_CONTAINER_NAME}
-    environment: 
-      - CHORD_SERVICES=/wes/chord_services.json
-      - CHORD_URL=${BENTOV2_PUBLIC_URL_TRAILING_SLASH}
-      - CELERY_RESULT_BACKEND=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
-      - CELERY_BROKER_URL=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
-      - DATABASE=/wes/data/bento_wes.db
-      - SERVICE_ID=
-      - SERVICE_TEMP=/wes/tmp
-      - SERVICE_URL_BASE_PATH=/api/wes
-      - WOM_TOOL_LOCATION=
-      #/wes/womtool.jar
-      # Allow-list (comma-separated) for hosts that workflow files can be downloaded
-      # from - prevents possibly insecure WDLs from being ran
-      - WORKFLOW_HOST_ALLOW_LIST=${BENTOV2_DOMAIN},${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
-
-      # DRS configuration options:
-      # - Where the DRS instance to use is located. Technically, if not set this 
-      #   defaults to using a different environment variable, NGINX_INTERNAL_SOCKET,
-      #   as a path to a Bento instance's internal NGINX UNIX socket and adding a 
-      #   path to the actual DRS instance
-      - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
-      - WRITE_OUTPUT_TO_DRS=True
-      - DRS_DEDUPLICATE=True
-      - DRS_SKIP_TYPES=
-      - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PUBLIC_URL}/api/auth/ott
-      - FLASK_ENV=development
-      - CHORD_DEBUG=True
-
-      - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
-
+      dockerfile: Dockerfile
     networks: 
       - bridge-net
-    expose:
-      - ${BENTOV2_WES_INTERNAL_PORT}
-    volumes:
-      - ${BENTOV2_WES_VOL_DIR}:/wes/data
-      - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
-      - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
+    extends:
+      file: $PWD/lib/wes/docker-compose.wes.yaml
+      service: wes
 
 
   redis:
@@ -434,6 +457,14 @@ services:
       - ${BENTOV2_REDIS_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_REDIS_VOL_DIR}:/data
+    mem_limit: ${BENTOV2_VARIANT_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_VARIANT_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 networks: 
   bridge-net:

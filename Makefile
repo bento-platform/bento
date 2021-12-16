@@ -4,9 +4,12 @@
 # import and setup global environment variables
 #<<<
 env ?= .env
+gohan_env ?= ./lib/gohan/.env
 
 include $(env)
+include $(gohan_env)
 export $(shell sed 's/=.*//' $(env))
+export $(shell sed 's/=.*//' $(gohan_env))
 
 #>>>
 # set default shell
@@ -94,6 +97,28 @@ init-docker:
 	@# Internal cluster network
 	@echo "-- Initializing Docker Network (this may crash if already set) --"
 	@docker network create bridge-net
+
+
+init-gohan:
+	@cd lib && \
+	\
+	if [ ! -d "./gohan" ]; then \
+		echo "-- Cloning Gohan --" ; \
+		git clone ${GOHAN_REPO} ; \
+	else \
+		echo "-- Gohan already cloned --" ; \
+	fi && \
+	\
+	cd gohan && \
+	\
+	git fetch && \
+	git checkout "${GOHAN_BRANCH}" && \
+	git pull && \
+	if [[ -n "${GOHAN_TAG}" ]]; then \
+    	git checkout tags/${GOHAN_TAG} ; \
+	else \
+		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
+	fi
 
 
 #>>>
@@ -190,6 +215,21 @@ run-variant-dev: clean-variant
 run-katsu-dev: clean-katsu
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate katsu
 
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-federation-dev: 
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate federation
+
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-wes-dev: 
+	#clean-wes
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate wes
+
 
 #>>>
 # run a specified service
@@ -220,8 +260,17 @@ run-%:
 
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
 
-	@echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
-		docker-compose up -d $* &> tmp/logs/${EXECUTED_NOW}/$*/run.log &
+	@if [[ $* == gohan ]]; then \
+		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/ run logs for details! --" && \
+		cd lib/gohan && \
+		$(MAKE) clean-api &> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
+		$(MAKE) run-api &>> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
+		\
+		$(MAKE) run-elasticsearch &> ../../tmp/logs/${EXECUTED_NOW}/$*/elasticsearch_run.log & \
+	else \
+		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
+		docker-compose up -d $* &> tmp/logs/${EXECUTED_NOW}/$*/run.log & \
+	fi
 
 
 
@@ -270,6 +319,14 @@ stop-all:
 #<<<
 stop-%:
 	docker-compose stop $*;
+
+
+
+#>>>
+# inspect a specific service
+#<<<
+inspect-%:
+	watch 'docker logs bentov2-$* | tail -n 25'
 
 
 
