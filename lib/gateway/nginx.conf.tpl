@@ -68,7 +68,8 @@ http {
     }
     # -- Internal IDP Ends Here --
 
-    # Bento
+
+    # Bento Public
     server {
         listen 443 ssl;
 
@@ -76,6 +77,57 @@ http {
 
         ssl_certificate ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_FULLCHAIN_RELATIVE_PATH};
         ssl_certificate_key ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_PRIVKEY_RELATIVE_PATH};
+
+        # Security --
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        # --
+
+        # Public Web
+        location / {
+
+            proxy_pass_header    Server;
+            proxy_set_header     Upgrade           ${DOLLAR}http_upgrade;
+            proxy_set_header     Connection        "upgrade";
+            proxy_set_header     Host              ${DOLLAR}http_host;
+            proxy_set_header     X-Real-IP         ${DOLLAR}remote_addr;
+            proxy_set_header     X-Forwarded-For   ${DOLLAR}proxy_add_x_forwarded_for;
+            proxy_set_header     X-Forwarded-Proto ${DOLLAR}http_x_forwarded_proto;
+
+            #set ${DOLLAR}request_url ${DOLLAR}request_uri;
+            #set ${DOLLAR}url ${DOLLAR}uri;
+
+            #limit_req zone=external burst=40 delay=15;
+
+            # TODO: hook up bento_public
+            #set ${DOLLAR}upstream_public http://${}:${};
+            #proxy_pass    ${DOLLAR}upstream_public;
+
+            ## --- TEMP ---
+
+            ## simple text response
+            #default_type text/html;
+            #return 200 'This is a public endpoint! Currently under construction..'; 
+
+            # redirect to portal url
+            return 301 https://${BENTOV2_PORTAL_DOMAIN}${DOLLAR}request_uri;
+
+            # --- ---
+
+            error_log /var/log/bentov2_public_errors.log;
+        }
+    }
+
+
+    # Bento Portal
+    server {
+        listen 443 ssl;
+
+        server_name ${BENTOV2_PORTAL_DOMAIN};
+
+        ssl_certificate ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_PORTAL_FULLCHAIN_RELATIVE_PATH};
+        ssl_certificate_key ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_PORTAL_PRIVKEY_RELATIVE_PATH};
 
         # Security --
         add_header X-Frame-Options "SAMEORIGIN";
@@ -567,7 +619,7 @@ http {
             rewrite /api/gohan/(.*) /${DOLLAR}1  break;
 
             # Forward request to wes service
-            proxy_pass  http://${BENTOV2_GOHAN_API_CONTAINER_NAME}:${BENTOV2_GOHAN_API_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
+            proxy_pass  http://${GOHAN_API_CONTAINER_NAME}:${GOHAN_API_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_gohan_api_errors.log;

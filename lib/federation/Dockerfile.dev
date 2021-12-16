@@ -17,14 +17,10 @@ ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}" && \
-    ls /federation
-WORKDIR /federation/bento_federation_service
-RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git checkout tags/${TAG}
-RUN ["pip", "install", "-r", "requirements.txt"]
+# Copy from local requirements
+COPY ./bento_federation_service/requirements.txt /federation/bento_federation_service/requirements.txt
 
-# Run
 WORKDIR /federation/bento_federation_service
-CMD ["python", "run.py"]
+
+
+RUN ["pip", "install", "-r", "requirements.txt"]

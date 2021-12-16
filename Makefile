@@ -4,9 +4,12 @@
 # import and setup global environment variables
 #<<<
 env ?= .env
+gohan_env ?= ./lib/gohan/.env
 
 include $(env)
+include $(gohan_env)
 export $(shell sed 's/=.*//' $(env))
+export $(shell sed 's/=.*//' $(gohan_env))
 
 #>>>
 # set default shell
@@ -108,9 +111,15 @@ init-gohan:
 	\
 	cd gohan && \
 	\
+	git fetch && \
 	git checkout "${GOHAN_BRANCH}" && \
 	git pull && \
-    git checkout tags/${GOHAN_TAG}
+	if [[ -n "${GOHAN_TAG}" ]]; then \
+    	git checkout tags/${GOHAN_TAG} ; \
+	else \
+		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
+	fi
+
 
 #>>>
 # create secrets for Bento v2 services
@@ -210,6 +219,13 @@ run-katsu-dev: clean-katsu
 # ...
 #	see docker-compose.dev.yaml
 #<<<
+run-federation-dev: 
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate federation
+
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
 run-wes-dev: 
 	#clean-wes
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate wes
@@ -303,6 +319,14 @@ stop-all:
 #<<<
 stop-%:
 	docker-compose stop $*;
+
+
+
+#>>>
+# inspect a specific service
+#<<<
+inspect-%:
+	watch 'docker logs bentov2-$* | tail -n 25'
 
 
 

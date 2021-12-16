@@ -163,7 +163,7 @@ set_client () {
     "standardFlowEnabled": true,
     "publicClient": false,
     "redirectUris": [
-      "'${BENTOV2_PUBLIC_URL}${redirect}'"
+      "'${BENTOV2_PORTAL_PUBLIC_URL}${redirect}'"
     ],
     "attributes": {
       "saml.assertion.signature": "false",

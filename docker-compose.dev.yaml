@@ -46,6 +46,7 @@ services:
         bridge-net:
           aliases:
             - ${BENTOV2_DOMAIN}
+            - ${BENTOV2_PORTAL_DOMAIN}
             - ${BENTOV2_AUTH_DOMAIN}
     extends:
       file: docker-compose.yaml
@@ -71,6 +72,24 @@ services:
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu-db
+
+  federation:
+    build:
+      context: $PWD/lib/federation
+      dockerfile: Dockerfile.dev
+    environment: 
+      - CHORD_DEBUG=true
+    networks: 
+      - bridge-net
+    extends:
+      file: $PWD/lib/federation/docker-compose.federation.yaml
+      service: federation
+    volumes: 
+      - ./lib/federation/bento_federation_service:/federation/bento_federation_service
+    ports:
+      - "5000:5000"
+    command: >
+      sh -c "python run.py"
 
   wes:
     build:

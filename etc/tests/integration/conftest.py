@@ -51,7 +51,7 @@ def setup(request):
     else:
         driver=None
 
-    bentov2_url= os.environ["BENTOV2_PUBLIC_URL"]
+    bentov2_url= os.environ["BENTOV2_PORTAL_PUBLIC_URL"]
     bentov2auth_url= os.environ["BENTOV2_AUTH_PUBLIC_URL"]
 
 
