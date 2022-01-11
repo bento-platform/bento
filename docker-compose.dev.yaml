@@ -104,7 +104,22 @@ services:
       - ./lib/wes/bento_wes:/wes/bento_wes
     ports:
       - "5000:5000"
-
+  
+  drs:
+    build:
+      context: $PWD/lib/drs
+      dockerfile: Dockerfile
+    networks: 
+      - bridge-net
+    extends:
+      file: $PWD/lib/drs/docker-compose.drs.yaml
+      service: drs
+    ports:
+      - "${BENTOV2_DRS_EXTERNAL_PORT}:5000"
+    volumes:
+      # Override main drs data directory
+      - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/chord_drs/data
+      - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
 networks: 
   bridge-net:
     external: true
