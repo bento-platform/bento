@@ -230,6 +230,13 @@ run-wes-dev:
 	#clean-wes
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate wes
 
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-drs-dev: 
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate drs
+
 
 #>>>
 # run a specified service
