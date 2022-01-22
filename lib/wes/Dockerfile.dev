@@ -7,7 +7,7 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 USER root
 
 # Install samtools from github repos (htslib needed first)
-RUN apk --update add ncurses-dev && \
+RUN apk --update add jq ncurses-dev && \
     git clone git://github.com/samtools/htslib.git && \
     cd htslib && \
     git submodule update --init --recursive && \
