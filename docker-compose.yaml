@@ -83,6 +83,7 @@ services:
         BASE_IMAGE_VERSION: ${BENTOV2_WEB_BASE_IMAGE_VERSION}
         BENTO_WEB_REPO: ${BENTO_WEB_REPO}
         BENTO_WEB_BRANCH: ${BENTO_WEB_BRANCH}
+        BENTO_WEB_TAG: ${BENTO_WEB_TAG}
         BENTO_WEB_IS_DEBUG: "false"
         BENTO_WEB_USER: ${CURRENT_UID}
     image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION}
@@ -248,44 +249,16 @@ services:
   drs:
     build:
       context: $PWD/lib/drs
-      args:
-        BASE_IMAGE: ${BENTOV2_DRS_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_DRS_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_DRS_REPO}
-        BRANCH: ${BENTO_DRS_BRANCH}
-        TAG: ${BENTO_DRS_TAG}
-    image: ${BENTOV2_DRS_IMAGE}:${BENTOV2_DRS_VERSION}
-    container_name: ${BENTOV2_DRS_CONTAINER_NAME}
-    environment: 
-      # Runtime
-      - FLASK_DEBUG=False
-      - FLASK_APP=app
-      - DATABASE=/drs/chord_drs/data/db/  # slightly confused naming, folder for database to go in
-      - DATA=/drs/chord_drs/data/obj/  # DRS file objects, vs. the database
-      - VARIANT_SERVICE_URL=http://${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT}
-      
-      - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
-
+      dockerfile: Dockerfile
+    networks: 
+      - bridge-net
+    extends:
+      file: $PWD/lib/drs/docker-compose.drs.yaml
+      service: drs
     depends_on:
       - variant # wait for `variant` service to start so `drs`
                 # service can ping variant service notifying it
                 # can query for ingested variants upon startup 
-    networks: 
-      - bridge-net
-    expose:
-      - ${BENTOV2_DRS_INTERNAL_PORT}
-    volumes:
-      - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
-      - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
-      - ${GOHAN_API_DRS_BRIDGE_HOST_DIR}:${GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
-    mem_limit: ${BENTOV2_DRS_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_DRS_CPUS}
-    cpu_shares: 512
-    healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_DRS_INTERNAL_PORT}" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   variant:

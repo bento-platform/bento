@@ -20,6 +20,7 @@ WORKDIR /web
 
 ARG BENTO_WEB_REPO
 ARG BENTO_WEB_BRANCH
+ARG BENTO_WEB_TAG
 
 ARG BENTO_WEB_IS_DEBUG
 
@@ -40,6 +41,7 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         \
         git fetch ; \
         git checkout "${BENTO_WEB_BRANCH}" ; \
+        git checkout tags/${BENTO_WEB_TAG} ; \
         git pull ; \
         \
         rm -rf npm-shrinkwrap.json node_modules ; \
