@@ -24,6 +24,9 @@ ARG BENTO_WEB_TAG
 
 ARG BENTO_WEB_IS_DEBUG
 
+ARG BENTO_CUSTOM_HEADER
+ENV CUSTOM_HEADER=$BENTO_CUSTOM_HEADER
+
 #RUN mkdir bento_web/
 RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         echo "Building Web in Development Mode" ; \

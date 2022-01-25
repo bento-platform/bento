@@ -86,6 +86,7 @@ services:
         BENTO_WEB_TAG: ${BENTO_WEB_TAG}
         BENTO_WEB_IS_DEBUG: "false"
         BENTO_WEB_USER: ${CURRENT_UID}
+        BENTO_CUSTOM_HEADER: ${BENTO_WEB_CUSTOM_HEADER} # pass in at build time as an arg (becomes an client-side env)
     image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION}
     container_name: ${BENTOV2_WEB_CONTAINER_NAME}
     networks: 
