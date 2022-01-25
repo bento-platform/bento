@@ -71,6 +71,9 @@ local ONE_TIME_TOKENS_GENERATE_PATH = "/api/auth/ott/generate"
 local ONE_TIME_TOKENS_INVALIDATE_PATH = "/api/auth/ott/invalidate"
 local ONE_TIME_TOKENS_INVALIDATE_ALL_PATH = "/api/auth/ott/invalidate_all"
 
+local TEMP_TOKENS_GENERATE_PATH = "/api/auth/tt/generate"
+
+
 -- TODO: Make this configurable
 local REDIS_CONNECTION_STRING = "bentov2-redis:6379"
 
@@ -277,8 +280,9 @@ end
 
 local req_headers = ngx.req.get_headers()
 
--- TODO: OTT headers are technically also a Bearer token (of a different nature)... should be combined
+-- TODO: OTT and TT headers are technically also a Bearer token (of a different nature)... should be combined
 local ott_header = req_headers["X-OTT"]
+local tt_header = req_headers["X-TT"]
 if ott_header and not URI:match("^/api/auth") then
   -- Cannot use a one-time token to bootstrap generation of more one-time
   -- tokens or invalidate existing ones
@@ -327,6 +331,68 @@ if ott_header and not URI:match("^/api/auth") then
       cjson.encode({
         message="Out-of-scope one-time token (scope: " .. scope .. ", URI prefix: " .. URI:sub(1, #scope) .. ")",
         tag="ott out of scope",
+        user_role=nil}))
+  end
+
+  -- No nested auth header is set; OTTs cannot be used to bootstrap a full bearer token
+
+  -- Put Redis connection into a keepalive pool for 30 seconds
+  red_ok, red_err = red:set_keepalive(30000, 100)
+  if red_err then
+    err_redis("redis keepalive failed")
+    goto script_end
+  end
+elseif tt_header and not URI:match("^/api/auth") then
+  -- Cannot use a one-time token to bootstrap generation of more one-time
+  -- tokens or invalidate existing ones
+  -- URIs do not include URL parameters, so this is safe from non-exact matches
+
+  -- The auth namespace check should theoretically be handled by the scope
+  -- validation anyway, but manually check it as a last resort
+
+  red_ok, red_err = redis_connect()
+  if red_err then  -- Error occurred while connecting to Redis
+    err_redis("redis conn")
+    goto script_end
+  end
+
+  -- TODO: Error handling for each command? Maybe overkill
+
+  -- Fetch all token data from the Redis store and subsequently delete it
+  local expiry = tonumber(red:hget("bento_tt:expiry", tt_header), 10) or nil
+  local scope = ngx_null_to_nil(red:hget("bento_tt:scope", tt_header))
+  user = cjson.decode(ngx_null_to_nil(red:hget("bento_tt:user", tt_header)) or "{}")
+  user_id = ngx_null_to_nil(red:hget("bento_tt:user_id", tt_header))
+  user_role = ngx_null_to_nil(red:hget("bento_tt:user_role", tt_header))
+
+  -- skip invalidation in order to allow the token to persist
+  -- TODO: modify expiration
+
+  -- red:init_pipeline(5)
+  -- invalidate_ott(red, tt_header)  -- 5 pipeline actions
+  -- red:commit_pipeline()
+
+  -- Update NGINX time (which is cached)
+  -- This is slow, so OTTs should not be over-used in situations where there's
+  -- a more performant way that likely makes more sense anyway.
+  ngx.update_time()
+
+  -- Check token validity
+  if expiry == nil then
+    -- Token cannot be found in the Redis store
+    uncached_response(ngx.HTTP_FORBIDDEN, "application/json",
+      cjson.encode({message="Invalid temporary token", tag="tt invalid", user_role=nil}))
+  elseif expiry < ngx.time() then
+    -- Token expiry date is in the past, so it is no longer valid
+    uncached_response(ngx.HTTP_FORBIDDEN, "application/json",
+      cjson.encode({message="Expired temporary token", tag="tt expired", user_role=nil}))
+  elseif URI:sub(1, #scope) ~= scope then
+    -- Invalid call made with the token (out of scope)
+    -- We're harsh here and still delete the token out of security concerns
+    uncached_response(ngx.HTTP_FORBIDDEN, "application/json",
+      cjson.encode({
+        message="Out-of-scope temporary token (scope: " .. scope .. ", URI prefix: " .. URI:sub(1, #scope) .. ")",
+        tag="tt out of scope",
         user_role=nil}))
   end
 
@@ -530,6 +596,98 @@ elseif URI == ONE_TIME_TOKENS_GENERATE_PATH then
     red:hset("bento_ott:user", new_token, cjson.encode(user))
     red:hset("bento_ott:user_id", new_token, user_id)
     red:hset("bento_ott:user_role", new_token, user_role)
+  end
+  red:commit_pipeline()
+
+  -- Put Redis connection into a keepalive pool for 30 seconds
+  red_ok, red_err = red:set_keepalive(30000, 100)
+  if red_err then
+    err_redis("redis keepalive failed")
+    -- TODO: Do we need to invalidate the tokens here? They aren't really guessable anyway
+    goto script_end
+  end
+
+  -- Return the newly-generated tokens to the requester
+  uncached_response(ngx.HTTP_OK, "application/json", cjson.encode(new_tokens))
+elseif URI == TEMP_TOKENS_GENERATE_PATH then
+  -- TODO: refactor (deduplicate)
+  -- Endpoint: POST /api/auth/tt/generate
+  --   Generates one or more one-time tokens for asynchronous authorization
+  --   purposes if user is authenticated; otherwise returns a 401 Forbidden error.
+  --   Called with a POST body (in JSON format) of: (for example)
+  --     {"scope": "/api/some_service/", "tokens": 5}
+  --   This will generate 5 one-time-use tokens that are only valid on URLs in
+  --   the /api/some_service/ namespace.
+  --   Scopes cannot be outside /api/ or in /api/auth
+
+  if REQUEST_METHOD ~= "POST" then
+    err_invalid_method()
+    goto script_end
+  end
+
+  if user_role == nil then
+    err_user_nil()
+    goto script_end
+  end
+
+  ngx.req.read_body()  -- Read the request body into memory
+  local req_body = cjson.decode(ngx.req.get_body_data() or "null")
+  if type(req_body) ~= "table" then
+    err_invalid_req_body()
+    goto script_end
+  end
+
+  local scope = req_body["scope"]
+  if not scope or type(scope) ~= "string" then
+    uncached_response(ngx.HTTP_BAD_REQUEST, "application/json",
+      cjson.encode({message="Missing or invalid token scope", tag="invalid scope", user_role=user_role}))
+    goto script_end
+  end
+
+  -- Validate that the scope asked for is reasonable
+  --   - Must be in a /api/[a-zA-Z0-9]+/ namespace
+  --   - Cannot be specific to the auth namespace
+
+  if not scope:match("^/api/%a[%w-_]*/") or scope:match("^/api/auth") then
+    uncached_response(ngx.HTTP_BAD_REQUEST, "application/json",
+      cjson.encode({message="Bad token scope", tag="bad scope", user_role=user_role}))
+    goto script_end
+  end
+
+  local n_tokens = math.max(req_body["number"] or 1, 1)
+
+  -- Don't let a user request more than 30 TTs at a time
+  if n_tokens > 30 then
+    uncached_response(ngx.HTTP_BAD_REQUEST, "application/json",
+      cjson.encode({message="Too many TTs requested", tag="too many tokens", user_role=user_role}))
+    goto script_end
+  end
+
+  red_ok, red_err = redis_connect()
+  if red_err then
+    err_redis("redis conn")
+    goto script_end
+  end
+
+  -- Update NGINX internal time cache
+  ngx.update_time()
+
+  local new_token
+  local new_tokens = {}
+
+  -- Generate n_tokens new tokens
+  red:init_pipeline(5 * n_tokens)
+  for _ = 1, n_tokens do
+    -- Generate a new token (using OpenSSL via lua-resty-random), 128 characters long
+    -- Does not use the token method, since that does not use OpenSSL
+    new_token = str.to_hex(random.bytes(64))
+    -- TODO: RANDOM CAN RETURN NIL, HANDLE THIS
+    table.insert(new_tokens, new_token)
+    red:hset("bento_tt:expiry", new_token, ngx.time() + 604800)  -- Set expiry to current time + 7 days
+    red:hset("bento_tt:scope", new_token, scope)
+    red:hset("bento_tt:user", new_token, cjson.encode(user))
+    red:hset("bento_tt:user_id", new_token, user_id)
+    red:hset("bento_tt:user_role", new_token, user_role)
   end
   red:commit_pipeline()
 
