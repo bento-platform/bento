@@ -61,6 +61,16 @@ local invalidate_ott = function (redis_conn, token)
   redis_conn:hdel("bento_ott:user_role", token)
 end
 
+local invalidate_tt = function (redis_conn, token)
+  -- Helper method to invalidate a one-time token, given a connection to the
+  -- Redis instance being used and the token in question
+  redis_conn:hdel("bento_tt:expiry", token)
+  redis_conn:hdel("bento_tt:scope", token)
+  redis_conn:hdel("bento_tt:user", token)
+  redis_conn:hdel("bento_tt:user_id", token)
+  redis_conn:hdel("bento_tt:user_role", token)
+end
+
 local OIDC_CALLBACK_PATH = "/api/auth/callback"
 local OIDC_CALLBACK_PATH_NO_SLASH = OIDC_CALLBACK_PATH:sub(2, #OIDC_CALLBACK_PATH)
 local SIGN_IN_PATH = "/api/auth/sign-in"
@@ -365,12 +375,6 @@ elseif tt_header and not URI:match("^/api/auth") then
   user_id = ngx_null_to_nil(red:hget("bento_tt:user_id", tt_header))
   user_role = ngx_null_to_nil(red:hget("bento_tt:user_role", tt_header))
 
-  -- skip invalidation in order to allow the token to persist
-  -- TODO: modify expiration
-
-  -- red:init_pipeline(5)
-  -- invalidate_ott(red, tt_header)  -- 5 pipeline actions
-  -- red:commit_pipeline()
 
   -- Update NGINX time (which is cached)
   -- This is slow, so OTTs should not be over-used in situations where there's
@@ -384,6 +388,10 @@ elseif tt_header and not URI:match("^/api/auth") then
       cjson.encode({message="Invalid temporary token", tag="tt invalid", user_role=nil}))
   elseif expiry < ngx.time() then
     -- Token expiry date is in the past, so it is no longer valid
+    red:init_pipeline(5)
+    invalidate_tt(red, tt_header)  -- 5 pipeline actions
+    red:commit_pipeline()
+    
     uncached_response(ngx.HTTP_FORBIDDEN, "application/json",
       cjson.encode({message="Expired temporary token", tag="tt expired", user_role=nil}))
   elseif URI:sub(1, #scope) ~= scope then
@@ -683,7 +691,7 @@ elseif URI == TEMP_TOKENS_GENERATE_PATH then
     new_token = str.to_hex(random.bytes(64))
     -- TODO: RANDOM CAN RETURN NIL, HANDLE THIS
     table.insert(new_tokens, new_token)
-    red:hset("bento_tt:expiry", new_token, ngx.time() + 604800)  -- Set expiry to current time + 7 days
+    red:hset("bento_tt:expiry", new_token, ngx.time() + 86400)  -- Set expiry to current time + 1 day (TODO: make flexible?)
     red:hset("bento_tt:scope", new_token, scope)
     red:hset("bento_tt:user", new_token, cjson.encode(user))
     red:hset("bento_tt:user_id", new_token, user_id)
