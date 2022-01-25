@@ -204,7 +204,7 @@
         "language": "go"
       },
       "repository": "${GOHAN_REPO}@${GOHAN_TAG}",
-      "data_service": false
+      "data_service": true
     }
   ]
   
