@@ -65,6 +65,15 @@ services:
       service: katsu
     volumes: 
       - ./lib/katsu/katsu:/app/katsu
+    environment:
+      - CHORD_DEBUG="true"
+    ports:
+      - "${BENTOV2_KATSU_EXTERNAL_PORT}:${BENTOV2_KATSU_INTERNAL_PORT}"
+    # TEMP: modify settings.py file to allow for domain host name to be allowed to make calls, as
+    #       importing CHORD_URL doesn't work at the time of writing
+    command: >
+      sh -c 'sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_PORTAL_DOMAIN}\"/" ${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py && \
+             sed -i "s/\[CHORD_HOST or \"localhost\"\]/\[CHORD_HOST or \"localhost:8000\"\]/" ${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py'
 
   katsu-db:
     networks: 
