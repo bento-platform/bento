@@ -106,11 +106,14 @@ services:
       dockerfile: Dockerfile.dev
     networks: 
       - bridge-net
+    environment:
+      - CHORD_DEBUG=true
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes
     volumes: 
       - ./lib/wes/bento_wes:/wes/bento_wes
+      - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
     ports:
       - "5000:5000"
   
