@@ -65,6 +65,7 @@ services:
       service: katsu
     volumes: 
       - ./lib/katsu/katsu:/app/katsu
+      - ${BENTOV2_KATSU_DB_DEV_VOL_DIR}:/var/lib/postgresql/data
     environment:
       - CHORD_DEBUG="true"
     ports:
@@ -112,8 +113,9 @@ services:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes
     volumes: 
-      - ./lib/wes/bento_wes:/wes/bento_wes
-      - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
+      - ${BENTOV2_WES_DEV_VOL_DIR}:/wes/data
+      - ${BENTOV2_WES_DEV_VOL_TMP_DIR}:/wes/tmp
+      - ${BENTOV2_WES_DEV_DROP_BOX_VOL_DIR}:/data
     ports:
       - "5000:5000"
   
