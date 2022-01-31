@@ -321,6 +321,10 @@ build-%:
 stop-all:
 	docker-compose down;
 
+	cd lib/gohan && \
+	docker-compose down && \
+	cd ../.. ;
+
 #>>>
 # stop a specific service
 #<<<
