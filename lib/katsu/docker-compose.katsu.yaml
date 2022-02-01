@@ -38,6 +38,8 @@ services:
         target: metadata_db_user
       - source: metadata-db-secret
         target: metadata_db_secret
+    volumes: 
+      - ../../lib/wes/tmp:/wes/tmp
     entrypoint: 
       - /bin/sh
       - -c

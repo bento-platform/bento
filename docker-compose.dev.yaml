@@ -65,7 +65,7 @@ services:
       service: katsu
     volumes: 
       - ./lib/katsu/katsu:/app/katsu
-      - ${BENTOV2_KATSU_DB_DEV_VOL_DIR}:/var/lib/postgresql/data
+      - ./lib/wes/tmp:/wes/tmp
     environment:
       - CHORD_DEBUG="true"
     ports:
