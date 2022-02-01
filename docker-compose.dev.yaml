@@ -133,7 +133,7 @@ services:
     volumes:
       # Override main drs data directory
       - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/chord_drs/data
-      - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
+      - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp
 networks: 
   bridge-net:
     external: true
