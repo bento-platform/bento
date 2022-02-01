@@ -66,10 +66,10 @@ make init-dirs
 make init-docker
 make docker-secrets
 
-# And open up the cluster's gateway with
-make run-gateway
+# Build base images
+make build-common-base
 
-# Next, run
+# And open up the cluster's gateway with
 make auth-setup
 ```
 
@@ -83,7 +83,6 @@ This last step boots and configures the local OIDC provider (**Keycloak**) conta
 ### Start the cluster
 
 ```
-make build-common-base
 make run-all
 ```
 
@@ -108,7 +107,7 @@ to remove the docker containers and images from disk,
 <br />
 
 ## Development
-To build upon the `bento_web` service while using bento V2, a few accomodations need to be made to your workspace.
+To build upon the `bento_web` service while using bentoV2 *(Note; this can be done with a number of other services in the stack with slight modifications : see the 'Makefile' and '.env' for details)*, a few accomodations need to be made to your workspace.
 First, move your local bento_web project to the `./lib/web` directory, or clone the web project there with
 
 ```

@@ -286,7 +286,8 @@ run-%:
 #<<<
 build-common-base:
 	docker-compose -f docker-compose.base.yaml build --no-cache common-alpine-python
-	#docker-compose -f docker-compose.base.yaml build --no-cache common-debian-python
+	# Swap if alpine ^ is insufficient:
+	# docker-compose -f docker-compose.base.yaml build --no-cache common-debian-python
 
 #>>>
 # build all service images
