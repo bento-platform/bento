@@ -76,7 +76,7 @@ data-dirs:
 	mkdir -p ${BENTOV2_AUTH_VOL_DIR}
 	mkdir -p ${BENTOV2_KATSU_DB_VOL_DIR}
 	mkdir -p ${BENTOV2_NOTIFICATION_VOL_DIR}
-	mkdir -p ${BENTOV2_FEDERATION_VOL_DIR}
+	mkdir -p ${BENTOV2_FEDERATION_PROD_VOL_DIR}
 	mkdir -p ${BENTOV2_WES_VOL_DIR}
 	mkdir -p ${BENTOV2_REDIS_VOL_DIR}
 
