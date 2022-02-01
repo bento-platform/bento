@@ -294,7 +294,7 @@ services:
       - ${BENTOV2_VARIANT_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
-      - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
+      - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/chord_drs/data
     mem_limit: ${BENTOV2_VARIANT_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_VARIANT_CPUS}
     cpu_shares: 512

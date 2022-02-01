@@ -31,7 +31,7 @@ services:
     expose:
       - ${BENTOV2_FEDERATION_INTERNAL_PORT}
     volumes:
-      - ${BENTOV2_FEDERATION_VOL_DIR}:/federation/data
+      - ${BENTOV2_FEDERATION_PROD_VOL_DIR}:/federation/data
     mem_limit: ${BENTOV2_FEDERATION_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_FEDERATION_CPUS}
     cpu_shares: 512
