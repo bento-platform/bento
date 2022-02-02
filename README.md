@@ -5,7 +5,7 @@ Originating from the blueprints in the repo `chord_singularity`, `bentoV2` aims 
 
 
 <div style="text-align:center">
-  <img src="https://github.com/bento-platform/bentoV2/blob/main/diagram.png?raw=true" alt="architecture" width="50%" style="align:middle;"/>
+  <img src="https://github.com/bento-platform/bentoV2/blob/qa/v2.4/diagram.png?raw=true" alt="architecture" width="50%" style="align:middle;"/>
 </div>
 
 
