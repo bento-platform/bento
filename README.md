@@ -2,6 +2,14 @@
 This repo is intended to be the next generation of Bento deployments.
 Originating from the blueprints in the repo `chord_singularity`, `bentoV2` aims to be much more modular than it's counterpart, built with docker instead of Singularity.
 
+
+
+<div style="text-align:center">
+  <img src="https://github.com/bento-platform/bentoV2/blob/main/diagram.png?raw=true" alt="architecture" width="50%" style="align:middle;"/>
+</div>
+
+
+
 ## Makefile
 The Makefile contains a set of tools to faciliate testing, development, and deployments. Ranging from `build`, `run`, and `clean` commands, operators may have an easier time using these rather than fiddling with raw `docker` and `docker-compose` commands.
 
