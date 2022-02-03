@@ -120,6 +120,8 @@ GOHAN_API_IMAGE=bentov2-gohan-api
 ..
 GOHAN_API_CONTAINER_NAME=bentov2-gohan-api
 ...
+GOHAN_ES_CONTAINER_NAME=bentov2-gohan-elasticsearch
+...
 GOHAN_DRS_CONTAINER_NAME=bentov2-drs
 ...
 GOHAN_API_API_DRS_BRIDGE_DIR_CONTAINERIZED=/data
@@ -139,7 +141,7 @@ Run
 make run-gohan
 ```
 
-to start `bentov2-gohan-api` and `elasticsearch` containers.
+to start `bentov2-gohan-api` and `bentov2-gohan-elasticsearch` containers.
 
 
 
