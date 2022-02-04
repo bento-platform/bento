@@ -2,6 +2,14 @@
 This repo is intended to be the next generation of Bento deployments.
 Originating from the blueprints in the repo `chord_singularity`, `bentoV2` aims to be much more modular than it's counterpart, built with docker instead of Singularity.
 
+
+
+<div style="text-align:center">
+  <img src="https://github.com/bento-platform/bentoV2/blob/qa/v2.4/diagram.png?raw=true" alt="diagram" style="align:middle;"/>
+</div>
+
+
+
 ## Makefile
 The Makefile contains a set of tools to faciliate testing, development, and deployments. Ranging from `build`, `run`, and `clean` commands, operators may have an easier time using these rather than fiddling with raw `docker` and `docker-compose` commands.
 
@@ -80,6 +88,63 @@ This last step boots and configures the local OIDC provider (**Keycloak**) conta
 > If you do not plan to use the built-in OIDC provider, you will have to handle the `auth_config` and `instance_config` manually (see `./etc/auth/..` and `./etc/scripts/..` for further details)
 
 
+### Setup Gohan service
+
+Run
+```
+make init-gohan
+```
+
+Or, alternatively:
+
+```
+cd lib
+git clone https://github.com/bento-platform/gohan.git
+git fetch && git checkout master && git pull && git checkout tags/${GOHAN_TAG}
+
+cd gohan
+```
+
+Create a local file for environment variables with default settings by running
+
+```
+cp ./etc/example.env .env
+```
+
+##### If running a development instance locally
+
+Set the following in the gohan .env file
+
+```
+GOHAN_API_IMAGE=bentov2-gohan-api
+..
+GOHAN_API_CONTAINER_NAME=bentov2-gohan-api
+...
+GOHAN_ES_CONTAINER_NAME=bentov2-gohan-elasticsearch
+...
+GOHAN_DRS_CONTAINER_NAME=bentov2-drs
+...
+GOHAN_API_API_DRS_BRIDGE_DIR_CONTAINERIZED=/data
+GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED=/data
+...
+# must point to a local drop-box data directory
+GOHAN_API_VCF_PATH=/home/user/Public/bentoV2/lib/drop-box/data-x
+...
+GOHAN_API_GTF_PATH=./data/tmp
+...
+GOHAN_API_AUTHZ_ENABLED=false
+```
+
+Run
+
+```
+make run-gohan
+```
+
+to start `bentov2-gohan-api` and `bentov2-gohan-elasticsearch` containers.
+
+
+
 ### Start the cluster
 
 ```
@@ -138,3 +203,40 @@ make run-tests
 ```
 
 This will run a set of both unit `(TODO)` and integration tests. See the `Makefile` for more details
+
+## Troubleshooting
+
+- The logs for each individual service can be accessed by running
+
+```
+docker logs bentov2-<service>
+```
+for example:
+```
+docker logs bentov2-katsu
+```
+
+- To restart all services
+
+```
+make stop-all
+make run-all
+make auth-setup
+```
+
+- If a service container doesn't start with `make run-all` start it individually, e.g.
+
+```
+make run-drs
+```
+
+- Running development instance locally: If federation service throws 500 ERROR, e.g.:
+
+```
+ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:852)
+ERROR:tornado.access:500 POST /private/dataset-search/...
+```
+In lib/federation/docker-compose.federation.yaml, set
+```
+CHORD_DEBUG=true
+```
