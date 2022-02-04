@@ -95,25 +95,9 @@ http {
             proxy_set_header     X-Forwarded-For   ${DOLLAR}proxy_add_x_forwarded_for;
             proxy_set_header     X-Forwarded-Proto ${DOLLAR}http_x_forwarded_proto;
 
-            #set ${DOLLAR}request_url ${DOLLAR}request_uri;
-            #set ${DOLLAR}url ${DOLLAR}uri;
-
             #limit_req zone=external burst=40 delay=15;
-
-            # TODO: hook up bento_public
-            #set ${DOLLAR}upstream_public http://${}:${};
-            #proxy_pass    ${DOLLAR}upstream_public;
-
-            ## --- TEMP ---
-
-            ## simple text response
-            #default_type text/html;
-            #return 200 'This is a public endpoint! Currently under construction..'; 
-
-            # redirect to portal url
-            return 301 https://${BENTOV2_PORTAL_DOMAIN}${DOLLAR}request_uri;
-
-            # --- ---
+            set ${DOLLAR}upstream_public http://${BENTO_PUBLIC_CONTAINER_NAME}:${BENTO_PUBLIC_INTERNAL_PORT};
+            proxy_pass    ${DOLLAR}upstream_public;
 
             error_log /var/log/bentov2_public_errors.log;
         }

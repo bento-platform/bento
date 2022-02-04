@@ -5,11 +5,14 @@
 #<<<
 env ?= .env
 gohan_env ?= ./lib/gohan/.env
+public_env ?= ./lib/bento_public/server.env
 
 include $(env)
 include $(gohan_env)
+include $(public_env)
 export $(shell sed 's/=.*//' $(env))
 export $(shell sed 's/=.*//' $(gohan_env))
+export $(shell sed 's/=.*//' $(public_env))
 
 #>>>
 # set default shell
@@ -116,6 +119,27 @@ init-gohan:
 	git pull && \
 	if [[ -n "${GOHAN_TAG}" ]]; then \
     	git checkout tags/${GOHAN_TAG} ; \
+	else \
+		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
+	fi
+
+init-bento-public:
+	@cd lib && \
+	\
+	if [ ! -d "./bento_public" ]; then \
+		echo "-- Cloning Bento-Public --" ; \
+		git clone ${BENTO_PUBLIC_REPO} ; \
+	else \
+		echo "-- Bento-Public already cloned --" ; \
+	fi && \
+	\
+	cd bento_public && \
+	\
+	git fetch && \
+	git checkout "${BENTO_PUBLIC_BRANCH}" && \
+	git pull && \
+	if [[ -n "${BENTO_PUBLIC_TAG}" ]]; then \
+    	git checkout tags/${BENTO_PUBLIC_TAG} ; \
 	else \
 		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
 	fi
@@ -267,7 +291,12 @@ run-%:
 
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
 
-	@if [[ $* == gohan ]]; then \
+	@if [[ $* == public ]]; then \
+		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/ run logs for details! --" && \
+		cd lib/bento_public && \
+		$(MAKE) clean-public &> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log && \
+		$(MAKE) run-public &>> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log & \
+	elif [[ $* == gohan ]]; then \
 		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/ run logs for details! --" && \
 		cd lib/gohan && \
 		$(MAKE) clean-api &> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
@@ -278,7 +307,6 @@ run-%:
 		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
 		docker-compose up -d $* &> tmp/logs/${EXECUTED_NOW}/$*/run.log & \
 	fi
-
 
 
 #>>>
