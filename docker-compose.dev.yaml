@@ -65,7 +65,7 @@ services:
       service: katsu
     volumes: 
       - ./lib/katsu/katsu:/app/katsu
-      - ./lib/wes/tmp:/wes/tmp
+      - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp
     environment:
       - CHORD_DEBUG="true"
     ports:
