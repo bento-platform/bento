@@ -39,7 +39,7 @@ services:
       - source: metadata-db-secret
         target: metadata_db_secret
     volumes: 
-      - ../../lib/wes/tmp:/wes/tmp
+      - ${BENTOV2_KATSU_PROD_WES_VOL_TMP_DIR}:/wes/tmp
     entrypoint: 
       - /bin/sh
       - -c
