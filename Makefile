@@ -292,7 +292,7 @@ run-%:
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
 
 	@if [[ $* == public ]]; then \
-		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/ run logs for details! --" && \
+		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
 		cd lib/bento_public && \
 		$(MAKE) clean-public &> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log && \
 		$(MAKE) run-public &>> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log & \
