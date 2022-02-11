@@ -83,7 +83,7 @@ services:
       context: $PWD/lib/federation
       dockerfile: Dockerfile.dev
     environment: 
-      - CHORD_DEBUG=true
+      - CHORD_DEBUG=${BENTOV2_FEDERATION_DEV_DEBUG}
     networks: 
       - bridge-net
     extends:
