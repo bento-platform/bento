@@ -26,6 +26,7 @@ lib/*/chord_services.json
 lib/service-registry/bento_service_registry
 lib/web/bento_web
 
+lib/katsu/config.json
 
 # temp test stuff
 etc/tests/*/__pycache__
