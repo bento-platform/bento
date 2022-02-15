@@ -215,6 +215,8 @@ run-all:
 #<<<
 run-web-dev: clean-web
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
+run-public-dev: 
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate public
 
 #>>>
 # run the gateway service that utilizes the local idp hostname as an alias
@@ -390,6 +392,12 @@ clean-all:
 # TODO: use env variables for container versions
 #<<<
 clean-%:
+	# Clean public using native makefile
+	if [[ $* == public ]]; then \
+		cd lib/bento_public && $(MAKE) clean-public ; \
+		exit \
+	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$* && \
 		echo "-- Stopping $* --" && \
 		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log
@@ -406,6 +414,7 @@ clean-%:
 	@if [[ $* == katsu ]]; then \
 		docker rm bentov2-katsu-db --force; \
 	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+
 
 #>>>
 # clean data directories
