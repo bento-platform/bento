@@ -22,6 +22,13 @@ services:
     extends:
       file: docker-compose.yaml
       service: web
+      
+  public:
+    extends:
+      file: ./lib/bento_public/docker-compose.yaml
+      service: public
+    ports:
+      - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
 
   variant:
     build:
