@@ -23,7 +23,7 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 
 ```
 cp ./etc/bento.env .env
-cp ./etc/katsu.config.example.json ./lib/katsu.config.json
+cp ./etc/katsu.config.example.json ./lib/katsu/config.json
 
 ```
 

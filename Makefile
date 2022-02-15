@@ -238,7 +238,7 @@ run-variant-dev: clean-variant
 # ...
 #	see docker-compose.dev.yaml
 #<<<
-run-katsu-dev: clean-katsu
+run-katsu-dev: #clean-katsu
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate katsu
 
 #>>>
@@ -392,11 +392,11 @@ clean-all:
 # TODO: use env variables for container versions
 #<<<
 clean-%:
-	# Clean public using native makefile
-	if [[ $* == public ]]; then \
-		cd lib/bento_public && $(MAKE) clean-public ; \
-		exit \
-	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+	# # Clean public using native makefile
+	# if [[ $* == public ]]; then \
+	# 	cd lib/bento_public && $(MAKE) clean-public ; \
+	# 	exit \
+	# fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
 
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$* && \
 		echo "-- Stopping $* --" && \

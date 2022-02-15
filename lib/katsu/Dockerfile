@@ -34,8 +34,6 @@ RUN git config user.name "docker" && \
     git checkout tags/${KATSU_TAG} && \
     git submodule update --init
 
-# Custom Katsu config
-COPY ./config.json ${PROJECT_DIRECTORY}/chord_metadata_service/
 
 # Install dependencies
 # -- fixes PEP 517 build error --

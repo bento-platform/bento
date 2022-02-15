@@ -39,7 +39,10 @@ services:
         target: metadata_db_user
       - source: metadata-db-secret
         target: metadata_db_secret
-    volumes: 
+    volumes:
+      # Custom Katsu config
+      - ./config.json:${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}/chord_metadata_service/config.json
+      # Temp WES dir
       - ${BENTOV2_KATSU_PROD_WES_VOL_TMP_DIR}:/wes/tmp
     entrypoint: 
       - /bin/sh
