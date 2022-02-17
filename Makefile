@@ -297,12 +297,12 @@ run-%:
 		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
 		cd lib/bento_public && \
 		$(MAKE) clean-public &> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log && \
-		$(MAKE) run-public &>> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log & \
+		$(MAKE) run-public >> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log 2>&1 & \
 	elif [[ $* == gohan ]]; then \
 		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/ run logs for details! --" && \
 		cd lib/gohan && \
 		$(MAKE) clean-api &> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
-		$(MAKE) run-api &>> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
+		$(MAKE) run-api >> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log 2>&1 && \
 		\
 		$(MAKE) run-elasticsearch &> ../../tmp/logs/${EXECUTED_NOW}/$*/elasticsearch_run.log & \
 	else \
@@ -403,17 +403,17 @@ clean-%:
 		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log
 	
 	@echo "-- Removing bentov2-$* container --" && \
-		docker rm bentov2-$* --force &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+		docker rm bentov2-$* --force >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 	
 	@# Some services don't need their images removed
 	@if [[ $* != auth && $* != redis ]]; then \
 		docker rmi bentov2-$*:0.0.1 --force; \
-	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
 	@# Katsu also needs it's database to be stopped
 	@if [[ $* == katsu ]]; then \
 		docker rm bentov2-katsu-db --force; \
-	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
 
 #>>>
