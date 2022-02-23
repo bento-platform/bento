@@ -84,6 +84,9 @@ services:
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu-db
+    volumes:
+      - ${BENTOV2_KATSU_DB_DEV_VOL_DIR}:/var/lib/postgresql/data
+
 
   federation:
     build:
