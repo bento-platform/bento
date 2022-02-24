@@ -61,6 +61,7 @@ def setup(request):
         cls = item.getparent(pytest.Class)
         setattr(cls.obj, "driver", driver)
         setattr(cls.obj, "pause_time_seconds", 1)
+        setattr(cls.obj, "max_wait_time_seconds", 3)
         setattr(cls.obj, "bentov2_url", bentov2_url)
         setattr(cls.obj, "bentov2auth_url", bentov2auth_url)
         setattr(cls.obj, "bentov2_public_url", bentov2_public_url)

@@ -1,15 +1,15 @@
-from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException        
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-import os
-import unittest
 import time
-import requests
 import pytest
 
 @pytest.mark.usefixtures("setup")
 class TestPublic():
     data_button_xpath = "//*[@id='root']/section/section/main/div/div[5]/div/button"
+    spinner_xpath = "//*[@id='root']/section/section/main/div/div[5]/div/div"
 
     def test_navigate_to_public(self):
         self.navigate_to_public()
@@ -18,21 +18,36 @@ class TestPublic():
     def test_get_public_data(self):
         self.navigate_to_public()
 
-        time.sleep(self.pause_time_seconds)
+        # time.sleep(self.pause_time_seconds)
 
-        # obtain the get data button element
-        assert self.check_exists_by_xpath(self.data_button_xpath)
-        
-        get_data_button_element = self.driver.find_element_by_xpath(self.data_button_xpath)
+        # wait for and obtain the get data button element
+        get_data_button_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
+            EC.presence_of_element_located((By.XPATH, self.data_button_xpath))
+        )
 
         # scroll down to the button element        
         self.scroll_shim(get_data_button_element)
-
         time.sleep(self.pause_time_seconds)
 
-        # click get data
+        # re-retrieve the button, wait for it to be clickable and then click
+        get_data_button_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
+            EC.element_to_be_clickable((By.XPATH, self.data_button_xpath)))
+
+        # click 'get data' button
         get_data_button_element.click()
-        time.sleep(2)
+
+        # retrieve and wait for spinner to disappear
+        # TODO: refactor
+        spinner_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
+            EC.presence_of_element_located((By.XPATH, self.spinner_xpath))
+        )
+        def is_hidden(self):
+            try:
+                return spinner_element.is_displayed() == False
+            except Exception:
+                pass
+
+        assert WebDriverWait(self.driver, 10).until(is_hidden)
 
         
 
