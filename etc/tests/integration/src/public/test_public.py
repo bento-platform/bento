@@ -10,6 +10,7 @@ import pytest
 class TestPublic():
     data_button_xpath = "//*[@id='root']/section/section/main/div/div[5]/div/button"
     spinner_xpath = "//*[@id='root']/section/section/main/div/div[5]/div/div"
+    chart_col_xpath = "//*[@id='root']/section/section/main/div/div[2]/div/div[1]/div[2]"
 
     def test_navigate_to_public(self):
         self.navigate_to_public()
@@ -17,8 +18,6 @@ class TestPublic():
 
     def test_get_public_data(self):
         self.navigate_to_public()
-
-        # time.sleep(self.pause_time_seconds)
 
         # wait for and obtain the get data button element
         get_data_button_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
@@ -44,6 +43,13 @@ class TestPublic():
         assert WebDriverWait(self.driver, self.max_wait_time_seconds).until(
             lambda redundant_driver: spinner_element.is_displayed() == False)
 
+    def test_presence_of_public_data_visualizations(self):
+        self.navigate_to_public()
+
+        # wait for presence chart ( histogram or pie-chart )-containing bootstrap columns
+        assert WebDriverWait(self.driver, self.max_wait_time_seconds).until(
+            EC.presence_of_all_elements_located((By.XPATH, self.chart_col_xpath))
+        )
         
 
 
