@@ -37,17 +37,12 @@ class TestPublic():
         get_data_button_element.click()
 
         # retrieve and wait for spinner to disappear
-        # TODO: refactor
         spinner_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
             EC.presence_of_element_located((By.XPATH, self.spinner_xpath))
         )
-        def is_hidden(self):
-            try:
-                return spinner_element.is_displayed() == False
-            except Exception:
-                pass
 
-        assert WebDriverWait(self.driver, 10).until(is_hidden)
+        assert WebDriverWait(self.driver, self.max_wait_time_seconds).until(
+            lambda redundant_driver: spinner_element.is_displayed() == False)
 
         
 
