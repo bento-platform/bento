@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import requests
 import pytest
-
+import random
 
 @pytest.mark.usefixtures("setup")
 class TestPublic():
@@ -124,7 +124,11 @@ class TestPublic():
 
         # verify the checkboxes
         checkbox_count = 0
+        # - get all checkboxes
         all_checkboxes = self.driver.find_elements_by_xpath(self.checkbox_xpath)
+        # - randomize the list order
+        random.shuffle(all_checkboxes)
+        # - loop over the now-random list of checkboxes
         for checkbox in all_checkboxes:
             try:
                 # get the checkbox into view
