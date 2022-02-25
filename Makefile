@@ -76,8 +76,12 @@ init-dirs: data-dirs
 #<<<
 data-dirs:
 	@echo "- Creating data dirs"
+
+	mkdir -p ${BENTOV2_ROOT_DATA_DIR}
+
 	mkdir -p ${BENTOV2_AUTH_VOL_DIR}
-	mkdir -p ${BENTOV2_KATSU_DB_VOL_DIR}
+	mkdir -p ${BENTOV2_DROP_BOX_VOL_DIR}
+	mkdir -p ${BENTOV2_KATSU_DB_PROD_VOL_DIR}
 	mkdir -p ${BENTOV2_NOTIFICATION_VOL_DIR}
 	mkdir -p ${BENTOV2_FEDERATION_PROD_VOL_DIR}
 	mkdir -p ${BENTOV2_WES_VOL_DIR}

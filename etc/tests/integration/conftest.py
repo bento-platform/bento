@@ -23,13 +23,13 @@ def setup(request):
     
     project_root_abs_path = os.getcwd()
 
-    if "login" in testname:
+    if "login" in testname or "public" in testname:
         driverenv = os.environ["DRIVER_ENV"]
         common_path = f'{project_root_abs_path}/etc/tests/integration'
 
         # Firefox
         fireFoxOptions = ffOptions()
-        if headless_mode:
+        if headless_mode and "public" not in testname:
             fireFoxOptions.headless = True
 
         profile = webdriver.FirefoxProfile()
@@ -53,6 +53,7 @@ def setup(request):
 
     bentov2_url= os.environ["BENTOV2_PORTAL_PUBLIC_URL"]
     bentov2auth_url= os.environ["BENTOV2_AUTH_PUBLIC_URL"]
+    bentov2_public_url= os.environ["BENTOV2_PUBLIC_URL"]
 
 
     session = request.node
@@ -60,8 +61,10 @@ def setup(request):
         cls = item.getparent(pytest.Class)
         setattr(cls.obj, "driver", driver)
         setattr(cls.obj, "pause_time_seconds", 1)
+        setattr(cls.obj, "max_wait_time_seconds", 3)
         setattr(cls.obj, "bentov2_url", bentov2_url)
         setattr(cls.obj, "bentov2auth_url", bentov2auth_url)
+        setattr(cls.obj, "bentov2_public_url", bentov2_public_url)
         setattr(cls.obj, "project_root_abs_path", project_root_abs_path)
 
     yield driver
