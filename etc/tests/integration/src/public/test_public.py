@@ -19,6 +19,8 @@ class TestPublic():
     chart_col_xpath = "//*[@id='root']/section/section/main/div/div[2]/div/div[1]/div"
     query_parameter_row_xpath ="//*[@id='root']/section/section/main/div/div[4]/div[1]/div/div"
 
+    public_data_column_selector =".container > .row:nth-last-child(2) > div:last-child"
+
     # browser tests
     def test_navigate_to_public(self):
         self.navigate_to_public()
@@ -50,6 +52,16 @@ class TestPublic():
 
         assert WebDriverWait(self.driver, self.max_wait_time_seconds).until(
             lambda redundant_driver: spinner_element.is_displayed() == False)
+
+        # get data
+        # wait for and obtain the data-containing column element (second-to-last row's last column)
+        data_col_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, self.public_data_column_selector))
+        )
+        data_raw_text = data_col_element.text
+
+        assert data_raw_text != "" and "count" in data_raw_text
+
 
     def test_presence_of_public_data_visualizations(self):
         self.navigate_to_public()
