@@ -1,4 +1,4 @@
-from selenium.common.exceptions import NoSuchElementException        
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException       
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import requests
 import pytest
-
+import random
 
 @pytest.mark.usefixtures("setup")
 class TestPublic():
@@ -20,6 +20,7 @@ class TestPublic():
     spinner_xpath = "//*[@id='root']/section/section/main/div/div[5]/div/div"
     chart_col_xpath = "//*[@id='root']/section/section/main/div/div[2]/div/div[1]/div"
     query_parameter_row_xpath ="//*[@id='root']/section/section/main/div/div[4]/div[1]/div/div"
+    checkbox_xpath = "//input[@type='checkbox']"
 
     public_data_column_selector =".container > .row:nth-last-child(2) > div:last-child"
 
@@ -110,6 +111,43 @@ class TestPublic():
                     assert qp_title not in concatenated_qp_row_texts
 
     # TODO: ui - check configuration + checkboxes
+    def test_public_query_parameter_form_checkbox_limits(self):
+        self.navigate_to_public()
+
+        # retrieve the fields json object from public endpoint
+        config_json = self.get_json_data(self.config_path).json()
+
+        # ensure we got what we needed
+        assert "maxQueryParameters" in config_json
+        max_qp = config_json["maxQueryParameters"]
+        assert max_qp > 0
+
+        # verify the checkboxes
+        checkbox_count = 0
+        # - get all checkboxes
+        all_checkboxes = self.driver.find_elements_by_xpath(self.checkbox_xpath)
+        # - randomize the list order
+        random.shuffle(all_checkboxes)
+        # - loop over the now-random list of checkboxes
+        for checkbox in all_checkboxes:
+            try:
+                # get the checkbox into view
+                self.scroll_shim(checkbox)
+                time.sleep(0.25)
+                
+                # click on the checkbox
+                checkbox.click()
+
+                # increase the number of checked checkboxes count
+                checkbox_count += 1
+            except ElementClickInterceptedException:
+                # expect the click to fail (be "intercepted")
+                # if the max number of query parameters has been reached
+                # and pass on this exception
+                if checkbox_count >= max_qp:
+                    pass
+                else:
+                    raise ElementClickInterceptedException
 
 
 
