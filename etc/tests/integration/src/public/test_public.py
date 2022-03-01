@@ -133,7 +133,7 @@ class TestPublic():
             try:
                 # get the checkbox into view
                 self.scroll_shim(checkbox)
-                time.sleep(0.25)
+                time.sleep(self.scroll_pause_time_seconds)
                 
                 # click on the checkbox
                 checkbox.click()
