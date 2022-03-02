@@ -193,11 +193,15 @@ class TestPublic():
         for key in all_number_fields.keys():
             minimum = None
             maximum = None
+            bin_size = None
 
             if "minimum" in all_number_fields[key]:
                 minimum = float(all_number_fields[key]["minimum"])
             if "maximum" in all_number_fields[key]:
                 maximum = float(all_number_fields[key]["maximum"])
+            if "bin_size" in all_number_fields[key]:
+                bin_size = float(all_number_fields[key]["bin_size"])
+
 
             # retrieve html elements corresponding with this iteration's element key
             min_number_input = self.driver.find_element_by_xpath(self.number_input_min_xpath_with_placeholders % key)
@@ -288,6 +292,26 @@ class TestPublic():
                 max_post_key_value=float(max_number_input.get_attribute('value'))
 
                 assert max_post_key_value == maximum
+
+            if bin_size != None:
+                min_number_input.clear()
+                min_attempted_less_than_bin_size_max_value = 0
+                min_number_input.send_keys(str(min_attempted_less_than_bin_size_max_value))
+
+                max_number_input.clear()
+                max_attempted_less_than_bin_size_max_value = bin_size - 1
+                max_number_input.send_keys(str(max_attempted_less_than_bin_size_max_value))
+
+                time.sleep(self.scroll_pause_time_seconds / 10)
+                
+                # unfocus
+                self.driver.execute_script("document.activeElement.blur()", None)
+                time.sleep(self.scroll_pause_time_seconds / 10)
+
+                min_post_key_value=float(min_number_input.get_attribute('value'))
+                max_post_key_value=float(max_number_input.get_attribute('value'))
+
+                assert (max_post_key_value - min_post_key_value) == bin_size
 
             # re-disable query parameter
             corresponding_checkbox.click()
