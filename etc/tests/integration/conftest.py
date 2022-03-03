@@ -29,7 +29,7 @@ def setup(request):
 
         # Firefox
         fireFoxOptions = ffOptions()
-        if headless_mode and "public" not in testname:
+        if headless_mode:
             fireFoxOptions.headless = True
 
         profile = webdriver.FirefoxProfile()
