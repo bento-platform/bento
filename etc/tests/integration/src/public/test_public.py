@@ -71,7 +71,10 @@ class TestPublic():
         )
         data_raw_text = data_col_element.text
 
-        assert data_raw_text != "" and "count" in data_raw_text
+        # ensure no data is present given no parameters were selected
+        assert data_raw_text == ""
+
+        # TODO: elaborate...
 
     def test_presence_of_public_data_visualizations(self):
         self.navigate_to_public()
@@ -276,7 +279,7 @@ class TestPublic():
 
                 min_post_key_value=float(min_number_input.get_attribute('value'))
 
-                assert min_post_key_value == minimum
+                assert min_post_key_value % bin_size == 0
             
             if maximum != None:
                 max_number_input.clear()
@@ -291,27 +294,35 @@ class TestPublic():
 
                 max_post_key_value=float(max_number_input.get_attribute('value'))
 
-                assert max_post_key_value == maximum
+                assert max_post_key_value % bin_size == 0
 
-            if bin_size != None:
+            if bin_size != None :
+                if  minimum != None and maximum != None:
+                    min_rand=random.randrange(minimum, maximum,1)
+                    max_rand=random.randrange(minimum, maximum,1)
+                elif minimum == None:
+                    min_rand=random.randrange(0, maximum, 1)
+                    max_rand=random.randrange(0, maximum, 1)
+                elif maximum == None:
+                    min_rand=random.randrange(minimum, 1000, 1)
+                    max_rand=random.randrange(minimum, 1000, 1)
+
                 min_number_input.clear()
-                min_attempted_less_than_bin_size_max_value = 0
-                min_number_input.send_keys(str(min_attempted_less_than_bin_size_max_value))
-
-                max_number_input.clear()
-                max_attempted_less_than_bin_size_max_value = bin_size - 1
-                max_number_input.send_keys(str(max_attempted_less_than_bin_size_max_value))
-
-                time.sleep(self.scroll_pause_time_seconds / 10)
-                
+                min_number_input.send_keys(str(min_rand))
                 # unfocus
                 self.driver.execute_script("document.activeElement.blur()", None)
                 time.sleep(self.scroll_pause_time_seconds / 10)
 
+                max_number_input.clear()
+                max_number_input.send_keys(str(max_rand))
+                # unfocus
+                self.driver.execute_script("document.activeElement.blur()", None)
+                time.sleep(self.scroll_pause_time_seconds / 10)
+                
                 min_post_key_value=float(min_number_input.get_attribute('value'))
                 max_post_key_value=float(max_number_input.get_attribute('value'))
 
-                assert (max_post_key_value - min_post_key_value) == bin_size
+                assert (max_post_key_value - min_post_key_value) % bin_size == 0
 
             # re-disable query parameter
             corresponding_checkbox.click()
