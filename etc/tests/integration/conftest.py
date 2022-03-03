@@ -29,7 +29,7 @@ def setup(request):
 
         # Firefox
         fireFoxOptions = ffOptions()
-        if headless_mode and "public" not in testname:
+        if headless_mode:
             fireFoxOptions.headless = True
 
         profile = webdriver.FirefoxProfile()
@@ -61,6 +61,7 @@ def setup(request):
         cls = item.getparent(pytest.Class)
         setattr(cls.obj, "driver", driver)
         setattr(cls.obj, "pause_time_seconds", 1)
+        setattr(cls.obj, "scroll_pause_time_seconds", 0.75)
         setattr(cls.obj, "max_wait_time_seconds", 3)
         setattr(cls.obj, "bentov2_url", bentov2_url)
         setattr(cls.obj, "bentov2auth_url", bentov2auth_url)

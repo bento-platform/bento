@@ -1,7 +1,10 @@
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException       
+import keyword
+from re import A
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, ElementNotInteractableException  
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 import time
 import requests
@@ -22,7 +25,13 @@ class TestPublic():
     query_parameter_row_xpath ="//*[@id='root']/section/section/main/div/div[4]/div[1]/div/div"
     checkbox_xpath = "//input[@type='checkbox']"
 
+    checkbox_xpath_with_id_placeholder = "//input[@type='checkbox'][@id='%s']"
+    number_input_min_xpath_with_placeholders = "//div[contains(@class, 'ant-input-number')]//input[@id='%s'][@name='range-min']"
+    number_input_max_xpath_with_placeholders = "//div[contains(@class, 'ant-input-number')]//input[@id='%s'][@name='range-max']"
+
+
     public_data_column_selector =".container > .row:nth-last-child(2) > div:last-child"
+    number_input_selector = ".ant-input-number input"
 
     # browser tests
     def test_navigate_to_public(self):
@@ -62,7 +71,10 @@ class TestPublic():
         )
         data_raw_text = data_col_element.text
 
-        assert data_raw_text != "" and "count" in data_raw_text
+        # ensure no data is present given no parameters were selected
+        assert data_raw_text == ""
+
+        # TODO: elaborate...
 
     def test_presence_of_public_data_visualizations(self):
         self.navigate_to_public()
@@ -110,7 +122,7 @@ class TestPublic():
                 else: # "queryable" not in value_json
                     assert qp_title not in concatenated_qp_row_texts
 
-    # TODO: ui - check configuration + checkboxes
+    # ui - check configuration + checkboxes
     def test_public_query_parameter_form_checkbox_limits(self):
         self.navigate_to_public()
 
@@ -133,7 +145,7 @@ class TestPublic():
             try:
                 # get the checkbox into view
                 self.scroll_shim(checkbox)
-                time.sleep(0.25)
+                time.sleep(self.scroll_pause_time_seconds)
                 
                 # click on the checkbox
                 checkbox.click()
@@ -148,6 +160,172 @@ class TestPublic():
                     pass
                 else:
                     raise ElementClickInterceptedException
+
+    # ui - test input boxes minimum/maximum limits
+    def test_public_query_parameter_form_number_input_limits(self):
+        self.navigate_to_public()
+
+        # retrieve the fields json object from public endpoint
+        fields_json = self.get_json_data(self.fields_path).json()
+
+        # gather all number fields (both extra- and non-extra-properties)
+        # under one dictionary to simplify looping
+        
+        # - get and structure extra_properties
+        number_extra_props = {}
+        extra_properties_json = fields_json["extra_properties"]
+        for extra_prop_Key in extra_properties_json:
+            if "type" in extra_properties_json[extra_prop_Key] and extra_properties_json[extra_prop_Key]["type"] == "number":
+                number_extra_props[extra_prop_Key] = extra_properties_json[extra_prop_Key]
+
+        # - remove extra_properties from original json dict
+        fields_json.pop("extra_properties")
+
+        # - get and structure non-extra-properties
+        number_non_extra_props = {}
+        non_extra_properties_json = fields_json
+        for non_extra_prop_Key in non_extra_properties_json:
+            if "type" in non_extra_properties_json[non_extra_prop_Key] and non_extra_properties_json[non_extra_prop_Key]["type"] == "number":
+                number_non_extra_props[non_extra_prop_Key] = non_extra_properties_json[non_extra_prop_Key]
+
+        # - combine the fields
+        all_number_fields = {**number_extra_props, **number_non_extra_props}
+
+
+        # - get all number inputs
+        for key in all_number_fields.keys():
+            minimum = None
+            maximum = None
+            bin_size = None
+
+            if "minimum" in all_number_fields[key]:
+                minimum = float(all_number_fields[key]["minimum"])
+            if "maximum" in all_number_fields[key]:
+                maximum = float(all_number_fields[key]["maximum"])
+            if "bin_size" in all_number_fields[key]:
+                bin_size = float(all_number_fields[key]["bin_size"])
+
+
+            # retrieve html elements corresponding with this iteration's element key
+            min_number_input = self.driver.find_element_by_xpath(self.number_input_min_xpath_with_placeholders % key)
+            max_number_input = self.driver.find_element_by_xpath(self.number_input_max_xpath_with_placeholders % key)
+            corresponding_checkbox = self.driver.find_element_by_xpath(self.checkbox_xpath_with_id_placeholder % key)
+
+            # scroll to the element
+            self.scroll_shim(corresponding_checkbox)
+            time.sleep(self.scroll_pause_time_seconds)
+
+            # enable query parameter
+            corresponding_checkbox.click()
+
+            # get the input into view
+            self.scroll_shim(min_number_input)
+            time.sleep(self.scroll_pause_time_seconds)
+            
+            # navigate up and down the input's range randomly
+            rand=random.randrange(0,10,1)
+            for i in range(rand):
+                # obtain the input element's value before sending it a DOWN key
+                pre_key_value=float(min_number_input.get_attribute('value'))
+                
+                min_number_input.send_keys(Keys.ARROW_DOWN)
+                time.sleep(self.scroll_pause_time_seconds / 10)
+
+                # obtain the input element's value after sending it a DOWN key
+                value = float(min_number_input.get_attribute('value'))
+
+                # compare with minimum value if available
+                if minimum!= None:
+                    assert value >= minimum
+                    if value == minimum:
+                        break
+                # if sent key didnt change the value without triggering an exeception
+                # (i.e if a minimum was hit), exit the loop
+                if pre_key_value == value:
+                    break
+
+            rand=random.randrange(0,10,1)
+            for i in range(rand):
+                # obtain the input element's value before sending it an UP key
+                pre_key_value=float(max_number_input.get_attribute('value'))
+                
+                max_number_input.send_keys(Keys.ARROW_UP)
+                time.sleep(self.scroll_pause_time_seconds / 10)
+                
+                # obtain the input element's value after sending it an UP key
+                value = float(max_number_input.get_attribute('value'))
+
+                # compare with maximum value if available
+                if maximum != None:
+                    assert value <= maximum
+                    if value == maximum:
+                        break
+                # if sent key didnt change the value without triggering an exeception
+                # (i.e if a maximum was hit), exit the loop
+                if pre_key_value == value:
+                    break
+
+            # ensure cannot set value greater than max or less than min
+            if minimum != None:
+                min_number_input.clear()
+                attempted_less_than_min_value = str(float(minimum) - 1)
+                
+                min_number_input.send_keys(attempted_less_than_min_value)
+                time.sleep(self.scroll_pause_time_seconds / 10)
+                
+                # unfocus
+                self.driver.execute_script("document.activeElement.blur()", None)
+                time.sleep(self.scroll_pause_time_seconds / 10)
+
+                min_post_key_value=float(min_number_input.get_attribute('value'))
+
+                assert min_post_key_value % bin_size == 0
+            
+            if maximum != None:
+                max_number_input.clear()
+                attempted_greater_than_max_value = str(float(maximum) + 1)
+                
+                max_number_input.send_keys(attempted_greater_than_max_value)
+                time.sleep(self.scroll_pause_time_seconds / 10)
+                
+                # unfocus
+                self.driver.execute_script("document.activeElement.blur()", None)
+                time.sleep(self.scroll_pause_time_seconds / 10)
+
+                max_post_key_value=float(max_number_input.get_attribute('value'))
+
+                assert max_post_key_value % bin_size == 0
+
+            if bin_size != None :
+                if  minimum != None and maximum != None:
+                    min_rand=random.randrange(minimum, maximum,1)
+                    max_rand=random.randrange(minimum, maximum,1)
+                elif minimum == None:
+                    min_rand=random.randrange(0, maximum, 1)
+                    max_rand=random.randrange(0, maximum, 1)
+                elif maximum == None:
+                    min_rand=random.randrange(minimum, 1000, 1)
+                    max_rand=random.randrange(minimum, 1000, 1)
+
+                min_number_input.clear()
+                min_number_input.send_keys(str(min_rand))
+                # unfocus
+                self.driver.execute_script("document.activeElement.blur()", None)
+                time.sleep(self.scroll_pause_time_seconds / 10)
+
+                max_number_input.clear()
+                max_number_input.send_keys(str(max_rand))
+                # unfocus
+                self.driver.execute_script("document.activeElement.blur()", None)
+                time.sleep(self.scroll_pause_time_seconds / 10)
+                
+                min_post_key_value=float(min_number_input.get_attribute('value'))
+                max_post_key_value=float(max_number_input.get_attribute('value'))
+
+                assert (max_post_key_value - min_post_key_value) % bin_size == 0
+
+            # re-disable query parameter
+            corresponding_checkbox.click()
 
 
 
@@ -238,7 +416,7 @@ class TestPublic():
                         assert json_body != None
 
                         if json_body != {}:
-                            assert "count" in json_body
+                            assert "count" in json_body or "message" in json_body
 
                     else:
                         supposed_invalid_query_response = requests.post(f'{self.bentov2_public_url}{self.katsu_path}', json=data, verify=False)
