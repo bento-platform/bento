@@ -6,6 +6,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+
+from datetime import date, timedelta
 import time
 import requests
 import pytest
@@ -19,15 +21,18 @@ class TestPublic():
     config_path = "/config"
     katsu_path = "/katsu"
 
-    data_button_xpath = "//*[@id='root']/section/section/main/div/div[5]/div/button"
-    spinner_xpath = "//*[@id='root']/section/section/main/div/div[5]/div/div"
-    chart_col_xpath = "//*[@id='root']/section/section/main/div/div[2]/div/div[1]/div"
-    query_parameter_row_xpath ="//*[@id='root']/section/section/main/div/div[4]/div[1]/div/div"
+    data_button_xpath = "//*[@id='root']/section/main/div[2]/div[4]/div/button"
+    spinner_xpath = "//*[@id='root']/section/main/div[2]/div[4]/div/div"
+    chart_col_xpath = "//*[@id='root']/section/main/div[2]/div[3]/div[2]"
+    query_parameter_row_xpath ="//*[@id='root']/section/main/div[2]/div[3]/div[1]/div/div"
     checkbox_xpath = "//input[@type='checkbox']"
 
     checkbox_xpath_with_id_placeholder = "//input[@type='checkbox'][@id='%s']"
     number_input_min_xpath_with_placeholders = "//div[contains(@class, 'ant-input-number')]//input[@id='%s'][@name='range-min']"
     number_input_max_xpath_with_placeholders = "//div[contains(@class, 'ant-input-number')]//input[@id='%s'][@name='range-max']"
+
+    date_input_after_xpath_with_placeholders = "//div[contains(@class, 'ant-picker-input')]//input[@id='%s'][@name='date-after']"
+    date_input_before_xpath_with_placeholders = "//div[contains(@class, 'ant-picker-input')]//input[@id='%s'][@name='date-before']"
 
 
     public_data_column_selector =".container > .row:nth-last-child(2) > div:last-child"
@@ -40,29 +45,7 @@ class TestPublic():
     def test_get_public_data(self):
         self.navigate_to_public()
 
-        # wait for and obtain the get data button element
-        get_data_button_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
-            EC.presence_of_element_located((By.XPATH, self.data_button_xpath))
-        )
-
-        # scroll down to the button element        
-        self.scroll_shim(get_data_button_element)
-        time.sleep(self.pause_time_seconds)
-
-        # re-retrieve the button, wait for it to be clickable and then click
-        get_data_button_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
-            EC.element_to_be_clickable((By.XPATH, self.data_button_xpath)))
-
-        # click 'get data' button
-        get_data_button_element.click()
-
-        # retrieve and wait for spinner to disappear
-        spinner_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
-            EC.presence_of_element_located((By.XPATH, self.spinner_xpath))
-        )
-
-        assert WebDriverWait(self.driver, self.max_wait_time_seconds).until(
-            lambda redundant_driver: spinner_element.is_displayed() == False)
+        self.get_data()
 
         # get data
         # wait for and obtain the data-containing column element (second-to-last row's last column)
@@ -327,6 +310,88 @@ class TestPublic():
             # re-disable query parameter
             corresponding_checkbox.click()
 
+    # ui - test date range inputs
+    def test_public_query_parameter_date_range(self):
+        self.navigate_to_public()
+
+        # retrieve the fields json object from public endpoint
+        fields_json = self.get_json_data(self.fields_path).json()
+
+        # gather all number fields (both extra- and non-extra-properties)
+        # under one dictionary to simplify looping
+        
+        # - get and structure extra_properties
+        date_extra_props = {}
+        extra_properties_json = fields_json["extra_properties"]
+        for extra_prop_Key in extra_properties_json:
+            if "format" in extra_properties_json[extra_prop_Key] and extra_properties_json[extra_prop_Key]["format"] == "date":
+                date_extra_props[extra_prop_Key] = extra_properties_json[extra_prop_Key]
+
+        # - remove extra_properties from original json dict
+        fields_json.pop("extra_properties")
+
+        # - get and structure non-extra-properties
+        date_non_extra_props = {}
+        non_extra_properties_json = fields_json
+        for non_extra_prop_Key in non_extra_properties_json:
+            if "format" in non_extra_properties_json[non_extra_prop_Key] and non_extra_properties_json[non_extra_prop_Key]["format"] == "date":
+                date_non_extra_props[non_extra_prop_Key] = non_extra_properties_json[non_extra_prop_Key]
+
+        # - combine the fields
+        all_date_fields = {**date_extra_props, **date_non_extra_props}
+
+
+        # - get all number inputs
+        for key in all_date_fields.keys():
+            # retrieve html elements corresponding with this iteration's element key
+            date_after_input = self.driver.find_element_by_xpath(self.date_input_after_xpath_with_placeholders % key)
+            date_before_input = self.driver.find_element_by_xpath(self.date_input_before_xpath_with_placeholders % key)
+            corresponding_checkbox = self.driver.find_element_by_xpath(self.checkbox_xpath_with_id_placeholder % key)
+
+
+            # scroll to the element
+            self.scroll_shim(corresponding_checkbox)
+            time.sleep(self.scroll_pause_time_seconds)
+
+            # enable query parameter
+            corresponding_checkbox.click()
+            
+            time.sleep(self.pause_time_seconds * 3)
+
+
+            # Python program to get
+            # current date
+            today_date = date.today() 
+            yesterday_date = today_date - timedelta(1)
+            print(yesterday_date)
+
+            date_after_input.click()
+            date_after_input.send_keys(str(yesterday_date))
+            date_after_input.send_keys(Keys.ENTER)
+            # unfocus
+            self.driver.execute_script("document.activeElement.blur()", None)
+            time.sleep(self.scroll_pause_time_seconds / 10)
+
+
+            time.sleep(self.pause_time_seconds * 3)
+
+            date_before_input.click()
+            date_before_input.send_keys(str(today_date))
+            date_before_input.send_keys(Keys.ENTER)
+            # unfocus
+            self.driver.execute_script("document.activeElement.blur()", None)
+            time.sleep(self.scroll_pause_time_seconds / 10)
+
+            time.sleep(self.pause_time_seconds * 3)
+
+            # re-disable query parameter
+            corresponding_checkbox.click()
+
+            time.sleep(self.pause_time_seconds * 3)
+
+            self.get_data()
+
+
 
 
     # endpoint tests
@@ -455,6 +520,31 @@ class TestPublic():
         
         # execute javascriptcode
         self.driver.execute_script(scroll_by_coord)
+
+    def get_data(self):
+        # wait for and obtain the get data button element
+        get_data_button_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
+            EC.presence_of_element_located((By.XPATH, self.data_button_xpath))
+        )
+
+        # scroll down to the button element        
+        self.scroll_shim(get_data_button_element)
+        time.sleep(self.pause_time_seconds)
+
+        # re-retrieve the button, wait for it to be clickable and then click
+        get_data_button_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
+            EC.element_to_be_clickable((By.XPATH, self.data_button_xpath)))
+
+        # click 'get data' button
+        get_data_button_element.click()
+
+        # retrieve and wait for spinner to disappear
+        spinner_element = WebDriverWait(self.driver, self.max_wait_time_seconds).until(
+            EC.presence_of_element_located((By.XPATH, self.spinner_xpath))
+        )
+
+        assert WebDriverWait(self.driver, self.max_wait_time_seconds).until(
+            lambda redundant_driver: spinner_element.is_displayed() == False)
 
     def check_exists_by_xpath(self, xpath):
         try:
