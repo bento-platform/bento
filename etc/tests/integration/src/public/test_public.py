@@ -23,7 +23,7 @@ class TestPublic():
 
     data_button_xpath = "//*[@id='root']/section/main/div[2]/div[4]/div/button"
     spinner_xpath = "//*[@id='root']/section/main/div[2]/div[4]/div/div"
-    chart_col_xpath = "//*[@id='root']/section/main/div[2]/div[3]/div[2]"
+    chart_col_xpath = "//*[@id='root']/section/main/div[2]/div[1]/div/div/div"
     query_parameter_row_xpath ="//*[@id='root']/section/main/div[2]/div[3]/div[1]/div/div"
     checkbox_xpath = "//input[@type='checkbox']"
 
