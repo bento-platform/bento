@@ -34,6 +34,8 @@ class TestPublic():
     date_input_after_xpath_with_placeholders = "//div[contains(@class, 'ant-picker-input')]//input[@id='%s'][@name='date-after']"
     date_input_before_xpath_with_placeholders = "//div[contains(@class, 'ant-picker-input')]//input[@id='%s'][@name='date-before']"
 
+    disabled_date_picker_date_with_placeholder = "//div[not(contains(@class, 'ant-picker-dropdown-hidden'))]/div/div/div/div/table/tbody/tr/td[@title='%s']"
+
 
     public_data_column_selector =".container > .row:nth-last-child(2) > div:last-child"
     number_input_selector = ".ant-input-number input"
@@ -382,14 +384,45 @@ class TestPublic():
             self.driver.execute_script("document.activeElement.blur()", None)
             time.sleep(self.scroll_pause_time_seconds / 10)
 
-            time.sleep(self.pause_time_seconds * 3)
+
+            time.sleep(self.pause_time_seconds)
+            self.get_data()
+
+
+            # test try clicking on a date that is before 'dateAfter' and that is after 'dateBefore'
+            tomorrow_date = today_date + timedelta(1)
+            date_after_input.click()
+            time.sleep(self.scroll_pause_time_seconds / 10)
+            # get element
+            supposed_disabled_date_tomorrow_input = self.driver.find_element_by_xpath(self.disabled_date_picker_date_with_placeholder % str(tomorrow_date))
+            # ensure it is unclickable 
+            after_did_fail = False
+            try:
+                supposed_disabled_date_tomorrow_input.click()
+            except ElementClickInterceptedException:
+                after_did_fail = True
+
+            day_before_yesterday_date = yesterday_date - timedelta(1)
+            date_before_input.click()
+            time.sleep(self.scroll_pause_time_seconds / 10)
+            # get element
+            supposed_disabled_date_before_yesterday_input = self.driver.find_element_by_xpath(self.disabled_date_picker_date_with_placeholder % str(day_before_yesterday_date))
+            # ensure it is unclickable 
+            before_did_fail = False
+            try:
+                supposed_disabled_date_before_yesterday_input.click()
+            except ElementClickInterceptedException:
+                before_did_fail = True
+            
+
+            assert after_did_fail and before_did_fail
+
 
             # re-disable query parameter
             corresponding_checkbox.click()
 
-            time.sleep(self.pause_time_seconds * 3)
+            time.sleep(self.pause_time_seconds)
 
-            self.get_data()
 
 
 
