@@ -345,6 +345,52 @@ class TestPublic():
 
         # - get all number inputs
         for key in all_date_fields.keys():
+
+            # test backend
+            # - test valid inputs
+            item = all_date_fields[key]
+            date_after = '2021-01-01'
+            date_before = '2022-01-01'
+            
+            # 
+            data =[{
+                "key": key,
+                "type": item["type"],
+                "is_extra_property_key": True,
+                "dateAfter": date_after,
+                "dateBefore": date_before
+            }]
+
+            response = requests.post(f'{self.bentov2_public_url}{self.katsu_path}', json=data, verify=False)
+            assert response.status_code == 200
+        
+            # - test invalid inputs
+            dates_list = [
+                ('2025-01-01','2022-01-01'),  # -- invert dates
+                ('','2022-01-01'),            # --- exclude after
+                ('2021-01-01', '')            # --- exclude before
+
+            ]
+            for dates in dates_list:
+
+                date_after = dates[0]
+                date_before = dates[1]
+
+                data =[{
+                    "key": key,
+                    "type": item["type"],
+                    "is_extra_property_key": True,
+                    "dateAfter": date_after,
+                    "dateBefore": date_before
+                }]
+
+                response = requests.post(f'{self.bentov2_public_url}{self.katsu_path}', json=data, verify=False)
+                assert response.status_code == 400
+
+
+
+            # test UI
+
             # retrieve html elements corresponding with this iteration's element key
             date_after_input = self.driver.find_element_by_xpath(self.date_input_after_xpath_with_placeholders % key)
             date_before_input = self.driver.find_element_by_xpath(self.date_input_before_xpath_with_placeholders % key)
@@ -471,6 +517,7 @@ class TestPublic():
             # obtain important parameters to construct POST body
             value_json = all_json[key]
             qp_type = value_json["type"]
+            qp_format = value_json["format"] if "format" in value_json else ""
             qp_is_extra_property_key = value_json["is_extra_property_key"]
 
             # generate random value
@@ -481,6 +528,9 @@ class TestPublic():
             # between the two is at least the bin-size
             qp_range_min = 0 if qp_type == "number" else None
             qp_range_max = value_json["bin_size"] if qp_type == "number" else None
+
+            qp_date_after = '2021-01-01' if qp_format == "date" else ''
+            qp_date_before = '2022-01-01' if qp_format == "date" else ''
             
             # setup json data
             data =[{
@@ -489,7 +539,9 @@ class TestPublic():
                 "value": qp_value,
                 "is_extra_property_key": qp_is_extra_property_key,
                 "rangeMax": qp_range_max,
-                "rangeMin": qp_range_min
+                "rangeMin": qp_range_min,
+                "dateAfter": qp_date_after,
+                "dateBefore": qp_date_before
             }]
 
             # ensure this json value has fields we need
