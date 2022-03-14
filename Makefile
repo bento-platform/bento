@@ -424,7 +424,7 @@ clean-%:
 # clean data directories
 #<<<
 clean-all-volume-dirs:
-	sudo rm -r lib/*/data
+	sudo rm -r ${BENTOV2_ROOT_DATA_DIR}
 
 #>>>
 # clean docker secrets
