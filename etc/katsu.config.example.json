@@ -1,0 +1,36 @@
+{
+	"sex": {
+		"type": "array",
+		"items": {
+			"type": "string",
+			"enum": ["male", "female"]
+		},
+		"title": "Sex"
+	},
+	"extra_properties": {
+		"age": {
+			"type": "range",
+			"title": "Age"
+		},
+		"disease.label": {
+			"type": "string",
+			"title": "Disease"
+		},
+		"covidstatus": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"enum": ["positive", "negative", "indeterminate"]
+			},	
+			"title": "Covid Status"
+		},
+		"smoking": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"enum": ["smoker", "former smoker", "non-smoker", "not specified"]
+			},	
+			"title": "Smoking"
+		}
+	}
+}

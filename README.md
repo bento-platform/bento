@@ -23,6 +23,8 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 
 ```
 cp ./etc/bento.env .env
+cp ./etc/katsu.config.example.json ./lib/katsu/config.json
+
 ```
 
 And fill the `XXX_USER` and `XXX_PASSWORD` variables with custom values.
@@ -86,6 +88,24 @@ This last step boots and configures the local OIDC provider (**Keycloak**) conta
 > NOTE: by default, the `gateway` service *does* need to be running for this to work as the configuration will pass via the URL set in the `.env` file which points to the gateway. 
 >
 > If you do not plan to use the built-in OIDC provider, you will have to handle the `auth_config` and `instance_config` manually (see `./etc/auth/..` and `./etc/scripts/..` for further details)
+
+
+### Setup Bento-Public
+
+Run
+```
+mkdir -p ./lib/bento_public/server.env
+make init-bento-public
+```
+
+Create a local file for environment variables with default settings by running
+
+```
+cd ./lib/bento_public
+
+cp ./etc/example.server.env ./server.env
+cp ./etc/example.client.env ./client.env
+```
 
 
 ### Setup Gohan service

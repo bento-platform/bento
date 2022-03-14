@@ -5,11 +5,14 @@
 #<<<
 env ?= .env
 gohan_env ?= ./lib/gohan/.env
+public_env ?= ./lib/bento_public/server.env
 
 include $(env)
 include $(gohan_env)
+include $(public_env)
 export $(shell sed 's/=.*//' $(env))
 export $(shell sed 's/=.*//' $(gohan_env))
+export $(shell sed 's/=.*//' $(public_env))
 
 #>>>
 # set default shell
@@ -73,8 +76,12 @@ init-dirs: data-dirs
 #<<<
 data-dirs:
 	@echo "- Creating data dirs"
+
+	mkdir -p ${BENTOV2_ROOT_DATA_DIR}
+
 	mkdir -p ${BENTOV2_AUTH_VOL_DIR}
-	mkdir -p ${BENTOV2_KATSU_DB_VOL_DIR}
+	mkdir -p ${BENTOV2_DROP_BOX_VOL_DIR}
+	mkdir -p ${BENTOV2_KATSU_DB_PROD_VOL_DIR}
 	mkdir -p ${BENTOV2_NOTIFICATION_VOL_DIR}
 	mkdir -p ${BENTOV2_FEDERATION_PROD_VOL_DIR}
 	mkdir -p ${BENTOV2_WES_VOL_DIR}
@@ -116,6 +123,27 @@ init-gohan:
 	git pull && \
 	if [[ -n "${GOHAN_TAG}" ]]; then \
     	git checkout tags/${GOHAN_TAG} ; \
+	else \
+		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
+	fi
+
+init-bento-public:
+	@cd lib && \
+	\
+	if [ ! -d "./bento_public" ]; then \
+		echo "-- Cloning Bento-Public --" ; \
+		git clone ${BENTO_PUBLIC_REPO} ; \
+	else \
+		echo "-- Bento-Public already cloned --" ; \
+	fi && \
+	\
+	cd bento_public && \
+	\
+	git fetch && \
+	git checkout "${BENTO_PUBLIC_BRANCH}" && \
+	git pull && \
+	if [[ -n "${BENTO_PUBLIC_TAG}" ]]; then \
+    	git checkout tags/${BENTO_PUBLIC_TAG} ; \
 	else \
 		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
 	fi
@@ -191,6 +219,8 @@ run-all:
 #<<<
 run-web-dev: clean-web
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
+run-public-dev: 
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate public
 
 #>>>
 # run the gateway service that utilizes the local idp hostname as an alias
@@ -212,7 +242,7 @@ run-variant-dev: clean-variant
 # ...
 #	see docker-compose.dev.yaml
 #<<<
-run-katsu-dev: clean-katsu
+run-katsu-dev: #clean-katsu
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate katsu
 
 #>>>
@@ -267,18 +297,22 @@ run-%:
 
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
 
-	@if [[ $* == gohan ]]; then \
+	@if [[ $* == public ]]; then \
+		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
+		cd lib/bento_public && \
+		$(MAKE) clean-public &> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log && \
+		$(MAKE) run-public >> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log 2>&1 & \
+	elif [[ $* == gohan ]]; then \
 		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/ run logs for details! --" && \
 		cd lib/gohan && \
 		$(MAKE) clean-api &> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
-		$(MAKE) run-api &>> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
+		$(MAKE) run-api >> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log 2>&1 && \
 		\
 		$(MAKE) run-elasticsearch &> ../../tmp/logs/${EXECUTED_NOW}/$*/elasticsearch_run.log & \
 	else \
 		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
 		docker-compose up -d $* &> tmp/logs/${EXECUTED_NOW}/$*/run.log & \
 	fi
-
 
 
 #>>>
@@ -362,22 +396,29 @@ clean-all:
 # TODO: use env variables for container versions
 #<<<
 clean-%:
+	# # Clean public using native makefile
+	# if [[ $* == public ]]; then \
+	# 	cd lib/bento_public && $(MAKE) clean-public ; \
+	# 	exit \
+	# fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$* && \
 		echo "-- Stopping $* --" && \
 		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log
 	
 	@echo "-- Removing bentov2-$* container --" && \
-		docker rm bentov2-$* --force &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+		docker rm bentov2-$* --force >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 	
 	@# Some services don't need their images removed
 	@if [[ $* != auth && $* != redis ]]; then \
 		docker rmi bentov2-$*:0.0.1 --force; \
-	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
 	@# Katsu also needs it's database to be stopped
 	@if [[ $* == katsu ]]; then \
 		docker rm bentov2-katsu-db --force; \
-	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
+
 
 #>>>
 # clean data directories
