@@ -15,3 +15,5 @@ class TestDrsApi():
         response = requests.get(f'{self.bentov2_url}{self.drs_path}/search?fuzzy_name=.json', verify=False)
         
         assert response.status_code == 200
+        assert response.json() != None and len(response.json()) >= 0
+
