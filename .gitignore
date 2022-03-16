@@ -15,6 +15,7 @@ lib/gateway/nginx.conf
 lib/web/bento_web/*
 
 # ignore data directories
+data
 lib/*/data
 lib/*/data-x
 lib/*/dev
