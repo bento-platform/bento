@@ -6,8 +6,18 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 # TODO: change USER
 USER root
 
-# Install samtools from github repos (htslib needed first)
-RUN apk --update add jq ncurses-dev && \
+# Install vcf2maf, vep, samtools, htslib from github repos (htslib needed first)
+RUN apk --update add jq \
+        ncurses-dev \
+        expat \
+        expat-dev \
+        libxml2-dev \
+        libxslt-dev \
+        perl-app-cpanminus \
+        perl-dbi \
+        perl-dev \
+        perl-utils \
+        wget && \
     git clone https://github.com/samtools/htslib.git && \
     cd htslib && \
     git submodule update --init --recursive && \
@@ -19,11 +29,27 @@ RUN apk --update add jq ncurses-dev && \
     make && \
     make install && \
     cd .. && \
-    rm -rf htslib samtools
+    git clone https://github.com/Ensembl/ensembl-vep.git && \
+    # Install perl dependencies for ensembl-vep
+    cpanm --installdeps --with-recommends --notest --cpanfile ensembl-vep/cpanfile . && \
+    cd ensembl-vep && \
+    # Build vep in /ensembl-vep
+    perl INSTALL.pl -a a --NO_TEST && \
+    cd .. && \
+    rm -rf htslib samtools && \
+    git clone https://github.com/mskcc/vcf2maf.git && \
+    mkdir -p /opt/data && \
+    cp vcf2maf/*.pl /opt/ && \
+    cp -r vcf2maf/data /opt/data && \
+    rm -rf vcf2maf
+
+# Add ensembl-vep to the PATH so that vep can be called from vcf2map script
+ENV PATH /ensembl-vep:$PATH
 
 RUN mkdir /wes; \
-    # for temp data
+    # for temp data, shared volume
     mkdir /wes/tmp; \
+    # drop-box shared volume
     mkdir /data
 
 WORKDIR /wes
