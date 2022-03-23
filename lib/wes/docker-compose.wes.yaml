@@ -21,6 +21,8 @@ services:
       - SERVICE_ID=
       - SERVICE_TEMP=/wes/tmp
       - SERVICE_URL_BASE_PATH=/api/wes
+      - VEP_CACHE_DIR=/wes/cache/vep
+      - VEP_ENSEMBL_VERSION=102
       - WOM_TOOL_LOCATION=
       #/wes/womtool.jar
       # Allow-list (comma-separated) for hosts that workflow files can be downloaded

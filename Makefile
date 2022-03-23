@@ -142,6 +142,19 @@ init-bento-public:
 	fi
 
 #>>>
+# populate the cache for wes, based on human assembly GRCh37
+# Note: vcf2maf code expects this by default. Test when adding new assemblies
+#<<<
+init-wes-cache:
+	@if [ ! $(docker ps --filter "name=bentov2-wes" --format '{{.Names}}') == bentov2-wes ]; then \
+		echo "bentov2-wes container must be running for building the cache" ; \
+		exit 1; \
+	fi && \
+	\
+	docker exec bentov2-wes /wes/bento_wes/install/vep_cache_grch37.sh
+
+
+#>>>
 # create secrets for Bento v2 services
 #<<<
 .PHONY: docker-secrets
