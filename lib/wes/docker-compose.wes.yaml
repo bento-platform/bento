@@ -57,4 +57,5 @@ services:
     volumes:
       - ${BENTOV2_WES_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
-      - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data 
+      - ${BENTOV2_WES_VOL_CACHE_DIR}:/wes/cache
+      - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data
