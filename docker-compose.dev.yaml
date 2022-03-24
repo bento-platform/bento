@@ -22,6 +22,13 @@ services:
     extends:
       file: docker-compose.yaml
       service: web
+      
+  public:
+    extends:
+      file: ./lib/bento_public/docker-compose.yaml
+      service: public
+    ports:
+      - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
 
   variant:
     build:
@@ -38,7 +45,7 @@ services:
     volumes: 
       - ./lib/variant/bento_variant_service:/variant/bento_variant_service/bento_variant_service
       - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
-      - ${BENTOV2_DRS_VOL_DIR}:/drs/chord_drs/data
+      - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/chord_drs/data
 
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
@@ -65,15 +72,11 @@ services:
       service: katsu
     volumes: 
       - ./lib/katsu/katsu:/app/katsu
+      - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp
     environment:
-      - CHORD_DEBUG="true"
+      - CHORD_DEBUG=true
     ports:
       - "${BENTOV2_KATSU_EXTERNAL_PORT}:${BENTOV2_KATSU_INTERNAL_PORT}"
-    # TEMP: modify settings.py file to allow for domain host name to be allowed to make calls, as
-    #       importing CHORD_URL doesn't work at the time of writing
-    command: >
-      sh -c 'sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_PORTAL_DOMAIN}\"/" ${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py && \
-             sed -i "s/\[CHORD_HOST or \"localhost\"\]/\[CHORD_HOST or \"localhost:8000\"\]/" ${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py'
 
   katsu-db:
     networks: 
@@ -81,13 +84,16 @@ services:
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu-db
+    volumes:
+      - ${BENTOV2_KATSU_DB_DEV_VOL_DIR}:/var/lib/postgresql/data
+
 
   federation:
     build:
       context: $PWD/lib/federation
       dockerfile: Dockerfile.dev
     environment: 
-      - CHORD_DEBUG=true
+      - CHORD_DEBUG=${BENTOV2_FEDERATION_DEV_DEBUG}
     networks: 
       - bridge-net
     extends:
@@ -111,9 +117,11 @@ services:
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes
-    volumes: 
+    volumes:
       - ./lib/wes/bento_wes:/wes/bento_wes
-      - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
+      - ${BENTOV2_WES_DEV_VOL_DIR}:/wes/data
+      - ${BENTOV2_WES_DEV_VOL_TMP_DIR}:/wes/tmp
+      - ${BENTOV2_WES_DEV_DROP_BOX_VOL_DIR}:/data
     ports:
       - "5000:5000"
   
@@ -131,7 +139,7 @@ services:
     volumes:
       # Override main drs data directory
       - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/chord_drs/data
-      - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
+      - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp
 networks: 
   bridge-net:
     external: true

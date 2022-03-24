@@ -15,6 +15,7 @@ lib/gateway/nginx.conf
 lib/web/bento_web/*
 
 # ignore data directories
+data
 lib/*/data
 lib/*/data-x
 lib/*/dev
@@ -26,6 +27,7 @@ lib/*/chord_services.json
 lib/service-registry/bento_service_registry
 lib/web/bento_web
 
+lib/katsu/config.json
 
 # temp test stuff
 etc/tests/*/__pycache__

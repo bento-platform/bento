@@ -15,4 +15,4 @@ class TestKatsuApi():
         response = requests.get(f'{self.bentov2_url}{self.metadata_path}/tables?data-type=experiment&format=json', verify=False)
         
         assert response.status_code == 200
-        assert response.json() == []
+        assert response.json() != None and len(response.json()) >= 0

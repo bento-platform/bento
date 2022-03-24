@@ -16,7 +16,7 @@ services:
     environment: 
       - DATABASE=/federation/data/federation.db
       - INITIALIZE_IMMEDIATELY=false
-      - CHORD_DEBUG=false
+      - CHORD_DEBUG=${BENTOV2_FEDERATION_PROD_DEBUG}
       - BENTO_FEDERATION_MODE=true
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
       - CHORD_REGISTRY_URL=${BENTOV2_PORTAL_PUBLIC_URL}
@@ -31,7 +31,7 @@ services:
     expose:
       - ${BENTOV2_FEDERATION_INTERNAL_PORT}
     volumes:
-      - ${BENTOV2_FEDERATION_VOL_DIR}:/federation/data
+      - ${BENTOV2_FEDERATION_PROD_VOL_DIR}:/federation/data
     mem_limit: ${BENTOV2_FEDERATION_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_FEDERATION_CPUS}
     cpu_shares: 512

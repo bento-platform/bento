@@ -17,9 +17,9 @@ services:
     expose:
       - ${BENTOV2_KATSU_INTERNAL_PORT}
     environment:
-      - CHORD_URL=${CHORD_METADATA_HOST}
+      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
       - CHORD_PERMISSIONS="${CHORD_METADATA_AUTH}"
-      - CHORD_DEBUG="${CHORD_METADATA_DEBUG}"
+      - CHORD_DEBUG=${CHORD_METADATA_DEBUG}
       - POSTGRES_HOST=${BENTOV2_KATSU_DB_CONTAINER_NAME}
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
       - POSTGRES_PASSWORD_FILE=/run/secrets/metadata_db_secret
@@ -27,6 +27,7 @@ services:
       - SERVICE_TEMP=/app/tmp
       - DJANGO_SETTINGS_MODULE=chord_metadata_service.metadata.settings
       - BENTOV2_PORTAL_DOMAIN=${BENTOV2_PORTAL_DOMAIN}
+      - HOST_CONTAINER_NAME=${BENTOV2_KATSU_CONTAINER_NAME}
     configs:
       - source: chord-metadata-settings
         target: /katsu/metadata/settings.py
@@ -38,6 +39,11 @@ services:
         target: metadata_db_user
       - source: metadata-db-secret
         target: metadata_db_secret
+    volumes:
+      # Custom Katsu config
+      - ./config.json:${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}/chord_metadata_service/config.json
+      # Temp WES dir
+      - ${BENTOV2_KATSU_PROD_WES_VOL_TMP_DIR}:/wes/tmp
     entrypoint: 
       - /bin/sh
       - -c
@@ -70,7 +76,7 @@ services:
       - source: metadata-db-secret
         target: metadata_db_secret
     volumes: 
-      - ${BENTOV2_KATSU_DB_VOL_DIR}:/var/lib/postgresql/data
+      - ${BENTOV2_KATSU_DB_PROD_VOL_DIR}:/var/lib/postgresql/data
     mem_limit: ${BENTOV2_KATSU_DB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_KATSU_DB_CPUS}
     cpu_shares: 1024
