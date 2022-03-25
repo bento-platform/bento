@@ -356,7 +356,9 @@ build-%:
 stop-all:
 	docker-compose down;
 
-	cd lib/gohan && \
+	cd lib/bento_public && \
+	docker-compose down && \
+	cd ../gohan && \
 	docker-compose down && \
 	cd ../.. ;
 
