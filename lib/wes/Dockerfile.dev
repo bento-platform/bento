@@ -29,6 +29,11 @@ RUN apk --update add jq \
     make && \
     make install && \
     cd .. && \
+    git clone https://github.com/samtools/bcftools.git && \
+    cd bcftools && \
+    make && \
+    make install && \
+    cd .. && \
     git clone https://github.com/Ensembl/ensembl-vep.git && \
     # Install perl dependencies for ensembl-vep
     cpanm --installdeps --with-recommends --notest --cpanfile ensembl-vep/cpanfile . && \
@@ -36,7 +41,7 @@ RUN apk --update add jq \
     # Build vep in /ensembl-vep
     perl INSTALL.pl -a a --NO_TEST && \
     cd .. && \
-    rm -rf htslib samtools && \
+    rm -rf htslib samtools bcftools && \
     git clone https://github.com/mskcc/vcf2maf.git && \
     mkdir -p /opt/data && \
     cp vcf2maf/*.pl /opt/ && \
