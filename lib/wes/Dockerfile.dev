@@ -8,13 +8,13 @@ USER root
 
 # Install samtools from github repos (htslib needed first)
 RUN apk --update add jq ncurses-dev && \
-    git clone git://github.com/samtools/htslib.git && \
+    git clone https://github.com/samtools/htslib.git && \
     cd htslib && \
     git submodule update --init --recursive && \
     make && \
     make install && \
     cd .. && \
-    git clone git://github.com/samtools/samtools.git && \
+    git clone https://github.com/samtools/samtools.git && \
     cd samtools && \
     make && \
     make install && \
