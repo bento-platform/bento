@@ -86,6 +86,7 @@ http {
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
         # --
 
+        # -- Use Bento-Public Starts Here --
         # Public Web
         location / {
 
@@ -105,6 +106,10 @@ http {
 
             error_log /var/log/bentov2_public_errors.log;
         }
+        # -- Use Bento-Public Ends Here --
+        # -- Do Not Use Bento-Public Starts Here --
+        return 301 https://portal.${DOLLAR}host${DOLLAR}request_uri;
+        # -- Do Not Use Bento-Public Ends Here --
     }
 
 
