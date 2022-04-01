@@ -1,36 +1,60 @@
 {
+	"age": {
+	  "type": "number",
+	  "title": "Age",
+	  "bin_size": 10,
+	  "is_range": true,
+	  "queryable": true,
+	  "taper_left": 40,
+	  "taper_right": 60,
+	  "units": "years",
+	  "minimum": 0,
+	  "description": "Age at arrival"
+	},
 	"sex": {
-		"type": "array",
-		"items": {
-			"type": "string",
-			"enum": ["male", "female"]
-		},
-		"title": "Sex"
+	  "type": "string",
+	  "enum": [
+		"Male",
+		"Female"
+	  ],
+	  "title": "Sex",
+	  "queryable": true,
+	  "description": "Sex at birth"
 	},
 	"extra_properties": {
-		"age": {
-			"type": "range",
-			"title": "Age"
-		},
-		"disease.label": {
-			"type": "string",
-			"title": "Disease"
-		},
-		"covidstatus": {
-			"type": "array",
-			"items": {
-				"type": "string",
-				"enum": ["positive", "negative", "indeterminate"]
-			},	
-			"title": "Covid Status"
-		},
-		"smoking": {
-			"type": "array",
-			"items": {
-				"type": "string",
-				"enum": ["smoker", "former smoker", "non-smoker", "not specified"]
-			},	
-			"title": "Smoking"
-		}
+	  "date_of_consent": {
+		"type": "string",
+		"format": "date",
+		"title": "Consent date",
+		"chart": "bar",
+		"queryable": true
+	  },
+	  "smoking": {
+		"type": "string",
+		"enum": [
+		  "Non-smoker",
+		  "Smoker",
+		  "Former smoker",
+		  "Passive smoker",
+		  "Not specified"
+		],
+		"title": "Smoking",
+		"queryable": true,
+		"description": "Smoking status"
+	  },
+	  "lab_test_result_value": {
+		"type": "number",
+		"title": "Lab Test Result",
+		"bin_size": 50,
+		"is_range": true,
+		"queryable": true,
+		"taper_left": 50,
+		"taper_right": 800,
+		"units": "mg/L",
+		"minimum": 0,
+		"maximum": 999,
+		"description": ""
+	  }
 	}
-}
+  }
+  
