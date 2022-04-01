@@ -269,7 +269,7 @@ run-drs-dev:
 
 
 #>>>
-# run a specified service
+# run a specific service
 #<<<
 run-%:
 	@if [[ $* == gateway ]]; then \

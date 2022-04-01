@@ -19,7 +19,8 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 
 ## Installation
 
-### Setup configuration file
+### Provision configuration files
+First, run --
 
 ```
 cp ./etc/bento.env .env
@@ -27,7 +28,105 @@ cp ./etc/katsu.config.example.json ./lib/katsu/config.json
 
 ```
 
-And fill the `XXX_USER` and `XXX_PASSWORD` variables with custom values.
+-then modify the values as seen applicable..
+For example;
+
+```
+.env
+
+BENTOV2_DOMAIN=bentov2.local
+BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
+BENTOV2_AUTH_DOMAIN=bentov2auth.local
+
+MODE=dev
+
+BENTOV2_USE_EXTERNAL_IDP=0
+BENTOV2_USE_BENTO_PUBLIC=1
+BENTOV2_PRIVATE_MODE=false
+
+BENTOV2_ROOT_DATA_DIR=~/bentov2/data
+```
+If the internal IdP is being used (by default, Keycloak), credential variables should also be provided
+
+```
+BENTOV2_AUTH_ADMIN_USER=testadmin
+BENTOV2_AUTH_ADMIN_PASSWORD=testpassword123
+
+BENTOV2_AUTH_TEST_USER=testuser
+BENTOV2_AUTH_TEST_PASSWORD=testpassword123
+```
+Otherwise, adjust the following AUTH variables according to the extenal IdP's specifications;
+```
+BENTOV2_AUTH_CLIENT_ID=local_bentov2
+BENTOV2_AUTH_REALM=bentov2
+
+BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
+```
+
+```
+./lib/katsu/config.json
+
+{
+	"age": {
+	  "type": "number",
+	  "title": "Age",
+	  "bin_size": 10,
+	  "is_range": true,
+	  "queryable": true,
+	  "taper_left": 40,
+	  "taper_right": 60,
+	  "units": "years",
+	  "minimum": 0,
+	  "description": "Age at arrival"
+	},
+	"sex": {
+	  "type": "string",
+	  "enum": [
+		"Male",
+		"Female"
+	  ],
+	  "title": "Sex",
+	  "queryable": true,
+	  "description": "Sex at birth"
+	},
+	"extra_properties": {
+	  "date_of_consent": {
+		"type": "string",
+		"format": "date",
+		"title": "Consent date",
+		"chart": "bar",
+		"queryable": true
+	  },
+	  "smoking": {
+		"type": "string",
+		"enum": [
+		  "Non-smoker",
+		  "Smoker",
+		  "Former smoker",
+		  "Passive smoker",
+		  "Not specified"
+		],
+		"title": "Smoking",
+		"queryable": true,
+		"description": "Smoking status"
+	  },
+	  "lab_test_result_value": {
+		"type": "number",
+		"title": "Lab Test Result",
+		"bin_size": 50,
+		"is_range": true,
+		"queryable": true,
+		"taper_left": 50,
+		"taper_right": 800,
+		"units": "mg/L",
+		"minimum": 0,
+		"maximum": 999,
+		"description": ""
+	  }
+	}
+  }
+  
+```
 
 ### Create self-signed TLS certificates
 
