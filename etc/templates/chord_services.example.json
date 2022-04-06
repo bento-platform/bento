@@ -141,29 +141,6 @@
     },
     {
       "type": {
-        "organization": "ca.c3g.bento",
-        "artifact": "variant",
-        "language": "python"
-      },
-      "repository": "${BENTO_VARIANT_REPO}@${BENTO_VARIANT_TAG}",
-      "data_service": true,
-      "manageable_tables": true,
-      "apt_dependencies": ["samtools"],
-      "wsgi": true,
-      "python_module": "bento_variant_service.wsgi",
-      "python_callable": "application",
-      "run_environment": {
-        "DATA": "{SERVICE_DATA}/",
-        "DRS_URL_BASE_PATH": "/api/drs",
-        "INITIALIZE_IMMEDIATELY": "false",
-        "TABLE_MANAGER": "drs"
-      },
-      "post_start_commands": [
-        "curl --unix-socket /chord/tmp/nginx_internal.sock http://localhost{SERVICE_URL_BASE_PATH}/private/post-start-hook"
-      ]
-    },
-    {
-      "type": {
         "organization": "ca.c3g.chord",
         "artifact": "drs",
         "language": "python"
@@ -204,6 +181,7 @@
         "language": "go"
       },
       "repository": "${GOHAN_REPO}@${GOHAN_TAG}",
+      "manageable_tables": true,
       "data_service": true
     }
   ]
