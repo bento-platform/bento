@@ -38,6 +38,7 @@ services:
       - DRS_DEDUPLICATE=True
       - DRS_SKIP_TYPES=
       - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/ott
+      - TT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/tt
       - FLASK_ENV=development
       - CHORD_DEBUG=True
 
