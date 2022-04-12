@@ -376,7 +376,15 @@ stop-all:
 # stop a specific service
 #<<<
 stop-%:
-	docker-compose stop $*;
+	@if [[ $* == gohan ]]; then \
+		cd lib/gohan &&  \
+		$(MAKE) stop-api ; \
+	elif [[ $* == public ]]; then \
+		cd lib/bento_public &&  \
+		$(MAKE) stop-public ; \
+	else \
+		docker-compose stop $*; \
+	fi
 
 
 
@@ -408,19 +416,30 @@ clean-all:
 # TODO: use env variables for container versions
 #<<<
 clean-%:
-	# # Clean public using native makefile
-	# if [[ $* == public ]]; then \
-	# 	cd lib/bento_public && $(MAKE) clean-public ; \
-	# 	exit \
-	# fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
-
-	@mkdir -p tmp/logs/${EXECUTED_NOW}/$* && \
-		echo "-- Stopping $* --" && \
-		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
 	
 	@echo "-- Removing bentov2-$* container --" && \
 		docker rm bentov2-$* --force >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 	
+	@# Clean public using native makefile
+	@if [[ $* == public ]]; then \
+		cd lib/bento_public && $(MAKE) clean-public ; \
+	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+
+	@# Clean gohan using native makefile
+	@if [[ $* == gohan ]]; then \
+		cd lib/gohan &&  \
+		$(MAKE) clean-api ; \
+	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+
+
+	@# Skip triggering top level makefile stop for both public and gohan
+	@if [[ $* != public && $* != gohan ]]; then \
+		echo "-- Stopping $* --" ; \
+		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log ; \
+	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+
+
 	@# Some services don't need their images removed
 	@if [[ $* != auth && $* != redis ]]; then \
 		docker rmi bentov2-$*:0.0.1 --force; \
@@ -430,6 +449,7 @@ clean-%:
 	@if [[ $* == katsu ]]; then \
 		docker rm bentov2-katsu-db --force; \
 	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
+
 
 
 #>>>
