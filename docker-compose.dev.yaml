@@ -30,22 +30,6 @@ services:
     ports:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
 
-  variant:
-    build:
-      context: $PWD/lib/variant
-      dockerfile: Dockerfile.dev
-    extends:
-      file: docker-compose.yaml
-      service: variant
-    command: >
-      sh -c  "ls -lah &&
-              cd bento_variant_service/bento_variant_service &&
-              ls -lah &&
-              flask run --host=0.0.0.0"
-    volumes: 
-      - ./lib/variant/bento_variant_service:/variant/bento_variant_service/bento_variant_service
-      - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
-      - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/chord_drs/data
 
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN

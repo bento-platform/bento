@@ -18,7 +18,6 @@ services:
       - FLASK_APP=app
       - DATABASE=/drs/chord_drs/data/db/  # slightly confused naming, folder for database to go in
       - DATA=/drs/chord_drs/data/obj/  # DRS file objects, vs. the database
-      - VARIANT_SERVICE_URL=http://${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT}
       
       - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
 

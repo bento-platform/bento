@@ -403,48 +403,6 @@ http {
         }
 
 
-        # -- Variants
-        location ~ /api/variant { 
-            limit_req zone=global_limit burst=10;
-            set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
-
-            # Authentication
-            access_by_lua_file   /usr/local/openresty/nginx/proxy_auth.lua;
-
-
-            proxy_http_version   1.1;
-
-            proxy_pass_header    Server;
-            proxy_set_header     Upgrade           ${DOLLAR}http_upgrade;
-            proxy_set_header     Connection        "upgrade";
-            proxy_set_header     Host              ${DOLLAR}http_host;
-            proxy_set_header     X-Real-IP         ${DOLLAR}remote_addr;
-            proxy_set_header     X-Forwarded-For   ${DOLLAR}proxy_add_x_forwarded_for;
-            proxy_set_header     X-Forwarded-Proto ${DOLLAR}http_x_forwarded_proto;
-
-            proxy_ignore_client_abort on;
-
-            # Clear X-CHORD-Internal header and set it to the "off" value (0)
-            proxy_set_header     X-CHORD-Internal  "0";
-
-            # Remove "/api/variant" from the path
-            rewrite /api/variant/(.*) /${DOLLAR}1  break;
-
-            # Forward request to variant service
-            proxy_pass  http://${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
-
-            # Errors
-            error_log /var/log/bentov2_variant_errors.log;
-
-            client_body_timeout  660s;
-            proxy_read_timeout   660s;
-            proxy_send_timeout   660s;
-            send_timeout         660s;
-
-            client_max_body_size 200m;
-        }
-
-
         # -- Notifications
         location ~ /api/notification { 
             limit_req zone=global_limit burst=10;
