@@ -280,7 +280,6 @@ run-%:
 			sed -i '/-- Internal IDP Starts Here --/,/-- Internal IDP Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
 		else \
 			echo "Fine tuning nginx.conf to use an Internal IDP"; \
-			cat ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
 		fi && \
 		if [[ ${BENTOV2_USE_BENTO_PUBLIC} == 1 ]]; then \
 			echo "Fine tuning nginx.conf to use Bento-Public"; \
