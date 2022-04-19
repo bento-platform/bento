@@ -423,20 +423,20 @@ clean-%:
 	@# Clean public using native makefile
 	@if [[ $* == public ]]; then \
 		cd lib/bento_public && $(MAKE) clean-public ; \
-	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
 	@# Clean gohan using native makefile
 	@if [[ $* == gohan ]]; then \
 		cd lib/gohan &&  \
 		$(MAKE) clean-api ; \
-	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
 
 	@# Skip triggering top level makefile stop for both public and gohan
 	@if [[ $* != public && $* != gohan ]]; then \
 		echo "-- Stopping $* --" ; \
 		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log ; \
-	fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
 
 	@# Some services don't need their images removed
