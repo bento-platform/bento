@@ -7,11 +7,6 @@ flask db upgrade;
 
 # call variant endpoint to trigger init
 cd ..;
-URL=$VARIANT_SERVICE_URL/private/post-start-hook && \
-    echo "sleeping for 5 seconds..." && \
-    echo "calling $URL" && \ 
-    sleep 5 && \
-    curl $URL &
 
 # using 1 worker, multiple threads
 # see https://stackoverflow.com/questions/38425620/gunicorn-workers-and-threads

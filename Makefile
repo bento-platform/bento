@@ -20,6 +20,11 @@ export $(shell sed 's/=.*//' $(public_env))
 SHELL = bash
 
 #>>>
+# architecture
+#<<<
+OS_NAME := $(shell uname -s | tr A-Z a-z)
+
+#>>>
 # provide host-level user id as an 
 # environment variable for containers to use
 #<<<
@@ -272,28 +277,31 @@ run-drs-dev:
 # run a specific service
 #<<<
 run-%:
+	@# FreeBSD sed -i expects a suffix parameter for a backup file. Empty string
+	@# may be provided after a space which is incompatible with GNU sed (no 
+	@# space after -i). The solution here is to create a backup file and remove
+	@# it along with the working copy using a wildcard.
 	@if [[ $* == gateway ]]; then \
 		echo "Setting up gateway prerequisites"; \
 		envsubst < ./lib/gateway/nginx.conf.tpl > ./lib/gateway/nginx.conf.pre; \
 		if [[ ${BENTOV2_USE_EXTERNAL_IDP} == 1 ]]; then \
 			echo "Fine tuning nginx.conf to use an External IDP"; \
-			sed -i '/-- Internal IDP Starts Here --/,/-- Internal IDP Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
+			sed -i.bak '/-- Internal IDP Starts Here --/,/-- Internal IDP Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
 		else \
 			echo "Fine tuning nginx.conf to use an Internal IDP"; \
-			cat ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
 		fi && \
 		if [[ ${BENTOV2_USE_BENTO_PUBLIC} == 1 ]]; then \
 			echo "Fine tuning nginx.conf to use Bento-Public"; \
 			\
-			sed -i '/-- Do Not Use Bento-Public Starts Here --/,/-- Do Not Use Bento-Public Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
+			sed -i.bak '/-- Do Not Use Bento-Public Starts Here --/,/-- Do Not Use Bento-Public Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
 		else \
 			echo "Fine tuning nginx.conf to disable Bento-Public"; \
 			\
-			sed -i '/-- Use Bento-Public Starts Here --/,/-- Use Bento-Public Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
+			sed -i.bak '/-- Use Bento-Public Starts Here --/,/-- Use Bento-Public Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
 			\
 		fi && \
 		cat ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
-		rm ./lib/gateway/nginx.conf.pre; \
+		rm ./lib/gateway/nginx.conf.pre*; \
 	elif [[ $* == web ]]; then \
 		echo "Cleaning web before running"; \
 		$(MAKE) clean-web; \
@@ -376,7 +384,15 @@ stop-all:
 # stop a specific service
 #<<<
 stop-%:
-	docker-compose stop $*;
+	@if [[ $* == gohan ]]; then \
+		cd lib/gohan &&  \
+		$(MAKE) stop-api ; \
+	elif [[ $* == public ]]; then \
+		cd lib/bento_public &&  \
+		$(MAKE) stop-public ; \
+	else \
+		docker-compose stop $*; \
+	fi
 
 
 
@@ -408,19 +424,30 @@ clean-all:
 # TODO: use env variables for container versions
 #<<<
 clean-%:
-	# # Clean public using native makefile
-	# if [[ $* == public ]]; then \
-	# 	cd lib/bento_public && $(MAKE) clean-public ; \
-	# 	exit \
-	# fi &>> tmp/logs/${EXECUTED_NOW}/$*/clean.log
-
-	@mkdir -p tmp/logs/${EXECUTED_NOW}/$* && \
-		echo "-- Stopping $* --" && \
-		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log
+	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
 	
 	@echo "-- Removing bentov2-$* container --" && \
 		docker rm bentov2-$* --force >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 	
+	@# Clean public using native makefile
+	@if [[ $* == public ]]; then \
+		cd lib/bento_public && $(MAKE) clean-public ; \
+	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
+
+	@# Clean gohan using native makefile
+	@if [[ $* == gohan ]]; then \
+		cd lib/gohan &&  \
+		$(MAKE) clean-api ; \
+	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
+
+
+	@# Skip triggering top level makefile stop for both public and gohan
+	@if [[ $* != public && $* != gohan ]]; then \
+		echo "-- Stopping $* --" ; \
+		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log ; \
+	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
+
+
 	@# Some services don't need their images removed
 	@if [[ $* != auth && $* != redis ]]; then \
 		docker rmi bentov2-$*:0.0.1 --force; \
@@ -430,6 +457,7 @@ clean-%:
 	@if [[ $* == katsu ]]; then \
 		docker rm bentov2-katsu-db --force; \
 	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
+
 
 
 #>>>
@@ -473,7 +501,7 @@ run-unit-tests:
 
 run-integration-tests:
 	@echo "-- Running integration tests! --"
-	@$(PWD)/etc/tests/integration/run_tests.sh 10 firefox True
+	@$(PWD)/etc/tests/integration/run_tests.sh 10 firefox False
 	
 
 

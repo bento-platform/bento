@@ -178,7 +178,12 @@ make docker-secrets
 # Build base images
 make build-common-base
 
-# And open up the cluster's gateway with
+# If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
+make run-gateway
+# and
+make auth-setup
+
+# Otherwise, only open & configure the cluster's gateway with
 make auth-setup
 ```
 

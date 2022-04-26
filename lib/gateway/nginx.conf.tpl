@@ -12,6 +12,8 @@ http {
                             '"${DOLLAR}request" ${DOLLAR}status ${DOLLAR}body_bytes_sent '
                             '"${DOLLAR}http_referer" "${DOLLAR}http_user_agent" "${DOLLAR}gzip_ratio" "${DOLLAR}uri"';
 
+    limit_req_zone ${DOLLAR}binary_remote_addr zone=global_limit:10m rate=10r/s;
+
     # Redirect all http to https
     server {
         listen 80 default_server;
@@ -47,6 +49,7 @@ http {
         # --
 
         location / {
+            limit_req zone=global_limit burst=10;
 
             proxy_pass_header    Server;
             proxy_set_header     Upgrade           ${DOLLAR}http_upgrade;
@@ -85,10 +88,11 @@ http {
         add_header X-XSS-Protection "1; mode=block";
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
         # --
-
+    
         # -- Use Bento-Public Starts Here --
         # Public Web
         location / {
+            limit_req zone=global_limit burst=10;
 
             proxy_pass_header    Server;
             proxy_set_header     Upgrade           ${DOLLAR}http_upgrade;
@@ -100,7 +104,6 @@ http {
 
             proxy_ignore_client_abort on;
 
-            #limit_req zone=external burst=40 delay=15;
             set ${DOLLAR}upstream_public http://${BENTO_PUBLIC_CONTAINER_NAME}:${BENTO_PUBLIC_INTERNAL_PORT};
             proxy_pass    ${DOLLAR}upstream_public;
 
@@ -141,6 +144,7 @@ http {
 
         # Web
         location / {
+            limit_req zone=global_limit burst=10;
 
             proxy_pass_header    Server;
             proxy_set_header     Upgrade           ${DOLLAR}http_upgrade;
@@ -158,7 +162,6 @@ http {
 
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
-            #limit_req zone=external burst=40 delay=15;
             access_by_lua_file /usr/local/openresty/nginx/proxy_auth.lua;
             #try_files ${DOLLAR}uri /index.html;
 
@@ -172,16 +175,16 @@ http {
         # --- All API stuff -- /api/* ---
         # -- Public node-info
         location = /api/node-info {
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
-            #limit_req zone=external burst=40 delay=15;
             content_by_lua_file /usr/local/openresty/nginx/node_info.lua;
         }
 
         # -- User Auth
         location ~ /api/auth {
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
-            #limit_req zone=external burst=40 delay=15;
             content_by_lua_file /usr/local/openresty/nginx/proxy_auth.lua;
         }
 
@@ -189,7 +192,7 @@ http {
 
         # -- Katsu
         location ~ /api/metadata {
-            #limit_req zone=external burst=40 delay=15;
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
             # Authentication
@@ -234,7 +237,7 @@ http {
 
         # -- Drop-Box
         location ~ /api/drop-box { 
-            #limit_req zone=external burst=40 delay=15;
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
             # Authentication
@@ -276,7 +279,7 @@ http {
 
         # -- Service-Registry
         location ~ /api/service-registry { # ^~ /api/service-registry/
-            #limit_req zone=external burst=40 delay=15;
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
             # Authentication
@@ -318,7 +321,7 @@ http {
 
         # -- Logging
         location ~ /api/log-service { 
-            #limit_req zone=external burst=40 delay=15;
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
             # Authentication
@@ -360,7 +363,7 @@ http {
 
         # -- DRS
         location ~ /api/drs { 
-            #limit_req zone=external burst=40 delay=15;
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
             # Authentication
@@ -400,51 +403,9 @@ http {
         }
 
 
-        # -- Variants
-        location ~ /api/variant { 
-            #limit_req zone=external burst=40 delay=15;
-            set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
-
-            # Authentication
-            access_by_lua_file   /usr/local/openresty/nginx/proxy_auth.lua;
-
-
-            proxy_http_version   1.1;
-
-            proxy_pass_header    Server;
-            proxy_set_header     Upgrade           ${DOLLAR}http_upgrade;
-            proxy_set_header     Connection        "upgrade";
-            proxy_set_header     Host              ${DOLLAR}http_host;
-            proxy_set_header     X-Real-IP         ${DOLLAR}remote_addr;
-            proxy_set_header     X-Forwarded-For   ${DOLLAR}proxy_add_x_forwarded_for;
-            proxy_set_header     X-Forwarded-Proto ${DOLLAR}http_x_forwarded_proto;
-
-            proxy_ignore_client_abort on;
-
-            # Clear X-CHORD-Internal header and set it to the "off" value (0)
-            proxy_set_header     X-CHORD-Internal  "0";
-
-            # Remove "/api/variant" from the path
-            rewrite /api/variant/(.*) /${DOLLAR}1  break;
-
-            # Forward request to variant service
-            proxy_pass  http://${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
-
-            # Errors
-            error_log /var/log/bentov2_variant_errors.log;
-
-            client_body_timeout  660s;
-            proxy_read_timeout   660s;
-            proxy_send_timeout   660s;
-            send_timeout         660s;
-
-            client_max_body_size 200m;
-        }
-
-
         # -- Notifications
         location ~ /api/notification { 
-            #limit_req zone=external burst=40 delay=15;
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
             # Authentication
@@ -485,7 +446,7 @@ http {
 
         # -- Federation
         location ~ /api/federation { 
-            #limit_req zone=external burst=40 delay=15;
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
             # Authentication
@@ -526,7 +487,7 @@ http {
 
         # -- Event-Relay
         location ~ /api/event-relay { 
-            #limit_req zone=external burst=40 delay=15;
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
             # Authentication
@@ -568,7 +529,7 @@ http {
 
         # -- WES
         location ~ /api/wes { 
-            #limit_req zone=external burst=40 delay=15;
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
             # Authentication
@@ -611,7 +572,7 @@ http {
 
         # -- Gohan
         location ~ /api/gohan { 
-            #limit_req zone=external burst=40 delay=15;
+            limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
             
             # Authentication

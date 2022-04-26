@@ -256,53 +256,6 @@ services:
     extends:
       file: $PWD/lib/drs/docker-compose.drs.yaml
       service: drs
-    depends_on:
-      - variant # wait for `variant` service to start so `drs`
-                # service can ping variant service notifying it
-                # can query for ingested variants upon startup 
-
-
-  variant:
-    build:
-      context: $PWD/lib/variant
-      dockerfile: Dockerfile.prod
-      args:
-        BASE_IMAGE: ${BENTOV2_VARIANT_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_VARIANT_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_VARIANT_REPO}
-        BRANCH: ${BENTO_VARIANT_BRANCH}
-        TAG: ${BENTO_VARIANT_TAG}
-        BCFTOOLS_VERSION: ${BENTOV2_VARIANT_BCFTOOLS_VERSION}
-    image: ${BENTOV2_VARIANT_IMAGE}:${BENTOV2_VARIANT_VERSION}
-    container_name: ${BENTOV2_VARIANT_CONTAINER_NAME}
-    environment: 
-      - FLASK_DEBUG=False
-      - FLASK_APP=app
-
-      - TABLE_MANAGER=${BENTOV2_VARIANT_TABLE_MANAGER}
-      - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
-      - DRS_URL_BASE_PATH=${BENTOV2_VARIANT_DRS_URL_BASE_PATH}
-      - INITIALIZE_IMMEDIATELY=${BENTOV2_VARIANT_INITIALIZE_IMMEDIATELY}
-      - DATA=${BENTOV2_VARIANT_DATA}
-      - CHORD_URL=${BENTOV2_VARIANT_CHORD_URL}
-
-      - INTERNAL_PORT=${BENTOV2_VARIANT_INTERNAL_PORT}
-
-    networks: 
-      - bridge-net
-    expose:
-      - ${BENTOV2_VARIANT_INTERNAL_PORT}
-    volumes:
-      - ${BENTOV2_VARIANT_VOL_DIR}:${BENTOV2_VARIANT_DATA}
-      - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/chord_drs/data
-    mem_limit: ${BENTOV2_VARIANT_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_VARIANT_CPUS}
-    cpu_shares: 512
-    healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_VARIANT_INTERNAL_PORT}" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   notification:
@@ -431,8 +384,8 @@ services:
       - ${BENTOV2_REDIS_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_REDIS_VOL_DIR}:/data
-    mem_limit: ${BENTOV2_VARIANT_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_VARIANT_CPUS}
+    mem_limit: ${BENTOV2_REDIS_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_REDIS_CPUS}
     cpu_shares: 512
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
