@@ -61,6 +61,14 @@ services:
       - CHORD_DEBUG=true
     ports:
       - "${BENTOV2_KATSU_EXTERNAL_PORT}:${BENTOV2_KATSU_INTERNAL_PORT}"
+      - "${BENTOV2_KATSU_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_KATSU_DEBUGGER_INTERNAL_PORT}"
+    entrypoint: 
+      - /bin/sh
+      - -c
+      - |
+        python manage.py makemigrations
+        python manage.py migrate
+        gunicorn chord_metadata_service.metadata.wsgi:application -w 1 --threads 1 -b 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT} 
 
   katsu-db:
     networks:

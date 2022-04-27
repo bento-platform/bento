@@ -34,6 +34,7 @@ WORKDIR ${PROJECT_DIRECTORY}
 # -- fixes PEP 517 build error --
 RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
 # --
-RUN pip install -r requirements.txt;
+RUN python -m venv .venv  && \
+    pip install debugpy -r requirements.txt;
 
 # See docker-compose.dev.yaml ..
