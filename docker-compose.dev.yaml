@@ -81,6 +81,8 @@ services:
       - "${BENTOV2_KATSU_DB_EXTERNAL_PORT}:${BENTOV2_KATSU_DB_INTERNAL_PORT}"
     volumes:
       - ${BENTOV2_KATSU_DB_DEV_VOL_DIR}:/var/lib/postgresql/data
+    ports:
+      - ${BENTOV2_KATSU_DB_EXTERNAL_PORT}:${BENTOV2_KATSU_DB_INTERNAL_PORT}
 
 
   federation:
