@@ -23,6 +23,7 @@ SHELL = bash
 # architecture
 #<<<
 OS_NAME := $(shell uname -s | tr A-Z a-z)
+export OS_NAME
 
 #>>>
 # provide host-level user id as an 
