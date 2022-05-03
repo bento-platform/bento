@@ -132,6 +132,23 @@ BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openi
   
 ```
 
+### Clone Gohan repository in ./lib and setup Gohan's environment variables
+Depending on your git setup, clone Gohan's repository
+```terminal
+cd lib
+clone git@github.com:bento-platform/gohan.git
+```
+Follow the instructions from Gohan's README to set up the environment file
+
+### Clone Bento_public repository in ./lib and setup bento_public's environment variables
+Depending on your git setup, clone bento_public repository
+```terminal
+cd lib
+clone git@github.com:bento-platform/bento_public.git
+```
+Follow the instructions from bento_public README to set up the `client.env` and
+`server.env` files in the `.lib/bento_public/` directory.
+
 ### Create self-signed TLS certificates
 
 First, setup your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development with the following steps;
