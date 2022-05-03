@@ -46,6 +46,10 @@ BENTOV2_PRIVATE_MODE=false
 
 BENTOV2_ROOT_DATA_DIR=~/bentov2/data
 ```
+On MacOS and some other OSes, `DOLLAR` must be changed from `$` to `$$`
+```
+DOLLAR=$$
+```
 If the internal IdP is being used (by default, Keycloak), credential variables should also be provided
 
 ```
