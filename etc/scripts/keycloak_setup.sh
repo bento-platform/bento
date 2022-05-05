@@ -252,8 +252,8 @@ KC_TOKEN=$(get_token)
 echo ">> .. got it..."
 
 
-echo ">> Getting user id .."
-export KEYCLOAK_USER_ID=$(get_user_id)
-echo "** Retrieved KEYCLOAK_USER_ID as ${KEYCLOAK_USER_ID} **"
-echo ">> .. got it..."
-echo
+# echo ">> Getting user id .."
+# export KEYCLOAK_USER_ID=$(get_user_id)
+# echo "** Retrieved KEYCLOAK_USER_ID as ${KEYCLOAK_USER_ID} **"
+# echo ">> .. got it..."
+# echo
