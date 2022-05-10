@@ -23,6 +23,7 @@ SHELL = bash
 # architecture
 #<<<
 OS_NAME := $(shell uname -s | tr A-Z a-z)
+export OS_NAME
 
 #>>>
 # provide host-level user id as an 
@@ -187,7 +188,7 @@ docker-secrets:
 	@# $(MAKE) secret-metadata-db-secret
 	@echo "- Creating Metadata Password/Secrets" && \
 		echo ${BENTOV2_KATSU_DB_APP_SECRET} > $(PWD)/tmp/secrets/metadata-app-secret && \
-		docker secret create metadata-app-secret $(PWD)/tmp/secrets/metadata-app-secret && \
+		docker secret create metadata-app-secret $(PWD)/tmp/secrets/metadata-app-secret &
 		echo ${BENTOV2_KATSU_DB_PASSWORD} > $(PWD)/tmp/secrets/metadata-db-secret && \
 		docker secret create metadata-db-secret $(PWD)/tmp/secrets/metadata-db-secret
 
