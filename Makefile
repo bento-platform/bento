@@ -51,10 +51,6 @@ init-chord-services:
 	@echo "- Creating a "dummy" auth_config.json to be overwritten later.."
 	@echo "{\"data\":\"this is a placeholder and should be overwritten when the authentication service is configured. if you are reading this, see the project README, and perhaps consult the 'Makefile'\"}" > $(PWD)/lib/gateway/auth_config.json;
 
-	@# copy instance_config to gateway	
-	@echo "- Copying instance_config.json to lib/gateway"
-	@envsubst < ${PWD}/etc/templates/instance_config.json.tpl > $(PWD)/lib/gateway/instance_config.json;
-
 	@# copy services json to the microservices that need it	
 	@echo "- Providing a complete chord_services.json to lib/[logging, service-registry, wes]"
 	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/logging/chord_services.json;

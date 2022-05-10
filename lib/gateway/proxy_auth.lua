@@ -125,13 +125,11 @@ local redis_connect = function ()
 end
 
 -- Load auth configuration for setting up lua-resty-oidconnect
+-- TODO: migrate from using json file to environment variables
 local auth_file = assert(io.open("/usr/local/openresty/nginx/auth_config.json"))
 local auth_params = cjson.decode(auth_file:read("*all"))
 auth_file:close()
 
-local config_file = assert(io.open("/usr/local/openresty/nginx/instance_config.json"))
-local config_params = cjson.decode(config_file:read("*all"))
-config_file:close()
 
 -- TEMP:
 -- local auth__owner_ids = auth_params["OWNER_IDS"]
@@ -163,13 +161,13 @@ end
 -- Set defaults for any possibly-unspecified configuration options, including
 -- some boolean casts
 
-local CHORD_DEBUG = not (not config_params["CHORD_DEBUG"])
+local CHORD_DEBUG = not (not os.getenv("CHORD_DEBUG"))
 
 -- Cannot use "or" shortcut, otherwise would always be true
-local CHORD_PERMISSIONS = config_params["CHORD_PERMISSIONS"]
+local CHORD_PERMISSIONS = os.getenv("CHORD_PERMISSIONS")
 if CHORD_PERMISSIONS == nil then CHORD_PERMISSIONS = true end
 
-local CHORD_PRIVATE_MODE = not (not config_params["CHORD_PRIVATE_MODE"])
+local CHORD_PRIVATE_MODE = not (not os.getenv("CHORD_PRIVATE_MODE"))
 
 -- If in production, validate the SSL certificate if HTTPS is being used (for
 -- non-Lua folks, this is a ternary - ssl_verify = !chord_debug)
@@ -180,8 +178,8 @@ local opts_ssl_verify = "no"
 local opts_redirect_uri = OIDC_CALLBACK_PATH
 local opts_redirect_after_logout_uri = "/"
 if not CHORD_DEBUG then
-  opts_redirect_uri = config_params["CHORD_URL"] .. OIDC_CALLBACK_PATH_NO_SLASH
-  opts_redirect_after_logout_uri = config_params["CHORD_URL"]
+  opts_redirect_uri = os.getenv("CHORD_URL") .. OIDC_CALLBACK_PATH_NO_SLASH
+  opts_redirect_after_logout_uri = os.getenv("CHORD_URL")
 end
 
 local opts = {
@@ -263,7 +261,7 @@ if URI == OIDC_CALLBACK_PATH or auth_mode == nil then
   if after_chord_url then
     -- If after_chord_url is not nil, i.e. ngx var uri starts with a /
     -- Re-assemble target URI with external URI prefixes/hosts/whatnot:
-    auth_target_uri = config_params["CHORD_URL"] .. after_chord_url  .. "?" .. (ngx.var.args or "")
+    auth_target_uri = os.getenv("CHORD_URL") .. after_chord_url  .. "?" .. (ngx.var.args or "")
   end
 end
 

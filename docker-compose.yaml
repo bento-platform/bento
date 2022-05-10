@@ -26,6 +26,11 @@ services:
         BASE_IMAGE_VERSION: ${BENTOV2_GATEWAY_BASE_IMAGE_VERSION}
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION}
     container_name: ${BENTOV2_GATEWAY_CONTAINER_NAME}
+    environment: 
+      - CHORD_DEBUG=false
+      - CHORD_PERMISSIONS=true
+      - CHORD_PRIVATE_MODE=${BENTOV2_PRIVATE_MODE}
+      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
     networks: 
       bridge-net:
         aliases:

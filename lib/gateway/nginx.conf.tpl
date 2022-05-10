@@ -1,5 +1,11 @@
 worker_processes 1;
 
+# expose env's to lua code
+env CHORD_DEBUG;
+env CHORD_PERMISSIONS;
+env CHORD_PRIVATE_MODE;
+env CHORD_URL;
+
 events {
     worker_connections 1024;
 }
