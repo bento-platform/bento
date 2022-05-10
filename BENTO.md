@@ -13,7 +13,7 @@ Bento is a suite of microservices that powers clinical/phenotypical and genomic 
 
 4. <b>[Gohan](https://github.com/bento-platform/gohan)</b> - Service to store variants data and gene catalogue.
 
-5. <b>[DRS](https://github.com/c3g/chord_drs)</b> - Data Repository Service (DRS) based on [GA4GH's DRS specifications](https://ga4gh.github.io/data-repository-service-schemas/preview/release/drs-1.0.0/docs/). 
+5. <b>[DRS](https://github.com/bento-platform/bento_drs)</b> - Data Repository Service (DRS) based on [GA4GH's DRS specifications](https://ga4gh.github.io/data-repository-service-schemas/preview/release/drs-1.0.0/docs/). 
 
 6. <b>[Bento WES](https://github.com/bento-platform/bento_wes)</b> - Workflow execution service for the Bento platform. This service implements the [GA4GH WES API schema](https://github.com/ga4gh/workflow-execution-service-schemas) with additional Bento-specific features.
 

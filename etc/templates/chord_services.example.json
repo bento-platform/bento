@@ -148,12 +148,12 @@
       "repository": "${BENTO_DRS_REPO}@${BENTO_DRS_TAG}",
       "data_service": false,
       "wsgi": true,
-      "python_module": "chord_drs.app",
+      "python_module": "bento_drs.app",
       "python_callable": "application",
       "run_environment": {
         "DATA": "{SERVICE_DATA}/drs_data",
         "DATABASE": "{SERVICE_DATA}",
-        "FLASK_APP": "chord_drs.app"
+        "FLASK_APP": "bento_drs.app"
       },
       "pre_start_commands": [
         "flask db upgrade"

@@ -2,7 +2,7 @@ cd ../data;
 mkdir db;
 mkdir obj;
 
-cd ../chord_drs;
+cd ../bento_drs;
 flask db upgrade;
 
 # call variant endpoint to trigger init
