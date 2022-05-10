@@ -26,7 +26,7 @@ services:
       #/wes/womtool.jar
       # Allow-list (comma-separated) for hosts that workflow files can be downloaded
       # from - prevents possibly insecure WDLs from being ran
-      - WORKFLOW_HOST_ALLOW_LIST=${GOHAN_API_CONTAINER_NAME}:${GOHAN_API_INTERNAL_PORT},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_VARIANT_CONTAINER_NAME}:${BENTOV2_VARIANT_INTERNAL_PORT},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
+      - WORKFLOW_HOST_ALLOW_LIST=${GOHAN_API_CONTAINER_NAME}:${GOHAN_API_INTERNAL_PORT},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
 
       # DRS configuration options:
       # - Where the DRS instance to use is located. Technically, if not set this 

@@ -133,19 +133,25 @@ local config_file = assert(io.open("/usr/local/openresty/nginx/instance_config.j
 local config_params = cjson.decode(config_file:read("*all"))
 config_file:close()
 
-local auth__owner_ids = auth_params["OWNER_IDS"]
-if auth__owner_ids == nil then
-  auth__owner_ids = {}
-end
+-- TEMP:
+-- local auth__owner_ids = auth_params["OWNER_IDS"]
+-- if auth__owner_ids == nil then
+--   auth__owner_ids = {}
+-- end
+--
 
 -- TODO: This should probably be procedural instead of a function?
 local get_user_role = function (user_id)
-  user_role = "user"
-  for _, owner_id in ipairs(auth__owner_ids) do
-    -- Check each owner ID set in the auth params; if the current user's ID
-    -- matches one, set the user's role to "owner".
-    if owner_id == user_id then user_role = "owner" end
-  end
+  -- user_role = "user"
+  -- TEMP:
+  user_role= "owner"
+  -- 
+
+  -- for _, owner_id in ipairs(auth__owner_ids) do
+  --   -- Check each owner ID set in the auth params; if the current user's ID
+  --   -- matches one, set the user's role to "owner".
+  --   if owner_id == user_id then user_role = "owner" end
+  -- end
   return user_role
 end
 
