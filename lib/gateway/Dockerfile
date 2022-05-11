@@ -12,8 +12,6 @@ COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 COPY node_info.lua /usr/local/openresty/nginx/node_info.lua
 COPY proxy_auth.lua /usr/local/openresty/nginx/proxy_auth.lua
 
-COPY auth_config.json /usr/local/openresty/nginx/auth_config.json
-
 
 # Update and install dependencies
 RUN apk update && \

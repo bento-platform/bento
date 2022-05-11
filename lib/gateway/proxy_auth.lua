@@ -7,6 +7,10 @@ local random = require("resty.random")
 local redis = require("resty.redis")
 local str = require("resty.string")
 
+-- Helpers
+stringtoboolean={ ["true"]=true, ["false"]=false }
+--
+
 -- -- TEMP
 -- local resolver = require "resty.dns.resolver"
 -- local r, err = resolver:new{
@@ -124,11 +128,6 @@ local redis_connect = function ()
   end
 end
 
--- Load auth configuration for setting up lua-resty-oidconnect
--- TODO: migrate from using json file to environment variables
-local auth_file = assert(io.open("/usr/local/openresty/nginx/auth_config.json"))
-local auth_params = cjson.decode(auth_file:read("*all"))
-auth_file:close()
 
 
 -- TEMP:
@@ -161,13 +160,14 @@ end
 -- Set defaults for any possibly-unspecified configuration options, including
 -- some boolean casts
 
-local CHORD_DEBUG = not (not os.getenv("CHORD_DEBUG"))
+-- Load auth configuration for setting up lua-resty-oidconnect from env
+local CHORD_DEBUG = stringtoboolean[os.getenv("CHORD_DEBUG")]
 
 -- Cannot use "or" shortcut, otherwise would always be true
 local CHORD_PERMISSIONS = os.getenv("CHORD_PERMISSIONS")
 if CHORD_PERMISSIONS == nil then CHORD_PERMISSIONS = true end
 
-local CHORD_PRIVATE_MODE = not (not os.getenv("CHORD_PRIVATE_MODE"))
+local CHORD_PRIVATE_MODE = stringtoboolean[os.getenv("CHORD_PRIVATE_MODE")]
 
 -- If in production, validate the SSL certificate if HTTPS is being used (for
 -- non-Lua folks, this is a ternary - ssl_verify = !chord_debug)
@@ -187,13 +187,13 @@ local opts = {
   logout_path = SIGN_OUT_PATH,
   redirect_after_logout_uri = opts_redirect_after_logout_uri,
 
-  discovery = auth_params["OIDC_DISCOVERY_URI"],
+  discovery = os.getenv("OIDC_DISCOVERY_URI"),
 
-  client_id = auth_params["CLIENT_ID"],
-  client_secret = auth_params["CLIENT_SECRET"],
+  client_id = os.getenv("CLIENT_ID"),
+  client_secret = os.getenv("CLIENT_SECRET"),
 
   -- Default token_endpoint_auth_method to client_secret_basic
-  token_endpoint_auth_method = auth_params["TOKEN_ENDPOINT_AUTH_METHOD"] or "client_secret_basic",
+  token_endpoint_auth_method = os.getenv("TOKEN_ENDPOINT_AUTH_METHOD") or "client_secret_basic",
 
   accept_none_alg = false,
   accept_unsupported_alg = false,

@@ -222,9 +222,9 @@ echo ">> Setting client BENTOV2_AUTH_CLIENT_ID .."
 set_client ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID} "${TYK_LISTEN_PATH}" "${BENTOV2_AUTH_LOGIN_REDIRECT_PATH}"
 echo ">> .. set..."
 
-echo ">> Getting KC_SECRET .."
-export KC_SECRET=$(get_secret  ${BENTOV2_AUTH_REALM})
-echo "** Retrieved KC_SECRET as ${KC_SECRET} **"
+echo ">> Getting CLIENT_ID .."
+export CLIENT_ID=$(get_secret  ${BENTOV2_AUTH_REALM})
+echo "** Retrieved CLIENT_ID as ${CLIENT_ID} **"
 echo ">> .. got it..."
 echo
 
