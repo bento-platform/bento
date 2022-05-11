@@ -222,9 +222,9 @@ echo ">> Setting client BENTOV2_AUTH_CLIENT_ID .."
 set_client ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID} "${TYK_LISTEN_PATH}" "${BENTOV2_AUTH_LOGIN_REDIRECT_PATH}"
 echo ">> .. set..."
 
-echo ">> Getting CLIENT_ID .."
-export CLIENT_ID=$(get_secret  ${BENTOV2_AUTH_REALM})
-echo "** Retrieved CLIENT_ID as ${CLIENT_ID} **"
+echo ">> Getting CLIENT_SECRET .."
+export CLIENT_SECRET=$(get_secret  ${BENTOV2_AUTH_REALM})
+echo "** Retrieved CLIENT_SECRET as ${CLIENT_SECRET} **"
 echo ">> .. got it..."
 echo
 
@@ -246,10 +246,10 @@ while !  docker logs --tail 5  ${BENTOV2_AUTH_CONTAINER_NAME} | grep "Admin cons
 echo ">> .. ready..."
 
 
-echo ">> Getting fresh KC_TOKEN .."
-KC_TOKEN=$(get_token)
-#echo ">> retrieved KC_TOKEN ${KC_TOKEN}"
-echo ">> .. got it..."
+# echo ">> Getting fresh KC_TOKEN .."
+# KC_TOKEN=$(get_token)
+# #echo ">> retrieved KC_TOKEN ${KC_TOKEN}"
+# echo ">> .. got it..."
 
 
 # echo ">> Getting user id .."
