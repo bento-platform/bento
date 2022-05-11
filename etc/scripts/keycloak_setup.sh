@@ -29,9 +29,8 @@ usage () {
 # with project .env variables, and then spit 
 # them out to ./lib/keyclaok/data/*
 
-mkdir -p ${PWD}/lib/auth/data
-sudo chown $USER ${PWD}/lib/auth
-sudo chown $USER ${PWD}/lib/auth/data
+mkdir -p $BENTOV2_AUTH_VOL_DIR
+sudo chown $USER $BENTOV2_AUTH_VOL_DIR
 
 # temp: in prod mode, explicitly indicating port 443 breaks vaults internal oidc provider checks.
 # simply remove the ":443 from the authentication services public url for this purpose:
@@ -47,25 +46,25 @@ export TEMP_BENTOV2_AUTH_PUBLIC_URL
 
 
 # echo 
-mkdir -p ${PWD}/lib/auth/data
-chmod 777 ${PWD}/lib/auth/data
+mkdir -p $BENTOV2_AUTH_VOL_DIR
+chmod 777 $BENTOV2_AUTH_VOL_DIR
 
 
 # Copy files from template configs
 echo "Copying application-users.properties .."
-cp ${PWD}/etc/templates/auth/application-users.properties ${PWD}/lib/auth/data/application-users.properties
+cp ${PWD}/etc/templates/auth/application-users.properties $BENTOV2_AUTH_VOL_DIR/application-users.properties
 
 echo "Copying logging.properties .."
-cp ${PWD}/etc/templates/auth/logging.properties ${PWD}/lib/auth/data/logging.properties
+cp ${PWD}/etc/templates/auth/logging.properties $BENTOV2_AUTH_VOL_DIR/logging.properties
 
 echo "Copying mgmt-users.properties .."
-cp ${PWD}/etc/templates/auth/mgmt-users.properties ${PWD}/lib/auth/data/mgmt-users.properties
+cp ${PWD}/etc/templates/auth/mgmt-users.properties $BENTOV2_AUTH_VOL_DIR/mgmt-users.properties
 
 echo "Copying standalone.xml .."
-cp ${PWD}/etc/templates/auth/standalone.xml ${PWD}/lib/auth/data/standalone.xml
+cp ${PWD}/etc/templates/auth/standalone.xml $BENTOV2_AUTH_VOL_DIR/standalone.xml
 
 echo "Copying standalone-ha.xml .."
-cp ${PWD}/etc/templates/auth/standalone-ha.xml ${PWD}/lib/auth/data/standalone-ha.xml
+cp ${PWD}/etc/templates/auth/standalone-ha.xml $BENTOV2_AUTH_VOL_DIR/standalone-ha.xml
 
 
 
@@ -222,9 +221,9 @@ echo ">> Setting client BENTOV2_AUTH_CLIENT_ID .."
 set_client ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID} "${TYK_LISTEN_PATH}" "${BENTOV2_AUTH_LOGIN_REDIRECT_PATH}"
 echo ">> .. set..."
 
-echo ">> Getting KC_SECRET .."
-export KC_SECRET=$(get_secret  ${BENTOV2_AUTH_REALM})
-echo "** Retrieved KC_SECRET as ${KC_SECRET} **"
+echo ">> Getting CLIENT_SECRET .."
+export CLIENT_SECRET=$(get_secret  ${BENTOV2_AUTH_REALM})
+echo "** Retrieved CLIENT_SECRET as ${CLIENT_SECRET} **"
 echo ">> .. got it..."
 echo
 
@@ -246,10 +245,10 @@ while !  docker logs --tail 5  ${BENTOV2_AUTH_CONTAINER_NAME} | grep "Admin cons
 echo ">> .. ready..."
 
 
-echo ">> Getting fresh KC_TOKEN .."
-KC_TOKEN=$(get_token)
-#echo ">> retrieved KC_TOKEN ${KC_TOKEN}"
-echo ">> .. got it..."
+# echo ">> Getting fresh KC_TOKEN .."
+# KC_TOKEN=$(get_token)
+# #echo ">> retrieved KC_TOKEN ${KC_TOKEN}"
+# echo ">> .. got it..."
 
 
 # echo ">> Getting user id .."
