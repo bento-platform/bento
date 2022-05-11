@@ -18,14 +18,14 @@ ARG TAG
 RUN git clone "${REPO}" && \
     ls /drs
 
-WORKDIR /drs/chord_drs
+WORKDIR /drs/bento_drs
 
 RUN git fetch && \
     git checkout "${BRANCH}" &&  \
     git checkout tags/${TAG} && \
     \
-    mkdir -p /drs/chord_drs/data/obj && \
-    mkdir -p /drs/chord_drs/data/db;
+    mkdir -p /drs/bento_drs/data/obj && \
+    mkdir -p /drs/bento_drs/data/db;
 #     git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}") && \
 
 # Remove comment if custom requirements are needed
@@ -34,7 +34,7 @@ RUN git fetch && \
 RUN ["pip", "install", "-r", "requirements.txt"]
 
 # Run
-WORKDIR /drs/chord_drs/chord_drs
+WORKDIR /drs/bento_drs/bento_drs
 
 COPY startup.sh ./startup.sh
 
