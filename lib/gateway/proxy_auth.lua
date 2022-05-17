@@ -180,6 +180,8 @@ if not CHORD_DEBUG then
   opts_redirect_uri = os.getenv("CHORD_URL") .. OIDC_CALLBACK_PATH_NO_SLASH
 end
 
+-- defines URL the client will be redirected to after the `/api/auth/sign-out` is 
+-- hit and strips the session. This URL should port to the IdP's `.../logout` handle
 local opts_redirect_after_logout_uri = os.getenv("REDIRECT_AFTER_LOGOUT_URI")
 
 local opts = {
