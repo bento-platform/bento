@@ -398,6 +398,67 @@ services:
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
+
+  cbioportal:
+    restart: unless-stopped
+    image: ${CBIOPORTAL_IMAGE}:${CBIOPORTAL_IMAGE_VERSION}
+    container_name: cbioportal-container
+    environment:
+      SHOW_DEBUG_INFO: "true"
+    ports:
+      - "${CBIOPORTAL_EXTERNAL_PORT}:${CBIOPORTAL_INTERNAL_PORT}"
+    volumes:
+     - ${CBIOPORTAL_STUDY_DIR}:/study/
+     - ./lib/cbioportal/config/portal.properties:/cbioportal/portal.properties:ro
+    depends_on:
+     - cbioportal-database
+     - cbioportal-session
+    networks:
+     - bridge-net
+    command: /bin/sh -c "java -Xms2g -Xmx4g -Dauthenticate=noauthsessionservice -Dsession.service.url=http://cbioportal-session:${CBIOPORTAL_SESSION_SERVICE_SERVER_PORT}/api/sessions/my_portal/ -jar webapp-runner.jar -AmaxHttpHeaderSize=16384 -AconnectionTimeout=20000 --enable-compression /cbioportal-webapp"
+
+
+  cbioportal-database:
+    restart: unless-stopped
+    image: ${CBIOPORTAL_DATABASE_IMAGE}:${CBIOPORTAL_DATABASE_IMAGE_VERSION}
+    container_name: cbioportal-database-container
+    environment:
+      MYSQL_DATABASE: ${CBIOPORTAL_DATABASE_DBNAME}
+      MYSQL_USER: ${CBIOPORTAL_DATABASE_DBUSER}
+      MYSQL_PASSWORD: ${CBIOPORTAL_DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${CBIOPORTAL_DATABASE_ROOT_PASSWORD}
+    volumes:
+     - ${CBIOPORTAL_DATA_DIR}/cgds.sql:/docker-entrypoint-initdb.d/cgds.sql:ro
+     - ${CBIOPORTAL_DATA_DIR}/seed.sql.gz:/docker-entrypoint-initdb.d/seed.sql.gz:ro
+     - ${CBIOPORTAL_DATABASE_DATA_DIR}:/var/lib/mysql
+    networks:
+     - bridge-net
+
+
+  cbioportal-session:
+    restart: unless-stopped
+    image: ${CBIOPORTAL_SESSION_SERVICE_IMAGE}:${CBIOPORTAL_SESSION_SERVICE_IMAGE_VERSION}
+    container_name: cbioportal-session-container
+    environment:
+      SERVER_PORT: ${CBIOPORTAL_SESSION_SERVICE_SERVER_PORT}
+      JAVA_OPTS: -Dspring.data.mongodb.uri=mongodb://cbioportal-session-database:27017/session-service
+    depends_on:
+      - cbioportal-session-database
+    networks:
+      - bridge-net
+
+
+  cbioportal-session-database:
+    restart: unless-stopped
+    image: ${CBIOPORTAL_SESSION_SERVICE_DATABASE_IMAGE}:${CBIOPORTAL_SESSION_SERVICE_DATABASE_IMAGE_VERSION}
+    container_name: cbioportal-session-database-container
+    environment:
+      MONGO_INITDB_DATABASE: session_service
+    volumes:
+      - ${CBIOPORTAL_SESSION_SERVICE_DATABASE_DATA_DIR}:/data/db
+    networks:
+      - bridge-net
+
 networks:
   bridge-net:
     external: true
