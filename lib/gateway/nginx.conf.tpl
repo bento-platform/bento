@@ -129,6 +129,56 @@ http {
         # -- Do Not Use Bento-Public Ends Here --
     }
 
+    # cBioPortal
+    server {
+        listen 443 ssl;
+
+        server_name ${CBIOPORTAL_DOMAIN};
+
+        ssl_certificate ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_FULLCHAIN_RELATIVE_PATH};
+        ssl_certificate_key ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_PRIVKEY_RELATIVE_PATH};
+
+        # Security --
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        # --
+
+        # CHORD constants (configuration file locations)
+        set ${DOLLAR}chord_auth_config     "{auth_config}";
+        set ${DOLLAR}chord_instance_config "{instance_config}";
+
+        # - Per lua-resty-session, the 'regenerate' strategy is more reliable for
+        #   SPAs which make a lot of asynchronous requests, as it does not
+        #   immediately replace the old records for sessions when making a new one.
+        set ${DOLLAR}session_strategy        regenerate;
+
+        # -- Use cBioPortal Starts Here --
+        # Public Web
+        location / {
+            limit_req zone=global_limit burst=10;
+
+            proxy_pass_header    Server;
+            proxy_set_header     Upgrade           ${DOLLAR}http_upgrade;
+            proxy_set_header     Connection        "upgrade";
+            proxy_set_header     Host              ${DOLLAR}http_host;
+            proxy_set_header     X-Real-IP         ${DOLLAR}remote_addr;
+            proxy_set_header     X-Forwarded-For   ${DOLLAR}proxy_add_x_forwarded_for;
+            proxy_set_header     X-Forwarded-Proto ${DOLLAR}http_x_forwarded_proto;
+
+            proxy_ignore_client_abort on;
+
+            set ${DOLLAR}upstream_cbioportal http://${CBIOPORTAL_CONTAINER_NAME}:${CBIOPORTAL_INTERNAL_PORT};
+            proxy_pass    ${DOLLAR}upstream_cbioportal;
+
+            error_log /var/log/cbioportal_errors.log;
+        }
+        # -- Use cBioPortal Ends Here --
+        # -- Do Not Use cBioPortal Starts Here --
+        return 301 https://portal.${DOLLAR}host${DOLLAR}request_uri;
+        # -- Do Not Use cBioPortal Ends Here --
+    }
+
 
     # Bento Portal
     server {
