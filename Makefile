@@ -93,10 +93,12 @@ data-dirs:
 	mkdir -p ${BENTOV2_WES_VOL_DIR}
 	mkdir -p ${BENTOV2_WES_VOL_CACHE_DIR}
 	mkdir -p ${BENTOV2_REDIS_VOL_DIR}
-
-
-
-
+	if [ ${BENTOV2_USE_CBIOPORTAL} ]; then \
+		mkdir -p ${CBIOPORTAL_DATA_DIR}; \
+		mkdir -p ${CBIOPORTAL_STUDY_DIR}; \
+		mkdir -p ${CBIOPORTAL_DATABASE_DATA_DIR}; \
+		mkdir -p ${CBIOPORTAL_SESSION_SERVICE_DATABASE_DATA_DIR}; \
+	fi
 
 
 #>>>
@@ -153,6 +155,14 @@ init-wes-cache:
 	\
 	docker exec bentov2-wes /wes/bento_wes/install/vep_cache_grch37.sh
 
+#>>>
+# populate the cache for wes, based on human assembly GRCh37
+# Note: vcf2maf code expects this by default. Test when adding new assemblies
+#<<<
+init-cbioportal:
+	# Download the seed database
+	wget -O ${CBIOPORTAL_DATA_DIR}/cgds.sql "https://raw.githubusercontent.com/cBioPortal/cbioportal/v3.6.10/db-scripts/src/main/resources/cgds.sql" && \
+	wget -O ${CBIOPORTAL_DATA_DIR}/seed.sql.gz "https://github.com/cBioPortal/datahub/raw/master/seedDB/seed-cbioportal_hg19_v2.12.8.sql.gz"
 
 #>>>
 # create secrets for Bento v2 services
@@ -298,6 +308,16 @@ run-%:
 			echo "Fine tuning nginx.conf to disable Bento-Public"; \
 			\
 			sed -i.bak '/-- Use Bento-Public Starts Here --/,/-- Use Bento-Public Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
+			\
+		fi && \
+		if [[ ${BENTOV2_USE_CBIOPORTAL} == 1 ]]; then \
+			echo "Fine tuning nginx.conf to use cBioPortal"; \
+			\
+			sed -i.bak '/-- Do Not Use cBioPortal Starts Here --/,/-- Do Not Use cBioPortal Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
+		else \
+			echo "Fine tuning nginx.conf to disable cBioPortal"; \
+			\
+			sed -i.bak '/-- Use cBioPortal Starts Here --/,/-- Use cBioPortal Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
 			\
 		fi && \
 		cat ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
