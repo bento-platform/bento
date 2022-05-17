@@ -186,6 +186,8 @@ local opts = {
   redirect_uri = opts_redirect_uri,
   logout_path = SIGN_OUT_PATH,
   redirect_after_logout_uri = opts_redirect_after_logout_uri,
+  redirect_after_logout_with_id_token_hint = false,
+  post_logout_redirect_uri = opts_redirect_after_logout_uri,
 
   discovery = os.getenv("OIDC_DISCOVERY_URI"),
 
