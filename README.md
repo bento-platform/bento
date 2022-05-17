@@ -132,7 +132,18 @@ openssl req -newkey rsa:2048 -nodes \
 to create the bentov2 cert for `bentov2auth.local` (or whatever other domain you use)
 
 Finally, ensure that the local domain name is set in the machines `hosts` file (for Linux users, this is likely `/etc/hosts`, and in Windows, `C:\Windows\System32\drivers\etc\hosts`) pointing to either `localhost`, `127.0.0.1`, or `0.0.0.0`, depending on whichever gets the job done on your system.
+Not setting this up correctly would result in DNS errors in the front end.
 
+Here is an example on MacOS. Note that each subdomain also needs to be added
+to this list.
+```
+...
+127.0.0.1 bentov2.local
+127.0.0.1 bentov2auth.local
+127.0.0.1 portal.bentov2.local
+127.0.0.1 cbioportal.bentov2.local
+...
+```
 
 ### Boot the gateway controller (NGINX by default)
 
