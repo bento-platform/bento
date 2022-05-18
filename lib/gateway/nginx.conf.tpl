@@ -7,8 +7,10 @@ env CHORD_PRIVATE_MODE;
 env CHORD_URL;
 
 env OIDC_DISCOVERY_URI;
+env REDIRECT_AFTER_LOGOUT_URI;
 env CLIENT_ID;
 env TOKEN_ENDPOINT_AUTH_METHOD;
+
 # TODO: move to secret instead of using env
 env CLIENT_SECRET;
 
