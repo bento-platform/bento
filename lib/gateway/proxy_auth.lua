@@ -176,16 +176,20 @@ local opts_ssl_verify = "no"
 
 -- If in production, enforce CHORD_URL as the base for redirect
 local opts_redirect_uri = OIDC_CALLBACK_PATH
-local opts_redirect_after_logout_uri = "/"
 if not CHORD_DEBUG then
   opts_redirect_uri = os.getenv("CHORD_URL") .. OIDC_CALLBACK_PATH_NO_SLASH
-  opts_redirect_after_logout_uri = os.getenv("CHORD_URL")
 end
+
+-- defines URL the client will be redirected to after the `/api/auth/sign-out` is 
+-- hit and strips the session. This URL should port to the IdP's `.../logout` handle
+local opts_redirect_after_logout_uri = os.getenv("REDIRECT_AFTER_LOGOUT_URI")
 
 local opts = {
   redirect_uri = opts_redirect_uri,
   logout_path = SIGN_OUT_PATH,
   redirect_after_logout_uri = opts_redirect_after_logout_uri,
+  redirect_after_logout_with_id_token_hint = false,
+  post_logout_redirect_uri = os.getenv("CHORD_URL"),
 
   discovery = os.getenv("OIDC_DISCOVERY_URI"),
 
