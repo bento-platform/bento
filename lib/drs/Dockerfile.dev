@@ -9,20 +9,12 @@ USER root
 RUN mkdir /drs && \
     mkdir /wes;
 
-WORKDIR /drs
-
-ARG REPO
-ARG BRANCH
-ARG TAG
-
-ARG PROJECT_DIRECTORY
-
 RUN echo "Building DRS in Development Mode";
-
-WORKDIR /drs/bento_drs
 
 RUN mkdir -p /drs/bento_drs/data/obj && \
     mkdir -p /drs/bento_drs/data/db;
+
+WORKDIR /drs/bento_drs
 
 # Remove comment if custom requirements are needed
 COPY ./bento_drs/requirements.txt ./requirements.txt
