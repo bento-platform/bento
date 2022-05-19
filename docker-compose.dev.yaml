@@ -16,13 +16,13 @@ services:
         BENTO_WEB_USER: ${CURRENT_UID}
     volumes:
       - ./lib/web/bento_web:/web/bento_web
-    # Execute npm build/install and watch, and 
+    # Execute npm build/install and watch, and
     # nginx "listener" upon container startup
     entrypoint: sh /web/dev_startup.sh
     extends:
       file: docker-compose.yaml
       service: web
-      
+
   public:
     extends:
       file: ./lib/bento_public/docker-compose.yaml
@@ -33,7 +33,7 @@ services:
 
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
-    networks: 
+    networks:
         bridge-net:
           aliases:
             - ${BENTOV2_DOMAIN}
@@ -47,14 +47,14 @@ services:
     build:
       context: $PWD/lib/katsu
       dockerfile: Dockerfile.dev
-    networks: 
+    networks:
       - bridge-net
     depends_on:
       - katsu-db
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu
-    volumes: 
+    volumes:
       - ./lib/katsu/katsu:/app/katsu
       - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp
     environment:
@@ -63,7 +63,7 @@ services:
       - "${BENTOV2_KATSU_EXTERNAL_PORT}:${BENTOV2_KATSU_INTERNAL_PORT}"
 
   katsu-db:
-    networks: 
+    networks:
       - bridge-net
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
@@ -76,14 +76,14 @@ services:
     build:
       context: $PWD/lib/federation
       dockerfile: Dockerfile.dev
-    environment: 
+    environment:
       - CHORD_DEBUG=${BENTOV2_FEDERATION_DEV_DEBUG}
-    networks: 
+    networks:
       - bridge-net
     extends:
       file: $PWD/lib/federation/docker-compose.federation.yaml
       service: federation
-    volumes: 
+    volumes:
       - ./lib/federation/bento_federation_service:/federation/bento_federation_service
     ports:
       - "5000:5000"
@@ -94,7 +94,7 @@ services:
     build:
       context: $PWD/lib/wes
       dockerfile: Dockerfile.dev
-    networks: 
+    networks:
       - bridge-net
     environment:
       - CHORD_DEBUG=true
@@ -108,12 +108,12 @@ services:
       - ${BENTOV2_WES_DEV_DROP_BOX_VOL_DIR}:/data
     ports:
       - "5000:5000"
-  
+
   drs:
     build:
       context: $PWD/lib/drs
-      dockerfile: Dockerfile
-    networks: 
+      dockerfile: Dockerfile.dev
+    networks:
       - bridge-net
     extends:
       file: $PWD/lib/drs/docker-compose.drs.yaml
@@ -121,9 +121,14 @@ services:
     ports:
       - "${BENTOV2_DRS_EXTERNAL_PORT}:5000"
     volumes:
+      - ./lib/drs/bento_drs:/drs/bento_drs
+      - ./lib/drs/startup.sh:/drs/bento_drs/chord_drs/startup.sh:ro
       # Override main drs data directory
       - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/bento_drs/data
       - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp
-networks: 
+    command: >
+      sh -c /drs/bento_drs/chord_drs/startup.sh
+
+networks:
   bridge-net:
     external: true
