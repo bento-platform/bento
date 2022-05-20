@@ -26,7 +26,7 @@ OS_NAME := $(shell uname -s | tr A-Z a-z)
 export OS_NAME
 
 #>>>
-# provide host-level user id as an 
+# provide host-level user id as an
 # environment variable for containers to use
 #<<<
 CURRENT_UID := $(shell id -u)
@@ -47,7 +47,7 @@ export EXECUTED_NOW
 init-chord-services:
 	@echo "-- Initializing CHORD service configuration files  --"
 
-	@# copy services json to the microservices that need it	
+	@# copy services json to the microservices that need it
 	@echo "- Providing a complete chord_services.json to lib/[logging, service-registry, wes]"
 	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/logging/chord_services.json;
 	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/service-registry/chord_services.json;
@@ -60,7 +60,7 @@ init-chord-services:
 # create non-repo directories
 #<<<
 .PHONY: init-dirs
-init-dirs: data-dirs 
+init-dirs: data-dirs
 	@echo "-- Initializing temporary and data directories --"
 	@echo "- Creating temporary secrets dir"
 	mkdir -p $(PWD)/tmp/secrets
@@ -203,7 +203,7 @@ auth-setup:
 #<<<
 run-all:
 	$(foreach SERVICE, $(SERVICES), \
-		$(MAKE) run-$(SERVICE) &) 
+		$(MAKE) run-$(SERVICE) &)
 
 	watch -n 2 'docker ps'
 
@@ -217,7 +217,7 @@ run-all:
 #<<<
 run-web-dev: clean-web
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate web
-run-public-dev: 
+run-public-dev:
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate public
 
 #>>>
@@ -247,14 +247,14 @@ run-katsu-dev: #clean-katsu
 # ...
 #	see docker-compose.dev.yaml
 #<<<
-run-federation-dev: 
+run-federation-dev:
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate federation
 
 #>>>
 # ...
 #	see docker-compose.dev.yaml
 #<<<
-run-wes-dev: 
+run-wes-dev:
 	#clean-wes
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate wes
 
@@ -262,7 +262,7 @@ run-wes-dev:
 # ...
 #	see docker-compose.dev.yaml
 #<<<
-run-drs-dev: 
+run-drs-dev:
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate drs
 
 
@@ -271,7 +271,7 @@ run-drs-dev:
 #<<<
 run-%:
 	@# FreeBSD sed -i expects a suffix parameter for a backup file. Empty string
-	@# may be provided after a space which is incompatible with GNU sed (no 
+	@# may be provided after a space which is incompatible with GNU sed (no
 	@# space after -i). The solution here is to create a backup file and remove
 	@# it along with the working copy using a wildcard.
 	@if [[ $* == gateway ]]; then \
@@ -340,8 +340,8 @@ build-common-base:
 #<<<
 build-all:
 	$(foreach SERVICE, $(SERVICES), \
-		$(MAKE) build-$(SERVICE) &) 
-	
+		$(MAKE) build-$(SERVICE) &)
+
 	watch -n 2 'docker ps'
 
 
@@ -355,7 +355,7 @@ build-%:
 		exit 1; \
 	fi
 
-	@mkdir -p tmp/logs/${EXECUTED_NOW}/$* 
+	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
 	@echo "-- Building $* --" && \
 		docker-compose build --no-cache $* &> tmp/logs/${EXECUTED_NOW}/$*/build.log
 
@@ -418,10 +418,10 @@ clean-all:
 #<<<
 clean-%:
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
-	
+
 	@echo "-- Removing bentov2-$* container --" && \
 		docker rm bentov2-$* --force >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
-	
+
 	@# Clean public using native makefile
 	@if [[ $* == public ]]; then \
 		cd lib/bento_public && $(MAKE) clean-public ; \
@@ -495,7 +495,7 @@ run-unit-tests:
 run-integration-tests:
 	@echo "-- Running integration tests! --"
 	@$(PWD)/etc/tests/integration/run_tests.sh 10 firefox False
-	
+
 
 
 # -- Utils --
@@ -520,3 +520,13 @@ clean-dangling-images:
 	docker rmi $(docker images -f "dangling=true" -q)
 clean-exited-containers:
 	docker rm $(docker ps -a -f status=exited -q)
+
+#>>>
+# patch records in DRS database after the change in path from /drs/chord_drs/ to /drs/bento_drs/
+# This needs to be done only once, for installations prior v2.6.5
+#<<<
+patch-drs-db:
+	sqlite3 ${BENTOV2_DRS_PROD_VOL_DIR}/db/db.sqlite3 \
+		"UPDATE drs_object SET location = REPLACE(location, 'chord_drs', 'bento_drs')" && \
+	sqlite3 ${BENTOV2_DRS_DEV_VOL_DIR}/db/db.sqlite3 \
+		"UPDATE drs_object SET location = REPLACE(location, 'chord_drs', 'bento_drs')"
