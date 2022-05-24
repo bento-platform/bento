@@ -34,7 +34,7 @@ RUN git fetch && \
 RUN ["pip", "install", "-r", "requirements.txt"]
 
 # Run
-WORKDIR /drs/bento_drs/bento_drs
+WORKDIR /drs/bento_drs/chord_drs
 
 COPY startup.sh ./startup.sh
 
