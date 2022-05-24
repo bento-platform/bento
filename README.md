@@ -313,6 +313,21 @@ to remove the docker containers and images from disk,
 
 > NOTE: application data does persist (see `./lib/[auth, drs, katsu]/data` directories, for example)
 
+### Gohan Genes 'Catalogue' Setup Tips:
+Upon initial startup of a fresh instance, it may of use, depending on the use-case, to perform the following:
+
+```
+# navigate to:
+https://portal.bentov2.local/api/gohan/genes/ingestion/run
+# to trigger Gohan to download the default GenCode .gtk files from the internet and process them
+
+# - followed up by
+https://portal.bentov2.local/api/gohan/genes/ingestion/requests
+# to keep up with the process
+
+# the end results can be found at
+https://portal.bentov2.local/api/gohan/genes/overview
+```
 
 <br />
 
