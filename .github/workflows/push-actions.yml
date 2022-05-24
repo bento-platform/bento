@@ -16,6 +16,8 @@ jobs:
         id: envx
         run: |
           cp ./etc/bento.env .env
+          mkdir -p ./lib/bento_public && touch ./lib/bento_public/server.env # mock
+          mkdir -p ./lib/gohan && touch ./lib/gohan/.env # mock
           source .env
 
       - name: Build & Run Web
