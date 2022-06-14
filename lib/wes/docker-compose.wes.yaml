@@ -64,4 +64,4 @@ services:
       # Direct mount of the DRS data volume. The rationale is to avoid duplicating
       # potentially huge genomic files using http transfers for performing some
       # processing tasks.
-      - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/chord_drs/data
+      - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/bento_drs/data
