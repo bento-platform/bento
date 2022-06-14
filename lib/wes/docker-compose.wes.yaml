@@ -35,6 +35,7 @@ services:
       #   as a path to a Bento instance's internal NGINX UNIX socket and adding a
       #   path to the actual DRS instance
       - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
+      - METADATA_URL=http://${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
       - WRITE_OUTPUT_TO_DRS=True
       - DRS_DEDUPLICATE=True
       - DRS_SKIP_TYPES=
