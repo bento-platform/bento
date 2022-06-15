@@ -156,8 +156,7 @@ init-wes-cache:
 	docker exec bentov2-wes /wes/bento_wes/install/vep_cache_grch37.sh
 
 #>>>
-# populate the cache for wes, based on human assembly GRCh37
-# Note: vcf2maf code expects this by default. Test when adding new assemblies
+# populate cBioPortal instance with base data
 #<<<
 init-cbioportal:
 	# Download the seed database
