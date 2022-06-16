@@ -48,7 +48,7 @@ RUN apk --update add jq \
     cp -r vcf2maf/data /opt/data && \
     rm -rf vcf2maf
 
-# Add ensembl-vep to the PATH so that vep can be called from vcf2map script
+# Add ensembl-vep to the PATH so that vep can be called from vcf2maf script
 ENV PATH /ensembl-vep:$PATH
 
 RUN mkdir /wes; \
