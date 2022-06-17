@@ -10,6 +10,7 @@ services:
         BASE_IMAGE_VERSION: ${BENTOV2_WES_BASE_IMAGE_VERSION}
         REPO: ${BENTO_WES_REPO}
         TAG_OR_BRANCH: ${BENTOV2_WES_TAG_OR_BRANCH}
+        VEP_ENSEMBL_RELEASE_VERSION: ${VEP_ENSEMBL_RELEASE_VERSION}
     image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION}
     container_name: ${BENTOV2_WES_CONTAINER_NAME}
     environment:
@@ -22,7 +23,7 @@ services:
       - SERVICE_TEMP=/wes/tmp
       - SERVICE_URL_BASE_PATH=/api/wes
       - VEP_CACHE_DIR=/wes/cache/vep
-      - VEP_ENSEMBL_VERSION=105
+      - VEP_ENSEMBL_VERSION=${VEP_ENSEMBL_VERSION}
       - WOM_TOOL_LOCATION=
       #/wes/womtool.jar
       # Allow-list (comma-separated) for hosts that workflow files can be downloaded

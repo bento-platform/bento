@@ -1,5 +1,6 @@
 ARG BASE_IMAGE
 ARG BASE_IMAGE_VERSION
+ARG VEP_ENSEMBL_RELEASE_VERSION
 
 FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 
@@ -33,7 +34,7 @@ RUN apk --update add jq \
     cd bcftools && \
     make && \
     cd .. && \
-    git clone https://github.com/Ensembl/ensembl-vep.git && \
+    git clone --depth 1 -b release/$VEP_ENSEMBL_RELEASE_VERSION https://github.com/Ensembl/ensembl-vep.git && \
     # Install perl dependencies for ensembl-vep
     cpanm --installdeps --with-recommends --notest --cpanfile ensembl-vep/cpanfile . && \
     cd ensembl-vep && \
