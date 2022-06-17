@@ -1,11 +1,13 @@
 ARG BASE_IMAGE
 ARG BASE_IMAGE_VERSION
-ARG VEP_ENSEMBL_RELEASE_VERSION
 
 FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 
 # TODO: change USER
 USER root
+# All ARGs are deleted after a FROM statement, so the following cannot be grouped
+# with the others at the top of this file
+ARG VEP_ENSEMBL_RELEASE_VERSION
 
 # Install vcf2maf, vep, samtools, htslib from github repos (htslib needed first)
 RUN apk --update add jq \
@@ -34,7 +36,7 @@ RUN apk --update add jq \
     cd bcftools && \
     make && \
     cd .. && \
-    git clone --depth 1 -b release/$VEP_ENSEMBL_RELEASE_VERSION https://github.com/Ensembl/ensembl-vep.git && \
+    git clone --depth 1 -b "release/${VEP_ENSEMBL_RELEASE_VERSION}" https://github.com/Ensembl/ensembl-vep.git && \
     # Install perl dependencies for ensembl-vep
     cpanm --installdeps --with-recommends --notest --cpanfile ensembl-vep/cpanfile . && \
     cd ensembl-vep && \
