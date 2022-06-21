@@ -35,13 +35,14 @@ RUN apk --update add jq \
     git clone https://github.com/samtools/bcftools.git && \
     cd bcftools && \
     make && \
+    make install && \
     cd .. && \
     git clone --depth 1 -b "release/${VEP_ENSEMBL_RELEASE_VERSION}" https://github.com/Ensembl/ensembl-vep.git && \
     # Install perl dependencies for ensembl-vep
     cpanm --installdeps --with-recommends --notest --cpanfile ensembl-vep/cpanfile . && \
     cd ensembl-vep && \
     # Build vep in /ensembl-vep
-    perl INSTALL.pl -a a --NO_TEST && \
+    perl INSTALL.pl -a a --NO_TEST --NO_UPDATE && \
     cd .. && \
     rm -rf htslib samtools bcftools && \
     git clone https://github.com/mskcc/vcf2maf.git && \
