@@ -13,7 +13,9 @@ RUN apk update && \
     apk add git nginx && \
     apk upgrade
 
-COPY nginx.conf /etc/nginx/conf.d/nginx.conf
+# as of  BENTOV2_WEB_BASE_IMAGE_VERSION=16.13-alpine3.15 ,
+# override default nginx.conf file
+COPY nginx.conf /etc/nginx/nginx.conf
 
 RUN mkdir /web
 WORKDIR /web
@@ -62,6 +64,6 @@ COPY ./dev_startup.sh /web/dev_startup.sh
 COPY ./startup.sh /web/startup.sh
 
 # fix crash at runtime
-RUN mkdir /run/nginx && \
+RUN mkdir -p /run/nginx && \
     touch /run/nginx/nginx.pid && \
     npm config set unsafe-perm true
