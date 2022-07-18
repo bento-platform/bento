@@ -69,7 +69,7 @@ services:
       - |
         python manage.py makemigrations
         python manage.py migrate
-        gunicorn chord_metadata_service.metadata.wsgi:application -w 1 --threads 1 --timeout 120 -b 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT}
+        python manage.py runserver --nothreading 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT}
 
   katsu-db:
     networks:
