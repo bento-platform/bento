@@ -117,6 +117,7 @@ services:
       - ${BENTOV2_WES_DEV_DROP_BOX_VOL_DIR}:/data
     ports:
       - "5000:5000"
+      - "${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_WES_DEBUGGER_INTERNAL_PORT}"
 
   drs:
     build:
