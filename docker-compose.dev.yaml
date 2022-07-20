@@ -107,6 +107,7 @@ services:
       - bridge-net
     environment:
       - CHORD_DEBUG=true
+      - DEBUGGER_PORT=${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes
