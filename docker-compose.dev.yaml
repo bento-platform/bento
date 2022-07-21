@@ -129,6 +129,9 @@ services:
     build:
       context: $PWD/lib/drs
       dockerfile: Dockerfile.dev
+    environment:
+      - FLASK_DEBUG=true
+      - DEBUGGER_PORT=${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}
     networks:
       - bridge-net
     extends:
@@ -136,6 +139,7 @@ services:
       service: drs
     ports:
       - "${BENTOV2_DRS_EXTERNAL_PORT}:5000"
+      - "${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_DRS_DEBUGGER_INTERNAL_PORT}"
     volumes:
       - ./lib/drs/bento_drs:/drs/bento_drs
       - ./lib/drs/startup.sh:/drs/bento_drs/chord_drs/startup.sh:ro
