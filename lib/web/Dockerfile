@@ -38,16 +38,11 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         echo "Building Web in Production Mode" ; \
         pwd ; ls -la ; \
         \
-        git clone "${BENTO_WEB_REPO}"; \
+        git clone --depth 1 -b "${BENTO_WEB_TAG:-$BENTO_WEB_BRANCH}" "${BENTO_WEB_REPO}"; \
         pwd ; ls -la ; \
         \
         cd ./bento_web ; \
         pwd ; ls -la ; \
-        \
-        git fetch ; \
-        git checkout "${BENTO_WEB_BRANCH}" ; \
-        git checkout tags/${BENTO_WEB_TAG} ; \
-        git pull ; \
         \
         rm -rf npm-shrinkwrap.json node_modules ; \
         npm cache clean --force ; \
@@ -58,7 +53,7 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
 
 # Copy startup scripts
 
-# TODO: parameterize and only copy the 
+# TODO: parameterize and only copy the
 # one that is used
 COPY ./dev_startup.sh /web/dev_startup.sh
 COPY ./startup.sh /web/startup.sh
