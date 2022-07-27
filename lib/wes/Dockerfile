@@ -36,16 +36,10 @@ ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}"
+RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}"
 RUN ls /wes
 
 WORKDIR /wes/bento_wes
-
-RUN git config user.name "docker" && \
-    git config user.email "docker@bento.v2" && \
-    git fetch && \
-    git checkout "${BRANCH}" && \
-    git checkout tags/${TAG}
 
 RUN ["pip", "install", "-r", "requirements.txt"]
 
