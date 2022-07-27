@@ -13,12 +13,9 @@ ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}" && \
+RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}" && \
     ls /drop-box;
 WORKDIR /drop-box/bento_drop_box_service
-RUN git fetch && \
-    git checkout "${BRANCH}" &&  \
-    git checkout tags/${TAG}
 
 RUN pip install -r requirements.txt
 

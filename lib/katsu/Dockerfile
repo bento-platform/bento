@@ -23,15 +23,12 @@ ARG KATSU_TAG
 ARG PROJECT_DIRECTORY
 
 # Clone the repo
-RUN git clone "${KATSU_REPO}"
+RUN git clone --depth 1 -b "${KATSU_TAG:-$KATSU_BRANCH}" "${KATSU_REPO}"
 
 WORKDIR ${PROJECT_DIRECTORY}
 
 RUN git config user.name "docker" && \
     git config user.email "docker@bento.v2" && \
-    git fetch && \
-    git checkout "${KATSU_BRANCH}" && \
-    git checkout tags/${KATSU_TAG} && \
     git submodule update --init
 
 
@@ -42,7 +39,7 @@ RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
 RUN pip install -r requirements.txt;
 
 
-# TEMP: modify settings.py file to allow for 
+# TEMP: modify settings.py file to allow for
 # localhost+port & domain host name to be allowed to make calls
 ARG BENTOV2_PORTAL_DOMAIN
 RUN sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_PORTAL_DOMAIN}\"/" ${PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py
