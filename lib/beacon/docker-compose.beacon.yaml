@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+# -- base federation service
+  beacon:
+    build:
+      context: $PWD/lib/beacon
+      args:
+        BASE_IMAGE: ${BEACON_BASE_IMAGE}
+        BASE_IMAGE_VERSION: ${BEACON_BASE_IMAGE_VERSION}
+        REPO: ${BEACON_REPO}
+        BRANCH: ${BEACON_BRANCH}
+    image: ${BEACON_IMAGE}:${BEACON_VERSION}
+    container_name: ${BEACON_CONTAINER_NAME}
+    environment: 
+      - BEACON_DEBUG=${BEACON_DEBUG}
+      - KATSU_BASE_URL=${BEACON_KATSU_BASE_URL}
+      - GOHAN_BASE_URL=${BEACON_GOHAN_BASE_URL}
+      - KATSU_TIMEOUT=${BEACON_KATSU_TIMEOUT}
+      - GOHAN_TIMEOUT=${BEACON_GOHAN_TIMEOUT}
+    networks: 
+      - bridge-net
+    expose:
+      - ${BEACON_INTERNAL_PORT}
+    mem_limit: ${BEACON_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BEACON_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:${BEACON_INTERNAL_PORT}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+
