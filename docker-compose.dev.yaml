@@ -77,6 +77,8 @@ services:
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu-db
+    ports:
+      - "${BENTOV2_KATSU_DB_EXTERNAL_PORT}:${BENTOV2_KATSU_DB_INTERNAL_PORT}"
     volumes:
       - ${BENTOV2_KATSU_DB_DEV_VOL_DIR}:/var/lib/postgresql/data
 
