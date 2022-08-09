@@ -28,10 +28,10 @@ services:
       - DJANGO_SETTINGS_MODULE=chord_metadata_service.metadata.settings
       - BENTOV2_PORTAL_DOMAIN=${BENTOV2_PORTAL_DOMAIN}
       - HOST_CONTAINER_NAME=${BENTOV2_KATSU_CONTAINER_NAME}
-    configs:
-      - source: chord-metadata-settings
-        target: /katsu/metadata/settings.py
-        mode: 0644
+    # configs:
+    #   - source: chord-metadata-settings
+    #     target: /katsu/metadata/settings.py
+    #     mode: 0644
     secrets:
       - source: metadata-app-secret
         target: metadata_app_secret

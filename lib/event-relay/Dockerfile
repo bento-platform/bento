@@ -19,15 +19,12 @@ ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}"
+# Clone the repo
+RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}"
 
 WORKDIR /event-relay/bento_event_relay
-RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git checkout tags/${TAG}
 
 RUN ["npm", "install"]
 
 # Run
-WORKDIR /event-relay/bento_event_relay
 CMD ["npm", "start"]

@@ -15,15 +15,11 @@ ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}"
+RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}"
 RUN ls /notification
 
 WORKDIR /notification/bento_notification_service
 
-RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git checkout tags/${TAG}
-    
 RUN ["pip", "install", "-r", "requirements.txt"]
 
 # Run

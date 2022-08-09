@@ -19,6 +19,6 @@ WORKDIR /drs/bento_drs
 # Remove comment if custom requirements are needed
 COPY ./bento_drs/requirements.txt ./requirements.txt
 
-RUN ["pip", "install", "-r", "requirements.txt"]
+RUN ["pip", "install", "debugpy", "-r", "requirements.txt"]
 
 WORKDIR /drs/bento_drs/chord_drs

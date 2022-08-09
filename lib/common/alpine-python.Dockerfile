@@ -27,7 +27,6 @@ RUN apk update; \
 		make \
 		musl-dev \
 		openssl-dev \
-		python3-dev \
 		postgresql-dev \
 		postgresql-libs \
 		perl \
@@ -35,5 +34,4 @@ RUN apk update; \
 		yaml-dev \
 		zlib-dev
 
-RUN python -m pip install --upgrade pip
-RUN pip install gunicorn
+RUN python -m pip install gunicorn --upgrade pip

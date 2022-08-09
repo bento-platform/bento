@@ -13,17 +13,12 @@ ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}" && \
+RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}" && \
     ls /service-registry
 
 WORKDIR /service-registry/bento_service_registry
 
-RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git checkout tags/${TAG}
-
 RUN pip install -r requirements.txt
-
 
 # Run
 WORKDIR /service-registry/bento_service_registry
