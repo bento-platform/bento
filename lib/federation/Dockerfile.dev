@@ -23,4 +23,4 @@ COPY ./bento_federation_service/requirements.txt /federation/bento_federation_se
 WORKDIR /federation/bento_federation_service
 
 
-RUN ["pip", "install", "-r", "requirements.txt"]
+RUN ["pip", "install", "debugpy", "-r", "requirements.txt"]
