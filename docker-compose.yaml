@@ -404,6 +404,16 @@ services:
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
+  beacon:
+    build:
+      context: $PWD/lib/beacon
+      dockerfile: Dockerfile
+    networks: 
+      - bridge-net
+    extends:
+      file: $PWD/lib/beacon/docker-compose.beacon.yaml
+      service: beacon
+
 networks: 
   bridge-net:
     external: true
