@@ -6,18 +6,18 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 # TODO: change USER
 USER root
 
-ARG REPO
-ARG BRANCH
+ARG BEACON_REPO
+ARG BEACON_BRANCH
 
 RUN mkdir /beacon
 WORKDIR /beacon
 
-RUN git clone "${REPO}"
-
-RUN git fetch && \
-    git checkout "${BRANCH}"
+RUN git clone "${BEACON_REPO}"
 
 WORKDIR /beacon/bento_beacon
+
+RUN git fetch && \
+    git checkout "${BEACON_BRANCH}"
 
 RUN pip install -r requirements.txt
 
