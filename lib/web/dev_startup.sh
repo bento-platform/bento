@@ -10,4 +10,4 @@ nginx -g 'daemon off;' &
 # Removing the ampersand from the following line will prevent webpack output
 # to be streamed to stdout
 echo "-- Running `npm run watch`.. --" &
-npm run watch
+npm run watch -- --devtool inline-source-map
