@@ -22,7 +22,7 @@ RUN git fetch && \
 RUN pip install -r requirements.txt
 
 # copy config files 
-ADD config .
+ADD config /beacon/bento_beacon/bento_beacon/config_files
 
 COPY ./gunicorn_starter.sh .
 RUN chmod 775 ./gunicorn_starter.sh
