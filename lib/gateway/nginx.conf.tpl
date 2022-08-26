@@ -40,7 +40,7 @@ http {
         add_header X-XSS-Protection "1; mode=block";
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
         # --
-        
+
         return 301 https://${DOLLAR}host${DOLLAR}request_uri;
     }
 
@@ -102,7 +102,7 @@ http {
         add_header X-XSS-Protection "1; mode=block";
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
         # --
-    
+
         # -- Use Bento-Public Starts Here --
         # Public Web
         location / {
@@ -151,7 +151,7 @@ http {
         set ${DOLLAR}chord_instance_config "{instance_config}";
 
         # - Per lua-resty-session, the 'regenerate' strategy is more reliable for
-        #   SPAs which make a lot of asynchronous requests, as it does not 
+        #   SPAs which make a lot of asynchronous requests, as it does not
         #   immediately replace the old records for sessions when making a new one.
         set ${DOLLAR}session_strategy        regenerate;
 
@@ -234,7 +234,7 @@ http {
             rewrite /api/metadata/(.*) /${DOLLAR}1  break;
 
             # Forward request to the katsu
-            proxy_pass    http://${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args; 
+            proxy_pass    http://${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors
             error_log /var/log/bentov2_metadata_errors.log;
@@ -250,7 +250,7 @@ http {
 
 
         # -- Drop-Box
-        location ~ /api/drop-box { 
+        location ~ /api/drop-box {
             limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
@@ -269,7 +269,7 @@ http {
             proxy_set_header     X-Forwarded-Proto ${DOLLAR}http_x_forwarded_proto;
 
             proxy_ignore_client_abort on;
-            
+
             # Clear X-CHORD-Internal header and set it to the "off" value (0)
             proxy_set_header     X-CHORD-Internal  "0";
 
@@ -334,7 +334,7 @@ http {
 
 
         # -- Logging
-        location ~ /api/log-service { 
+        location ~ /api/log-service {
             limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
@@ -376,7 +376,7 @@ http {
 
 
         # -- DRS
-        location ~ /api/drs { 
+        location ~ /api/drs {
             limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
@@ -418,7 +418,7 @@ http {
 
 
         # -- Notifications
-        location ~ /api/notification { 
+        location ~ /api/notification {
             limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
@@ -459,7 +459,7 @@ http {
         }
 
         # -- Federation
-        location ~ /api/federation { 
+        location ~ /api/federation {
             limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
@@ -500,7 +500,7 @@ http {
         }
 
         # -- Event-Relay
-        location ~ /api/event-relay { 
+        location ~ /api/event-relay {
             limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
@@ -542,7 +542,7 @@ http {
 
 
         # -- WES
-        location ~ /api/wes { 
+        location ~ /api/wes {
             limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
@@ -585,10 +585,10 @@ http {
 
 
         # -- Gohan
-        location ~ /api/gohan { 
+        location ~ /api/gohan {
             limit_req zone=global_limit burst=10;
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
-            
+
             # Authentication
             access_by_lua_file   /usr/local/openresty/nginx/proxy_auth.lua;
 
