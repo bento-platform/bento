@@ -53,7 +53,9 @@ On MacOS and some other OSes, `DOLLAR` must be changed from `$` to `$$`
 ```
 DOLLAR=$$
 ```
-If the internal IdP is being used (by default, Keycloak), credential variables should also be provided
+If the internal IdP is being used (by default, Keycloak), credential variables should also be provided. The *admin* credentials are used to connect to the Keycloak UI
+for authentication management (adding users, getting client credentials,...).
+The *test* credentials will be used to authenticate on the Bento Portal.
 
 ```
 BENTOV2_AUTH_ADMIN_USER=testadmin
@@ -76,7 +78,11 @@ Depending on your git setup, clone Gohan's repository
 cd lib
 clone git@github.com:bento-platform/gohan.git
 ```
-Follow the instructions from Gohan's README to set up the environment file
+Follow the instructions from Gohan's README to set up the environment file.
+
+> IMPORTANT: when Gohan is used in the context of Bento (in other words, not as
+a standalone application), the paths in Gohan's .env file should be made **absolute**
+due to the different directories Gohan's Makefile can be called from.
 
 ### Clone Bento_public repository in ./lib and setup bento_public's environment variables
 Depending on your git setup, clone bento_public repository
@@ -152,12 +158,19 @@ This last step boots and configures the local OIDC provider (**Keycloak**) conta
 >
 > If you do not plan to use the built-in OIDC provider, you will have to handle the `auth_config` and `instance_config` manually (see `./etc/auth/..` and `./etc/scripts/..` for further details)
 
+The `CLIENT_SECRET` environment variable must be set using the value provided
+by Keycloak. Using a browser, connect to the `auth` endpoint (by default `https://bentov2auth.local`) and use the admin credentials from the env file. Once within
+Keycloak interface, navigate to the *Configure/Clients* menu. Select `local_bentov2`
+in the list of clients and switch to the *Credentials* tab. Copy the secret from
+there and paste it in your .env file.
+
+![Keycloak UI: get client secret](docs/img/keycloak_client_secret.png)
 
 ### Setup Bento-Public
 
 Run
 ```
-mkdir -p ./lib/bento_public/server.env
+mkdir -p ./lib/bento_public
 make init-bento-public
 ```
 
