@@ -21,7 +21,7 @@
         "artifact": "drop-box",
         "language": "python"
       },
-      "repository": "${BENTO_DROP_BOX_REPO}@${BENTO_DROP_BOX_TAG}",
+      "repository": "${BENTO_DROP_BOX_REPO}@${BENTO_DROP_BOX_TAG_OR_BRANCH}",
       "data_service": false,
       "wsgi": true,
       "python_module": "bento_drop_box_service.app",
