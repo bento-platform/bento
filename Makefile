@@ -4,13 +4,16 @@
 # import and setup global environment variables
 #<<<
 env ?= .env
+local_env ?= local.env
 gohan_env ?= ./lib/gohan/.env
 public_env ?= ./lib/bento_public/server.env
 
 include $(env)
+include $(local_env)
 include $(gohan_env)
 include $(public_env)
 export $(shell sed 's/=.*//' $(env))
+export $(shell sed 's/=.*//' $(local_env))
 export $(shell sed 's/=.*//' $(gohan_env))
 export $(shell sed 's/=.*//' $(public_env))
 

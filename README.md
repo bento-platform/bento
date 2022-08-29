@@ -24,11 +24,21 @@ First, run --
 
 ```
 cp ./etc/bento.env .env
+```
+Depending on your use either development or deployment you will need to cp the right template file
+```
+# Dev
+cp ./etc/bento_dev.env local.env
 
+# Deployment
+cp ./etc/bento_deploy.env local.env
+```
+
+Then, run --
+```
 # public service configuration file. Required if BENTOV2_USE_BENTO_PUBLIC flag is set to `1`
 # See Katsu documentation for more information about the specifications
 cp ./etc/katsu.config.example.json ./lib/katsu/config.json
-
 ```
 
 -then modify the values as seen applicable..
