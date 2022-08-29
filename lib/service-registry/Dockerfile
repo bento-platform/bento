@@ -10,10 +10,9 @@ RUN mkdir /service-registry
 WORKDIR /service-registry
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}" && \
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH}  && \
     ls /service-registry
 
 WORKDIR /service-registry/bento_service_registry

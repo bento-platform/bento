@@ -5,7 +5,7 @@
         "artifact": "service-registry",
         "language": "python"
       },
-      "repository": "${BENTO_SERVICE_REGISTRY_REPO}@${BENTO_SERVICE_REGISTRY_TAG}",
+      "repository": "${BENTO_SERVICE_REGISTRY_REPO}@${BENTO_SERVICE_REGISTRY_TAG_OR_BRANCH}",
       "data_service": false,
       "wsgi": true,
       "python_module": "bento_service_registry.app",
