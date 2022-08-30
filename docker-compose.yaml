@@ -93,7 +93,7 @@ services:
         BASE_IMAGE: ${BENTOV2_WEB_BASE_IMAGE}
         BASE_IMAGE_VERSION: ${BENTOV2_WEB_BASE_IMAGE_VERSION}
         BENTO_WEB_REPO: ${BENTO_WEB_REPO}
-        BENTO_WEB_TAG_OR_BRANCH: ${BENTO_WEB_TAG_OR_BRANCH}
+        TAG_OR_BRANCH: ${BENTOV2_WEB_TAG_OR_BRANCH}
         BENTO_WEB_IS_DEBUG: "false"
         BENTO_WEB_USER: ${CURRENT_UID}
         BENTO_CUSTOM_HEADER: ${BENTO_WEB_CUSTOM_HEADER} # pass in at build time as an arg (becomes an client-side env)
