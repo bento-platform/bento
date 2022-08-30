@@ -124,22 +124,10 @@ init-bento-public:
 	\
 	if [ ! -d "./bento_public" ]; then \
 		echo "-- Cloning Bento-Public --" ; \
-		git clone ${BENTO_PUBLIC_REPO} ; \
+		RUN git clone ${BENTO_PUBLIC_REPO} --depth 1 -b ${BENTO_PUBLIC_TAG_OR_BRANCH} \
 	else \
 		echo "-- Bento-Public already cloned --" ; \
-	fi && \
-	\
-	cd bento_public && \
-	\
-	git fetch && \
-	git checkout "${BENTO_PUBLIC_BRANCH}" && \
-	git pull && \
-	if [[ -n "${BENTO_PUBLIC_TAG}" ]]; then \
-    	git checkout tags/${BENTO_PUBLIC_TAG} ; \
-	else \
-		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
 	fi
-
 
 #>>>
 # create secrets for Bento v2 services
