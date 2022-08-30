@@ -109,7 +109,7 @@
         "artifact": "event-relay",
         "language": "javascript"
       },
-      "repository": "${BENTO_EVENT_RELAY_REPO}@${BENTO_EVENT_RELAY_TAG}",
+      "repository": "${BENTO_EVENT_RELAY_REPO}@${BENTOV2_EVENT_RELAY_TAG_OR_BRANCH}",
       "data_service": false,
       "wsgi": false,
       "service_runnable": "bento-event-relay",

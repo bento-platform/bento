@@ -16,11 +16,10 @@ WORKDIR /event-relay
 RUN mkdir -p /event-relay/data
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-# Clone the repo
-RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}"
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH}
+
 
 WORKDIR /event-relay/bento_event_relay
 
