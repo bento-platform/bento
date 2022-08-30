@@ -145,7 +145,7 @@
         "artifact": "drs",
         "language": "python"
       },
-      "repository": "${BENTO_DRS_REPO}@${BENTO_DRS_TAG}",
+      "repository": "${BENTO_DRS_REPO}@${BENTOV2_DRS_TAG_OR_BRANCH}",
       "data_service": false,
       "wsgi": true,
       "python_module": "bento_drs.app",
