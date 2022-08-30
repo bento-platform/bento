@@ -72,7 +72,7 @@
         "artifact": "federation",
         "language": "python"
       },
-      "repository": "${BENTO_FEDERATION_REPO}@${BENTO_FEDERATION_TAG}",
+      "repository": "${BENTO_FEDERATION_REPO}@${BENTOV2_FEDERATION_TAG_OR_BRANCH}",
       "data_service": false,
       "wsgi": false,
       "service_runnable": "bento_federation_service",
