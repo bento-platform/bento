@@ -201,8 +201,7 @@ Or, alternatively:
 
 ```
 cd lib
-git clone https://github.com/bento-platform/gohan.git
-git fetch && git checkout master && git pull && git checkout tags/${GOHAN_TAG}
+git clone https://github.com/bento-platform/gohan.git --depth 1 -b ${GOHAN_TAG_OR_BRANCH}
 
 cd gohan
 ```

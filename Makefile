@@ -114,20 +114,9 @@ init-gohan:
 	\
 	if [ ! -d "./gohan" ]; then \
 		echo "-- Cloning Gohan --" ; \
-		git clone ${GOHAN_REPO} ; \
+		git clone ${GOHAN_REPO} --depth 1 -b ${TAG_OR_BRANCH} ; \
 	else \
 		echo "-- Gohan already cloned --" ; \
-	fi && \
-	\
-	cd gohan && \
-	\
-	git fetch && \
-	git checkout "${GOHAN_BRANCH}" && \
-	git pull && \
-	if [[ -n "${GOHAN_TAG}" ]]; then \
-    	git checkout tags/${GOHAN_TAG} ; \
-	else \
-		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
 	fi
 
 init-bento-public:

@@ -180,7 +180,7 @@
         "artifact": "gohan",
         "language": "go"
       },
-      "repository": "${GOHAN_REPO}@${GOHAN_TAG}",
+      "repository": "${GOHAN_REPO}@${GOHAN_TAG_OR_BRANCH}",
       "manageable_tables": true,
       "data_service": true
     }
