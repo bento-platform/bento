@@ -39,7 +39,7 @@
         "artifact": "wes",
         "language": "python"
       },
-      "repository": "${BENTO_WES_REPO}@${BENTO_WES_TAG}",
+      "repository": "${BENTO_WES_REPO}@${BENTOV2_WES_TAG_OR_BRANCH}",
       "data_service": false,
       "apt_dependencies": ["openjdk-11-jre-headless"],
       "pre_install_commands": [

@@ -33,10 +33,9 @@ WORKDIR /wes
 COPY chord_services.json ./chord_services.json
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}"
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH}
 RUN ls /wes
 
 WORKDIR /wes/bento_wes
