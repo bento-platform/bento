@@ -90,7 +90,7 @@
         "artifact": "notification",
         "language": "python"
       },
-      "repository": "${BENTO_NOTIFICATION_REPO}@${BENTO_NOTIFICATION_TAG}",
+      "repository": "${BENTO_NOTIFICATION_REPO}@${BENTOV2_NOTIFICATION_TAG_OR_BRANCH}",
       "data_service": false,
       "pre_start_commands": [
         "flask db upgrade"
