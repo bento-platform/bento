@@ -17,13 +17,12 @@ RUN mkdir /app && \
 WORKDIR /app
 
 ARG KATSU_REPO
-ARG KATSU_BRANCH
-ARG KATSU_TAG
+ARG TAG_OR_BRANCH
 
 ARG PROJECT_DIRECTORY
 
 # Clone the repo
-RUN git clone --depth 1 -b "${KATSU_TAG:-$KATSU_BRANCH}" "${KATSU_REPO}"
+RUN git clone ${KATSU_REPO} --depth 1 -b ${TAG_OR_BRANCH}
 
 WORKDIR ${PROJECT_DIRECTORY}
 
