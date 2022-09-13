@@ -24,6 +24,9 @@ First, run --
 
 ```
 cp ./etc/bento.env .env
+
+# public service configuration file. Required if BENTOV2_USE_BENTO_PUBLIC flag is set to `1`
+# See Katsu documentation for more information about the specifications
 cp ./etc/katsu.config.example.json ./lib/katsu/config.json
 
 ```
@@ -50,7 +53,9 @@ On MacOS and some other OSes, `DOLLAR` must be changed from `$` to `$$`
 ```
 DOLLAR=$$
 ```
-If the internal IdP is being used (by default, Keycloak), credential variables should also be provided
+If the internal IdP is being used (by default, Keycloak), credential variables should also be provided. The *admin* credentials are used to connect to the Keycloak UI
+for authentication management (adding users, getting client credentials,...).
+The *test* credentials will be used to authenticate on the Bento Portal.
 
 ```
 BENTOV2_AUTH_ADMIN_USER=testadmin
@@ -67,78 +72,17 @@ BENTOV2_AUTH_REALM=bentov2
 BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
 ```
 
-```
-./lib/katsu/config.json
-
-{
-	"age": {
-	  "type": "number",
-	  "title": "Age",
-	  "bin_size": 10,
-	  "is_range": true,
-	  "queryable": true,
-	  "taper_left": 40,
-	  "taper_right": 60,
-	  "units": "years",
-	  "minimum": 0,
-	  "description": "Age at arrival"
-	},
-	"sex": {
-	  "type": "string",
-	  "enum": [
-		"Male",
-		"Female"
-	  ],
-	  "title": "Sex",
-	  "queryable": true,
-	  "description": "Sex at birth"
-	},
-	"extra_properties": {
-	  "date_of_consent": {
-		"type": "string",
-		"format": "date",
-		"title": "Consent date",
-		"chart": "bar",
-		"queryable": true
-	  },
-	  "smoking": {
-		"type": "string",
-		"enum": [
-		  "Non-smoker",
-		  "Smoker",
-		  "Former smoker",
-		  "Passive smoker",
-		  "Not specified"
-		],
-		"title": "Smoking",
-		"queryable": true,
-		"description": "Smoking status"
-	  },
-	  "lab_test_result_value": {
-		"type": "number",
-		"title": "Lab Test Result",
-		"bin_size": 50,
-		"is_range": true,
-		"queryable": true,
-		"taper_left": 50,
-		"taper_right": 800,
-		"units": "mg/L",
-		"minimum": 0,
-		"maximum": 999,
-		"description": ""
-	  }
-	}
-  }
-  
-```
-
 ### Clone Gohan repository in ./lib and setup Gohan's environment variables
 Depending on your git setup, clone Gohan's repository
 ```terminal
 cd lib
 clone git@github.com:bento-platform/gohan.git
 ```
-Follow the instructions from Gohan's README to set up the environment file
+Follow the instructions from Gohan's README to set up the environment file.
+
+> IMPORTANT: when Gohan is used in the context of Bento (in other words, not as
+a standalone application), the paths in Gohan's .env file should be made **absolute**
+due to the different directories Gohan's Makefile can be called from.
 
 ### Clone Bento_public repository in ./lib and setup bento_public's environment variables
 Depending on your git setup, clone bento_public repository
@@ -153,14 +97,14 @@ Follow the instructions from bento_public README to set up the `client.env` and
 
 First, setup your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development with the following steps;
 
-From the project root, run 
+From the project root, run
 ```
 mkdir -p ./lib/gateway/certs
 ```
 
 > NOTE: In the steps below, ensure the domain names in `.env` and the cert Common Names match up
 
-Then run 
+Then run
 ```
 openssl req -newkey rsa:2048 -nodes \
     -keyout ./lib/gateway/certs/privkey1.key -x509 \
@@ -172,7 +116,7 @@ openssl req -newkey rsa:2048 -nodes \
 ```
 to create the bentov2 cert for `bentov2.local` (or whatever other domain you use)
 
-Next, if you're running an OIDC provider container locally (default is Keycloak), run 
+Next, if you're running an OIDC provider container locally (default is Keycloak), run
 ```
 openssl req -newkey rsa:2048 -nodes \
     -keyout ./lib/gateway/certs/auth_privkey1.key -x509 \
@@ -210,16 +154,23 @@ make auth-setup
 
 This last step boots and configures the local OIDC provider (**Keycloak**) container and reconfigure the gateway to utilize new variables generated during the OIDC configuration.
 
-> NOTE: by default, the `gateway` service *does* need to be running for this to work as the configuration will pass via the URL set in the `.env` file which points to the gateway. 
+> NOTE: by default, the `gateway` service *does* need to be running for this to work as the configuration will pass via the URL set in the `.env` file which points to the gateway.
 >
 > If you do not plan to use the built-in OIDC provider, you will have to handle the `auth_config` and `instance_config` manually (see `./etc/auth/..` and `./etc/scripts/..` for further details)
 
+The `CLIENT_SECRET` environment variable must be set using the value provided
+by Keycloak. Using a browser, connect to the `auth` endpoint (by default `https://bentov2auth.local`) and use the admin credentials from the env file. Once within
+Keycloak interface, navigate to the *Configure/Clients* menu. Select `local_bentov2`
+in the list of clients and switch to the *Credentials* tab. Copy the secret from
+there and paste it in your .env file.
+
+![Keycloak UI: get client secret](docs/img/keycloak_client_secret.png)
 
 ### Setup Bento-Public
 
 Run
 ```
-mkdir -p ./lib/bento_public/server.env
+mkdir -p ./lib/bento_public
 make init-bento-public
 ```
 
