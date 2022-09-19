@@ -20,11 +20,7 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 ## Installation
 
 ### Provision configuration files
-First, run --
 
-```
-cp ./etc/bento.env .env
-```
 Depending on your use either development or deployment you will need to cp the right template file
 ```
 # Dev
