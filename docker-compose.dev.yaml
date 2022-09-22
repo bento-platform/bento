@@ -149,6 +149,103 @@ services:
     command: >
       sh -c /drs/bento_drs/chord_drs/startup.sh
 
+  service-registry:
+    build:
+      context: $PWD/lib/service-registry
+      dockerfile: Dockerfile.dev
+      args:
+        BASE_IMAGE: ${BENTOV2_SERVICE_REGISTRY_BASE_IMAGE}
+        BASE_IMAGE_VERSION: ${BENTOV2_SERVICE_REGISTRY_BASE_IMAGE_VERSION}
+        REPO: ${BENTO_SERVICE_REGISTRY_REPO}
+        BRANCH: ${BENTO_SERVICE_REGISTRY_BRANCH}
+        TAG: ${BENTO_SERVICE_REGISTRY_TAG}
+    image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION}
+    container_name: ${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}
+    environment: 
+      # Runtime
+      - FLASK_DEBUG=False
+      - FLASK_APP=bento_service_registry.app
+
+      # Following the chord_services.json schema
+      # (https://github.com/c3g/chord_singularity/blob/master/chord_services.schema.json)
+      # A list of services on a single domain which are registered in the service
+      # registry instance.
+      - CHORD_SERVICES=chord_services.json
+
+      # Common URL base for all services
+      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
+
+      - CHORD_DEBUG=True
+
+      # Timeout, in seconds (integers only), for contacting services from the JSON
+      - CONTACT_TIMEOUT=1
+
+      # Service ID for the /service-info endpoint
+      - SERVICE_ID=ca.c3g.bento:${BENTOV2_SERVICE_REGISTRY_VERSION}
+
+      # Python path template for the services, off of the CHORD_URL value
+      # Currently only supports artifact-based paths
+      - URL_PATH_FORMAT=api/{artifact}
+
+      - INTERNAL_PORT=${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
+
+    networks: 
+      - bridge-net
+    expose:
+      - ${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
+    volumes:
+      - ./lib/service-registry/bento_service_registry:/service-registry/bento_service_registry/
+      - ./lib/service-registry/chord_services.json:/service-registry/bento_service_registry/chord_services.json:rw
+    mem_limit: ${BENTOV2_SERVICE_REGISTRY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_SERVICE_REGISTRY_CPUS}
+    cpu_shares: 256
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+    entrypoint: sh /service-registry/gunicorn_starter.sh
+
+  drop-box:
+      build:
+        context: $PWD/lib/drop-box
+        dockerfile: Dockerfile.dev
+        args:
+          BASE_IMAGE: ${BENTOV2_DROP_BOX_BASE_IMAGE}
+          BASE_IMAGE_VERSION: ${BENTOV2_DROP_BOX_BASE_IMAGE_VERSION}
+          REPO: ${BENTO_DROP_BOX_REPO}
+          BRANCH: ${BENTO_DROP_BOX_BRANCH}
+          TAG: ${BENTO_DROP_BOX_TAG}
+      image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
+      container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
+      environment: 
+        # Runtime
+        - FLASK_DEBUG=True
+        - FLASK_APP=bento_drop_box_service.app
+        # Storage
+        # - MINIO_URL=${BENTOV2_DROP_BOX_MINIO_URL}
+        # - MINIO_USERNAME=${BENTOV2_DROP_BOX_MINIO_USERNAME}
+        # - MINIO_PASSWORD=${BENTOV2_DROP_BOX_MINIO_PASSWORD}
+        # - MINIO_BUCKET=${BENTOV2_DROP_BOX_MINIO_BUCKET}
+        - SERVICE_DATA=/data
+      networks: 
+        - bridge-net
+      expose:
+        - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
+      volumes:
+        - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
+      mem_limit: ${BENTOV2_DROP_BOX_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+      cpus: ${BENTOV2_DROP_BOX_CPUS}
+      cpu_shares: 1024
+      healthcheck:
+        test: [ "CMD", "curl", "https://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}" ]
+        timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+        interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+        retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+      entrypoint: sh /drop-box/gunicorn_starter.sh
+
 networks:
   bridge-net:
     external: true
+
+

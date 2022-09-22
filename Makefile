@@ -258,6 +258,19 @@ run-wes-dev:
 run-drs-dev:
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate drs
 
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-service-registry-dev:
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate service-registry
+
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-drop-box-dev:
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate drop-box
+
+
 
 #>>>
 # run a specific service
