@@ -33,9 +33,6 @@ RUN git config user.name "docker" && \
 
 
 # Install dependencies
-# -- fixes PEP 517 build error --
-RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
-# --
 RUN pip install -r requirements.txt;
 
 
