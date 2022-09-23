@@ -114,7 +114,9 @@ init-gohan:
 	\
 	if [ ! -d "./gohan" ]; then \
 		echo "-- Cloning Gohan --" ; \
-		git clone ${GOHAN_REPO} --depth 1 -b ${TAG_OR_BRANCH} ; \
+		if [[ !  -n "${GOHAN_TAG_OR_BRANCH}" ]] then \
+			echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
+		git clone ${GOHAN_REPO} -b ${GOHAN_TAG_OR_BRANCH} ; \
 	else \
 		echo "-- Gohan already cloned --" ; \
 	fi
@@ -124,7 +126,9 @@ init-bento-public:
 	\
 	if [ ! -d "./bento_public" ]; then \
 		echo "-- Cloning Bento-Public --" ; \
-		RUN git clone ${BENTO_PUBLIC_REPO} --depth 1 -b ${BENTO_PUBLIC_TAG_OR_BRANCH} \
+	if [[ !  -n "${BENTO_PUBLIC_TAG_OR_BRANCH}" ]] then \
+		echo "BENTO_PUBLIC_TAG_OR_BRANCH is not set, using master branch" ; \
+		git clone ${BENTO_PUBLIC_REPO} -b ${BENTO_PUBLIC_TAG_OR_BRANCH} \
 	else \
 		echo "-- Bento-Public already cloned --" ; \
 	fi

@@ -16,8 +16,6 @@ RUN mkdir /app && \
 
 WORKDIR /app
 
-ARG KATSU_REPO
-
 ARG PROJECT_DIRECTORY
 
 RUN echo "Building Katsu in Development Mode" ; 
