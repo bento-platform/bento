@@ -16,16 +16,15 @@ RUN mkdir /app && \
 
 WORKDIR /app
 
-ARG KATSU_REPO
-ARG KATSU_BRANCH
-ARG KATSU_TAG
-
 ARG PROJECT_DIRECTORY
 
 RUN echo "Building Katsu in Development Mode" ;
-# Copy the repo requirements.txt and install them
+# Copy the repo requirements.txt and requirements-dev.txt and install them
 # directly in the container before loading the project
 # directory as a volume
+# Note that requirements.txt is imported during pip installation via a directive
+# within requirements-dev.txt. It must be copied explicitly but is installed
+# implicitly.
 COPY ./katsu/requirements.txt ${PROJECT_DIRECTORY}/requirements.txt
 COPY ./katsu/requirements-dev.txt ${PROJECT_DIRECTORY}/requirements-dev.txt
 
