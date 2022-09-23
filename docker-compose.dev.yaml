@@ -161,7 +161,7 @@ services:
         TAG: ${BENTO_SERVICE_REGISTRY_TAG}
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION}
     container_name: ${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}
-    environment: 
+    environment:
       # Runtime
       - FLASK_DEBUG=False
       - FLASK_APP=bento_service_registry.app
@@ -189,7 +189,7 @@ services:
 
       - INTERNAL_PORT=${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
 
-    networks: 
+    networks:
       - bridge-net
     expose:
       - ${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
@@ -218,7 +218,7 @@ services:
           TAG: ${BENTO_DROP_BOX_TAG}
       image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
       container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
-      environment: 
+      environment:
         # Runtime
         - FLASK_DEBUG=True
         - FLASK_APP=bento_drop_box_service.app
@@ -228,7 +228,7 @@ services:
         # - MINIO_PASSWORD=${BENTOV2_DROP_BOX_MINIO_PASSWORD}
         # - MINIO_BUCKET=${BENTOV2_DROP_BOX_MINIO_BUCKET}
         - SERVICE_DATA=/data
-      networks: 
+      networks:
         - bridge-net
       expose:
         - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
@@ -247,5 +247,3 @@ services:
 networks:
   bridge-net:
     external: true
-
-
