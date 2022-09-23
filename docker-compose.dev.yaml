@@ -204,7 +204,7 @@ services:
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
-    entrypoint: sh /service-registry/gunicorn_starter.sh
+    entrypoint: sh -c "gunicorn bento_service_registry.app:application -w 1 --threads 1 -b 0.0.0.0:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}"
 
   drop-box:
       build:
