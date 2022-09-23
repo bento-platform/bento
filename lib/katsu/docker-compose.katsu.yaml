@@ -20,6 +20,7 @@ services:
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
       - CHORD_PERMISSIONS="${CHORD_METADATA_AUTH}"
       - CHORD_DEBUG=${CHORD_METADATA_DEBUG}
+      - CHORD_METADATA_SUB_PATH=${CHORD_METADATA_SUB_PATH}
       - POSTGRES_HOST=${BENTOV2_KATSU_DB_CONTAINER_NAME}
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
       - POSTGRES_PASSWORD_FILE=/run/secrets/metadata_db_secret
@@ -44,13 +45,13 @@ services:
       - ./config.json:${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}/chord_metadata_service/config.json
       # Temp WES dir
       - ${BENTOV2_KATSU_PROD_WES_VOL_TMP_DIR}:/wes/tmp
-    entrypoint: 
+    entrypoint:
       - /bin/sh
       - -c
       - |
         python manage.py makemigrations
         python manage.py migrate
-        gunicorn chord_metadata_service.metadata.wsgi:application -w 2 --threads 2 -b 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT} 
+        gunicorn chord_metadata_service.metadata.wsgi:application -w 2 --threads 2 -b 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT}
     mem_limit: ${BENTOV2_KATSU_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_KATSU_CPUS}
     cpu_shares: 1024
@@ -75,7 +76,7 @@ services:
         target: metadata_db_user
       - source: metadata-db-secret
         target: metadata_db_secret
-    volumes: 
+    volumes:
       - ${BENTOV2_KATSU_DB_PROD_VOL_DIR}:/var/lib/postgresql/data
     mem_limit: ${BENTOV2_KATSU_DB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_KATSU_DB_CPUS}
