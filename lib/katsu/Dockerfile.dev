@@ -18,19 +18,19 @@ WORKDIR /app
 
 ARG PROJECT_DIRECTORY
 
-RUN echo "Building Katsu in Development Mode" ; 
-# Copy the repo requirements.txt and install them
+RUN echo "Building Katsu in Development Mode" ;
+# Copy the repo requirements.txt and requirements-dev.txt and install them
 # directly in the container before loading the project
 # directory as a volume
+# Note that requirements.txt is imported during pip installation via a directive
+# within requirements-dev.txt. It must be copied explicitly but is installed
+# implicitly.
 COPY ./katsu/requirements.txt ${PROJECT_DIRECTORY}/requirements.txt
+COPY ./katsu/requirements-dev.txt ${PROJECT_DIRECTORY}/requirements-dev.txt
 
 WORKDIR ${PROJECT_DIRECTORY}
 
-# Install dependencies
-# -- fixes PEP 517 build error --
-RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
-# --
 RUN python -m venv .venv  && \
-    pip install debugpy -r requirements.txt;
+    pip install debugpy -r requirements-dev.txt;
 
 # See docker-compose.dev.yaml ..
