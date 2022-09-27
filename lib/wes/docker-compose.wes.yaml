@@ -66,4 +66,9 @@ services:
       # Direct mount of the DRS data volume. The rationale is to avoid duplicating
       # potentially huge genomic files using http transfers for performing some
       # processing tasks.
+      # Note: the internal path that is configured here, is the same as the one
+      # in DRS. This design allows to directly use the paths as they are stored in
+      # DRS DB, to get access to a file in WES.
+      # !!Important: if you change this, change also the workflows that rely on
+      # this assumption.
       - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/bento_drs/data
