@@ -42,7 +42,7 @@ RUN apk --update add jq \
     cpanm --installdeps --with-recommends --notest --cpanfile ensembl-vep/cpanfile . && \
     cd ensembl-vep && \
     # Build vep in /ensembl-vep
-    perl INSTALL.pl -a a --NO_TEST && \
+    perl INSTALL.pl -a a --NO_TEST --NO_UPDATE && \
     cd .. && \
     rm -rf htslib samtools bcftools && \
     git clone https://github.com/mskcc/vcf2maf.git && \
@@ -72,7 +72,7 @@ WORKDIR /wes/bento_wes
 # directory as a volume
 COPY ./bento_wes/requirements.txt /wes/bento_wes/requirements.txt
 
-RUN ["pip", "install", "debugpy", "-r", "requirements.txt"]
+RUN ["pip", "install", "-r", "requirements.txt"]
 
 # Run
 WORKDIR /wes
