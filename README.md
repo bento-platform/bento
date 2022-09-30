@@ -256,6 +256,26 @@ make run-gohan
 to start `bentov2-gohan-api` and `bentov2-gohan-elasticsearch` containers.
 
 
+## cBioPortal related setup (optional)
+The cBioPortal is a distinct project that offers analysis tools dedicated to
+cancer studies. The data stored in Bento can be extracted and ingested into
+a local cBioPortal instance.
+
+To download the minimal data required for initializing cBioPortal:
+```bash
+make init-cbioportal
+```
+
+cBioPortal requires some processing of Bento data, in particular the generation of MAF files from
+VCF files for the analysis of mutations. This leverages the Ensemble-VEP library
+hosted by the WES in Bento. Local caches are required for running
+Ensembl-VEP offline. The WES container must be running and ready for the installation of the local caches to work.
+```terminal
+make run-wes           # first execution can take between 10-20min
+make init-wes-cache    # downloads ~2GB of data via FTP, recompresses and indexes files. Can take 3h
+```
+
+
 
 ### Start the cluster
 
