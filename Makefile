@@ -9,8 +9,8 @@ gohan_env ?= ./lib/gohan/.env
 public_env ?= ./lib/bento_public/server.env
 
 include $(env)
-include $(gohan_env)
-include $(public_env)
+-include $(gohan_env)
+-include $(public_env)
 include $(local_env)
 
 export $(shell sed 's/=.*//' $(env))
@@ -114,8 +114,7 @@ init-gohan:
 	\
 	if [ ! -d "./gohan" ]; then \
 		echo "-- Cloning Gohan --" ; \
-		if [[ !  -n "${GOHAN_TAG_OR_BRANCH}" ]] then \
-			echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
+		[[  -z "${GOHAN_TAG_OR_BRANCH}" ]] && echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
 		git clone ${GOHAN_REPO} -b ${GOHAN_TAG_OR_BRANCH} ; \
 	else \
 		echo "-- Gohan already cloned --" ; \
@@ -126,8 +125,7 @@ init-bento-public:
 	\
 	if [ ! -d "./bento_public" ]; then \
 		echo "-- Cloning Bento-Public --" ; \
-	if [[ !  -n "${BENTO_PUBLIC_TAG_OR_BRANCH}" ]] then \
-		echo "BENTO_PUBLIC_TAG_OR_BRANCH is not set, using master branch" ; \
+		[[  -z "${BENTO_PUBLIC_TAG_OR_BRANCH}" ]] && echo "BENTO_PUBLIC_TAG_OR_BRANCH is not set, using master branch" ; \
 		git clone ${BENTO_PUBLIC_REPO} -b ${BENTO_PUBLIC_TAG_OR_BRANCH} \
 	else \
 		echo "-- Bento-Public already cloned --" ; \
