@@ -82,7 +82,7 @@ BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openi
 Depending on your git setup, clone Gohan's repository
 ```terminal
 cd lib
-clone git@github.com:bento-platform/gohan.git
+clone https://github.com/bento-platform/gohan.git
 ```
 Follow the instructions from Gohan's README to set up the environment file.
 
@@ -94,7 +94,7 @@ due to the different directories Gohan's Makefile can be called from.
 Depending on your git setup, clone bento_public repository
 ```terminal
 cd lib
-clone git@github.com:bento-platform/bento_public.git
+clone https://github.com/bento-platform/bento_public.git
 ```
 Follow the instructions from bento_public README to set up the `client.env` and
 `server.env` files in the `.lib/bento_public/` directory.
@@ -119,6 +119,11 @@ openssl req -newkey rsa:2048 -nodes \
 openssl req -newkey rsa:2048 -nodes \
     -keyout ./lib/gateway/certs/portal_privkey1.key -x509 \
     -days 365 -out ./lib/gateway/certs/portal_fullchain1.crt
+
+# (optionally)
+openssl req -newkey rsa:2048 -nodes \
+    -keyout ./lib/gateway/certs/cbioportal_privkey1.key -x509 \
+    -days 365 -out ./lib/gateway/certs/cbioportal_fullchain1.crt
 ```
 to create the bentov2 cert for `bentov2.local` (or whatever other domain you use)
 
