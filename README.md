@@ -41,7 +41,7 @@ cp ./etc/katsu.config.example.json ./lib/katsu/config.json
 For example;
 
 ```
-.env
+local.env
 
 BENTOV2_DOMAIN=bentov2.local
 BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
