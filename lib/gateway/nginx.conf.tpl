@@ -5,6 +5,7 @@ env CHORD_DEBUG;
 env CHORD_PERMISSIONS;
 env CHORD_PRIVATE_MODE;
 env CHORD_URL;
+env CBIOPORTAL_URL;
 
 env OIDC_DISCOVERY_URI;
 env REDIRECT_AFTER_LOGOUT_URI;
@@ -154,7 +155,6 @@ http {
         set ${DOLLAR}session_strategy        regenerate;
 
         # -- Use cBioPortal Starts Here --
-        # Public Web
         location / {
             limit_req zone=global_limit burst=10;
 
@@ -173,7 +173,7 @@ http {
 
             set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
 
-            access_by_lua_file /usr/local/openresty/nginx/proxy_auth.lua;
+            access_by_lua_file /usr/local/openresty/nginx/proxy_auth_cbioportal.lua;
 
             set ${DOLLAR}upstream_cbioportal http://${CBIOPORTAL_CONTAINER_NAME}:${CBIOPORTAL_INTERNAL_PORT};
             proxy_pass    ${DOLLAR}upstream_cbioportal;

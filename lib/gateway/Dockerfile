@@ -11,6 +11,7 @@ COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 # LUA stuff
 COPY node_info.lua /usr/local/openresty/nginx/node_info.lua
 COPY proxy_auth.lua /usr/local/openresty/nginx/proxy_auth.lua
+COPY proxy_auth_cbioportal.lua /usr/local/openresty/nginx/proxy_auth_cbioportal.lua
 
 
 # Update and install dependencies
