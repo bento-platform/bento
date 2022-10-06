@@ -168,6 +168,13 @@ http {
 
             proxy_ignore_client_abort on;
 
+            set ${DOLLAR}request_url ${DOLLAR}request_uri;
+            set ${DOLLAR}url ${DOLLAR}uri;
+
+            set_by_lua_block ${DOLLAR}original_uri { return ngx.var.uri }
+
+            access_by_lua_file /usr/local/openresty/nginx/proxy_auth.lua;
+
             set ${DOLLAR}upstream_cbioportal http://${CBIOPORTAL_CONTAINER_NAME}:${CBIOPORTAL_INTERNAL_PORT};
             proxy_pass    ${DOLLAR}upstream_cbioportal;
 
