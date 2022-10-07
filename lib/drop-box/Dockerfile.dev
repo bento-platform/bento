@@ -6,7 +6,7 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 # TODO: change
 USER root
 
-RUN mkdir -p /drop-box
+RUN mkdir /drop-box
 WORKDIR /drop-box
 
 ARG REPO
@@ -16,8 +16,7 @@ ARG TAG
 #RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}" && \
 #    ls /drop-box;
 
-RUN echo "Building dop-box in Development Mode";
-
+RUN echo "Building drop-box in Development Mode";
 
 COPY ./bento_drop_box_service/requirements.txt /drop-box/bento_drop_box_service/requirements.txt 
 
@@ -25,10 +24,4 @@ WORKDIR /drop-box/bento_drop_box_service
 
 RUN pip install -r requirements.txt
 
-WORKDIR /drop-box
-
-COPY ./gunicorn_starter.sh .
-RUN chmod 775 ./gunicorn_starter.sh
-
-# Run
-ENTRYPOINT [ "./gunicorn_starter.sh" ]
+WORKDIR /drop-box/bento_drop_box_service
