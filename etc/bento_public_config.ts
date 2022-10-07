@@ -94,9 +94,9 @@ type field_base_type = {
      * of individuals for which a given type of experiment can be found. In the
      * first case, the base model is Experiments, in the later it is Individual.
      * @example
-     * mapping_for_query: 'individual/biosamples/experiments/experiment_type
+     * mapping_for_search_filter: 'individual/biosamples/experiments/experiment_type
      */
-    mapping_for_query?: string
+    mapping_for_search_filter?: string
     /**
      * Displayed name for the chart
      * @example
