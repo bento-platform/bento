@@ -9,13 +9,6 @@ USER root
 RUN mkdir -p /service-registry/bento_service_registry
 WORKDIR /service-registry/bento_service_registry
 
-ARG REPO
-ARG BRANCH
-ARG TAG
-
-#RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}" && \
-#    ls /service-registry
-
 # Copy the repo requirements.txt and install them
 # directly in the container before loading the project
 # directory as a volume
