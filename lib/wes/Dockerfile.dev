@@ -38,7 +38,7 @@ WORKDIR /wes/bento_wes
 # directory as a volume
 COPY ./bento_wes/requirements.txt /wes/bento_wes/requirements.txt
 
-RUN ["pip", "install", "debugpy", "-r", "requirements.txt"]
+RUN ["pip", "install", "-r", "requirements.txt"]
 
 # Run
 WORKDIR /wes
