@@ -8,6 +8,9 @@ local_env ?= local.env
 gohan_env ?= ./lib/gohan/.env
 public_env ?= ./lib/bento_public/server.env
 
+
+# a lot of the commands are ran before the gohan and public env files exist
+# "-" sign prevents make from failing if the file does not exist
 include $(env)
 -include $(gohan_env)
 -include $(public_env)
@@ -117,17 +120,23 @@ init-gohan:
 		[[  -z "${GOHAN_TAG_OR_BRANCH}" ]] && echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
 		git clone ${GOHAN_REPO} -b ${GOHAN_TAG_OR_BRANCH} ; \
 	else \
+	    cd gohan && \
+		git fetch; \
+		git checkout ${GOHAN_TAG_OR_BRANCH}; \
 		echo "-- Gohan already cloned --" ; \
 	fi
 
+
 init-bento-public:
 	@cd lib && \
-	\
 	if [ ! -d "./bento_public" ]; then \
 		echo "-- Cloning Bento-Public --" ; \
 		[[  -z "${BENTO_PUBLIC_TAG_OR_BRANCH}" ]] && echo "BENTO_PUBLIC_TAG_OR_BRANCH is not set, using master branch" ; \
-		git clone ${BENTO_PUBLIC_REPO} -b ${BENTO_PUBLIC_TAG_OR_BRANCH} \
+		git clone ${BENTO_PUBLIC_REPO} -b ${BENTO_PUBLIC_TAG_OR_BRANCH}; \
 	else \
+	    cd bento_public && \
+		git fetch; \
+		git checkout ${BENTO_PUBLIC_TAG_OR_BRANCH}; \
 		echo "-- Bento-Public already cloned --" ; \
 	fi
 
