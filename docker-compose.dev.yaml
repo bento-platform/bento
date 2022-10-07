@@ -154,7 +154,7 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - ./lib/service-registry/bento_service_registry:/service-registry/bento_service_registry/
-      - ./lib/service-registry/chord_services.json:/service-registry/bento_service_registry/chord_services.json:r
+      - ./lib/service-registry/chord_services.json:/service-registry/bento_service_registry/chord_services.json:ro
     environment:
       - FLASK_DEBUG=True
     extends:
