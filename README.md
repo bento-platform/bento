@@ -20,22 +20,28 @@ The Makefile contains a set of tools to faciliate testing, development, and depl
 ## Installation
 
 ### Provision configuration files
-First, run --
 
+Depending on your use either development or deployment you will need to cp the right template file
 ```
-cp ./etc/bento.env .env
+# Dev
+cp ./etc/bento_dev.env local.env
 
+# Deployment
+cp ./etc/bento_deploy.env local.env
+```
+
+Then, run --
+```
 # public service configuration file. Required if BENTOV2_USE_BENTO_PUBLIC flag is set to `1`
 # See Katsu documentation for more information about the specifications
 cp ./etc/katsu.config.example.json ./lib/katsu/config.json
-
 ```
 
 -then modify the values as seen applicable..
 For example;
 
 ```
-.env
+local.env
 
 BENTOV2_DOMAIN=bentov2.local
 BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
@@ -195,8 +201,7 @@ Or, alternatively:
 
 ```
 cd lib
-git clone https://github.com/bento-platform/gohan.git
-git fetch && git checkout master && git pull && git checkout tags/${GOHAN_TAG}
+git clone https://github.com/bento-platform/gohan.git -b ${GOHAN_TAG_OR_BRANCH}
 
 cd gohan
 ```

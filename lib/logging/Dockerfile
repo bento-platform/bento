@@ -10,10 +10,9 @@ RUN mkdir /logging
 WORKDIR /logging
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}" && \
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH} && \
     ls /logging
 
 WORKDIR /logging/bento_log_service

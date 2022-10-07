@@ -3,16 +3,24 @@
 #>>>
 # import and setup global environment variables
 #<<<
-env ?= .env
+env ?= ./etc/bento.env
+local_env ?= local.env
 gohan_env ?= ./lib/gohan/.env
 public_env ?= ./lib/bento_public/server.env
 
+
+# a lot of the commands are ran before the gohan and public env files exist
+# "-" sign prevents make from failing if the file does not exist
 include $(env)
-include $(gohan_env)
-include $(public_env)
+-include $(gohan_env)
+-include $(public_env)
+include $(local_env)
+
 export $(shell sed 's/=.*//' $(env))
 export $(shell sed 's/=.*//' $(gohan_env))
 export $(shell sed 's/=.*//' $(public_env))
+export $(shell sed 's/=.*//' $(local_env))
+
 
 #>>>
 # set default shell
@@ -109,43 +117,28 @@ init-gohan:
 	\
 	if [ ! -d "./gohan" ]; then \
 		echo "-- Cloning Gohan --" ; \
-		git clone ${GOHAN_REPO} ; \
+		[[  -z "${GOHAN_TAG_OR_BRANCH}" ]] && echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
+		git clone ${GOHAN_REPO} -b ${GOHAN_TAG_OR_BRANCH} ; \
 	else \
+	    cd gohan && \
+		git fetch; \
+		git checkout ${GOHAN_TAG_OR_BRANCH}; \
 		echo "-- Gohan already cloned --" ; \
-	fi && \
-	\
-	cd gohan && \
-	\
-	git fetch && \
-	git checkout "${GOHAN_BRANCH}" && \
-	git pull && \
-	if [[ -n "${GOHAN_TAG}" ]]; then \
-    	git checkout tags/${GOHAN_TAG} ; \
-	else \
-		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
 	fi
+
 
 init-bento-public:
 	@cd lib && \
-	\
 	if [ ! -d "./bento_public" ]; then \
 		echo "-- Cloning Bento-Public --" ; \
-		git clone ${BENTO_PUBLIC_REPO} ; \
+		[[  -z "${BENTO_PUBLIC_TAG_OR_BRANCH}" ]] && echo "BENTO_PUBLIC_TAG_OR_BRANCH is not set, using master branch" ; \
+		git clone ${BENTO_PUBLIC_REPO} -b ${BENTO_PUBLIC_TAG_OR_BRANCH}; \
 	else \
+	    cd bento_public && \
+		git fetch; \
+		git checkout ${BENTO_PUBLIC_TAG_OR_BRANCH}; \
 		echo "-- Bento-Public already cloned --" ; \
-	fi && \
-	\
-	cd bento_public && \
-	\
-	git fetch && \
-	git checkout "${BENTO_PUBLIC_BRANCH}" && \
-	git pull && \
-	if [[ -n "${BENTO_PUBLIC_TAG}" ]]; then \
-    	git checkout tags/${BENTO_PUBLIC_TAG} ; \
-	else \
-		echo "-- No git tag provided - skipping 'git checkout tags/...'" ; \
 	fi
-
 
 #>>>
 # create secrets for Bento v2 services

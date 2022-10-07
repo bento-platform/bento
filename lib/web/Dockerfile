@@ -21,8 +21,7 @@ RUN mkdir /web
 WORKDIR /web
 
 ARG BENTO_WEB_REPO
-ARG BENTO_WEB_BRANCH
-ARG BENTO_WEB_TAG
+ARG TAG_OR_BRANCH
 
 ARG BENTO_WEB_IS_DEBUG
 
@@ -38,7 +37,7 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         echo "Building Web in Production Mode" ; \
         pwd ; ls -la ; \
         \
-        git clone --depth 1 -b "${BENTO_WEB_TAG:-$BENTO_WEB_BRANCH}" "${BENTO_WEB_REPO}"; \
+        git clone ${BENTO_WEB_REPO} --depth 1 -b ${TAG_OR_BRANCH}; \
         pwd ; ls -la ; \
         \
         cd ./bento_web ; \
