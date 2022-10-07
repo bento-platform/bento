@@ -22,8 +22,6 @@ RUN pip install -r requirements.txt
 # Run
 WORKDIR /service-registry/bento_service_registry
 
-COPY chord_services.json .
-
 COPY ./gunicorn_starter.sh .
 RUN chmod 775 ./gunicorn_starter.sh
 

@@ -12,7 +12,7 @@ services:
         TAG_OR_BRANCH: ${BENTOV2_WES_TAG_OR_BRANCH}
     image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION}
     container_name: ${BENTOV2_WES_CONTAINER_NAME}
-    environment: 
+    environment:
       - CHORD_SERVICES=/wes/chord_services.json
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
       - CELERY_RESULT_BACKEND=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
@@ -28,9 +28,9 @@ services:
       - WORKFLOW_HOST_ALLOW_LIST=${GOHAN_API_CONTAINER_NAME}:${GOHAN_API_INTERNAL_PORT},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
 
       # DRS configuration options:
-      # - Where the DRS instance to use is located. Technically, if not set this 
+      # - Where the DRS instance to use is located. Technically, if not set this
       #   defaults to using a different environment variable, NGINX_INTERNAL_SOCKET,
-      #   as a path to a Bento instance's internal NGINX UNIX socket and adding a 
+      #   as a path to a Bento instance's internal NGINX UNIX socket and adding a
       #   path to the actual DRS instance
       - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
       - WRITE_OUTPUT_TO_DRS=True
@@ -40,9 +40,10 @@ services:
       - TT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/tt
       - FLASK_ENV=development
       - CHORD_DEBUG=True
+      - FLASK_DEBUG=False
 
       - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
-    networks: 
+    networks:
       - bridge-net
     expose:
       - ${BENTOV2_WES_INTERNAL_PORT}
@@ -57,4 +58,4 @@ services:
     volumes:
       - ${BENTOV2_WES_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
-      - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data 
+      - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data
