@@ -163,41 +163,17 @@ services:
     entrypoint: sh -c "gunicorn bento_service_registry.app:application -w 1 --threads 1 -b 0.0.0.0:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}"
   drop-box:
       build:
-        context: $PWD/lib/drop-box
         dockerfile: Dockerfile.dev
-        args:
-          BASE_IMAGE: ${BENTOV2_DROP_BOX_BASE_IMAGE}
-          BASE_IMAGE_VERSION: ${BENTOV2_DROP_BOX_BASE_IMAGE_VERSION}
-          REPO: ${BENTO_DROP_BOX_REPO}
-          BRANCH: ${BENTO_DROP_BOX_BRANCH}
-          TAG: ${BENTO_DROP_BOX_TAG}
-      image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
-      container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
       environment:
         # Runtime
         - FLASK_DEBUG=True
-        - FLASK_APP=bento_drop_box_service.app
-        # Storage
-        # - MINIO_URL=${BENTOV2_DROP_BOX_MINIO_URL}
-        # - MINIO_USERNAME=${BENTOV2_DROP_BOX_MINIO_USERNAME}
-        # - MINIO_PASSWORD=${BENTOV2_DROP_BOX_MINIO_PASSWORD}
-        # - MINIO_BUCKET=${BENTOV2_DROP_BOX_MINIO_BUCKET}
-        - SERVICE_DATA=/data
-      networks:
-        - bridge-net
-      expose:
-        - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
       volumes:
+        - ./lib/drop-box/bento_drop_box_service:/drop-box/bento_drop_box_service/
         - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
-      mem_limit: ${BENTOV2_DROP_BOX_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-      cpus: ${BENTOV2_DROP_BOX_CPUS}
-      cpu_shares: 1024
-      healthcheck:
-        test: [ "CMD", "curl", "https://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}" ]
-        timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-        interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-        retries: ${BENTOV2_HEALTHCHECK_RETRIES}
-      entrypoint: sh /drop-box/gunicorn_starter.sh
+      extends:
+        file: docker-compose.yaml
+        service: drop-box
+      entrypoint: sh -c "gunicorn bento_drop_box_service.app:application -w 2 --threads 2 -b 0.0.0.0:5000"
 
 networks:
   bridge-net:
