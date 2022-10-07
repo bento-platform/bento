@@ -1,118 +1,116 @@
 {
-  "overview": [
-    {
-      "section_title": "Demographics",
-      "charts": [
-        {"field": "age", "chart_type": "bar"},
-        {"field": "sex", "chart_type": "pie"},
-        {"field": "date_of_consent", "chart_type": "bar"},
-        {"field": "mobility", "chart_type": "bar"},
-        {"field": "lab_test_result_value", "chart_type": "bar"}
-      ]
+    "overview": [
+        {
+            "section_title": "Demographics",
+            "charts": [
+                {"field": "age", "chart_type": "bar"},
+                {"field": "sex", "chart_type": "pie"},
+                {"field": "date_of_consent", "chart_type": "bar"},
+                {"field": "mobility", "chart_type": "bar"},
+                {"field": "lab_test_result_value", "chart_type": "bar"}
+            ]
+        },
+        {
+            "section_title": "Experiments",
+            "charts": [
+                {"field": "experiment_type", "chart_type": "pie"}
+            ]
+        }
+    ],
+    "search": [
+        {
+            "section_title": "Demographics",
+            "fields": ["age", "sex", "date_of_consent", "lab_test_result_value"]
+        },
+        {
+            "section_title": "Experiments",
+            "fields": ["experiment_type"]
+        }
+    ],
+    "fields": {
+        "age": {
+            "mapping": "individual/age_numeric",
+            "title": "Age",
+            "description": "Age at arrival",
+            "datatype": "number",
+            "config": {
+                "bin_size": 10,
+                "taper_left": 10,
+                "taper_right": 100,
+                "units": "years",
+                "minimum": 0,
+                "maximum": 100
+            }
+        },
+        "sex": {
+            "mapping": "individual/sex",
+            "title": "Sex",
+            "description": "Sex at birth",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "experiment_type": {
+            "mapping": "experiment/experiment_type",
+            "mapping_for_search_filter": "individual/biosamples/experiment/experiment_type",
+            "title": "Experiment Types",
+            "description": "Types of experiments performed on a sample",
+            "datatype": "string",
+            "config": {
+                "enum": ["DNA Methylation", "mRNA-Seq", "smRNA-Seq", "RNA-Seq", "WES", "Other"]
+            }
+        },
+        "date_of_consent": {
+            "mapping": "individual/extra_properties/date_of_consent",
+            "title": "Verbal consent date",
+            "description": "Date of initial verbal consent(participant, legal representative or tutor), yyyy-mm-dd",
+            "datatype": "date",
+            "config": {
+                "bin_by": "month"
+            }
+        },
+        "type_partic": {
+            "mapping": "individual/extra_properties/type_partic",
+            "title": "Participant type",
+            "description": "Has the patient been hospitalized or is the patient seen on as an outpatient?",
+            "datatype": "string",
+            "config": {
+                "enum": [
+                    "Hospitalized",
+                    "Outpatient"
+                ]
+            }
+        },
+        "mobility": {
+            "mapping": "individual/extra_properties/mobility",
+            "title": "Functional status",
+            "description": "Mobility",
+            "datatype": "string",
+            "config": {
+                "enum": [
+                    "I have no problems in walking about",
+                    "I have slight problems in walking about",
+                    "I have moderate problems in walking about",
+                    "I have severe problems in walking about",
+                    "I am unable to walk about"
+                ]
+            }
+        },
+        "lab_test_result_value": {
+            "mapping": "individual/extra_properties/lab_test_result_value",
+            "title": "Lab Test Result",
+            "description": "This acts as a placeholder for numeric values",
+            "datatype": "number",
+            "config": {
+                "bins": [200, 300, 500, 1000, 1500, 2000],
+                "minimum": 0,
+                "units": "mg/L"
+            }
+        }
     },
-    {
-      "section_title": "Experiments",
-      "charts": [
-        {"field": "experiment_type", "chart_type": "pie"}
-      ]
+    "rules": {
+        "count_threshold": 5,
+        "max_query_parameters": 2
     }
-  ],
-  "search": [
-    {
-      "section_title": "Demographics",
-      "fields": ["age", "sex", "date_of_consent"]
-    },
-    {
-      "section_title": "Results",
-      "fields": ["lab_test_result_value", "mobility"]
-    }
-  ],
-  "fields": {
-    "age": {
-      "mapping": "individual/age_numeric",
-      "title": "Age",
-      "description": "Age at arrival",
-      "datatype": "number",
-      "config": {
-        "bin_size": 10,
-        "taper_left": 10,
-        "taper_right": 100,
-        "units": "years",
-        "minimum": 0,
-        "maximum": 100
-      }
-    },
-    "sex": {
-      "mapping": "individual/sex",
-      "title": "Sex",
-      "description": "Sex at birth",
-      "datatype": "string",
-      "config": {
-        "enum": null
-      }
-    },
-    "experiment_type": {
-      "mapping": "experiment/experiment_type",
-      "title": "Experiment Types",
-      "description": "Types of experiments performed on a sample",
-      "datatype": "string",
-      "config": {
-        "enum": ["DNA Methylation", "mRNA-Seq", "smRNA-Seq", "RNA-Seq", "WES", "Other"]
-      }
-    },
-    "date_of_consent": {
-      "mapping": "individual/extra_properties/date_of_consent",
-      "title": "Verbal consent date",
-      "description": "Date of initial verbal consent(participant, legal representative or tutor), yyyy-mm-dd",
-      "datatype": "date",
-      "config": {
-        "bin_by": "month"
-      }
-    },
-    "type_partic": {
-      "mapping": "individual/extra_properties/type_partic",
-      "title": "Participant type",
-      "description": "Has the patient been hospitalized or is the patient seen on as an outpatient?",
-      "datatype": "string",
-      "config": {
-        "enum": [
-          "Hospitalized",
-          "Outpatient"
-        ]
-      }
-    },
-    "mobility": {
-      "mapping": "individual/extra_properties/mobility",
-      "title": "Functional status",
-      "description": "Mobility",
-      "datatype": "string",
-      "config": {
-        "enum": [
-          "I have no problems in walking about",
-          "I have slight problems in walking about",
-          "I have moderate problems in walking about",
-          "I have severe problems in walking about",
-          "I am unable to walk about"
-        ]
-      }
-    },
-    "lab_test_result_value": {
-      "mapping": "individual/extra_properties/lab_test_result_value",
-      "title": "Lab Test Result",
-      "description": "This acts as a placeholder for numeric values",
-      "datatype": "number",
-      "config": {
-        "bin_size": 50,
-        "taper_left": 50,
-        "taper_right": 800,
-        "minimum": 0,
-        "maximum": 1000,
-        "units": "mg/L"
-      }
-    }
-  },
-  "rules": {
-    "count_threshold": 5,
-    "max_query_parameters": 2
-  }
 }
