@@ -169,7 +169,6 @@ services:
         - FLASK_DEBUG=True
       volumes:
         - ./lib/drop-box/bento_drop_box_service:/drop-box/bento_drop_box_service/
-        - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
       extends:
         file: docker-compose.yaml
         service: drop-box
