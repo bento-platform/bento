@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-# -- base federation service
+
   beacon:
     build:
       context: $PWD/lib/beacon
@@ -17,8 +17,12 @@ services:
       - KATSU_BASE_URL=${BEACON_KATSU_BASE_URL}
       - GOHAN_BASE_URL=${BEACON_GOHAN_BASE_URL}
       - KATSU_TIMEOUT=${BEACON_KATSU_TIMEOUT}
+      - KATSU_BASE_URL=http://${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
       - GOHAN_TIMEOUT=${BEACON_GOHAN_TIMEOUT}
       - BEACON_INTERNAL_PORT=${BEACON_INTERNAL_PORT}
+      - BEACON_EXTERNAL_PORT=${BEACON_EXTERNAL_PORT}
+      - BEACON_DEBUGGER_INTERNAL_PORT=${BEACON_DEBUGGER_INTERNAL_PORT}
+      - BEACON_DEBUGGER_EXTERNAL_PORT=${BEACON_DEBUGGER_EXTERNAL_PORT}
     networks: 
       - bridge-net
     expose:
