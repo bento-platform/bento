@@ -183,17 +183,5 @@
       "repository": "${GOHAN_REPO}@${GOHAN_TAG}",
       "manageable_tables": true,
       "data_service": true
-    },
-    {
-      "type": {
-        "organization": "ca.c3g.chord",
-        "artifact": "beacon",
-        "language": "python"
-      },
-      "repository": "${BEACON_REPO}",
-      "data_service": false,
-      "wsgi": true,
-      "python_module": "bento_beacon.app",
-      "python_callable": "app"
     }
   ]
