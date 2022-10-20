@@ -2,7 +2,7 @@
 # ARG BASE_IMAGE_VERSION
 
 # debian image
-FROM python:3.6-slim-bullseye
+FROM python:3.8-slim-bullseye
 
 
 ARG BEACON
