@@ -149,6 +149,28 @@ services:
     command: >
       sh -c /drs/bento_drs/chord_drs/startup.sh
 
+  beacon:
+    build:
+      context: $PWD/lib/beacon
+      dockerfile: Dockerfile.dev
+    networks:
+      - bridge-net
+    environment:
+      - CHORD_DEBUG=true
+      - BEACON_DEBUG=true
+      - FLASK_ENV=development
+    extends:
+      file: $PWD/lib/beacon/docker-compose.beacon.yaml
+      service: beacon
+    volumes:
+      - ./lib/beacon/bento_beacon:/beacon/bento_beacon
+    ports:
+      - "${BEACON_EXTERNAL_PORT}:${BEACON_INTERNAL_PORT}"
+      - "${BEACON_DEBUGGER_EXTERNAL_PORT}:${BEACON_DEBUGGER_INTERNAL_PORT}"
+    command: >
+      sh -c "python -m debugpy --wait-for-client --listen 0.0.0.0:${BEACON_DEBUGGER_INTERNAL_PORT} -m flask run --no-debugger --no-reload --host=0.0.0.0 "
+
+
 networks:
   bridge-net:
     external: true

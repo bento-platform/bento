@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "entryTypes": {
+    "genomicVariant": {
+      "additionallySupportedSchemas": [],
+      "defaultSchema": {
+        "id": "ga4gh-beacon-variant-v2.0.0",
+        "name": "Default schema for a genomic variation",
+        "referenceToSchemaDefinition": "https://raw.githubusercontent.com/ga4gh-beacon/beacon-v2/main/models/json/beacon-v2-default-model/genomicVariations/defaultSchema.json",
+        "schemaVersion": "v2.0.0"
+      },
+      "description": "The location of a sequence.",
+      "id": "genomicVariant",
+      "name": "Genomic Variants",
+      "ontologyTermForThisType": {
+        "id": "ENSGLOSSARY:0000092",
+        "label": "Variant"
+      },
+      "partOfSpecification": "Beacon v2.0.0"
+    },
+    "individual": {
+      "additionallySupportedSchemas": [
+        {
+          "referenceToSchemaDefinition": "https://raw.githubusercontent.com/phenopackets/phenopacket-schema/master/src/main/proto/phenopackets/schema/v1/phenopackets.proto",
+          "schemaVersion": "phenopackets 1.0.0-RC3"
+        }
+      ],
+      "defaultSchema": {
+        "id": "ga4gh-beacon-individual-v2.0.0",
+        "name": "Default schema for an individual",
+        "referenceToSchemaDefinition": "https://raw.githubusercontent.com/ga4gh-beacon/beacon-v2/main/models/json/beacon-v2-default-model/individuals/defaultSchema.json",
+        "schemaVersion": "v2.0.0"
+      },
+      "description": "A human being. It could be a Patient, a Tissue Donor, a Participant, a Human Study Subject, etc.",
+      "id": "individual",
+      "name": "Individual",
+      "ontologyTermForThisType": {
+        "id": "NCIT:C25190",
+        "label": "Person"
+      },
+      "partOfSpecification": "Beacon v2.0.0"
+    },
+    "dataset": {
+      "id": "dataset",
+      "name": "Dataset",
+      "ontologyTermForThisType": {
+        "id": "NCIT:C47824",
+        "label": "Data set"
+      },
+      "partOfSpecification": "Beacon v2.0.0",
+      "description": "A Dataset is a collection of records, like rows in a database or cards in a cardholder.",
+      "defaultSchema": {
+        "id": "ga4gh-beacon-dataset-v2.0.0",
+        "name": "Default schema for datasets",
+        "referenceToSchemaDefinition": "https://raw.githubusercontent.com/ga4gh-beacon/beacon-v2/main/models/json/beacon-v2-default-model/datasets/defaultSchema.json",
+        "schemaVersion": "v2.0.0"
+      }
+    },
+    "cohort": {
+      "aCollectionOf": [
+        {
+          "id": "individual",
+          "name": "Individuals"
+        }
+      ],
+      "defaultSchema": {
+        "id": "cohort",
+        "name": "Default schema for cohorts",
+        "referenceToSchemaDefinition": "https://raw.githubusercontent.com/ga4gh-beacon/beacon-v2/main/models/json/beacon-v2-default-model/cohorts/defaultSchema.json",
+        "schemaVersion": "v2.0.0"
+      }
+    },
+    "maturityAttributes": {
+      "productionStatus": "DEV"
+    },
+    "securityAttributes": {
+      "defaultGranularity": "count",
+      "securityLevels": ["PUBLIC"]
+    }
+  }
+}
