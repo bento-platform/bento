@@ -13,20 +13,14 @@ ARG REPO
 ARG BRANCH
 ARG TAG
 
-RUN git clone "${REPO}"
-RUN ls /logging
+RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}" && \
+    ls /logging
 
 WORKDIR /logging/bento_log_service
-
-RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git checkout tags/${TAG}
 
 RUN ["pip", "install", "-r", "requirements.txt"]
 
 # Run
-WORKDIR /logging/bento_log_service
-
 COPY chord_services.json ./chord_services.json
 
 COPY ./gunicorn_starter.sh .

@@ -13,7 +13,9 @@ RUN apk update && \
     apk add git nginx && \
     apk upgrade
 
-COPY nginx.conf /etc/nginx/conf.d/nginx.conf
+# as of  BENTOV2_WEB_BASE_IMAGE_VERSION=16.13-alpine3.15 ,
+# override default nginx.conf file
+COPY nginx.conf /etc/nginx/nginx.conf
 
 RUN mkdir /web
 WORKDIR /web
@@ -36,16 +38,11 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
         echo "Building Web in Production Mode" ; \
         pwd ; ls -la ; \
         \
-        git clone "${BENTO_WEB_REPO}"; \
+        git clone --depth 1 -b "${BENTO_WEB_TAG:-$BENTO_WEB_BRANCH}" "${BENTO_WEB_REPO}"; \
         pwd ; ls -la ; \
         \
         cd ./bento_web ; \
         pwd ; ls -la ; \
-        \
-        git fetch ; \
-        git checkout "${BENTO_WEB_BRANCH}" ; \
-        git checkout tags/${BENTO_WEB_TAG} ; \
-        git pull ; \
         \
         rm -rf npm-shrinkwrap.json node_modules ; \
         npm cache clean --force ; \
@@ -56,12 +53,12 @@ RUN if [ "$BENTO_WEB_IS_DEBUG" = "true" ] ; then \
 
 # Copy startup scripts
 
-# TODO: parameterize and only copy the 
+# TODO: parameterize and only copy the
 # one that is used
 COPY ./dev_startup.sh /web/dev_startup.sh
 COPY ./startup.sh /web/startup.sh
 
 # fix crash at runtime
-RUN mkdir /run/nginx && \
+RUN mkdir -p /run/nginx && \
     touch /run/nginx/nginx.pid && \
     npm config set unsafe-perm true
