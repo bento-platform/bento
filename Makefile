@@ -258,6 +258,12 @@ run-wes-dev:
 run-drs-dev:
 	docker-compose -f docker-compose.dev.yaml up -d --force-recreate drs
 
+#>>>
+# ...
+#	see docker-compose.dev.yaml
+#<<<
+run-beacon-dev:
+	docker-compose -f docker-compose.dev.yaml up -d --force-recreate beacon
 # ...
 #	see docker-compose.dev.yaml
 #<<<
