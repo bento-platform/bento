@@ -14,15 +14,12 @@ WORKDIR /federation
 RUN mkdir -p /federation/data
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-RUN git clone "${REPO}" && \
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH} && \
     ls /federation
 WORKDIR /federation/bento_federation_service
-RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git checkout tags/${TAG}
+
 RUN ["pip", "install", "-r", "requirements.txt"]
 
 # Run

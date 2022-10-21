@@ -26,18 +26,18 @@ services:
         BASE_IMAGE_VERSION: ${BENTOV2_GATEWAY_BASE_IMAGE_VERSION}
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION}
     container_name: ${BENTOV2_GATEWAY_CONTAINER_NAME}
-    environment: 
+    environment:
       - CHORD_DEBUG=false
       - CHORD_PERMISSIONS=true
       - CHORD_PRIVATE_MODE=${BENTOV2_PRIVATE_MODE}
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
-      
+
       - OIDC_DISCOVERY_URI=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
       - REDIRECT_AFTER_LOGOUT_URI=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_REDIRECT_AFTER_LOGOUT_PATH}
       - CLIENT_ID=${BENTOV2_AUTH_CLIENT_ID}
       - TOKEN_ENDPOINT_AUTH_METHOD=client_secret_post
       - CLIENT_SECRET=${CLIENT_SECRET}
-    networks: 
+    networks:
       bridge-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -45,7 +45,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    volumes: 
+    volumes:
       - ${BENTOV2_GATEWAY_CERTS_DIR}:${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}
     mem_limit: ${BENTOV2_GATEWAY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_GATEWAY_CPUS}
@@ -67,7 +67,7 @@ services:
       - bridge-net
     volumes:
       - ${BENTOV2_AUTH_VOL_DIR}:/opt/jboss/keycloak/standalone/data
-    environment: 
+    environment:
       - PROXY_ADDRESS_FORWARDING=true
       - KEYCLOAK_USER_FILE=/run/secrets/keycloak-admin-user
       - KEYCLOAK_PASSWORD_FILE=/run/secrets/keycloak-admin-password
@@ -93,18 +93,17 @@ services:
         BASE_IMAGE: ${BENTOV2_WEB_BASE_IMAGE}
         BASE_IMAGE_VERSION: ${BENTOV2_WEB_BASE_IMAGE_VERSION}
         BENTO_WEB_REPO: ${BENTO_WEB_REPO}
-        BENTO_WEB_BRANCH: ${BENTO_WEB_BRANCH}
-        BENTO_WEB_TAG: ${BENTO_WEB_TAG}
+        TAG_OR_BRANCH: ${BENTOV2_WEB_TAG_OR_BRANCH}
         BENTO_WEB_IS_DEBUG: "false"
         BENTO_WEB_USER: ${CURRENT_UID}
         BENTO_CUSTOM_HEADER: ${BENTO_WEB_CUSTOM_HEADER} # pass in at build time as an arg (becomes an client-side env)
     image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION}
     container_name: ${BENTOV2_WEB_CONTAINER_NAME}
-    networks: 
+    networks:
       - bridge-net
-    expose: 
+    expose:
       - ${BENTOV2_WEB_INTERNAL_PORT}
-    # Execute npm build/install and watch, and 
+    # Execute npm build/install and watch, and
     # nginx "listener" upon container startup
     entrypoint: sh /web/startup.sh
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
@@ -121,7 +120,7 @@ services:
     build:
       context: $PWD/lib/katsu
       dockerfile: Dockerfile
-    networks: 
+    networks:
       - bridge-net
     depends_on:
       - katsu-db
@@ -131,7 +130,7 @@ services:
 
 
   katsu-db:
-    networks: 
+    networks:
       - bridge-net
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
@@ -145,11 +144,10 @@ services:
         BASE_IMAGE: ${BENTOV2_DROP_BOX_BASE_IMAGE}
         BASE_IMAGE_VERSION: ${BENTOV2_DROP_BOX_BASE_IMAGE_VERSION}
         REPO: ${BENTO_DROP_BOX_REPO}
-        BRANCH: ${BENTO_DROP_BOX_BRANCH}
-        TAG: ${BENTO_DROP_BOX_TAG}
+        TAG_OR_BRANCH: ${BENTOV2_DROP_BOX_TAG_OR_BRANCH}
     image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
     container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
-    environment: 
+    environment:
       # Runtime
       - FLASK_DEBUG=False
       - FLASK_APP=bento_drop_box_service.app
@@ -159,7 +157,7 @@ services:
       # - MINIO_PASSWORD=${BENTOV2_DROP_BOX_MINIO_PASSWORD}
       # - MINIO_BUCKET=${BENTOV2_DROP_BOX_MINIO_BUCKET}
       - SERVICE_DATA=/data
-    networks: 
+    networks:
       - bridge-net
     expose:
       - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
@@ -182,11 +180,10 @@ services:
         BASE_IMAGE: ${BENTOV2_SERVICE_REGISTRY_BASE_IMAGE}
         BASE_IMAGE_VERSION: ${BENTOV2_SERVICE_REGISTRY_BASE_IMAGE_VERSION}
         REPO: ${BENTO_SERVICE_REGISTRY_REPO}
-        BRANCH: ${BENTO_SERVICE_REGISTRY_BRANCH}
-        TAG: ${BENTO_SERVICE_REGISTRY_TAG}
+        TAG_OR_BRANCH: ${BENTOV2_SERVICE_REGISTRY_TAG_OR_BRANCH}
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION}
     container_name: ${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}
-    environment: 
+    environment:
       # Runtime
       - FLASK_DEBUG=False
       - FLASK_APP=bento_service_registry.app
@@ -214,10 +211,12 @@ services:
 
       - INTERNAL_PORT=${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
 
-    networks: 
+    networks:
       - bridge-net
     expose:
       - ${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
+    volumes:
+      - $PWD/lib/service-registry/chord_services.json:/service-registry/bento_service_registry/chord_services.json:ro
     mem_limit: ${BENTOV2_SERVICE_REGISTRY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_SERVICE_REGISTRY_CPUS}
     cpu_shares: 256
@@ -235,16 +234,15 @@ services:
         BASE_IMAGE: ${BENTOV2_LOGGING_BASE_IMAGE}
         BASE_IMAGE_VERSION: ${BENTOV2_LOGGING_BASE_IMAGE_VERSION}
         REPO: ${BENTO_LOGGING_REPO}
-        BRANCH: ${BENTO_LOGGING_BRANCH}
-        TAG: ${BENTO_LOGGING_TAG}
+        TAG_OR_BRANCH: ${BENTOV2_LOGGING_TAG_OR_BRANCH}
     image: ${BENTOV2_LOGGING_IMAGE}:${BENTOV2_LOGGING_VERSION}
     container_name: ${BENTOV2_LOGGING_CONTAINER_NAME}
-    environment: 
+    environment:
       # Runtime
       - FLASK_DEBUG=False
       - FLASK_APP=app
       - INTERNAL_PORT=${BENTOV2_LOGGING_INTERNAL_PORT}
-    networks: 
+    networks:
       - bridge-net
     expose:
       - ${BENTOV2_LOGGING_INTERNAL_PORT}
@@ -262,7 +260,7 @@ services:
     build:
       context: $PWD/lib/drs
       dockerfile: Dockerfile
-    networks: 
+    networks:
       - bridge-net
     extends:
       file: $PWD/lib/drs/docker-compose.drs.yaml
@@ -276,11 +274,10 @@ services:
         BASE_IMAGE: ${BENTOV2_NOTIFICATION_BASE_IMAGE}
         BASE_IMAGE_VERSION: ${BENTOV2_NOTIFICATION_BASE_IMAGE_VERSION}
         REPO: ${BENTO_NOTIFICATION_REPO}
-        BRANCH: ${BENTO_NOTIFICATION_BRANCH}
-        TAG: ${BENTO_NOTIFICATION_TAG}
+        TAG_OR_BRANCH: ${BENTOV2_NOTIFICATION_TAG_OR_BRANCH}
     image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION}
     container_name: ${BENTOV2_NOTIFICATION_CONTAINER_NAME}
-    environment: 
+    environment:
       - FLASK_DEBUG=False
       - FLASK_APP=app
       - DATABASE=/notification/data
@@ -288,8 +285,8 @@ services:
       - REDIS_PORT=${BENTOV2_REDIS_INTERNAL_PORT}
 
       - INTERNAL_PORT=${BENTOV2_NOTIFICATION_INTERNAL_PORT}
-    
-    networks: 
+
+    networks:
       - bridge-net
     expose:
       - ${BENTOV2_NOTIFICATION_INTERNAL_PORT}
@@ -309,7 +306,7 @@ services:
     build:
       context: $PWD/lib/federation
       dockerfile: Dockerfile
-    networks: 
+    networks:
       - bridge-net
     extends:
       file: $PWD/lib/federation/docker-compose.federation.yaml
@@ -324,11 +321,10 @@ services:
         BASE_IMAGE: ${BENTOV2_EVENT_RELAY_BASE_IMAGE}
         BASE_IMAGE_VERSION: ${BENTOV2_EVENT_RELAY_BASE_IMAGE_VERSION}
         REPO: ${BENTO_EVENT_RELAY_REPO}
-        BRANCH: ${BENTO_EVENT_RELAY_BRANCH}
-        TAG: ${BENTO_EVENT_RELAY_TAG}
+        TAG_OR_BRANCH: ${BENTOV2_EVENT_RELAY_TAG_OR_BRANCH}
     image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION}
     container_name: ${BENTOV2_EVENT_RELAY_CONTAINER_NAME}
-    environment: 
+    environment:
       # If true, JSON_MESSAGES will parse all messages recieved from the subscription
       # and de-serialize them before passing them to the socket.io connection.
       # e.g. If the message {"test": true} is passed with JSON_MESSAGES on, the
@@ -336,7 +332,7 @@ services:
       # {"message": {"test": true}, "channel": "chord.something"}
       # Otherwise, the message will be:
       # {"message": "{\"test\": true}", "channel": "chord.something"}
-      - JSON_MESSAGES="true" 
+      - JSON_MESSAGES="true"
 
       # Default: blank, base path for the service-info endpoint
       # If blank, the service-info endpoint will be mounted on /service-info
@@ -361,7 +357,7 @@ services:
       #- SERVICE_LISTEN_ON="/path/to/event_relay.sock"
     depends_on:
       - redis
-    networks: 
+    networks:
       - bridge-net
     expose:
       - ${BENTOV2_EVENT_RELAY_INTERNAL_PORT}
@@ -379,7 +375,7 @@ services:
     build:
       context: $PWD/lib/wes
       dockerfile: Dockerfile
-    networks: 
+    networks:
       - bridge-net
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
@@ -389,7 +385,7 @@ services:
   redis:
     image: ${BENTOV2_REDIS_BASE_IMAGE}:${BENTOV2_REDIS_BASE_IMAGE_VERSION}
     container_name: ${BENTOV2_REDIS_CONTAINER_NAME}
-    networks: 
+    networks:
       - bridge-net
     expose:
       - ${BENTOV2_REDIS_INTERNAL_PORT}
@@ -414,6 +410,6 @@ services:
       file: $PWD/lib/beacon/docker-compose.beacon.yaml
       service: beacon
 
-networks: 
+networks:
   bridge-net:
     external: true

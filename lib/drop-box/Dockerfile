@@ -10,15 +10,11 @@ RUN mkdir /drop-box
 WORKDIR /drop-box
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-RUN git clone "${REPO}" && \
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH}  && \
     ls /drop-box;
 WORKDIR /drop-box/bento_drop_box_service
-RUN git fetch && \
-    git checkout "${BRANCH}" &&  \
-    git checkout tags/${TAG}
 
 RUN pip install -r requirements.txt
 

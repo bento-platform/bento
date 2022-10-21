@@ -10,25 +10,17 @@ RUN mkdir /service-registry
 WORKDIR /service-registry
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-RUN git clone "${REPO}" && \
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH}  && \
     ls /service-registry
 
 WORKDIR /service-registry/bento_service_registry
 
-RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git checkout tags/${TAG}
-
 RUN pip install -r requirements.txt
-
 
 # Run
 WORKDIR /service-registry/bento_service_registry
-
-COPY chord_services.json .
 
 COPY ./gunicorn_starter.sh .
 RUN chmod 775 ./gunicorn_starter.sh

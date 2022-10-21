@@ -16,18 +16,14 @@ WORKDIR /event-relay
 RUN mkdir -p /event-relay/data
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-RUN git clone "${REPO}"
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH}
+
 
 WORKDIR /event-relay/bento_event_relay
-RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git checkout tags/${TAG}
 
 RUN ["npm", "install"]
 
 # Run
-WORKDIR /event-relay/bento_event_relay
 CMD ["npm", "start"]

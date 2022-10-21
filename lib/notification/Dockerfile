@@ -12,18 +12,13 @@ WORKDIR /notification
 RUN mkdir -p /notification/data
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-RUN git clone "${REPO}"
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH}
 RUN ls /notification
 
 WORKDIR /notification/bento_notification_service
 
-RUN git fetch && \
-    git checkout "${BRANCH}" && \
-    git checkout tags/${TAG}
-    
 RUN ["pip", "install", "-r", "requirements.txt"]
 
 # Run

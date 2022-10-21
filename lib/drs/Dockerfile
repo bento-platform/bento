@@ -12,21 +12,15 @@ RUN mkdir /drs && \
 WORKDIR /drs
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-RUN git clone "${REPO}" && \
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH} && \
     ls /drs
 
 WORKDIR /drs/bento_drs
 
-RUN git fetch && \
-    git checkout "${BRANCH}" &&  \
-    git checkout tags/${TAG} && \
-    \
-    mkdir -p /drs/bento_drs/data/obj && \
+RUN mkdir -p /drs/bento_drs/data/obj && \
     mkdir -p /drs/bento_drs/data/db;
-#     git pull $(echo "${REPO} refs/tags/${TAG}:refs/tags/${TAG}") && \
 
 # Remove comment if custom requirements are needed
 #COPY requirements.txt ./requirements.txt
