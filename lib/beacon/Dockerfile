@@ -12,7 +12,7 @@ ARG BEACON_TAG_OR_BRANCH
 RUN mkdir /beacon
 WORKDIR /beacon
 
-RUN git clone ${BEACON_REPO} --depth 1 -b ${BEACON_TAG_OR_BRANCH} && \
+RUN git clone ${BEACON_REPO} --depth 1 -b ${BEACON_TAG_OR_BRANCH}
 
 WORKDIR /beacon/bento_beacon
 
