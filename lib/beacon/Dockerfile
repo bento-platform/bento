@@ -7,17 +7,14 @@ FROM "${BASE_IMAGE}:${BASE_IMAGE_VERSION}"
 USER root
 
 ARG BEACON_REPO
-ARG BEACON_BRANCH
+ARG BEACON_TAG_OR_BRANCH
 
 RUN mkdir /beacon
 WORKDIR /beacon
 
-RUN git clone "${BEACON_REPO}"
+RUN git clone ${BEACON_REPO} --depth 1 -b ${BEACON_TAG_OR_BRANCH} && \
 
 WORKDIR /beacon/bento_beacon
-
-RUN git fetch && \
-    git checkout "${BEACON_BRANCH}"
 
 RUN pip install -r requirements.txt
 
