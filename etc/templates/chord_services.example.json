@@ -126,7 +126,7 @@
         "artifact": "metadata",
         "language": "python"
       },
-      "repository": "${KATSU_REPO}@${KATSU_TAG_OR_BRANCH}",
+      "repository": "${KATSU_REPO}@${BENTOV2_KATSU_TAG_OR_BRANCH}",
       "data_service": true,
       "manageable_tables": true,
       "pre_start_commands": [
