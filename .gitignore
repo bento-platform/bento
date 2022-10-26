@@ -1,4 +1,6 @@
 .env
+local.env
+.vscode/*
 
 tmp
 

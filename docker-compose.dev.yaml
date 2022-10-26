@@ -112,6 +112,7 @@ services:
       - bridge-net
     environment:
       - CHORD_DEBUG=true
+      - FLASK_DEBUG=true
       - DEBUGGER_PORT=${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
@@ -148,6 +149,53 @@ services:
       - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp
     command: >
       sh -c /drs/bento_drs/chord_drs/startup.sh
+
+  beacon:
+    build:
+      context: $PWD/lib/beacon
+      dockerfile: Dockerfile.dev
+    networks:
+      - bridge-net
+    environment:
+      - CHORD_DEBUG=true
+      - BEACON_DEBUG=true
+      - FLASK_ENV=development
+    extends:
+      file: $PWD/lib/beacon/docker-compose.beacon.yaml
+      service: beacon
+    volumes:
+      - ./lib/beacon/bento_beacon:/beacon/bento_beacon
+    ports:
+      - "${BEACON_EXTERNAL_PORT}:${BEACON_INTERNAL_PORT}"
+      - "${BEACON_DEBUGGER_EXTERNAL_PORT}:${BEACON_DEBUGGER_INTERNAL_PORT}"
+    command: >
+      sh -c "python -m debugpy --wait-for-client --listen 0.0.0.0:${BEACON_DEBUGGER_INTERNAL_PORT} -m flask run --no-debugger --no-reload --host=0.0.0.0 "
+
+  service-registry:
+    build:
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./lib/service-registry/bento_service_registry:/service-registry/bento_service_registry/
+      - ./lib/service-registry/chord_services.json:/service-registry/bento_service_registry/chord_services.json:ro
+    environment:
+      - FLASK_DEBUG=True
+    extends:
+      file: docker-compose.yaml
+      service: service-registry
+    entrypoint: sh -c "gunicorn bento_service_registry.app:application -w 1 --threads 1 -b 0.0.0.0:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}"
+  
+  drop-box:
+      build:
+        dockerfile: Dockerfile.dev
+      environment:
+        # Runtime
+        - FLASK_DEBUG=True
+      volumes:
+        - ./lib/drop-box/bento_drop_box_service:/drop-box/bento_drop_box_service/
+      extends:
+        file: docker-compose.yaml
+        service: drop-box
+      entrypoint: sh -c "gunicorn bento_drop_box_service.app:application -w 2 --threads 2 -b 0.0.0.0:5000"
 
 networks:
   bridge-net:

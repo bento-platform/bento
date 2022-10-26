@@ -10,10 +10,9 @@ RUN mkdir /drop-box
 WORKDIR /drop-box
 
 ARG REPO
-ARG BRANCH
-ARG TAG
+ARG TAG_OR_BRANCH
 
-RUN git clone --depth 1 -b "${TAG:-$BRANCH}" "${REPO}" && \
+RUN git clone ${REPO} --depth 1 -b ${TAG_OR_BRANCH}  && \
     ls /drop-box;
 WORKDIR /drop-box/bento_drop_box_service
 

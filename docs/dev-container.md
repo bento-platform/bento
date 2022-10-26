@@ -26,6 +26,8 @@ make stop-katsu
 make clean-katsu
 make run-katsu-dev
 ```
+Other services available are drs and wes
+
 - In VS Code, with the workspace opened, click on the Remote Quick Access button
 in the status bar, and select "Attach to Running Container" from the drop-down menu.
 This will install the VS Code server in the container after a few minutes.

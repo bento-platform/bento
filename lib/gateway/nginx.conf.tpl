@@ -123,6 +123,38 @@ http {
 
             error_log /var/log/bentov2_public_errors.log;
         }
+
+        # -- Beacon
+        location ~ /api/beacon {
+            limit_req zone=global_limit burst=10;
+
+            proxy_pass_header    Server;
+            proxy_set_header     Upgrade           ${DOLLAR}http_upgrade;
+            proxy_set_header     Connection        "upgrade";
+            proxy_set_header     Host              ${DOLLAR}http_host;
+            proxy_set_header     X-Real-IP         ${DOLLAR}remote_addr;
+            proxy_set_header     X-Forwarded-For   ${DOLLAR}proxy_add_x_forwarded_for;
+            proxy_set_header     X-Forwarded-Proto ${DOLLAR}http_x_forwarded_proto;
+
+            proxy_ignore_client_abort on;
+
+            # Remove "/api/beacon" from the path
+            rewrite /api/beacon/(.*) /${DOLLAR}1  break;
+
+            # Forward request to beacon
+            proxy_pass    http://${BEACON_CONTAINER_NAME}:${BEACON_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args; 
+
+            # Errors
+            error_log /var/log/bentov2_beacon_errors.log;
+
+            client_body_timeout  660s;
+            proxy_read_timeout   660s;
+            proxy_send_timeout   660s;
+            send_timeout         660s;
+
+            client_max_body_size 200m;
+        }
+
         # -- Use Bento-Public Ends Here --
         # -- Do Not Use Bento-Public Starts Here --
         return 301 https://portal.${DOLLAR}host${DOLLAR}request_uri;

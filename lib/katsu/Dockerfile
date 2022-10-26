@@ -17,13 +17,12 @@ RUN mkdir /app && \
 WORKDIR /app
 
 ARG KATSU_REPO
-ARG KATSU_BRANCH
-ARG KATSU_TAG
+ARG TAG_OR_BRANCH
 
 ARG PROJECT_DIRECTORY
 
 # Clone the repo
-RUN git clone --depth 1 -b "${KATSU_TAG:-$KATSU_BRANCH}" "${KATSU_REPO}"
+RUN git clone ${KATSU_REPO} --depth 1 -b ${TAG_OR_BRANCH}
 
 WORKDIR ${PROJECT_DIRECTORY}
 
@@ -33,9 +32,6 @@ RUN git config user.name "docker" && \
 
 
 # Install dependencies
-# -- fixes PEP 517 build error --
-RUN ["sed", "-i", "15s/.*/cryptography==2.8/", "requirements.txt"]
-# --
 RUN pip install -r requirements.txt;
 
 
@@ -43,4 +39,4 @@ RUN pip install -r requirements.txt;
 # localhost+port & domain host name to be allowed to make calls
 ARG BENTOV2_PORTAL_DOMAIN
 RUN sed -i "s/CHORD_HOST = urlparse(CHORD_URL or \"\").netloc/CHORD_HOST = \"${BENTOV2_PORTAL_DOMAIN}\"/" ${PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py
-RUN sed -i "s/\[CHORD_HOST or \"localhost\"\]/\[CHORD_HOST or \"localhost:8000\"\]/" ${PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py
+RUN sed -i "s/\[CHORD_HOST or \"localhost\"\]/\[CHORD_HOST, \"localhost\"\]/" ${PROJECT_DIRECTORY}/chord_metadata_service/metadata/settings.py
