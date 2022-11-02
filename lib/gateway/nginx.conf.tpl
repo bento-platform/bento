@@ -98,7 +98,7 @@ http {
         ssl_certificate_key ${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}${BENTOV2_GATEWAY_INTERNAL_PRIVKEY_RELATIVE_PATH};
 
         # Security --
-        add_header X-Frame-Options "ALLOW-FROM ${BENTOV2_GATEWAY_PUBLIC_ALLOW_FRAME_DOMAINS}";
+        add_header Content-Security-Policy "${BENTOV2_GATEWAY_PUBLIC_ALLOW_FRAME_DOMAINS};";
         add_header X-XSS-Protection "1; mode=block";
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
         # --
