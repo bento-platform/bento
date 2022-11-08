@@ -315,13 +315,6 @@ services:
 
 
   event-relay:
-    build:
-      context: $PWD/lib/event-relay
-      args:
-        BASE_IMAGE: ${BENTOV2_EVENT_RELAY_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_EVENT_RELAY_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_EVENT_RELAY_REPO}
-        TAG_OR_BRANCH: ${BENTOV2_EVENT_RELAY_TAG_OR_BRANCH}
     image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION}
     container_name: ${BENTOV2_EVENT_RELAY_CONTAINER_NAME}
     environment:
