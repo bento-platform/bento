@@ -3,13 +3,6 @@ version: '3.7'
 services:
 
   beacon:
-    build:
-      context: $PWD/lib/beacon
-      args:
-        BASE_IMAGE: ${BEACON_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BEACON_BASE_IMAGE_VERSION}
-        BEACON_REPO: ${BEACON_REPO}
-        BEACON_TAG_OR_BRANCH: ${BEACON_TAG_OR_BRANCH}
     image: ${BEACON_IMAGE}:${BEACON_VERSION}
     container_name: ${BEACON_CONTAINER_NAME}
     environment: 
@@ -22,6 +15,9 @@ services:
       - BEACON_EXTERNAL_PORT=${BEACON_EXTERNAL_PORT}
       - BEACON_DEBUGGER_INTERNAL_PORT=${BEACON_DEBUGGER_INTERNAL_PORT}
       - BEACON_DEBUGGER_EXTERNAL_PORT=${BEACON_DEBUGGER_EXTERNAL_PORT}
+      - CONFIG_ABSOLUTE_PATH=/config/
+    volumes:
+      - ./config:/config
     networks: 
       - bridge-net
     expose:
