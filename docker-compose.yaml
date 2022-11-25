@@ -401,9 +401,6 @@ services:
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
   beacon:
-    build:
-      context: $PWD/lib/beacon
-      dockerfile: Dockerfile
     networks: 
       - bridge-net
     extends:
