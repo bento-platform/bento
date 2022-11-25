@@ -86,6 +86,20 @@ services:
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
+  public:
+    image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION}
+    container_name: ${BENTO_PUBLIC_CONTAINER_NAME}
+    networks: 
+      - bridge-net
+    environment:
+      - BENTO_PUBLIC_CLIENT_NAME=${BENTO_PUBLIC_CLIENT_NAME}
+      - BENTO_PUBLIC_KATSU_URL=${BENTO_PUBLIC_KATSU_URL}
+      - BENTO_PUBLIC_MAX_QUERY_PARAMETERS=${BENTO_PUBLIC_MAX_QUERY_PARAMETERS}
+      - BENTO_PUBLIC_PORTAL_URL=${BENTO_PUBLIC_PORTAL_URL}
+    expose:
+      - "${BENTO_PUBLIC_INTERNAL_PORT}"
+
+
   web:
     build:
       context: $PWD/lib/web

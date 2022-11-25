@@ -6,19 +6,16 @@
 env ?= ./etc/bento.env
 local_env ?= local.env
 gohan_env ?= ./lib/gohan/.env
-public_env ?= ./lib/bento_public/server.env
 
 
 # a lot of the commands are ran before the gohan and public env files exist
 # "-" sign prevents make from failing if the file does not exist
 include $(env)
 -include $(gohan_env)
--include $(public_env)
 include $(local_env)
 
 export $(shell sed 's/=.*//' $(env))
 export $(shell sed 's/=.*//' $(gohan_env))
-export $(shell sed 's/=.*//' $(public_env))
 export $(shell sed 's/=.*//' $(local_env))
 
 
@@ -127,18 +124,6 @@ init-gohan:
 	fi
 
 
-init-bento-public:
-	@cd lib && \
-	if [ ! -d "./bento_public" ]; then \
-		echo "-- Cloning Bento-Public --" ; \
-		[[  -z "${BENTO_PUBLIC_TAG_OR_BRANCH}" ]] && echo "BENTO_PUBLIC_TAG_OR_BRANCH is not set, using master branch" ; \
-		git clone ${BENTO_PUBLIC_REPO} -b ${BENTO_PUBLIC_TAG_OR_BRANCH}; \
-	else \
-	    cd bento_public && \
-		git fetch; \
-		git checkout ${BENTO_PUBLIC_TAG_OR_BRANCH}; \
-		echo "-- Bento-Public already cloned --" ; \
-	fi
 
 #>>>
 # create secrets for Bento v2 services
@@ -320,12 +305,7 @@ run-%:
 
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
 
-	@if [[ $* == public ]]; then \
-		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
-		cd lib/bento_public && \
-		$(MAKE) clean-public &> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log && \
-		$(MAKE) run-public >> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log 2>&1 & \
-	elif [[ $* == gohan ]]; then \
+	@if [[ $* == gohan ]]; then \
 		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/ run logs for details! --" && \
 		cd lib/gohan && \
 		$(MAKE) clean-api &> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
@@ -379,9 +359,7 @@ build-%:
 stop-all:
 	docker-compose down;
 
-	cd lib/bento_public && \
-	docker-compose down && \
-	cd ../gohan && \
+	cd lib/gohan && \
 	docker-compose down && \
 	cd ../.. ;
 
@@ -392,9 +370,6 @@ stop-%:
 	@if [[ $* == gohan ]]; then \
 		cd lib/gohan &&  \
 		$(MAKE) stop-api ; \
-	elif [[ $* == public ]]; then \
-		cd lib/bento_public &&  \
-		$(MAKE) stop-public ; \
 	else \
 		docker-compose stop $*; \
 	fi
@@ -434,11 +409,6 @@ clean-%:
 	@echo "-- Removing bentov2-$* container --" && \
 		docker rm bentov2-$* --force >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
-	@# Clean public using native makefile
-	@if [[ $* == public ]]; then \
-		cd lib/bento_public && $(MAKE) clean-public ; \
-	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
-
 	@# Clean gohan using native makefile
 	@if [[ $* == gohan ]]; then \
 		cd lib/gohan &&  \
@@ -446,8 +416,8 @@ clean-%:
 	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
 
-	@# Skip triggering top level makefile stop for both public and gohan
-	@if [[ $* != public && $* != gohan ]]; then \
+	@# Skip triggering top level makefile stop for gohan
+	@if [[ $* != gohan ]]; then \
 		echo "-- Stopping $* --" ; \
 		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log ; \
 	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1

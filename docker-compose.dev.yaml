@@ -25,11 +25,12 @@ services:
 
   public:
     extends:
-      file: ./lib/bento_public/docker-compose.yaml
+      file: docker-compose.yaml
       service: public
+    networks: 
+      - bridge-net
     ports:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
-
 
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
