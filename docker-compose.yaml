@@ -200,7 +200,7 @@ services:
       - CHORD_DEBUG=True
 
       # Timeout, in seconds (integers only), for contacting services from the JSON
-      - CONTACT_TIMEOUT=1
+      - CONTACT_TIMEOUT=10
 
       # Service ID for the /service-info endpoint
       - SERVICE_ID=ca.c3g.bento:${BENTOV2_SERVICE_REGISTRY_VERSION}
