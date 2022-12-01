@@ -257,9 +257,6 @@ services:
 
 
   drs:
-    build:
-      context: $PWD/lib/drs
-      dockerfile: Dockerfile
     networks:
       - bridge-net
     extends:
