@@ -210,13 +210,13 @@ services:
       - URL_PATH_FORMAT=api/{artifact}
 
       - INTERNAL_PORT=${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
-
+      - CHORD_SERVICES=/chord_services.json
     networks:
       - bridge-net
     expose:
       - ${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
     volumes:
-      - $PWD/lib/service-registry/chord_services.json:/service-registry/bento_service_registry/chord_services.json:ro
+      - $PWD/lib/service-registry/chord_services.json:/chord_services.json:ro
     mem_limit: ${BENTOV2_SERVICE_REGISTRY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_SERVICE_REGISTRY_CPUS}
     cpu_shares: 256
