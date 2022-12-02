@@ -128,9 +128,7 @@ services:
       - "${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_WES_DEBUGGER_INTERNAL_PORT}"
 
   drs:
-    build:
-      context: $PWD/lib/drs
-      dockerfile: Dockerfile.dev
+    image: ${BENTOV2_DRS_IMAGE}:latest-dev
     environment:
       - FLASK_DEBUG=true
       - DEBUGGER_PORT=${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}
