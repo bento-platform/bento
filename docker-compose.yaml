@@ -192,7 +192,7 @@ services:
       # (https://github.com/c3g/chord_singularity/blob/master/chord_services.schema.json)
       # A list of services on a single domain which are registered in the service
       # registry instance.
-      - CHORD_SERVICES=chord_services.json
+      - CHORD_SERVICES=/chord_services.json
 
       # Common URL base for all services
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
@@ -210,7 +210,6 @@ services:
       - URL_PATH_FORMAT=api/{artifact}
 
       - INTERNAL_PORT=${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
-      - CHORD_SERVICES=/chord_services.json
     networks:
       - bridge-net
     expose:
