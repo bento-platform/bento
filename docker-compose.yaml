@@ -227,35 +227,6 @@ services:
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
-  logging:
-    build:
-      context: $PWD/lib/logging
-      args:
-        BASE_IMAGE: ${BENTOV2_LOGGING_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_LOGGING_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_LOGGING_REPO}
-        TAG_OR_BRANCH: ${BENTOV2_LOGGING_TAG_OR_BRANCH}
-    image: ${BENTOV2_LOGGING_IMAGE}:${BENTOV2_LOGGING_VERSION}
-    container_name: ${BENTOV2_LOGGING_CONTAINER_NAME}
-    environment:
-      # Runtime
-      - FLASK_DEBUG=False
-      - FLASK_APP=app
-      - INTERNAL_PORT=${BENTOV2_LOGGING_INTERNAL_PORT}
-    networks:
-      - bridge-net
-    expose:
-      - ${BENTOV2_LOGGING_INTERNAL_PORT}
-    mem_limit: ${BENTOV2_LOGGING_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_LOGGING_CPUS}
-    cpu_shares: 256
-    healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_LOGGING_INTERNAL_PORT}" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
-
-
   drs:
     build:
       context: $PWD/lib/drs
