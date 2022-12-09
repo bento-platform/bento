@@ -162,21 +162,6 @@
     {
       "type": {
         "organization": "ca.c3g.chord",
-        "artifact": "log-service",
-        "language": "python"
-      },
-      "repository": "${BENTO_LOGGING_REPO}@${BENTOV2_LOGGING_TAG_OR_BRANCH}",
-      "data_service": false,
-      "wsgi": true,
-      "python_module": "bento_log_service.app",
-      "python_callable": "application",
-      "run_environment": {
-        "CHORD_SERVICES": "/chord/chord_services.json"
-      }
-    },
-    {
-      "type": {
-        "organization": "ca.c3g.chord",
         "artifact": "gohan",
         "language": "go"
       },
