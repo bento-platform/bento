@@ -5,17 +5,17 @@
 #<<<
 env ?= ./etc/bento.env
 local_env ?= local.env
-gohan_env ?= ./lib/gohan/.env
+# gohan_env ?= ./lib/gohan/.env
 
 
 # a lot of the commands are ran before the gohan and public env files exist
 # "-" sign prevents make from failing if the file does not exist
 include $(env)
--include $(gohan_env)
+# -include $(gohan_env)
 include $(local_env)
 
 export $(shell sed 's/=.*//' $(env))
-export $(shell sed 's/=.*//' $(gohan_env))
+# export $(shell sed 's/=.*//' $(gohan_env))
 export $(shell sed 's/=.*//' $(local_env))
 
 
@@ -108,19 +108,19 @@ init-docker:
 	@docker network create bridge-net
 
 
-init-gohan:
-	@cd lib && \
-	\
-	if [ ! -d "./gohan" ]; then \
-		echo "-- Cloning Gohan --" ; \
-		[[  -z "${GOHAN_TAG_OR_BRANCH}" ]] && echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
-		git clone ${GOHAN_REPO} -b ${GOHAN_TAG_OR_BRANCH} ; \
-	else \
-	    cd gohan && \
-		git fetch; \
-		git checkout ${GOHAN_TAG_OR_BRANCH}; \
-		echo "-- Gohan already cloned --" ; \
-	fi
+# init-gohan:
+# 	@cd lib && \
+# 	\
+# 	if [ ! -d "./gohan" ]; then \
+# 		echo "-- Cloning Gohan --" ; \
+# 		[[  -z "${GOHAN_TAG_OR_BRANCH}" ]] && echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
+# 		git clone ${GOHAN_REPO} -b ${GOHAN_TAG_OR_BRANCH} ; \
+# 	else \
+# 	    cd gohan && \
+# 		git fetch; \
+# 		git checkout ${GOHAN_TAG_OR_BRANCH}; \
+# 		echo "-- Gohan already cloned --" ; \
+# 	fi
 
 
 
@@ -358,20 +358,20 @@ build-%:
 stop-all:
 	docker-compose down;
 
-	cd lib/gohan && \
-	docker-compose down && \
-	cd ../.. ;
+	# cd lib/gohan && \
+	# docker-compose down && \
+	# cd ../.. ;
 
 #>>>
 # stop a specific service
 #<<<
 stop-%:
-	@if [[ $* == gohan ]]; then \
-		cd lib/gohan &&  \
-		$(MAKE) stop-api ; \
-	else \
-		docker-compose stop $*; \
-	fi
+	# @if [[ $* == gohan ]]; then \
+	# 	cd lib/gohan &&  \
+	# 	$(MAKE) stop-api ; \
+	# else \
+	docker-compose stop $*; \
+	# fi
 
 
 
@@ -408,18 +408,18 @@ clean-%:
 	@echo "-- Removing bentov2-$* container --" && \
 		docker rm bentov2-$* --force >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
-	@# Clean gohan using native makefile
-	@if [[ $* == gohan ]]; then \
-		cd lib/gohan &&  \
-		$(MAKE) clean-api ; \
-	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
+	# @# Clean gohan using native makefile
+	# @if [[ $* == gohan ]]; then \
+	# 	cd lib/gohan &&  \
+	# 	$(MAKE) clean-api ; \
+	# fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
 
-	@# Skip triggering top level makefile stop for gohan
-	@if [[ $* != gohan ]]; then \
-		echo "-- Stopping $* --" ; \
-		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log ; \
-	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
+	# @# Skip triggering top level makefile stop for gohan
+	# @if [[ $* != gohan ]]; then \
+	# 	echo "-- Stopping $* --" ; \
+	# 	docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log ; \
+	# fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
 
 	@# Some services don't need their images removed
