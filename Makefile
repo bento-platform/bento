@@ -108,6 +108,12 @@ init-docker:
 	@docker network create bridge-net
 
 
+init-public:
+	@mkdir -p $(PWD)/lib/public/translations;
+	@cp $(PWD)/etc/templates/translations/en.example.json $(PWD)/lib/public/translations/en.json;
+	@cp $(PWD)/etc/templates/translations/fr.example.json $(PWD)/lib/public/translations/fr.json;
+	@echo done
+
 # init-gohan:
 # 	@cd lib && \
 # 	\
