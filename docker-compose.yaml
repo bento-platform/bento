@@ -98,6 +98,9 @@ services:
       - BENTO_PUBLIC_PORTAL_URL=${BENTO_PUBLIC_PORTAL_URL}
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
+    volumes:
+      - $PWD/lib/public/translations/en.json:/runner/www/public/locales/en/translation_en.json
+      - $PWD/lib/public/translations/fr.json:/runner/www/public/locales/fr/translation_fr.json
 
 
   web:

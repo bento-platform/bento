@@ -31,6 +31,9 @@ lib/web/bento_web
 
 lib/katsu/config.json
 
+# bento_public
+lib/public/
+
 # temp test stuff
 etc/tests/*/__pycache__
 etc/tests/*/*/__pycache__
