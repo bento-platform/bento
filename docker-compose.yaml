@@ -110,7 +110,9 @@ services:
       - bridge-net
     expose:
       - ${BENTOV2_WEB_INTERNAL_PORT}
-    # Execute npm build/install and watch, and
+    environment:
+      - BENTO_URL=${BENTOV2_PUBLIC_URL}
+      - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
     # nginx "listener" upon container startup
     entrypoint: nginx -g 'daemon off;'
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
