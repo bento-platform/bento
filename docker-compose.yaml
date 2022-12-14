@@ -122,7 +122,7 @@ services:
       - ${BENTOV2_WEB_INTERNAL_PORT}
     # Execute npm build/install and watch, and
     # nginx "listener" upon container startup
-    entrypoint: nginx -g 'daemon off;'
+    entrypoint: sh /web/startup.sh
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_WEB_CPUS}
     cpu_shares: 512
