@@ -53,9 +53,8 @@ init-chord-services:
 	@echo "-- Initializing CHORD service configuration files  --"
 
 	@# copy services json to the microservices that need it
-	@echo "- Providing a complete chord_services.json to lib/[service-registry, wes]"
+	@echo "- Providing a complete chord_services.json to lib/service-registry"
 	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/service-registry/chord_services.json;
-	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/wes/chord_services.json;
 
 	@echo "-- Done --"
 

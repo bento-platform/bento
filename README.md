@@ -82,7 +82,7 @@ BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openi
 Depending on your git setup, clone Gohan's repository
 ```terminal
 cd lib
-clone git@github.com:bento-platform/gohan.git
+git clone git@github.com:bento-platform/gohan.git
 ```
 Follow the instructions from Gohan's README to set up the environment file.
 
