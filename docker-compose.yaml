@@ -104,25 +104,16 @@ services:
 
 
   web:
-    build:
-      context: $PWD/lib/web
-      args:
-        BASE_IMAGE: ${BENTOV2_WEB_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_WEB_BASE_IMAGE_VERSION}
-        BENTO_WEB_REPO: ${BENTO_WEB_REPO}
-        TAG_OR_BRANCH: ${BENTOV2_WEB_TAG_OR_BRANCH}
-        BENTO_WEB_IS_DEBUG: "false"
-        BENTO_WEB_USER: ${CURRENT_UID}
-        BENTO_CUSTOM_HEADER: ${BENTO_WEB_CUSTOM_HEADER} # pass in at build time as an arg (becomes an client-side env)
     image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION}
     container_name: ${BENTOV2_WEB_CONTAINER_NAME}
     networks:
       - bridge-net
     expose:
       - ${BENTOV2_WEB_INTERNAL_PORT}
-    # Execute npm build/install and watch, and
-    # nginx "listener" upon container startup
-    entrypoint: sh /web/startup.sh
+    environment:
+      - BENTO_URL=${BENTOV2_PUBLIC_URL}
+      - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
+    entrypoint: bash /web/entrypoint.bash
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_WEB_CPUS}
     cpu_shares: 512
