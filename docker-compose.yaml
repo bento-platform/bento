@@ -114,7 +114,7 @@ services:
       - BENTO_URL=${BENTOV2_PUBLIC_URL}
       - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
     # nginx "listener" upon container startup
-    entrypoint: nginx -g 'daemon off;'
+    entrypoint: bash /web/dist/entrypoint.bash
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_WEB_CPUS}
     cpu_shares: 512
