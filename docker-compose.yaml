@@ -319,9 +319,6 @@ services:
 
 
   wes:
-    build:
-      context: $PWD/lib/wes
-      dockerfile: Dockerfile
     networks:
       - bridge-net
     extends:
