@@ -114,6 +114,8 @@ services:
       - BENTO_URL=${BENTOV2_PUBLIC_URL}
       - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
     entrypoint: bash /web/entrypoint.bash
+    volumes:
+      - $PWD/lib/web/branding.png:/web/dist/static/branding.png
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_WEB_CPUS}
     cpu_shares: 512
