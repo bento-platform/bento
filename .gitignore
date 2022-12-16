@@ -31,6 +31,9 @@ lib/web/bento_web
 
 lib/katsu/config.json
 
+# bento_web
+lib/web
+
 # bento_public
 lib/public/
 
