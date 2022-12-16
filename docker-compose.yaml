@@ -125,9 +125,6 @@ services:
 
 
   katsu:
-    build:
-      context: $PWD/lib/katsu
-      dockerfile: Dockerfile
     networks:
       - bridge-net
     depends_on:
