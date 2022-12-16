@@ -142,6 +142,9 @@ make docker-secrets
 # Build base images
 make build-common-base
 
+# Prepare web-service
+make init-web
+
 # If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
 make run-gateway
 # and

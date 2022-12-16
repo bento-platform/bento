@@ -107,6 +107,11 @@ init-docker:
 	@docker network create bridge-net
 
 
+init-web:
+	@mkdir -p $(PWD)/lib/web;
+	@cp $(PWD)/etc/default.branding.png $(PWD)/lib/web/branding.png;
+	@echo done
+
 init-public:
 	@mkdir -p $(PWD)/lib/public/translations;
 	@cp $(PWD)/etc/templates/translations/en.example.json $(PWD)/lib/public/translations/en.json;
