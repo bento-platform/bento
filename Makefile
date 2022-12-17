@@ -113,6 +113,8 @@ init-web:
 	@echo done
 
 init-public:
+	@cp $(PWD)/etc/default.about.html $(PWD)/lib/public/about.html;
+
 	@mkdir -p $(PWD)/lib/public/translations;
 	@cp $(PWD)/etc/templates/translations/en.example.json $(PWD)/lib/public/translations/en.json;
 	@cp $(PWD)/etc/templates/translations/fr.example.json $(PWD)/lib/public/translations/fr.json;
