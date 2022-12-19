@@ -258,9 +258,6 @@ services:
 
 
   federation:
-    build:
-      context: $PWD/lib/federation
-      dockerfile: Dockerfile
     networks:
       - bridge-net
     extends:
