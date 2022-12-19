@@ -85,9 +85,6 @@ services:
 
 
   federation:
-    build:
-      context: $PWD/lib/federation
-      dockerfile: Dockerfile.dev
     environment:
       - CHORD_DEBUG=${BENTOV2_FEDERATION_DEV_DEBUG}
       - PORT=${BENTOV2_FEDERATION_INTERNAL_PORT}
