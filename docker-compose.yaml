@@ -103,6 +103,7 @@ services:
       - $PWD/lib/public/translations/fr.json:/runner/www/public/locales/fr/translation_fr.json
       
       - $PWD/lib/public/about.html:/runner/www/public/about.html
+      - $PWD/lib/public/branding.png:/runner/www/public/assets/branding.png
 
 
   web:
