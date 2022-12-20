@@ -448,20 +448,6 @@ clean-%:
 	@echo "-- Removing bentov2-$* container --" && \
 		docker rm bentov2-$* --force >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
 
-	# @# Clean gohan using native makefile
-	# @if [[ $* == gohan ]]; then \
-	# 	cd lib/gohan &&  \
-	# 	$(MAKE) clean-api ; \
-	# fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
-
-
-	# @# Skip triggering top level makefile stop for gohan
-	# @if [[ $* != gohan ]]; then \
-	# 	echo "-- Stopping $* --" ; \
-	# 	docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log ; \
-	# fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
-
-
 	@# Some services don't need their images removed
 	@if [[ $* != auth && $* != redis ]]; then \
 		docker rmi bentov2-$*:0.0.1 --force; \
