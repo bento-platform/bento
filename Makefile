@@ -115,11 +115,37 @@ init-web:
 init-public:
 	@mkdir -p $(PWD)/lib/public/translations;
 
-	@cp $(PWD)/etc/default.about.html $(PWD)/lib/public/about.html;
-	@cp $(PWD)/etc/default.public.branding.png $(PWD)/lib/public/branding.png;
+	@if test -f "$(PWD)/lib/public/about.html"; then \
+		echo "public 'about page' exists.. skipping.." ; \
+	else \
+		echo "public 'about page' don't yet exist - copying default" ; \
+		cp $(PWD)/etc/default.about.html $(PWD)/lib/public/about.html; \
+	fi
 
-	@cp $(PWD)/etc/templates/translations/en.example.json $(PWD)/lib/public/translations/en.json;
-	@cp $(PWD)/etc/templates/translations/fr.example.json $(PWD)/lib/public/translations/fr.json;
+	@if test -f "$(PWD)/lib/public/branding.png"; then \
+		echo "public branding logo exists.. skipping.." ; \
+	else \
+		echo "public branding logo don't yet exist - copying default" ; \
+		cp $(PWD)/etc/default.public.branding.png $(PWD)/lib/public/branding.png; \
+	fi
+
+	@# - Translations
+	@# -- english
+	@if test -f "$(PWD)/lib/public/translations/en.json"; then \
+		echo "public english translations exist.. skipping.." ; \
+	else \
+		echo "public english translations don't yet exist - copying default" ; \
+		cp $(PWD)/etc/templates/translations/en.example.json $(PWD)/lib/public/translations/en.json ; \
+	fi
+
+	@# -- french
+	@if test -f "$(PWD)/lib/public/translations/fr.json"; then \
+		echo "public french translations exist.. skipping.." ; \
+	else \
+		echo "public french translations don't yet exist - copying default" ; \
+		cp $(PWD)/etc/templates/translations/fr.example.json $(PWD)/lib/public/translations/fr.json ; \
+	fi
+	
 	@echo done
 
 # init-gohan:
