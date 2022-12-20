@@ -99,11 +99,11 @@ services:
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
     volumes:
-      - $PWD/lib/public/translations/en.json:/runner/www/public/locales/en/translation_en.json
-      - $PWD/lib/public/translations/fr.json:/runner/www/public/locales/fr/translation_fr.json
+      - $PWD/lib/public/translations/en.json:/runner/www/public/locales/en/translation_en.json:ro
+      - $PWD/lib/public/translations/fr.json:/runner/www/public/locales/fr/translation_fr.json:ro
       
-      - $PWD/lib/public/about.html:/runner/www/public/about.html
-      - $PWD/lib/public/branding.png:/runner/www/public/assets/branding.png
+      - $PWD/lib/public/about.html:/runner/www/public/about.html:ro
+      - $PWD/lib/public/branding.png:/runner/www/public/assets/branding.png:ro
 
 
   web:
