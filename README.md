@@ -82,7 +82,7 @@ BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openi
 Depending on your git setup, clone Gohan's repository
 ```terminal
 cd lib
-clone git@github.com:bento-platform/gohan.git
+git clone git@github.com:bento-platform/gohan.git
 ```
 Follow the instructions from Gohan's README to set up the environment file.
 
@@ -90,14 +90,7 @@ Follow the instructions from Gohan's README to set up the environment file.
 a standalone application), the paths in Gohan's .env file should be made **absolute**
 due to the different directories Gohan's Makefile can be called from.
 
-### Clone Bento_public repository in ./lib and setup bento_public's environment variables
-Depending on your git setup, clone bento_public repository
-```terminal
-cd lib
-clone git@github.com:bento-platform/bento_public.git
-```
-Follow the instructions from bento_public README to set up the `client.env` and
-`server.env` files in the `.lib/bento_public/` directory.
+<br />
 
 ### Create self-signed TLS certificates
 
@@ -149,6 +142,9 @@ make docker-secrets
 # Build base images
 make build-common-base
 
+# Prepare web-service
+make init-web
+
 # If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
 make run-gateway
 # and
@@ -176,17 +172,42 @@ there and paste it in your .env file.
 
 Run
 ```
-mkdir -p ./lib/bento_public
-make init-bento-public
+make init-public
 ```
 
-Create a local file for environment variables with default settings by running
+Adjust the default translation set as necessary
 
 ```
-cd ./lib/bento_public
+lib/public/translations/<en|fr>.json
 
-cp ./etc/example.server.env ./server.env
-cp ./etc/example.client.env ./client.env
+{
+  "Age": "Age",
+  "Sex": "Sex",
+  "Verbal consent date": "Verbal Consent Date",
+  "Functional status": "Functional Status",
+  "Lab Test Result": "Lab Test Results",
+  "Experiment Types": "Experiment Types",
+  "Demographics": "Demographics",
+  "MALE": "MALE",
+  "FEMALE": "FEMALE",
+  "I have no problems in walking about": "I have no problems in walking about",
+  "Results": "Results"
+}
+
+
+{
+  "MALE": "HOMME",
+  "FEMALE": "FEMME",
+  "Age": "Âge",
+  "Sex": "Sexe",
+  "Demographics": "Démographie",
+  "Verbal consent date": "Date de consentement verbal",
+  "Functional status": "Statut fonctionnel",
+  "Lab Test Result": "Résultats des tests de laboratoire",
+  "Experiment Types": "Types d'expériences",
+  "I have no problems in walking about": "Je n’ai aucun problème à marcher",
+  "Results": "Résultats"
+}
 ```
 
 

@@ -25,11 +25,12 @@ services:
 
   public:
     extends:
-      file: ./lib/bento_public/docker-compose.yaml
+      file: docker-compose.yaml
       service: public
+    networks: 
+      - bridge-net
     ports:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
-
 
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
@@ -84,9 +85,6 @@ services:
 
 
   federation:
-    build:
-      context: $PWD/lib/federation
-      dockerfile: Dockerfile.dev
     environment:
       - CHORD_DEBUG=${BENTOV2_FEDERATION_DEV_DEBUG}
       - PORT=${BENTOV2_FEDERATION_INTERNAL_PORT}
@@ -127,9 +125,7 @@ services:
       - "${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_WES_DEBUGGER_INTERNAL_PORT}"
 
   drs:
-    build:
-      context: $PWD/lib/drs
-      dockerfile: Dockerfile.dev
+    image: ${BENTOV2_DRS_IMAGE}:latest-dev
     environment:
       - FLASK_DEBUG=true
       - DEBUGGER_PORT=${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}

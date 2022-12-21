@@ -5,20 +5,17 @@
 #<<<
 env ?= ./etc/bento.env
 local_env ?= local.env
-gohan_env ?= ./lib/gohan/.env
-public_env ?= ./lib/bento_public/server.env
+# gohan_env ?= ./lib/gohan/.env
 
 
 # a lot of the commands are ran before the gohan and public env files exist
 # "-" sign prevents make from failing if the file does not exist
 include $(env)
--include $(gohan_env)
--include $(public_env)
+# -include $(gohan_env)
 include $(local_env)
 
 export $(shell sed 's/=.*//' $(env))
-export $(shell sed 's/=.*//' $(gohan_env))
-export $(shell sed 's/=.*//' $(public_env))
+# export $(shell sed 's/=.*//' $(gohan_env))
 export $(shell sed 's/=.*//' $(local_env))
 
 
@@ -56,10 +53,8 @@ init-chord-services:
 	@echo "-- Initializing CHORD service configuration files  --"
 
 	@# copy services json to the microservices that need it
-	@echo "- Providing a complete chord_services.json to lib/[logging, service-registry, wes]"
-	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/logging/chord_services.json;
+	@echo "- Providing a complete chord_services.json to lib/service-registry"
 	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/service-registry/chord_services.json;
-	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/wes/chord_services.json;
 
 	@echo "-- Done --"
 
@@ -112,33 +107,62 @@ init-docker:
 	@docker network create bridge-net
 
 
-init-gohan:
-	@cd lib && \
-	\
-	if [ ! -d "./gohan" ]; then \
-		echo "-- Cloning Gohan --" ; \
-		[[  -z "${GOHAN_TAG_OR_BRANCH}" ]] && echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
-		git clone ${GOHAN_REPO} -b ${GOHAN_TAG_OR_BRANCH} ; \
+init-web:
+	@mkdir -p $(PWD)/lib/web;
+	@cp $(PWD)/etc/default.branding.png $(PWD)/lib/web/branding.png;
+	@echo done
+
+init-public:
+	@mkdir -p $(PWD)/lib/public/translations;
+
+	@if test -f "$(PWD)/lib/public/about.html"; then \
+		echo "public 'about page' exists.. skipping.." ; \
 	else \
-	    cd gohan && \
-		git fetch; \
-		git checkout ${GOHAN_TAG_OR_BRANCH}; \
-		echo "-- Gohan already cloned --" ; \
+		echo "public 'about page' don't yet exist - copying default" ; \
+		cp $(PWD)/etc/default.about.html $(PWD)/lib/public/about.html; \
 	fi
 
-
-init-bento-public:
-	@cd lib && \
-	if [ ! -d "./bento_public" ]; then \
-		echo "-- Cloning Bento-Public --" ; \
-		[[  -z "${BENTO_PUBLIC_TAG_OR_BRANCH}" ]] && echo "BENTO_PUBLIC_TAG_OR_BRANCH is not set, using master branch" ; \
-		git clone ${BENTO_PUBLIC_REPO} -b ${BENTO_PUBLIC_TAG_OR_BRANCH}; \
+	@if test -f "$(PWD)/lib/public/branding.png"; then \
+		echo "public branding logo exists.. skipping.." ; \
 	else \
-	    cd bento_public && \
-		git fetch; \
-		git checkout ${BENTO_PUBLIC_TAG_OR_BRANCH}; \
-		echo "-- Bento-Public already cloned --" ; \
+		echo "public branding logo don't yet exist - copying default" ; \
+		cp $(PWD)/etc/default.public.branding.png $(PWD)/lib/public/branding.png; \
 	fi
+
+	@# - Translations
+	@# -- english
+	@if test -f "$(PWD)/lib/public/translations/en.json"; then \
+		echo "public english translations exist.. skipping.." ; \
+	else \
+		echo "public english translations don't yet exist - copying default" ; \
+		cp $(PWD)/etc/templates/translations/en.example.json $(PWD)/lib/public/translations/en.json ; \
+	fi
+
+	@# -- french
+	@if test -f "$(PWD)/lib/public/translations/fr.json"; then \
+		echo "public french translations exist.. skipping.." ; \
+	else \
+		echo "public french translations don't yet exist - copying default" ; \
+		cp $(PWD)/etc/templates/translations/fr.example.json $(PWD)/lib/public/translations/fr.json ; \
+	fi
+	
+	@echo done
+
+# init-gohan:
+# 	@cd lib && \
+# 	\
+# 	if [ ! -d "./gohan" ]; then \
+# 		echo "-- Cloning Gohan --" ; \
+# 		[[  -z "${GOHAN_TAG_OR_BRANCH}" ]] && echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
+# 		git clone ${GOHAN_REPO} -b ${GOHAN_TAG_OR_BRANCH} ; \
+# 	else \
+# 	    cd gohan && \
+# 		git fetch; \
+# 		git checkout ${GOHAN_TAG_OR_BRANCH}; \
+# 		echo "-- Gohan already cloned --" ; \
+# 	fi
+
+
 
 #>>>
 # create secrets for Bento v2 services
@@ -320,12 +344,7 @@ run-%:
 
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
 
-	@if [[ $* == public ]]; then \
-		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/run.log for details! --" && \
-		cd lib/bento_public && \
-		$(MAKE) clean-public &> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log && \
-		$(MAKE) run-public >> ../../tmp/logs/${EXECUTED_NOW}/$*/run.log 2>&1 & \
-	elif [[ $* == gohan ]]; then \
+	@if [[ $* == gohan ]]; then \
 		echo "-- Running $* : see tmp/logs/${EXECUTED_NOW}/$*/ run logs for details! --" && \
 		cd lib/gohan && \
 		$(MAKE) clean-api &> ../../tmp/logs/${EXECUTED_NOW}/$*/api_run.log && \
@@ -379,25 +398,20 @@ build-%:
 stop-all:
 	docker-compose down;
 
-	cd lib/bento_public && \
-	docker-compose down && \
-	cd ../gohan && \
-	docker-compose down && \
-	cd ../.. ;
+	# cd lib/gohan && \
+	# docker-compose down && \
+	# cd ../.. ;
 
 #>>>
 # stop a specific service
 #<<<
 stop-%:
-	@if [[ $* == gohan ]]; then \
-		cd lib/gohan &&  \
-		$(MAKE) stop-api ; \
-	elif [[ $* == public ]]; then \
-		cd lib/bento_public &&  \
-		$(MAKE) stop-public ; \
-	else \
-		docker-compose stop $*; \
-	fi
+	# @if [[ $* == gohan ]]; then \
+	# 	cd lib/gohan &&  \
+	# 	$(MAKE) stop-api ; \
+	# else \
+	docker-compose stop $*; \
+	# fi
 
 
 
@@ -433,25 +447,6 @@ clean-%:
 
 	@echo "-- Removing bentov2-$* container --" && \
 		docker rm bentov2-$* --force >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
-
-	@# Clean public using native makefile
-	@if [[ $* == public ]]; then \
-		cd lib/bento_public && $(MAKE) clean-public ; \
-	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
-
-	@# Clean gohan using native makefile
-	@if [[ $* == gohan ]]; then \
-		cd lib/gohan &&  \
-		$(MAKE) clean-api ; \
-	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
-
-
-	@# Skip triggering top level makefile stop for both public and gohan
-	@if [[ $* != public && $* != gohan ]]; then \
-		echo "-- Stopping $* --" ; \
-		docker-compose stop $* &> tmp/logs/${EXECUTED_NOW}/$*/clean.log ; \
-	fi >> tmp/logs/${EXECUTED_NOW}/$*/clean.log 2>&1
-
 
 	@# Some services don't need their images removed
 	@if [[ $* != auth && $* != redis ]]; then \

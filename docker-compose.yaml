@@ -86,26 +86,39 @@ services:
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
+  public:
+    image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION}
+    container_name: ${BENTO_PUBLIC_CONTAINER_NAME}
+    networks: 
+      - bridge-net
+    environment:
+      - BENTO_PUBLIC_CLIENT_NAME=${BENTO_PUBLIC_CLIENT_NAME}
+      - BENTO_PUBLIC_KATSU_URL=${BENTO_PUBLIC_KATSU_URL}
+      - BENTO_PUBLIC_MAX_QUERY_PARAMETERS=${BENTO_PUBLIC_MAX_QUERY_PARAMETERS}
+      - BENTO_PUBLIC_PORTAL_URL=${BENTO_PUBLIC_PORTAL_URL}
+    expose:
+      - "${BENTO_PUBLIC_INTERNAL_PORT}"
+    volumes:
+      - $PWD/lib/public/translations/en.json:/runner/www/public/locales/en/translation_en.json:ro
+      - $PWD/lib/public/translations/fr.json:/runner/www/public/locales/fr/translation_fr.json:ro
+      
+      - $PWD/lib/public/about.html:/runner/www/public/about.html:ro
+      - $PWD/lib/public/branding.png:/runner/www/public/assets/branding.png:ro
+
+
   web:
-    build:
-      context: $PWD/lib/web
-      args:
-        BASE_IMAGE: ${BENTOV2_WEB_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_WEB_BASE_IMAGE_VERSION}
-        BENTO_WEB_REPO: ${BENTO_WEB_REPO}
-        TAG_OR_BRANCH: ${BENTOV2_WEB_TAG_OR_BRANCH}
-        BENTO_WEB_IS_DEBUG: "false"
-        BENTO_WEB_USER: ${CURRENT_UID}
-        BENTO_CUSTOM_HEADER: ${BENTO_WEB_CUSTOM_HEADER} # pass in at build time as an arg (becomes an client-side env)
     image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION}
     container_name: ${BENTOV2_WEB_CONTAINER_NAME}
     networks:
       - bridge-net
     expose:
       - ${BENTOV2_WEB_INTERNAL_PORT}
-    # Execute npm build/install and watch, and
-    # nginx "listener" upon container startup
-    entrypoint: sh /web/startup.sh
+    environment:
+      - BENTO_URL=${BENTOV2_PUBLIC_URL}
+      - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
+    entrypoint: bash /web/entrypoint.bash
+    volumes:
+      - $PWD/lib/web/branding.png:/web/dist/static/branding.png
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_WEB_CPUS}
     cpu_shares: 512
@@ -117,9 +130,6 @@ services:
 
 
   katsu:
-    build:
-      context: $PWD/lib/katsu
-      dockerfile: Dockerfile
     networks:
       - bridge-net
     depends_on:
@@ -138,13 +148,6 @@ services:
 
 
   drop-box:
-    build:
-      context: $PWD/lib/drop-box
-      args:
-        BASE_IMAGE: ${BENTOV2_DROP_BOX_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_DROP_BOX_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_DROP_BOX_REPO}
-        TAG_OR_BRANCH: ${BENTOV2_DROP_BOX_TAG_OR_BRANCH}
     image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
     container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
     environment:
@@ -174,13 +177,6 @@ services:
 
 
   service-registry:
-    build:
-      context: $PWD/lib/service-registry
-      args:
-        BASE_IMAGE: ${BENTOV2_SERVICE_REGISTRY_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_SERVICE_REGISTRY_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_SERVICE_REGISTRY_REPO}
-        TAG_OR_BRANCH: ${BENTOV2_SERVICE_REGISTRY_TAG_OR_BRANCH}
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION}
     container_name: ${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}
     environment:
@@ -192,7 +188,7 @@ services:
       # (https://github.com/c3g/chord_singularity/blob/master/chord_services.schema.json)
       # A list of services on a single domain which are registered in the service
       # registry instance.
-      - CHORD_SERVICES=chord_services.json
+      - CHORD_SERVICES=/chord_services.json
 
       # Common URL base for all services
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
@@ -200,7 +196,7 @@ services:
       - CHORD_DEBUG=True
 
       # Timeout, in seconds (integers only), for contacting services from the JSON
-      - CONTACT_TIMEOUT=1
+      - CONTACT_TIMEOUT=10
 
       # Service ID for the /service-info endpoint
       - SERVICE_ID=ca.c3g.bento:${BENTOV2_SERVICE_REGISTRY_VERSION}
@@ -210,13 +206,12 @@ services:
       - URL_PATH_FORMAT=api/{artifact}
 
       - INTERNAL_PORT=${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
-
     networks:
       - bridge-net
     expose:
       - ${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
     volumes:
-      - $PWD/lib/service-registry/chord_services.json:/service-registry/bento_service_registry/chord_services.json:ro
+      - $PWD/lib/service-registry/chord_services.json:/chord_services.json:ro
     mem_limit: ${BENTOV2_SERVICE_REGISTRY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_SERVICE_REGISTRY_CPUS}
     cpu_shares: 256
@@ -227,39 +222,7 @@ services:
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
-  logging:
-    build:
-      context: $PWD/lib/logging
-      args:
-        BASE_IMAGE: ${BENTOV2_LOGGING_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_LOGGING_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_LOGGING_REPO}
-        TAG_OR_BRANCH: ${BENTOV2_LOGGING_TAG_OR_BRANCH}
-    image: ${BENTOV2_LOGGING_IMAGE}:${BENTOV2_LOGGING_VERSION}
-    container_name: ${BENTOV2_LOGGING_CONTAINER_NAME}
-    environment:
-      # Runtime
-      - FLASK_DEBUG=False
-      - FLASK_APP=app
-      - INTERNAL_PORT=${BENTOV2_LOGGING_INTERNAL_PORT}
-    networks:
-      - bridge-net
-    expose:
-      - ${BENTOV2_LOGGING_INTERNAL_PORT}
-    mem_limit: ${BENTOV2_LOGGING_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_LOGGING_CPUS}
-    cpu_shares: 256
-    healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_LOGGING_INTERNAL_PORT}" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
-
-
   drs:
-    build:
-      context: $PWD/lib/drs
-      dockerfile: Dockerfile
     networks:
       - bridge-net
     extends:
@@ -268,13 +231,6 @@ services:
 
 
   notification:
-    build:
-      context: $PWD/lib/notification
-      args:
-        BASE_IMAGE: ${BENTOV2_NOTIFICATION_BASE_IMAGE}
-        BASE_IMAGE_VERSION: ${BENTOV2_NOTIFICATION_BASE_IMAGE_VERSION}
-        REPO: ${BENTO_NOTIFICATION_REPO}
-        TAG_OR_BRANCH: ${BENTOV2_NOTIFICATION_TAG_OR_BRANCH}
     image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION}
     container_name: ${BENTOV2_NOTIFICATION_CONTAINER_NAME}
     environment:
@@ -303,9 +259,6 @@ services:
 
 
   federation:
-    build:
-      context: $PWD/lib/federation
-      dockerfile: Dockerfile
     networks:
       - bridge-net
     extends:
@@ -365,9 +318,6 @@ services:
 
 
   wes:
-    build:
-      context: $PWD/lib/wes
-      dockerfile: Dockerfile
     networks:
       - bridge-net
     extends:
@@ -394,14 +344,85 @@ services:
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
   beacon:
-    build:
-      context: $PWD/lib/beacon
-      dockerfile: Dockerfile
     networks: 
       - bridge-net
     extends:
       file: $PWD/lib/beacon/docker-compose.beacon.yaml
       service: beacon
+
+  gohan-api:
+    networks:
+      - bridge-net
+    mem_limit: ${BENTOV2_GOHAN_API_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_GOHAN_API_CPUS}
+    cpu_shares: 1024
+    image: ${BENTOV2_GOHAN_API_IMAGE}:${BENTOV2_GOHAN_API_VERSION}
+    container_name: ${BENTOV2_GOHAN_API_CONTAINER_NAME}
+    environment:
+      # API
+      - GOHAN_DEBUG=${BENTOV2_GOHAN_DEBUG}
+      - GOHAN_SERVICE_CONTACT=${BENTOV2_GOHAN_SERVICE_CONTACT}
+      - GOHAN_SEMVER=${BENTOV2_GOHAN_SEMVER}
+      - GOHAN_API_INTERNAL_PORT=${BENTOV2_GOHAN_API_INTERNAL_PORT}
+      - GOHAN_API_VCF_PATH=${BENTOV2_GOHAN_API_CONTAINERIZED_VCF_PATH}
+      - GOHAN_API_GTF_PATH=${BENTOV2_GOHAN_API_CONTAINERIZED_GTF_PATH}
+      - GOHAN_API_API_DRS_BRIDGE_DIR=${BENTOV2_GOHAN_API_API_DRS_BRIDGE_DIR_CONTAINERIZED}
+      - GOHAN_API_BULK_INDEXING_CAP=${BENTOV2_GOHAN_API_BULK_INDEXING_CAP}
+      - GOHAN_API_FILE_PROC_CONC_LVL=${BENTOV2_GOHAN_API_FILE_PROC_CONC_LVL}
+      - GOHAN_API_LINE_PROC_CONC_LVL=${BENTOV2_GOHAN_API_LINE_PROC_CONC_LVL}
+
+      # Elasticsearch
+      - GOHAN_ES_URL=${BENTOV2_GOHAN_PRIVATE_ES_URL}
+      - GOHAN_ES_USERNAME=${BENTOV2_GOHAN_ES_USERNAME}
+      - GOHAN_ES_PASSWORD=${BENTOV2_GOHAN_ES_PASSWORD}
+
+      # AuthX
+      - GOHAN_AUTHZ_ENABLED=${BENTOV2_GOHAN_API_AUTHZ_ENABLED}
+      - GOHAN_PUBLIC_AUTHN_JWKS_URL=${BENTOV2_GOHAN_PUBLIC_AUTHN_JWKS_URL}
+      - GOHAN_PRIVATE_AUTHZ_URL=${BENTOV2_GOHAN_PRIVATE_AUTHZ_URL}
+      - GOHAN_AUTHZ_REQHEADS=${BENTOV2_GOHAN_API_AUTHZ_REQHEADS}
+
+      # DRS
+      - GOHAN_DRS_URL=${BENTOV2_GOHAN_PRIVATE_DRS_URL}
+      - GOHAN_DRS_BASIC_AUTH_USERNAME=${BENTOV2_GOHAN_DRS_BASIC_AUTH_USERNAME}
+      - GOHAN_DRS_BASIC_AUTH_PASSWORD=${BENTOV2_GOHAN_DRS_BASIC_AUTH_PASSWORD}
+      - GOHAN_DRS_API_DRS_BRIDGE_DIR=${BENTOV2_GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
+    volumes: 
+      - ${BENTOV2_GOHAN_API_VCF_PATH}:${BENTOV2_GOHAN_API_CONTAINERIZED_VCF_PATH}
+      - ${BENTOV2_GOHAN_API_GTF_PATH}:${BENTOV2_GOHAN_API_CONTAINERIZED_GTF_PATH}
+      - ${BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR}:${BENTOV2_GOHAN_API_API_DRS_BRIDGE_DIR_CONTAINERIZED}
+    expose:
+      - ${BENTOV2_GOHAN_API_INTERNAL_PORT}
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_API_INTERNAL_PORT}" ]
+      timeout: 5s
+      interval: 1m
+      retries: 3
+    depends_on:
+      - gohan-elasticsearch
+
+  gohan-elasticsearch:
+    image: ${BENTOV2_GOHAN_ES_IMAGE}:${BENTOV2_GOHAN_ES_VERSION}
+    mem_limit: ${BENTOV2_GOHAN_ES_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_GOHAN_ES_CPUS}
+    cpu_shares: 2048
+    container_name: ${BENTOV2_GOHAN_ES_CONTAINER_NAME}
+    networks:
+      - bridge-net
+    environment:
+      - ELASTIC_USERNAME=${BENTOV2_GOHAN_ES_USERNAME}
+      - ELASTIC_PASSWORD=${BENTOV2_GOHAN_ES_PASSWORD}
+      - ${BENTOV2_GOHAN_ES_JAVA_OPTS}
+      - xpack.security.enabled=true
+      - discovery.type=${BENTOV2_GOHAN_ES_DISC_TYP}
+    volumes: 
+      - ${BENTOV2_GOHAN_ES_DATA_DIR}:/usr/share/elasticsearch/data
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_ES_INTERNAL_PORT_1}" ]
+      timeout: 5s
+      interval: 1m
+      retries: 3
+
 
 networks:
   bridge-net:
