@@ -358,14 +358,6 @@ run-%:
 
 
 #>>>
-# build common base images
-#<<<
-build-common-base:
-	docker-compose -f docker-compose.base.yaml build --no-cache common-alpine-python
-	# Swap if alpine ^ is insufficient:
-	# docker-compose -f docker-compose.base.yaml build --no-cache common-debian-python
-
-#>>>
 # build all service images
 # - each service building runs on it's own background process to complete faster
 #<<<
@@ -422,12 +414,6 @@ inspect-%:
 	watch 'docker logs bentov2-$* | tail -n 25'
 
 
-
-#>>>
-# clean up common base images
-#<<<
-clean-common-base:
-	docker rmi bentov2-common-alpine-python:0.0.1 --force;
 
 #>>>
 # clean all service containers and/or applicable images
