@@ -16,6 +16,7 @@ services:
       - BEACON_DEBUGGER_INTERNAL_PORT=${BEACON_DEBUGGER_INTERNAL_PORT}
       - BEACON_DEBUGGER_EXTERNAL_PORT=${BEACON_DEBUGGER_EXTERNAL_PORT}
       - CONFIG_ABSOLUTE_PATH=/config/
+      - BEACON_SMALL_CELL_COUNT_THRESHOLD=${BEACON_SMALL_CELL_COUNT_THRESHOLD}
     volumes:
       - ./config:/config
     networks: 
@@ -26,7 +27,7 @@ services:
     cpus: ${BEACON_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BEACON_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BEACON_INTERNAL_PORT}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
