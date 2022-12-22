@@ -4,10 +4,10 @@ location ~ /api/drs {
     include /gateway/conf/proxy_extra.conf;
     include /gateway/conf/proxy_private.conf;
 
-    # Remove "/api/drop-box" from the path
+    # Remove "/api/drs" from the path
     rewrite /api/drs/(.*) /$1  break;
 
-    # Forward request to the drop-box
+    # Forward request to DRS
     proxy_pass  http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}/$1$is_args$args;
 
     # Errors

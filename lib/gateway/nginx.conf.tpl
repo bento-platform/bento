@@ -472,10 +472,10 @@ http {
             # Clear X-CHORD-Internal header and set it to the "off" value (0)
             proxy_set_header     X-CHORD-Internal  "0";
 
-            # Remove "/api/federation" from the path
+            # Remove "/api/aggregation" from the path
             rewrite /api/federation/(.*) /${DOLLAR}1  break;
 
-            # Forward request to federation service
+            # Forward request to aggregation service
             proxy_pass  http://${BENTOV2_FEDERATION_CONTAINER_NAME}:${BENTOV2_FEDERATION_INTERNAL_PORT}/${DOLLAR}1${DOLLAR}is_args${DOLLAR}args;
 
             # Errors

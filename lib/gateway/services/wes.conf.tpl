@@ -7,7 +7,7 @@ location ~ /api/wes {
     # Remove "/api/wes" from the path
     rewrite /api/wes/(.*) /$1  break;
 
-    # Forward request to wes service
+    # Forward request to WES
     proxy_pass  http://${BENTOV2_WES_CONTAINER_NAME}:${BENTOV2_WES_INTERNAL_PORT}/$1$is_args$args;
 
     # Errors

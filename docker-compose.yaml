@@ -253,12 +253,12 @@ services:
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
-  federation:
+  aggregation:
     networks:
       - bridge-net
     extends:
-      file: $PWD/lib/federation/docker-compose.federation.yaml
-      service: federation
+      file: $PWD/lib/aggregation/docker-compose.aggregation.yaml
+      service: aggregation
 
 
 

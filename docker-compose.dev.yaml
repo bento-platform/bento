@@ -92,10 +92,10 @@ services:
     networks:
       - bridge-net
     extends:
-      file: $PWD/lib/federation/docker-compose.federation.yaml
+      file: $PWD/lib/aggregation/docker-compose.aggregation.yaml
       service: federation
     volumes:
-      - ./lib/federation/bento_federation_service:/federation/bento_federation_service
+      - ./lib/aggregation/bento_federation_service:/aggregation/bento_federation_service
     ports:
       - "${BENTOV2_FEDERATION_EXTERNAL_PORT}:${BENTOV2_FEDERATION_INTERNAL_PORT}"
       - "${BENTOV2_FEDERATION_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_FEDERATION_DEBUGGER_INTERNAL_PORT}"

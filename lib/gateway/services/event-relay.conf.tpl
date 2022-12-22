@@ -7,7 +7,7 @@ location ~ /api/event-relay {
     # Remove "/api/event-relay" from the path
     rewrite /api/event-relay/(.*) /$1  break;
 
-    # Forward request to event-relay service
+    # Forward request to event-relay
     proxy_pass  http://${BENTOV2_EVENT_RELAY_CONTAINER_NAME}:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}/$1$is_args$args;
 
     # Errors
