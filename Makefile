@@ -310,28 +310,7 @@ run-%:
 	@# may be provided after a space which is incompatible with GNU sed (no
 	@# space after -i). The solution here is to create a backup file and remove
 	@# it along with the working copy using a wildcard.
-	@if [[ $* == gateway ]]; then \
-		echo "Setting up gateway prerequisites"; \
-		envsubst < ./lib/gateway/nginx.conf.tpl > ./lib/gateway/nginx.conf.pre; \
-		if [[ ${BENTOV2_USE_EXTERNAL_IDP} == 1 ]]; then \
-			echo "Fine tuning nginx.conf to use an External IDP"; \
-			sed -i.bak '/-- Internal IDP Starts Here --/,/-- Internal IDP Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
-		else \
-			echo "Fine tuning nginx.conf to use an Internal IDP"; \
-		fi && \
-		if [[ ${BENTOV2_USE_BENTO_PUBLIC} == 1 ]]; then \
-			echo "Fine tuning nginx.conf to use Bento-Public"; \
-			\
-			sed -i.bak '/-- Do Not Use Bento-Public Starts Here --/,/-- Do Not Use Bento-Public Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
-		else \
-			echo "Fine tuning nginx.conf to disable Bento-Public"; \
-			\
-			sed -i.bak '/-- Use Bento-Public Starts Here --/,/-- Use Bento-Public Ends Here --/d' ./lib/gateway/nginx.conf.pre; \
-			\
-		fi && \
-		cat ./lib/gateway/nginx.conf.pre > ./lib/gateway/nginx.conf; \
-		rm ./lib/gateway/nginx.conf.pre*; \
-	elif [[ $* == web ]]; then \
+	@if [[ $* == web ]]; then \
 		echo "Cleaning web before running"; \
 		$(MAKE) clean-web; \
 	fi
