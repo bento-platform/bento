@@ -184,6 +184,32 @@ set_client () {
     "${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${realm}/clients" $DEV_FLAG
 }
 
+set_client_roles() {
+  realm=$1
+  client=$2
+
+  # 1. get id of client (not client-id)
+  id=$(curl -H "Authorization: bearer ${KC_TOKEN}" \
+    ${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/clients $DEV_FLAG 2> /dev/null \
+    | python3 -c 'import json,sys;obj=json.load(sys.stdin); print([l["id"] for l in obj if l["clientId"] ==
+    "'"$BENTOV2_AUTH_CLIENT_ID"'" ][0])')
+
+  # loop over BENTOV2_COMMA_SEPARATED_CLIENT_ROLES and create client-role for each one
+  URL="${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${realm}/clients/${id}/roles"
+  IFS=',' read -ra ROLES <<< "$BENTOV2_COMMA_SEPARATED_CLIENT_ROLES"
+  for role in "${ROLES[@]}"; do
+    # process
+    JSON='{
+      "name": "'"${role}"'"
+    }'
+    curl \
+      -H "Authorization: bearer ${KC_TOKEN}" \
+      -X POST -H "Content-Type: application/json"  -d "${JSON}" \
+      ${URL} $DEV_FLAG
+  done
+
+}
+
 get_secret () {
   id=$(curl -H "Authorization: bearer ${KC_TOKEN}" \
     ${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/clients $DEV_FLAG 2> /dev/null \
@@ -219,6 +245,10 @@ echo ">> .. created..."
 
 echo ">> Setting client BENTOV2_AUTH_CLIENT_ID .."
 set_client ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID} "${TYK_LISTEN_PATH}" "${BENTOV2_AUTH_LOGIN_REDIRECT_PATH}"
+echo ">> .. set..."
+
+echo ">> Setting client-roles BENTOV2_AUTH_CLIENT_ID .."
+set_client_roles ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID}
 echo ">> .. set..."
 
 echo ">> Getting CLIENT_SECRET .."
