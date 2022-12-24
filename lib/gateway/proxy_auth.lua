@@ -63,6 +63,7 @@ local invalidate_ott = function (redis_conn, token)
   redis_conn:hdel("bento_ott:user", token)
   redis_conn:hdel("bento_ott:user_id", token)
   redis_conn:hdel("bento_ott:user_role", token)
+  redis_conn:hdel("bento_ott:client_roles", token)
 end
 
 local invalidate_tt = function (redis_conn, token)
@@ -73,6 +74,7 @@ local invalidate_tt = function (redis_conn, token)
   redis_conn:hdel("bento_tt:user", token)
   redis_conn:hdel("bento_tt:user_id", token)
   redis_conn:hdel("bento_tt:user_role", token)
+  redis_conn:hdel("bento_tt:client_roles", token)
 end
 
 local OIDC_CALLBACK_PATH = "/api/auth/callback"
@@ -272,6 +274,7 @@ end
 local user
 local user_id
 local user_role
+local client_roles
 local nested_auth_header
 
 local err_user_not_owner = function ()
@@ -323,6 +326,7 @@ if ott_header and not URI:match("^/api/auth") then
   user = cjson.decode(ngx_null_to_nil(red:hget("bento_ott:user", ott_header)) or "{}")
   user_id = ngx_null_to_nil(red:hget("bento_ott:user_id", ott_header))
   user_role = ngx_null_to_nil(red:hget("bento_ott:user_role", ott_header))
+  client_roles = ngx_null_to_nil(red:hget("bento_ott:client_roles", ott_header))
 
   red:init_pipeline(5)
   invalidate_ott(red, ott_header)  -- 5 pipeline actions
@@ -382,6 +386,7 @@ elseif tt_header and not URI:match("^/api/auth") then
   user = cjson.decode(ngx_null_to_nil(red:hget("bento_tt:user", tt_header)) or "{}")
   user_id = ngx_null_to_nil(red:hget("bento_tt:user_id", tt_header))
   user_role = ngx_null_to_nil(red:hget("bento_tt:user_role", tt_header))
+  client_roles = ngx_null_to_nil(red:hget("bento_tt:client_roles", tt_header))
 
 
   -- Update NGINX time (which is cached)
@@ -437,6 +442,12 @@ else
         user_id = user.sub
         user_role = get_user_role(user_id)
         nested_auth_header = auth_header
+
+        if user.resource_access then
+          client_roles = user.resource_access[opts.client_id].roles
+        else
+          client_roles = {} -- array, not json object in lua
+        end
       end
     end
 
@@ -515,6 +526,7 @@ if URI == USER_INFO_PATH then
     err_user_nil()
   else
     user["chord_user_role"] = user_role
+    user["client_roles"] = client_roles
     uncached_response(ngx.HTTP_OK, "application/json", cjson.encode(user))
   end
 elseif URI == SIGN_IN_PATH then
@@ -612,6 +624,7 @@ elseif URI == ONE_TIME_TOKENS_GENERATE_PATH then
     red:hset("bento_ott:user", new_token, cjson.encode(user))
     red:hset("bento_ott:user_id", new_token, user_id)
     red:hset("bento_ott:user_role", new_token, user_role)
+    red:hset("bento_ott:client_roles", new_token, client_roles)
   end
   red:commit_pipeline()
 
@@ -704,6 +717,7 @@ elseif URI == TEMP_TOKENS_GENERATE_PATH then
     red:hset("bento_tt:user", new_token, cjson.encode(user))
     red:hset("bento_tt:user_id", new_token, user_id)
     red:hset("bento_tt:user_role", new_token, user_role)
+    red:hset("bento_tt:client_roles", new_token, client_roles)
   end
   red:commit_pipeline()
 
@@ -794,6 +808,7 @@ elseif URI == ONE_TIME_TOKENS_INVALIDATE_ALL_PATH then
   red:del("bento_ott:user")
   red:del("bento_ott:user_id")
   red:del("bento_ott:user_role")
+  red:del("bento_ott:client_roles")
   red:commit_pipeline()
 
   -- Put Redis connection into a keepalive pool for 30 seconds
@@ -820,6 +835,8 @@ end
 ngx.req.set_header("X-User", user_id)
 ngx.req.set_header("X-User-Role", user_role)
 ngx.req.set_header("X-Authorization", nested_auth_header)
+ngx.req.set_header("X-User-Client-Roles", client_roles)
+
 
 -- If an unrecoverable error occurred, it will jump here to skip everything and
 -- avoid trying to execute code while in an invalid state.
