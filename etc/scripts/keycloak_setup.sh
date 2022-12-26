@@ -96,7 +96,7 @@ add_users() {
 get_user_id () {
   KUID=$(curl \
     -H "Authorization: bearer ${KC_TOKEN}" \
-    "${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/users" $DEV_FLAG 2> /dev/null )
+    "${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/users" $DEV_FLAG 2> /dev/null)
   echo ${KUID} | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj[0]["id"])'
 }
 
@@ -184,15 +184,19 @@ set_client () {
     "${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${realm}/clients" $DEV_FLAG
 }
 
+get_id_of_client () {
+  echo $(curl -H "Authorization: bearer ${KC_TOKEN}" \
+    ${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/clients $DEV_FLAG 2> /dev/null \
+    | python3 -c 'import json,sys;obj=json.load(sys.stdin); print([l["id"] for l in obj if l["clientId"] ==
+    "'"$BENTOV2_AUTH_CLIENT_ID"'" ][0])')
+}
+
 set_client_roles() {
   realm=$1
   client=$2
 
   # 1. get id of client (not client-id)
-  id=$(curl -H "Authorization: bearer ${KC_TOKEN}" \
-    ${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/clients $DEV_FLAG 2> /dev/null \
-    | python3 -c 'import json,sys;obj=json.load(sys.stdin); print([l["id"] for l in obj if l["clientId"] ==
-    "'"$BENTOV2_AUTH_CLIENT_ID"'" ][0])')
+  id=$(get_id_of_client)
 
   # loop over BENTOV2_COMMA_SEPARATED_CLIENT_ROLES and create client-role for each one
   URL="${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${realm}/clients/${id}/roles"
@@ -207,14 +211,68 @@ set_client_roles() {
       -X POST -H "Content-Type: application/json"  -d "${JSON}" \
       ${URL} $DEV_FLAG
   done
+}
 
+get_available_client_roles () {
+  realm=$1
+  id=$(get_id_of_client)
+
+  # Spit out all available roles to stdout
+  URL="${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${realm}/clients/${id}/roles"
+  curl \
+      -H "Authorization: bearer ${KC_TOKEN}" \
+      -X GET \
+      ${URL} $DEV_FLAG
+  echo
+}
+
+get_specific_role() {
+  realm=$1
+  client=$2
+
+  roleToFind="bento-owner" # TODO: refactor
+  roles=$(get_available_client_roles $realm $client)
+  # filter out specific role
+  echo $roles | python3 -c 'import json,sys;obj=json.load(sys.stdin); print([l for l in obj if l["name"] == "'"${roleToFind}"'"][0])'
+}
+
+update_user_client_role () {
+  realm=$1
+  client=$2
+  idOfClient=$(get_id_of_client)
+  echo "Getting Specific Role"
+  role=$(get_specific_role $realm $client)
+  echo "> got role $role"
+  roleName=$(echo "$role" | sed "s/'/\"/g" | sed "s/True/true/g" | sed "s/False/false/g" | python3 -c 'import json,sys;obj=json.load(sys.stdin); print(obj["name"])')
+  echo "> got role name $roleName"
+  roleId=$(echo "$role" | sed "s/'/\"/g" | sed "s/True/true/g" | sed "s/False/false/g" | python3 -c 'import json,sys;obj=json.load(sys.stdin); print(obj["id"])')
+  echo "> got role id $roleId"
+  roleContainerId=$(echo "$role" | sed "s/'/\"/g" | sed "s/True/true/g" | sed "s/False/false/g" | python3 -c 'import json,sys;obj=json.load(sys.stdin); print(obj["containerId"])')
+  echo "> got role container id $roleContainerId"
+
+  echo "Getting User Id"
+  userId=$(get_user_id)
+  echo "Got USER ID ${userId}"
+  
+  data='[{
+      "id": "'${roleId}'",
+      "name": "'${roleName}'",
+      "description": "'${role_create-client}'",
+      "composite": false,
+      "clientRole": true,
+      "containerId": "'${roleContainerId}'"
+  }]'
+
+  URL="${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${realm}/clients/${id}/roles"
+  curl -X POST  -d "$data"  \
+    ${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${realm}/users/${userId}/role-mappings/clients/${idOfClient} \
+    -H "Authorization: bearer ${KC_TOKEN}" \
+    -H 'Content-Type: application/json' \
+   $DEV_FLAG
 }
 
 get_secret () {
-  id=$(curl -H "Authorization: bearer ${KC_TOKEN}" \
-    ${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/clients $DEV_FLAG 2> /dev/null \
-    | python3 -c 'import json,sys;obj=json.load(sys.stdin); print([l["id"] for l in obj if l["clientId"] ==
-    "'"$BENTOV2_AUTH_CLIENT_ID"'" ][0])')
+  id=$(get_id_of_client)
 
   curl -H "Authorization: bearer ${KC_TOKEN}" \
     ${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/clients/$id/client-secret $DEV_FLAG 2> /dev/null |\
@@ -264,7 +322,6 @@ echo "** Retrieved KC_PUBLIC_KEY as ${KC_PUBLIC_KEY} **"
 echo ">> .. got it..."
 echo
 
-
 echo ">> Adding user .."
 add_users
 echo ">> .. added..."
@@ -273,6 +330,16 @@ echo
 echo ">> .. waiting for keycloak to restart..."
 while !  docker logs --tail 5  ${BENTOV2_AUTH_CONTAINER_NAME} | grep "Admin console listening on http://127.0.0.1:9990" ; do sleep 1 ; done
 echo ">> .. ready..."
+
+
+echo ">> Refreshing KC_TOKEN .."
+KC_TOKEN=$(get_token)
+echo ">> .. got it..."
+
+echo ">> Patching client-roles .."
+update_user_client_role ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID}
+echo ">> .. done..."
+
 
 
 # echo ">> Getting fresh KC_TOKEN .."
