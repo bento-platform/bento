@@ -443,11 +443,12 @@ else
         user_role = get_user_role(user_id)
         nested_auth_header = auth_header
 
-        if user.resource_access then
-          client_roles = user.resource_access[opts.client_id].roles
-        else
-          client_roles = {} -- array, not json object in lua
-        end
+        -- if user.resource_access then
+        --   -- client_roles = user.client_roles
+        --   client_roles = user.resource_access[opts.client_id].roles
+        -- else
+        --   client_roles = {} -- array, not json object in lua
+        -- end
       end
     end
 
@@ -491,6 +492,13 @@ else
 
       -- Set user object for possible /api/auth/user response
       user = res.user
+
+      -- if user.resource_access then
+        --   -- client_roles = user.client_roles
+        --   client_roles = user.resource_access[opts.client_id].roles
+      -- else
+      --   client_roles = {} -- array, not json object in lua
+      -- end
 
       -- Set Bearer header for nested requests
       --  - First tries to use session-derived access token; if it's unset,
