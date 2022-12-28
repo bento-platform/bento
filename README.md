@@ -168,6 +168,11 @@ there and paste it in your .env file.
 
 ![Keycloak UI: get client secret](docs/img/keycloak_client_secret.png)
 
+<br />
+
+Finally, follow the instructions found under `docs/keycloak_client_scopes.md`.
+
+
 ### Setup Bento-Public
 
 Run
