@@ -10,15 +10,12 @@ secrets:
 
 services:
   web:
-    build:
-      args:
-        BENTO_WEB_IS_DEBUG: "true"
-        BENTO_WEB_USER: ${CURRENT_UID}
+    image: ${BENTOV2_WEB_IMAGE}:latest-dev
     volumes:
       - ./lib/web/bento_web:/web/bento_web
     # Execute npm build/install and watch, and
     # nginx "listener" upon container startup
-    entrypoint: sh /web/dev_startup.sh
+    entrypoint: sh /web/bento_web/entrypoint.dev.sh
     extends:
       file: docker-compose.yaml
       service: web
@@ -85,6 +82,7 @@ services:
 
 
   federation:
+    image: ${BENTOV2_FEDERATION_IMAGE}:latest-dev
     environment:
       - CHORD_DEBUG=${BENTOV2_FEDERATION_DEV_DEBUG}
       - PORT=${BENTOV2_FEDERATION_INTERNAL_PORT}
