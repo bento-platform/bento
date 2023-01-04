@@ -12,10 +12,10 @@ services:
   web:
     image: ${BENTOV2_WEB_IMAGE}:latest-dev
     volumes:
-      - ./lib/web/bento_web:/web/bento_web
+      - ./lib/web/bento_web:/web
     # Execute npm build/install and watch, and
     # nginx "listener" upon container startup
-    entrypoint: sh /web/bento_web/entrypoint.dev.sh
+    entrypoint: sh /web/entrypoint.dev.sh
     extends:
       file: docker-compose.yaml
       service: web
