@@ -1,6 +1,7 @@
 .env
 local.env
 .vscode/*
+.idea/*
 
 tmp
 
