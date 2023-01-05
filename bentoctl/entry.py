@@ -3,6 +3,8 @@ import argparse
 import sys
 
 from .auth_helper import init_auth
+from .config import BENTO_DOCKER_SERVICES
+from .services import run_service, stop_service
 
 from typing import Callable, Optional
 
@@ -15,6 +17,30 @@ def add_init_auth_args(_sp):
 
 def exec_init_auth(_args):
     init_auth()
+
+
+def add_run_args(sp):
+    sp.add_argument(
+        "service",
+        type=str,
+        choices=(*BENTO_DOCKER_SERVICES, "all"),
+        help="Service to run, or 'all' to run everything.")
+
+
+def exec_run(args):
+    run_service(args.service)
+
+
+def add_stop_args(sp):
+    sp.add_argument(
+        "service",
+        type=str,
+        choices=(*BENTO_DOCKER_SERVICES, "all"),
+        help="Service to stop, or 'all' to stop everything.")
+
+
+def exec_stop(args):
+    stop_service(args.service)
 
 
 def main(args: Optional[list[str]] = None) -> int:
@@ -38,6 +64,9 @@ def main(args: Optional[list[str]] = None) -> int:
         "Configure authentication for BentoV2 with a local Keycloak instance.",
         exec_init_auth,
         add_init_auth_args)
+
+    _add_subparser("run", "Run Bento services.", exec_run, add_run_args)
+    _add_subparser("stop", "Stop Bento services.", exec_stop, add_stop_args)
 
     p_args = parser.parse_args(args)
 

@@ -3,13 +3,15 @@
 import docker
 import os
 import requests
-import shutil
 import subprocess
 import sys
 import urllib3
 
 from termcolor import cprint
+
 from typing import Optional
+
+from .config import COMPOSE, MODE, DEV_MODE
 
 __all__ = ["init_auth"]
 
@@ -17,9 +19,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
-MODE = os.getenv("MODE")
-DEV_MODE = MODE == "dev"
-USER = os.getenv("USER")
 
 PORTAL_PUBLIC_URL = os.getenv("BENTOV2_PORTAL_PUBLIC_URL")
 
@@ -27,7 +26,6 @@ AUTH_REALM = os.getenv("BENTOV2_AUTH_REALM")
 AUTH_CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 AUTH_PUBLIC_URL = os.getenv("BENTOV2_AUTH_PUBLIC_URL")
 AUTH_LOGIN_REDIRECT_PATH = os.getenv("BENTOV2_AUTH_LOGIN_REDIRECT_PATH")
-print(AUTH_LOGIN_REDIRECT_PATH)
 AUTH_VOL_DIR = os.getenv("BENTOV2_AUTH_VOL_DIR")
 AUTH_ADMIN_USER = os.getenv("BENTOV2_AUTH_ADMIN_USER")
 AUTH_ADMIN_PASSWORD = os.getenv("BENTOV2_AUTH_ADMIN_PASSWORD")
@@ -35,14 +33,8 @@ AUTH_TEST_USER = os.getenv("BENTOV2_AUTH_TEST_USER")
 AUTH_TEST_PASSWORD = os.getenv("BENTOV2_AUTH_TEST_PASSWORD")
 AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
 
-print(f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}")
-
 
 docker_client = docker.from_env()
-
-compose: Optional[tuple[str, ...]] = ("docker", "compose")
-if shutil.which("docker-compose"):
-    compose = ("docker-compose",)
 
 # print(docker_client.containers.list())
 # print(docker_client.containers.get("bentov2-authh"))
@@ -221,7 +213,7 @@ def init_auth():
     except requests.exceptions.HTTPError:
         print(f"  Starting {AUTH_CONTAINER_NAME}...")
         # Not found, so we need to start it
-        subprocess.check_call((*compose, "up", "-d", "auth"))
+        subprocess.check_call((*COMPOSE, "up", "-d", "auth"))
         success()
 
     print(f"  Signing in as {AUTH_ADMIN_USER}...")

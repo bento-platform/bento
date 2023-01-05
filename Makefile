@@ -3,16 +3,18 @@
 #>>>
 # import and setup global environment variables
 #<<<
-env ?= ./etc/bento.env
+default_config_env ?= ./etc/default_config.env
 local_env ?= local.env
+env ?= ./etc/bento.env
 # gohan_env ?= ./lib/gohan/.env
 
 
 # a lot of the commands are ran before the gohan and public env files exist
 # "-" sign prevents make from failing if the file does not exist
+include $(default_config_env)
+include $(local_env)
 include $(env)
 # -include $(gohan_env)
-include $(local_env)
 
 export $(shell sed 's/=.*//' $(env))
 # export $(shell sed 's/=.*//' $(gohan_env))
@@ -306,19 +308,9 @@ run-drop-box-dev:
 # run a specific service
 #<<<
 run-%:
-	@# FreeBSD sed -i expects a suffix parameter for a backup file. Empty string
-	@# may be provided after a space which is incompatible with GNU sed (no
-	@# space after -i). The solution here is to create a backup file and remove
-	@# it along with the working copy using a wildcard.
 	@if [[ $* == web ]]; then \
 		echo "Cleaning web before running"; \
 		$(MAKE) clean-web; \
-	fi
-
-
-	@if [[ $* == auth && ${BENTOV2_USE_EXTERNAL_IDP} == 1 ]]; then \
-		echo "Auth doens't need to be built! Skipping --"; \
-		exit 1; \
 	fi
 
 	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
