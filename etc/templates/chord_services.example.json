@@ -69,20 +69,12 @@
     {
       "type": {
         "organization": "ca.c3g.bento",
-        "artifact": "federation",
+        "artifact": "aggregation",
         "language": "python"
       },
-      "repository": "${BENTO_FEDERATION_REPO}@${BENTOV2_FEDERATION_TAG_OR_BRANCH}",
+      "repository": "${BENTO_AGGREGATION_REPO}@${BENTOV2_AGGREGATION_TAG_OR_BRANCH}",
       "data_service": false,
-      "wsgi": false,
-      "service_runnable": "bento_federation_service",
-      "run_environment": {
-        "DATABASE": "{SERVICE_DATA}/federation.db",
-        "INITIALIZE_IMMEDIATELY": "false"
-      },
-      "post_start_commands": [
-        "curl --unix-socket /chord/tmp/nginx_internal.sock http://localhost{SERVICE_URL_BASE_PATH}/private/post-start-hook"
-      ]
+      "service_runnable": "bento_aggregation_service"
     },
     {
       "type": {
