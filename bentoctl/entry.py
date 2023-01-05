@@ -2,45 +2,73 @@ from __future__ import annotations
 import argparse
 import sys
 
+from abc import ABC, abstractmethod
+
 from .auth_helper import init_auth
 from .config import BENTO_DOCKER_SERVICES
-from .services import run_service, stop_service
+from .services import run_service, stop_service, clean_service
 
-from typing import Callable, Optional
+from typing import Optional, Type
 
 __version__ = "0.1.0"
 
 
-def add_init_auth_args(_sp):
-    pass
+class SubCommand(ABC):
+
+    @staticmethod
+    def add_args(sp):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def exec(args):
+        pass
 
 
-def exec_init_auth(_args):
-    init_auth()
+class InitAuth(SubCommand):
+
+    @staticmethod
+    def exec(args):
+        init_auth()
 
 
-def add_run_args(sp):
-    sp.add_argument(
-        "service",
-        type=str,
-        choices=(*BENTO_DOCKER_SERVICES, "all"),
-        help="Service to run, or 'all' to run everything.")
+class Run(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, choices=(*BENTO_DOCKER_SERVICES, "all"),
+            help="Service to run, or 'all' to run everything.")
+
+    @staticmethod
+    def exec(args):
+        run_service(args.service)
 
 
-def exec_run(args):
-    run_service(args.service)
+class Stop(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, choices=(*BENTO_DOCKER_SERVICES, "all"),
+            help="Service to stop, or 'all' to stop everything.")
+
+    @staticmethod
+    def exec(args):
+        stop_service(args.service)
 
 
-def add_stop_args(sp):
-    sp.add_argument(
-        "service",
-        type=str,
-        choices=(*BENTO_DOCKER_SERVICES, "all"),
-        help="Service to stop, or 'all' to stop everything.")
+class Clean(SubCommand):
 
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, choices=(*BENTO_DOCKER_SERVICES, "all"),
+            help="Service to clean, or 'all' to clean everything.")
 
-def exec_stop(args):
-    stop_service(args.service)
+    @staticmethod
+    def exec(args):
+        clean_service(args.service)
 
 
 def main(args: Optional[list[str]] = None) -> int:
@@ -54,19 +82,15 @@ def main(args: Optional[list[str]] = None) -> int:
 
     subparsers = parser.add_subparsers()
 
-    def _add_subparser(arg: str, help_text: str, fn_exec_cmd: Callable, fn_add_args: Callable):
+    def _add_subparser(arg: str, help_text: str, subcommand: Type[SubCommand]):
         subparser = subparsers.add_parser(arg, help=help_text)
-        subparser.set_defaults(func=fn_exec_cmd)
-        fn_add_args(subparser)
+        subparser.set_defaults(func=subcommand.exec)
+        subcommand.add_args(subparser)
 
-    _add_subparser(
-        "init-auth",
-        "Configure authentication for BentoV2 with a local Keycloak instance.",
-        exec_init_auth,
-        add_init_auth_args)
-
-    _add_subparser("run", "Run Bento services.", exec_run, add_run_args)
-    _add_subparser("stop", "Stop Bento services.", exec_stop, add_stop_args)
+    _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
+    _add_subparser("run", "Run Bento services.", Run)
+    _add_subparser("stop", "Stop Bento services.", Stop)
+    _add_subparser("stop", "Clean services.", Clean)
 
     p_args = parser.parse_args(args)
 
