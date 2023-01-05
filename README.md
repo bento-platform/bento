@@ -55,10 +55,6 @@ BENTOV2_PRIVATE_MODE=false
 
 BENTOV2_ROOT_DATA_DIR=~/bentov2/data
 ```
-On MacOS and some other OSes, `DOLLAR` must be changed from `$` to `$$`
-```
-DOLLAR=$$
-```
 If the internal IdP is being used (by default, Keycloak), credential variables should also be provided. The *admin* credentials are used to connect to the Keycloak UI
 for authentication management (adding users, getting client credentials,...).
 The *test* credentials will be used to authenticate on the Bento Portal.
@@ -94,7 +90,7 @@ due to the different directories Gohan's Makefile can be called from.
 
 ### Create self-signed TLS certificates
 
-First, setup your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development with the following steps;
+First, set up your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development with the following steps;
 
 From the project root, run
 ```
