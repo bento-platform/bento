@@ -1,5 +1,3 @@
-version: '3.7'
-
 #TODO: volumes
 
 secrets:
@@ -7,6 +5,10 @@ secrets:
     file: $PWD/tmp/secrets/keycloak-admin-user
   keycloak-admin-password:
     file: $PWD/tmp/secrets/keycloak-admin-password
+  keycloak-cert-file:
+    file: $PWD/lib/gateway/certs/auth_fullchain1.crt
+  keycloak-cert-key-file:
+    file: $PWD/lib/gateway/certs/auth_privkey1.key
 
   metadata-app-secret:
     file: $PWD/tmp/secrets/metadata-app-secret
@@ -56,27 +58,35 @@ services:
   auth:
     image: ${BENTOV2_AUTH_IMAGE}:${BENTOV2_AUTH_VERSION}
     container_name: ${BENTOV2_AUTH_CONTAINER_NAME}
-    command: ["-b", "${BENTOV2_AUTH_SERVICE_HOST}", "-Dkeycloak.migration.strategy=IGNORE_EXISTING"]
+    command: ["--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true", "start"]
+#    command: ["-b", "${BENTOV2_AUTH_SERVICE_HOST}", "-Dkeycloak.migration.strategy=IGNORE_EXISTING"]
+    depends_on:
+      - redis
     expose:
       - ${BENTOV2_AUTH_INTERNAL_PORT}
     networks:
       - bridge-net
     volumes:
-      - ${BENTOV2_AUTH_VOL_DIR}:/opt/jboss/keycloak/standalone/data
+      - ${BENTOV2_AUTH_VOL_DIR}:/opt/keycloak/data
     environment:
-      - PROXY_ADDRESS_FORWARDING=true
-      - KEYCLOAK_USER_FILE=/run/secrets/keycloak-admin-user
-      - KEYCLOAK_PASSWORD_FILE=/run/secrets/keycloak-admin-password
+      - KC_HTTP_ENABLED=true
+      - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
+      - KEYCLOAK_ADMIN=${BENTOV2_AUTH_ADMIN_USER}
+      - KEYCLOAK_ADMIN_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
+      - KC_HTTPS_CERTIFICATE_FILE=/run/secrets/keycloak-cert-file
+      - KC_HTTPS_CERTIFICATE_KEY_FILE=/run/secrets/keycloak-cert-key-file
+      - KC_HOSTNAME_STRICT=false
+      - KC_PROXY=passthrough
     secrets:
-      - source: keycloak-admin-user
-        target: /run/secrets/keycloak-admin-user
-      - source: keycloak-admin-password
-        target: /run/secrets/keycloak-admin-password
+      - source: keycloak-cert-file
+        target: /run/secrets/keycloak-cert-file
+      - source: keycloak-cert-key-file
+        target: /run/secrets/keycloak-cert-key-file
     mem_limit: ${BENTOV2_AUTH_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_AUTH_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:443", "-k" ]
+      test: [ "CMD", "curl", "https://localhost:8443", "-k" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}

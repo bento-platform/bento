@@ -87,7 +87,18 @@ fi
 add_users() {
   # BENTOV2_AUTH_CONTAINER_NAME is the name of the keycloak server inside the compose network
   echo "Adding ${BENTOV2_AUTH_TEST_USER}"
-  docker exec ${BENTOV2_AUTH_CONTAINER_NAME} /opt/jboss/keycloak/bin/add-user-keycloak.sh -u ${BENTOV2_AUTH_TEST_USER} -p ${BENTOV2_AUTH_TEST_PASSWORD} -r ${BENTOV2_AUTH_REALM}
+  docker exec ${BENTOV2_AUTH_CONTAINER_NAME} \
+    /opt/keycloak/bin/kcadm.sh \
+    create users \
+    -s "username=${BENTOV2_AUTH_TEST_USER}" \
+    -s "password=${BENTOV2_AUTH_TEST_PASSWORD}" \
+    -s "enabled=true" \
+    -r "${BENTOV2_AUTH_REALM}" \
+    --no-config \
+    --server http://localhost:8080 \
+    --user ${BENTOV2_AUTH_TEST_USER} \
+    --password ${BENTOV2_AUTH_TEST_PASSWORD} \
+    --realm master
 
   echo "Restarting the keycloak container"
   docker restart ${BENTOV2_AUTH_CONTAINER_NAME}
@@ -96,7 +107,7 @@ add_users() {
 get_user_id () {
   KUID=$(curl \
     -H "Authorization: bearer ${KC_TOKEN}" \
-    "${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/users" $DEV_FLAG 2> /dev/null )
+    "${BENTOV2_AUTH_PUBLIC_URL}/admin/realms/${BENTOV2_AUTH_REALM}/users" $DEV_FLAG 2> /dev/null )
   echo ${KUID} | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj[0]["id"])'
 }
 
@@ -108,7 +119,8 @@ get_token () {
     -d "username=$BENTOV2_AUTH_ADMIN_USER" \
     -d "password=$BENTOV2_AUTH_ADMIN_PASSWORD" \
     -d "grant_type=password" \
-    "${BENTOV2_AUTH_PUBLIC_URL}/auth/realms/master/protocol/openid-connect/token" $DEV_FLAG 2> /dev/null )
+    "${BENTOV2_AUTH_PUBLIC_URL}/realms/master/protocol/openid-connect/token" $DEV_FLAG 2> /dev/null )
+  echo "BID: ${BID}";
   echo ${BID} | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj["access_token"])'
 }
 
@@ -117,12 +129,26 @@ get_token () {
 set_realm () {
   realm=$1
 
-  JSON="{\"realm\": \"${realm}\",\"enabled\": true}"
+  docker exec "${BENTOV2_AUTH_CONTAINER_NAME}" \
+    /opt/keycloak/bin/kcadm.sh \
+    create realms \
+    -s "realm=${realm}" \
+    -s "enabled=true" \
+    -r "${BENTOV2_AUTH_REALM}" \
+    --no-config \
+    --server http://localhost:8080 \
+    --user "${BENTOV2_AUTH_ADMIN_USER}" \
+    --password "${BENTOV2_AUTH_ADMIN_PASSWORD}" \
+    --realm master
+#      --password ${BENTOV2_AUTH_TEST_PASSWORD} \
+#      --realm master
 
-  curl \
-    -H "Authorization: bearer ${KC_TOKEN}" \
-    -X POST -H "Content-Type: application/json"  -d "${JSON}" \
-    "${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms" $DEV_FLAG
+#  JSON="{\"realm\": \"${realm}\",\"enabled\": true}"
+#
+#  curl \
+#    -H "Authorization: bearer ${KC_TOKEN}" \
+#    -X POST -H "Content-Type: application/json"  -d "${JSON}" \
+#    "${BENTOV2_AUTH_PUBLIC_URL}/admin/realms" $DEV_FLAG
 }
 
 
@@ -131,7 +157,7 @@ get_realm () {
 
   curl \
     -H "Authorization: bearer ${KC_TOKEN}" \
-    "${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${realm}" $DEV_FLAG | jq .
+    "${BENTOV2_AUTH_PUBLIC_URL}/admin/realms/${realm}" $DEV_FLAG | jq .
 }
 
 #################################
@@ -141,7 +167,7 @@ get_realm_clients () {
 
   curl \
     -H "Authorization: bearer ${KC_TOKEN}" \
-    "${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${realm}/clients" $DEV_FLAG | jq -S .
+    "${BENTOV2_AUTH_PUBLIC_URL}/admin/realms/${realm}/clients" $DEV_FLAG | jq -S .
 }
 
 
@@ -149,8 +175,7 @@ get_realm_clients () {
 set_client () {
   realm=$1
   client=$2
-  listen=$3
-  redirect=$4
+  redirect=$3
 
   # Will add / to listen only if it is present
 
@@ -181,23 +206,23 @@ set_client () {
   curl \
     -H "Authorization: bearer ${KC_TOKEN}" \
     -X POST -H "Content-Type: application/json"  -d "${JSON}" \
-    "${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${realm}/clients" $DEV_FLAG
+    "${BENTOV2_AUTH_PUBLIC_URL}/admin/realms/${realm}/clients" $DEV_FLAG
 }
 
 get_secret () {
   id=$(curl -H "Authorization: bearer ${KC_TOKEN}" \
-    ${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/clients $DEV_FLAG 2> /dev/null \
+    ${BENTOV2_AUTH_PUBLIC_URL}/admin/realms/${BENTOV2_AUTH_REALM}/clients $DEV_FLAG 2> /dev/null \
     | python3 -c 'import json,sys;obj=json.load(sys.stdin); print([l["id"] for l in obj if l["clientId"] ==
     "'"$BENTOV2_AUTH_CLIENT_ID"'" ][0])')
 
   curl -H "Authorization: bearer ${KC_TOKEN}" \
-    ${BENTOV2_AUTH_PUBLIC_URL}/auth/admin/realms/${BENTOV2_AUTH_REALM}/clients/$id/client-secret $DEV_FLAG 2> /dev/null |\
+    ${BENTOV2_AUTH_PUBLIC_URL}/admin/realms/${BENTOV2_AUTH_REALM}/clients/$id/client-secret $DEV_FLAG 2> /dev/null |\
     python3 -c 'import json,sys;obj=json.load(sys.stdin); print(obj["value"])'
 }
 
 get_public_key () {
   curl \
-    ${BENTOV2_AUTH_PUBLIC_URL}/auth/realms/${BENTOV2_AUTH_REALM} $DEV_FLAG 2> /dev/null |\
+    ${BENTOV2_AUTH_PUBLIC_URL}/realms/${BENTOV2_AUTH_REALM} $DEV_FLAG 2> /dev/null |\
     python3 -c 'import json,sys;obj=json.load(sys.stdin); print(obj["public_key"])'
 }
 ##################################
@@ -209,7 +234,7 @@ echo "$BENTOV2_AUTH_ADMIN_USER $BENTOV2_AUTH_ADMIN_PASSWORD $BENTOV2_AUTH_PUBLIC
 
 echo ">> Getting KC_TOKEN .."
 KC_TOKEN=$(get_token)
-#echo ">> retrieved KC_TOKEN ${KC_TOKEN}"
+echo ">> retrieved KC_TOKEN ${KC_TOKEN}"
 echo ">> .. got it..."
 
 echo ">> Creating Realm ${BENTOV2_AUTH_REALM} .."
@@ -217,8 +242,8 @@ set_realm ${BENTOV2_AUTH_REALM}
 echo ">> .. created..."
 
 
-echo ">> Setting client BENTOV2_AUTH_CLIENT_ID .."
-set_client ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID} "${TYK_LISTEN_PATH}" "${BENTOV2_AUTH_LOGIN_REDIRECT_PATH}"
+echo ">> Setting client ${BENTOV2_AUTH_CLIENT_ID} .."
+set_client ${BENTOV2_AUTH_REALM} ${BENTOV2_AUTH_CLIENT_ID} "${BENTOV2_AUTH_LOGIN_REDIRECT_PATH}"
 echo ">> .. set..."
 
 echo ">> Getting CLIENT_SECRET .."
