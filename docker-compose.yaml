@@ -357,7 +357,8 @@ services:
       # port number (e.g. 8080, which is the default value if nothing is set.)
       # Will also check the SERVICE_SOCKET environment variable for legacy reasons
       # related to the Bento platform.
-      #- SERVICE_LISTEN_ON="/path/to/event_relay.sock"
+      # Use the standard Bento service internal port, overriding the default
+      - SERVICE_LISTEN_ON=${BENTO_STD_SERVICE_INTERNAL_PORT}
     depends_on:
       - redis
     networks:
