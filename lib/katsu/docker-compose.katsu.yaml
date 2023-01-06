@@ -36,7 +36,7 @@ services:
       - ./config.json:${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}/chord_metadata_service/config.json
       # Temp WES dir
       - ${BENTOV2_KATSU_PROD_WES_VOL_TMP_DIR}:/wes/tmp
-    entrypoint:
+    command:
       - /bin/sh
       - -c
       - |
