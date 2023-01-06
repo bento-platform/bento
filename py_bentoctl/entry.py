@@ -37,7 +37,7 @@ class Run(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=(*BENTO_DOCKER_SERVICES, "all"),
+            "service", type=str, nargs="?", default="all", choices=(*BENTO_DOCKER_SERVICES, "all"),
             help="Service to run, or 'all' to run everything.")
 
     @staticmethod
