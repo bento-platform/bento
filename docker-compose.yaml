@@ -6,9 +6,9 @@ secrets:
   keycloak-admin-password:
     file: $PWD/tmp/secrets/keycloak-admin-password
   keycloak-cert-file:
-    file: $PWD/lib/gateway/certs/auth_fullchain1.crt
+    file: $PWD/${BENTOV2_CERTS_DIR}/auth_fullchain1.crt
   keycloak-cert-key-file:
-    file: $PWD/lib/gateway/certs/auth_privkey1.key
+    file: $PWD/${BENTOV2_CERTS_DIR}/auth_privkey1.key
 
   metadata-app-secret:
     file: $PWD/tmp/secrets/metadata-app-secret
@@ -42,8 +42,6 @@ services:
 
       - BENTOV2_GATEWAY_CONTAINER_NAME
       - BENTOV2_GATEWAY_INTERNAL_CERTS_DIR
-      - BENTOV2_GATEWAY_INTERNAL_AUTH_FULLCHAIN_RELATIVE_PATH
-      - BENTOV2_GATEWAY_INTERNAL_AUTH_PRIVKEY_RELATIVE_PATH
       - BENTOV2_GATEWAY_INTERNAL_PORTAL_FULLCHAIN_RELATIVE_PATH
       - BENTOV2_GATEWAY_INTERNAL_PORTAL_PRIVKEY_RELATIVE_PATH
       - BENTOV2_GATEWAY_INTERNAL_FULLCHAIN_RELATIVE_PATH
@@ -52,6 +50,9 @@ services:
 
       - BENTOV2_AUTH_CONTAINER_NAME
       - BENTOV2_AUTH_INTERNAL_PORT
+      - BENTOV2_AUTH_FULLCHAIN_RELATIVE_PATH
+      - BENTOV2_AUTH_PRIVKEY_RELATIVE_PATH
+
       - BENTOV2_DROP_BOX_CONTAINER_NAME
       - BENTOV2_DROP_BOX_INTERNAL_PORT
       - BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME
@@ -94,7 +95,7 @@ services:
       - "443"
       - "444"
     volumes:
-      - ${BENTOV2_GATEWAY_CERTS_DIR}:${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}
+      - ${BENTOV2_CERTS_DIR}:${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}:ro
       - $PWD/lib/gateway/services:/gateway/services:ro
     mem_limit: ${BENTOV2_GATEWAY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_GATEWAY_CPUS}
