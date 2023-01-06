@@ -10,4 +10,4 @@ source etc/bento.env
 
 echo "$BENTOV2_WES_VOL_TMP_DIR"
 
-python3 -m bentoctl.entry "$@"
+python3 -m py_bentoctl.entry "$@"
