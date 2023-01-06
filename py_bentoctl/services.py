@@ -8,6 +8,7 @@ from .config import BENTO_DOCKER_SERVICES, COMPOSE
 __all__ = [
     "run_service",
     "stop_service",
+    "restart_service",
     "clean_service",
     "enter_shell_for_service",
     "run_as_shell_for_service",
@@ -21,7 +22,7 @@ def run_service(service: str):
         return
 
     if service not in BENTO_DOCKER_SERVICES:
-        cprint(f"  {service} not in list of services: {BENTO_DOCKER_SERVICES}")
+        cprint(f"  {service} not in list of services: {BENTO_DOCKER_SERVICES}", "red")
         exit(1)
 
     print(f"Running {service}...")
@@ -32,13 +33,19 @@ def stop_service(service: str):
     if service == "all":
         # special: stop everything
         subprocess.check_call((*COMPOSE, "down"))
+        return
 
     if service not in BENTO_DOCKER_SERVICES:
-        cprint(f"  {service} not in list of services: {BENTO_DOCKER_SERVICES}")
+        cprint(f"  {service} not in list of services: {BENTO_DOCKER_SERVICES}", "red")
         exit(1)
 
     print(f"Stopping {service}...")
     subprocess.check_call((*COMPOSE, "stop", service))
+
+
+def restart_service(service: str):
+    stop_service(service)
+    run_service(service)
 
 
 def clean_service(service: str):

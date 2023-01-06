@@ -40,6 +40,9 @@ services:
       - BENTOV2_DOMAIN
       - BENTOV2_PORTAL_DOMAIN
 
+      - BENTOV2_USE_EXTERNAL_IDP
+      - BENTOV2_USE_BENTO_PUBLIC
+
       - BENTOV2_GATEWAY_CONTAINER_NAME
       - BENTOV2_GATEWAY_INTERNAL_CERTS_DIR
       - BENTOV2_GATEWAY_INTERNAL_PORTAL_FULLCHAIN_RELATIVE_PATH
@@ -82,6 +85,8 @@ services:
       - BENTOV2_GOHAN_ES_INTERNAL_PORT_2
       - BENTO_PUBLIC_CONTAINER_NAME
       - BENTO_PUBLIC_INTERNAL_PORT
+      - BENTO_BEACON_CONTAINER_NAME
+      - BENTO_BEACON_INTERNAL_PORT
     networks:
       bridge-net:
         aliases:
@@ -154,6 +159,7 @@ services:
       - BENTO_PUBLIC_KATSU_URL=${BENTO_PUBLIC_KATSU_URL}
       - BENTO_PUBLIC_MAX_QUERY_PARAMETERS=${BENTO_PUBLIC_MAX_QUERY_PARAMETERS}
       - BENTO_PUBLIC_PORTAL_URL=${BENTO_PUBLIC_PORTAL_URL}
+      - INTERNAL_PORT=${BENTO_PUBLIC_INTERNAL_PORT}
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
     volumes:
@@ -238,10 +244,6 @@ services:
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION}
     container_name: ${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}
     environment:
-      # Runtime
-      - FLASK_DEBUG=False
-      - FLASK_APP=bento_service_registry.app
-
       # Following the chord_services.json schema
       # (https://github.com/c3g/chord_singularity/blob/master/chord_services.schema.json)
       # A list of services on a single domain which are registered in the service
@@ -251,7 +253,8 @@ services:
       # Common URL base for all services
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
 
-      - CHORD_DEBUG=True
+      - BENTO_DEBUG=False
+      - BENTO_VALIDATE_SSL=True
 
       # Timeout, in seconds (integers only), for contacting services from the JSON
       - CONTACT_TIMEOUT=10

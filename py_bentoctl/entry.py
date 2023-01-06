@@ -50,12 +50,25 @@ class Stop(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=(*BENTO_DOCKER_SERVICES, "all"),
+            "service", type=str, nargs="?", default="all", choices=(*BENTO_DOCKER_SERVICES, "all"),
             help="Service to stop, or 'all' to stop everything.")
 
     @staticmethod
     def exec(args):
         s.stop_service(args.service)
+
+
+class Restart(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, nargs="?", default="all", choices=(*BENTO_DOCKER_SERVICES, "all"),
+            help="Service to restart, or 'all' to restart everything.")
+
+    @staticmethod
+    def exec(args):
+        s.restart_service(args.service)
 
 
 class Clean(SubCommand):
@@ -122,6 +135,7 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
     _add_subparser("run", "Run Bento services.", Run)
     _add_subparser("stop", "Stop Bento services.", Stop)
+    _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell)
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
