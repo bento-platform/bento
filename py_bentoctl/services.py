@@ -17,8 +17,7 @@ __all__ = [
 def run_service(service: str):
     if service == "all":
         # special: run everything
-        for s in BENTO_DOCKER_SERVICES:
-            run_service(s)
+        subprocess.check_call((*COMPOSE, "up", "-d"))
         return
 
     if service not in BENTO_DOCKER_SERVICES:
