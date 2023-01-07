@@ -84,6 +84,17 @@ class Clean(SubCommand):
         s.clean_service(args.service)
 
 
+class WorkOn(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument("service", type=str, choices=BENTO_DOCKER_SERVICES, help="Service to work on.")
+
+    @staticmethod
+    def exec(args):
+        s.work_on_service(args.service)
+
+
 class Shell(SubCommand):
 
     @staticmethod
@@ -137,6 +148,8 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("stop", "Stop Bento services.", Stop)
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
+    _add_subparser("work-on", "Work on a specific service in development mode.", WorkOn)
+    _add_subparser("prod", "Switch a service back to production mode.", Run)  # Just an alias really
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell)
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
 

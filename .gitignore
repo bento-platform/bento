@@ -16,6 +16,9 @@ lib/gateway/nginx.conf
 
 # ignore dev repos
 lib/web/bento_web/*
+repos/*
+!repos/.gitkeep
+!repos/README.md
 
 # ignore data directories
 data
@@ -33,10 +36,12 @@ lib/web/bento_web
 lib/katsu/config.json
 
 # bento_web
-lib/web
+lib/web/*
+!lib/web/.gitkeep
 
 # bento_public
-lib/public/
+lib/public/*
+!lib/public/.gitkeep
 
 # temp test stuff
 etc/tests/*/__pycache__

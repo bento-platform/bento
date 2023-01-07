@@ -1,0 +1,70 @@
+{
+  "service-registry": {
+    "artifact": "service-registry",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{artifact}",
+    "repository": "https://github.com/bento-platform/bento_service_registry",
+    "data_service": false
+  },
+  "drop-box": {
+    "artifact": "drop-box",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{artifact}",
+    "repository": "https://github.com/bento-platform/bento_drop_box_service",
+    "data_service": false
+  },
+  "wes": {
+    "artifact": "wes",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{artifact}",
+    "repository": "https://github.com/bento-platform/bento_wes",
+    "data_service": false
+  },
+  "aggregation": {
+    "artifact": "aggregation",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{artifact}",
+    "repository": "https://github.com/bento-platform/bento_federation_service",
+    "data_service": false
+  },
+  "notification": {
+    "artifact": "notification",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{artifact}",
+    "repository": "https://github.com/bento-platform/bento_notification_service",
+    "data_service": false
+  },
+  "event-relay": {
+    "artifact": "event-relay",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{artifact}",
+    "repository": "https://github.com/bento-platform/bento_event_relay",
+    "data_service": false
+  },
+  "katsu": {
+    "artifact": "metadata",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{artifact}",
+    "repository": "https://github.com/bento-platform/katsu.git",
+    "data_service": true,
+    "manageable_tables": true
+  },
+  "drs": {
+    "artifact": "drs",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{artifact}",
+    "repository": "https://github.com/bento-platform/bento_drs.git",
+    "data_service": false
+  },
+  "gohan-api": {
+    "artifact": "gohan",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{artifact}",
+    "repository": "https://github.com/bento-platform/gohan.git",
+    "data_service": true,
+    "manageable_tables": true
+  },
+  "public": {
+    "artifact": "public",
+    "url_template": "{BENTO_PUBLIC_URL}",
+    "repository": "https://github.com/bento-platform/bento_public.git",
+    "data_service": false
+  },
+  "beacon": {
+    "artifact": "beacon",
+    "url_template": "{BENTO_PUBLIC_URL}/api/{artifact}",
+    "repository": "https://github.com/bento-platform/bento_beacon.git",
+    "data_service": false
+  }
+}

@@ -1,18 +1,24 @@
 from __future__ import annotations
 
+import json
 import os
+import pathlib
 import shutil
 
 from typing import Optional
 
 __all__ = [
     "BENTO_DOCKER_SERVICES",
+
     "COMPOSE",
+    "USER",
 
     "MODE",
     "DEV_MODE",
 
-    "USER",
+
+    "BENTO_SERVICES_PATH",
+    "BENTO_SERVICES_DATA",
 ]
 
 BENTO_DOCKER_SERVICES: list[str] = [
@@ -22,7 +28,11 @@ COMPOSE: Optional[tuple[str, ...]] = ("docker", "compose")
 if shutil.which("docker-compose"):
     COMPOSE = ("docker-compose",)
 
+USER = os.getenv("USER")
+
 MODE = os.getenv("MODE")
 DEV_MODE = MODE == "dev"
 
-USER = os.getenv("USER")
+BENTO_SERVICES_PATH = os.getenv("BENTO_SERVICES", pathlib.Path(__file__).parent.parent / "etc" / "bento_services.json")
+with open(BENTO_SERVICES_PATH, "r") as sf:
+    BENTO_SERVICES_DATA = json.load(sf)

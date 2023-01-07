@@ -8,11 +8,6 @@ def init_public():
     pass
 
 
-def init_chord_services():
-    # TODO
-    pass
-
-
 def init_dirs():
     pass
 
