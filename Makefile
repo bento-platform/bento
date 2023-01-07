@@ -88,6 +88,11 @@ data-dirs:
 	mkdir -p ${BENTOV2_WES_VOL_DIR}
 	mkdir -p ${BENTOV2_REDIS_VOL_DIR}
 
+	mkdir -p ${BENTOV2_GOHAN_API_VCF_PATH}
+	mkdir -p ${BENTOV2_GOHAN_API_GTF_PATH}
+	mkdir -p ${BENTOV2_GOHAN_ES_DATA_DIR}
+
+
 
 
 
