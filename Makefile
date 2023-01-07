@@ -148,19 +148,6 @@ init-public:
 	
 	@echo done
 
-# init-gohan:
-# 	@cd lib && \
-# 	\
-# 	if [ ! -d "./gohan" ]; then \
-# 		echo "-- Cloning Gohan --" ; \
-# 		[[  -z "${GOHAN_TAG_OR_BRANCH}" ]] && echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
-# 		git clone ${GOHAN_REPO} -b ${GOHAN_TAG_OR_BRANCH} ; \
-# 	else \
-# 	    cd gohan && \
-# 		git fetch; \
-# 		git checkout ${GOHAN_TAG_OR_BRANCH}; \
-# 		echo "-- Gohan already cloned --" ; \
-# 	fi
 
 
 
