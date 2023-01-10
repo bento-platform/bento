@@ -1,6 +1,8 @@
-# bento v2
+# BentoV2 - Docker-based Bento development and deployment tooling
+
 This repo is intended to be the next generation of Bento deployments.
-Originating from the blueprints in the repo `chord_singularity`, `bentoV2` aims to be much more modular than it's counterpart, built with docker instead of Singularity.
+Originating from the blueprints in the repo `chord_singularity`, `bentoV2` aims to be much more modular than its 
+counterpart, built with Docker instead of Singularity.
 
 
 
