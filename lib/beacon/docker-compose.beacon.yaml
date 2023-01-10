@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
 
   beacon:
@@ -26,8 +24,7 @@ services:
     cpus: ${BENTO_BEACON_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTO_BEACON_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTO_BEACON_INTERNAL_PORT}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
-
