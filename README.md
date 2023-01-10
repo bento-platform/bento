@@ -96,7 +96,7 @@ First, set up your local bentoV2 and authorization hostnames (something like `be
 
 From the project root, run
 ```
-mkdir -p ./lib/gateway/certs
+mkdir -p ./certs
 ```
 
 > NOTE: In the steps below, ensure the domain names in `.env` and the cert Common Names match up
@@ -104,21 +104,21 @@ mkdir -p ./lib/gateway/certs
 Then run
 ```
 openssl req -newkey rsa:2048 -nodes \
-    -keyout ./lib/gateway/certs/privkey1.key -x509 \
-    -days 365 -out ./lib/gateway/certs/fullchain1.crt
+    -keyout ./certs/privkey1.key -x509 \
+    -days 365 -out ./certs/fullchain1.crt
 
 openssl req -newkey rsa:2048 -nodes \
-    -keyout ./lib/gateway/certs/portal_privkey1.key -x509 \
-    -days 365 -out ./lib/gateway/certs/portal_fullchain1.crt
+    -keyout ./certs/portal_privkey1.key -x509 \
+    -days 365 -out ./certs/portal_fullchain1.crt
 ```
 to create the bentov2 cert for `bentov2.local` (or whatever other domain you use)
 
 Next, if you're running an OIDC provider container locally (default is Keycloak), run
 ```
 openssl req -newkey rsa:2048 -nodes \
-    -keyout ./lib/gateway/certs/auth_privkey1.key -x509 \
+    -keyout ./certs/auth_privkey1.key -x509 \
     -days 365 \
-    -out ./lib/gateway/certs/auth_fullchain1.crt
+    -out ./certs/auth_fullchain1.crt
 ```
 to create the bentov2 cert for `bentov2auth.local` (or whatever other domain you use)
 
