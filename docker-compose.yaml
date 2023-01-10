@@ -180,9 +180,6 @@ services:
     environment:
       - BENTO_URL=${BENTOV2_PUBLIC_URL}
       - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
-    entrypoint: bash /web/entrypoint.bash
-    volumes:
-      - $PWD/lib/web/branding.png:/web/dist/static/branding.png:ro
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_WEB_CPUS}
     cpu_shares: 512
@@ -244,17 +241,21 @@ services:
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION}
     container_name: ${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}
     environment:
-      # Following the chord_services.json schema
-      # (https://github.com/c3g/chord_singularity/blob/master/chord_services.schema.json)
+      # Following the revised bento_services.json schema
+      # (see Python typing in bento_service_registry)
       # A list of services on a single domain which are registered in the service
       # registry instance.
-      - CHORD_SERVICES=/chord_services.json
+      - BENTO_SERVICES=/bento_services.json
 
       # Common URL base for all services
-      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
+      - BENTO_URL=${BENTOV2_PORTAL_PUBLIC_URL}
+
+      # Variables for generating service URLs from URL templates found in bento_services.json
+      - BENTO_PUBLIC_URL=${BENTOV2_PUBLIC_URL}
+      - BENTO_PORTAL_PUBLIC_URL=${BENTOV2_PORTAL_PUBLIC_URL}
 
       - BENTO_DEBUG=False
-      - BENTO_VALIDATE_SSL=True
+      - BENTO_VALIDATE_SSL=False
 
       # Timeout, in seconds (integers only), for contacting services from the JSON
       - CONTACT_TIMEOUT=10
@@ -262,17 +263,13 @@ services:
       # Service ID for the /service-info endpoint
       - SERVICE_ID=ca.c3g.bento:${BENTOV2_SERVICE_REGISTRY_VERSION}
 
-      # Python path template for the services, off of the CHORD_URL value
-      # Currently only supports artifact-based paths
-      - URL_PATH_FORMAT=api/{artifact}
-
       - INTERNAL_PORT=${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
     networks:
       - bridge-net
     expose:
       - ${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
     volumes:
-      - $PWD/lib/service-registry/chord_services.json:/chord_services.json:ro
+      - $PWD/etc/bento_services.json:/bento_services.json:ro
     mem_limit: ${BENTOV2_SERVICE_REGISTRY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_SERVICE_REGISTRY_CPUS}
     cpu_shares: 256

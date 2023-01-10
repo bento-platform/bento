@@ -8,18 +8,17 @@ secrets:
 
 services:
   web:
-    image: ${BENTOV2_WEB_IMAGE}:latest-dev
+    image: ${BENTOV2_WEB_IMAGE}:pr-207-dev
     volumes:
-      - ./repos/web:/web/bento_web
+      - ./repos/web:/web
     # Execute npm build/install and watch, and
     # nginx "listener" upon container startup
-    entrypoint: sh /web/dev_startup.sh
     extends:
       file: docker-compose.yaml
       service: web
 
   public:
-    image: ${BENTOV2_PUBLIC_IMAGE}:latest-dev
+    image: ${BENTO_PUBLIC_IMAGE}:latest-dev
     extends:
       file: docker-compose.yaml
       service: public
@@ -78,8 +77,8 @@ services:
     environment:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
-      - PORT=${BENTOV2_FEDERATION_INTERNAL_PORT}
-      - DEBUGGER_PORT=${BENTOV2_FEDERATION_DEBUGGER_INTERNAL_PORT}
+      - PORT=${BENTOV2_AGGREGATION_INTERNAL_PORT}
+      - DEBUGGER_PORT=${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}
     networks:
       - bridge-net
     extends:
@@ -88,8 +87,8 @@ services:
     volumes:
       - ./repos/aggregation/bento_aggregation_service:/aggregation/bento_aggregation_service
     ports:
-      - "${BENTOV2_FEDERATION_EXTERNAL_PORT}:${BENTOV2_FEDERATION_INTERNAL_PORT}"
-      - "${BENTOV2_FEDERATION_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_FEDERATION_DEBUGGER_INTERNAL_PORT}"
+      - "${BENTOV2_AGGREGATION_EXTERNAL_PORT}:${BENTOV2_AGGREGATION_INTERNAL_PORT}"
+      - "${BENTOV2_AGGREGATION_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}"
 
   wes:
     image: ${BENTOV2_WES_IMAGE}:latest-dev

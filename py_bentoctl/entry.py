@@ -95,6 +95,19 @@ class WorkOn(SubCommand):
         s.work_on_service(args.service)
 
 
+class Pull(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, nargs="?", default="all", choices=(*BENTO_DOCKER_SERVICES, "all"),
+            help="Service to pull image for.")
+
+    @staticmethod
+    def exec(args):
+        s.pull_service(args.service)
+
+
 class Shell(SubCommand):
 
     @staticmethod
@@ -150,6 +163,7 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("clean", "Clean services.", Clean)
     _add_subparser("work-on", "Work on a specific service in development mode.", WorkOn)
     _add_subparser("prod", "Switch a service back to production mode.", Run)  # Just an alias really
+    _add_subparser("pull", "Pull the production image for a specific service.", Pull)
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell)
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
 
