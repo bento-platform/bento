@@ -55,6 +55,12 @@
     "data_service": true,
     "manageable_tables": true
   },
+  "web": {
+    "artifact": "web",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}",
+    "repository": "https://github.com/bento-platform/bento_web.git",
+    "data_service": false
+  },
   "public": {
     "artifact": "public",
     "url_template": "{BENTO_PUBLIC_URL}",
