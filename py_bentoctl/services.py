@@ -168,8 +168,7 @@ def pull_service(compose_service: str):
         exit(1)
 
     # TODO: Pull dev if in dev mode
-    docker_client.images.pull(image, tag=image_version)
-
+    subprocess.check_call(("docker", "pull", f"{image}:{image_version}"))  # Use subprocess to get nice output
     subprocess.check_call((*COMPOSE, "pull", compose_service))
 
 
