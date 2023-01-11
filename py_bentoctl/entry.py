@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from .auth_helper import init_auth
 from .config import BENTO_DOCKER_SERVICES
 from . import services as s
+from . import other_helpers as oh
 
 from typing import Optional, Type
 
@@ -140,6 +141,14 @@ class RunShell(SubCommand):
         s.run_as_shell_for_service(args.service, args.shell)
 
 
+# Other helpers
+
+class InitDirs(SubCommand):
+    @staticmethod
+    def exec(args):
+        oh.init_dirs()
+
+
 def main(args: Optional[list[str]] = None) -> int:
     args = args or sys.argv[1:]
 
@@ -156,7 +165,11 @@ def main(args: Optional[list[str]] = None) -> int:
         subparser.set_defaults(func=subcommand.exec)
         subcommand.add_args(subparser)
 
+    # Init helpers
+    _add_subparser("init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
     _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
+
+    # Service commands
     _add_subparser("run", "Run Bento services.", Run)
     _add_subparser("stop", "Stop Bento services.", Stop)
     _add_subparser("restart", "Restart Bento services.", Restart)
