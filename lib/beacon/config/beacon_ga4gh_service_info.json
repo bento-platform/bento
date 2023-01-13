@@ -12,5 +12,8 @@
         "group": "org.ga4gh",
         "version": "v2.0.0"
     },
-    "version": "v2.0.0"
+    "version": "v2.0.0",
+    "bento": {
+        "serviceKind": "beacon"
+    }
 }
