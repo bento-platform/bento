@@ -352,7 +352,7 @@ services:
       # Subscription pattern the Redis PubSub connection. The default is configured
       # to be chord.* for the Bento platform, but it can be set to anything.
       # See https://redis.io/topics/pubsub and specifically the pattern-matching.
-      - REDIS_SUBSCRIBE_PATTERN=chord.*
+      - REDIS_SUBSCRIBE_PATTERN=bento.*
 
       # Where the service will listen for requests. Can be a UNIX socket path or a
       # port number (e.g. 8080, which is the default value if nothing is set.)
