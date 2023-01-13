@@ -1,5 +1,6 @@
 from __future__ import annotations
 import argparse
+import subprocess
 import sys
 
 from abc import ABC, abstractmethod
@@ -40,9 +41,14 @@ class Run(SubCommand):
         sp.add_argument(
             "service", type=str, nargs="?", default="all", choices=(*BENTO_DOCKER_SERVICES, "all"),
             help="Service to run, or 'all' to run everything.")
+        sp.add_argument(
+            "--pull", "-p", action="store_true",
+            help="Try to pull the corresponding service image first.")
 
     @staticmethod
     def exec(args):
+        if args.pull:
+            s.pull_service(args.service)
         s.run_service(args.service)
 
 
@@ -185,7 +191,11 @@ def main(args: Optional[list[str]] = None) -> int:
     if not getattr(p_args, "func", None):
         p_args = parser.parse_args(("--help",))
 
-    p_args.func(p_args)
+    try:
+        p_args.func(p_args)
+    except subprocess.CalledProcessError:
+        return 1
+
     return 0
 
 
