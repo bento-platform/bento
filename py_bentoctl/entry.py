@@ -154,6 +154,10 @@ class InitDirs(SubCommand):
     def exec(args):
         oh.init_dirs()
 
+class InitCerts(SubCommand):
+    @staticmethod
+    def exec(args):
+        oh.init_self_signed_certs()
 
 def main(args: Optional[list[str]] = None) -> int:
     args = args or sys.argv[1:]
@@ -174,6 +178,7 @@ def main(args: Optional[list[str]] = None) -> int:
     # Init helpers
     _add_subparser("init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
     _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
+    _add_subparser("init-certs", "Initialize ssl certificates for bentov2 gateway domains.", InitCerts)
 
     # Service commands
     _add_subparser("run", "Run Bento services.", Run)
