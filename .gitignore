@@ -3,7 +3,7 @@ local.env
 .vscode/*
 .idea/*
 
-bentoctl.state.db
+.bentoctl.state.db
 tmp
 
 # ignore TLS certificates
