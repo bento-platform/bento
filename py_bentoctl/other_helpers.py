@@ -19,8 +19,7 @@ def init_public():
     pass
 
 
-def init_self_signed_certs():
-
+def init_self_signed_certs(force: bool):
     cert_domains_vars = {
         "public": {
             "var": "BENTOV2_DOMAIN",
@@ -30,7 +29,7 @@ def init_self_signed_certs():
         "portal": {
             "var": "BENTOV2_PORTAL_DOMAIN",
             "priv_key_name": "portal_privkey1.key",
-            "crt": "portail_fullchain1.crt"
+            "crt": "portal_fullchain1.crt"
         },
         "auth": {
             "var": "BENTOV2_AUTH_DOMAIN",
@@ -40,29 +39,30 @@ def init_self_signed_certs():
     }
 
     # Init cert directory in gateway
-    certs_dir = (pathlib.Path.cwd() / "lib" / "gateway" / "certs")
+    certs_dir = (pathlib.Path.cwd() / "certs")
     print("Creating certs directory if needed... ", end="")
     certs_dir.mkdir(parents=True, exist_ok=True)
     cprint("done.", "green")
 
     # Check for existing cert files first
-    cert_files = certs_dir.glob('*.crt')
-    if any(cert_files):
+    cert_files = list(certs_dir.glob('*.crt')) + list(certs_dir.glob('*.key'))
+    if not force and any(cert_files):
         cprint("WARNING: Cert files detected in the target directory, new cert creation skipped.", "yellow")
-        cprint("To create new certs, remove all \".crt\" files in target directory first.", "yellow")
+        cprint("To create new certs, remove all \".crt\" and \".key\" files in target directory first.", "yellow")
         for f in cert_files:
-            cprint("Cert file path: {}".format(f.absolute()), "yellow")
+            cprint("Cert file path: {}".format(f), "yellow")
         return
     
     for domain in cert_domains_vars.keys():
         domain_var, priv_key_name, crt_name = cert_domains_vars[domain].values()
         domain_val = os.getenv(domain_var)
-    
-        # TODO: create cert file for domain
+
+        #  Create private key for domain
         print("Creating .pem file for domain: {} --> {} ... ".format(domain, domain_val), end="")
         pkey = create_private_key(certs_dir, priv_key_name)
         cprint("done.", "green")
 
+        # Create signed cert for domain 
         print("Creating certificate file... ", end="")
         create_cert(certs_dir, pkey, crt_name, domain_val)
         cprint("done.", "green")

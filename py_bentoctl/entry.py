@@ -156,8 +156,13 @@ class InitDirs(SubCommand):
 
 class InitCerts(SubCommand):
     @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "--force", "-f", action="store_true",
+            help="Removes all previously created certs and keys before creating new ones.")
+    @staticmethod
     def exec(args):
-        oh.init_self_signed_certs()
+        oh.init_self_signed_certs(args.force)
 
 def main(args: Optional[list[str]] = None) -> int:
     args = args or sys.argv[1:]
