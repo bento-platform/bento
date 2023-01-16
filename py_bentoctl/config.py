@@ -6,8 +6,6 @@ import pathlib
 import shutil
 import yaml
 
-from typing import Optional
-
 __all__ = [
     "DOCKER_COMPOSE_FILE_BASE",
     "DOCKER_COMPOSE_FILE_DEV",
@@ -20,7 +18,6 @@ __all__ = [
 
     "MODE",
     "DEV_MODE",
-
 
     "BENTO_SERVICES_PATH",
     "BENTO_SERVICES_DATA",
@@ -37,7 +34,7 @@ with open(DOCKER_COMPOSE_FILE_BASE) as dcf:
     DOCKER_COMPOSE_BASE_DATA = yaml.load(dcf, yaml.Loader)
 DOCKER_COMPOSE_SERVICES = tuple(DOCKER_COMPOSE_BASE_DATA["services"].keys())
 
-COMPOSE: Optional[tuple[str, ...]] = ("docker", "compose")
+COMPOSE: tuple[str, ...] = ("docker", "compose")
 if shutil.which("docker-compose"):
     COMPOSE = ("docker-compose",)
 
