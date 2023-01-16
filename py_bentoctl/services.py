@@ -17,6 +17,11 @@ __all__ = [
     "run_as_shell_for_service",
 ]
 
+BENTO_SERVICES_DATA_BY_KIND = {
+    v["service_kind"]: {**v, "compose_id": k}
+    for k, v in BENTO_SERVICES_DATA.items()
+}
+
 
 compose_with_files_prod = (*COMPOSE, "-f", "docker-compose.yaml", "-f", "docker-compose.prod.yaml")
 compose_with_files_dev = (*COMPOSE, "-f", "docker-compose.yaml", "-f", "docker-compose.dev.yaml")
@@ -45,8 +50,8 @@ docker_client = docker.from_env()
 
 
 def translate_service_aliases(service: str):
-    if service == "gohan":
-        return "gohan-api"
+    if service in BENTO_SERVICES_DATA_BY_KIND:
+        return BENTO_SERVICES_DATA_BY_KIND[service]["compose_id"]
 
     return service
 

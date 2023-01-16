@@ -221,6 +221,8 @@ services:
       # - MINIO_PASSWORD=${BENTOV2_DROP_BOX_MINIO_PASSWORD}
       # - MINIO_BUCKET=${BENTOV2_DROP_BOX_MINIO_BUCKET}
       - SERVICE_DATA=/data
+
+      - SERVICE_URL=${BENTOV2_PORTAL_PUBLIC_URL}/api/drop-box
     networks:
       - bridge-net
     expose:

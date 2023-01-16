@@ -14,6 +14,12 @@ def init_public():
     pass
 
 
+def init_self_signed_certs():
+    # TODO
+    # TODO: error out if they already exist; let's not invalidate anything
+    pass
+
+
 def init_dirs():
     data_dir_vars = {
         "root": "BENTOV2_ROOT_DATA_DIR",
@@ -44,6 +50,9 @@ def init_dirs():
 
 
 def init_docker():
+    # TODO: docker swarm (ignore / suppress error)
+
+    # TODO: create network(s) if needed
     pass
 
 
