@@ -8,7 +8,7 @@ secrets:
 
 services:
   web:
-    image: ${BENTOV2_WEB_IMAGE}:pr-207-dev
+    image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION_DEV}
     volumes:
       - ./repos/web:/web
     # Execute npm build/install and watch, and
@@ -18,7 +18,7 @@ services:
       service: web
 
   public:
-    image: ${BENTO_PUBLIC_IMAGE}:latest-dev
+    image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION_DEV}
     extends:
       file: docker-compose.yaml
       service: public
@@ -28,7 +28,7 @@ services:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
 
   gateway:
-    image: ${BENTOV2_GATEWAY_IMAGE}:latest-dev
+    image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION_DEV}
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
     networks:
         bridge-net:
@@ -41,7 +41,7 @@ services:
       service: gateway
 
   katsu:
-    image: ${BENTOV2_KATSU_IMAGE}:latest-dev
+    image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION_DEV}
     networks:
       - bridge-net
     depends_on:
@@ -73,7 +73,7 @@ services:
 
 
   aggregation:
-    image: ${BENTOV2_AGGREGATION_IMAGE}:latest-dev
+    image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION_DEV}
     environment:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
@@ -91,7 +91,7 @@ services:
       - "${BENTOV2_AGGREGATION_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}"
 
   wes:
-    image: ${BENTOV2_WES_IMAGE}:latest-dev
+    image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION_DEV}
     networks:
       - bridge-net
     environment:
@@ -131,7 +131,7 @@ services:
       - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp
 
   beacon:
-    image: ${BENTO_BEACON_IMAGE}:latest-dev
+    image: ${BENTO_BEACON_IMAGE}:${BENTO_BEACON_VERSION_DEV}
     build:
       context: $PWD/lib/beacon
       dockerfile: Dockerfile.dev
@@ -152,7 +152,7 @@ services:
       - "${BENTO_BEACON_DEBUGGER_EXTERNAL_PORT}:${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}"
 
   service-registry:
-    image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:latest-dev
+    image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION_DEV}
     volumes:
       - ./repos/service-registry/bento_service_registry:/service-registry/bento_service_registry/
       - ./lib/service-registry/chord_services.json:/service-registry/bento_service_registry/chord_services.json:ro
@@ -164,6 +164,7 @@ services:
       service: service-registry
 
   drop-box:
+      image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION_DEV}
       environment:
         # Runtime
         - FLASK_DEBUG=True
@@ -175,7 +176,7 @@ services:
         service: drop-box
 
   notification:
-    image: ${BENTOV2_NOTIFICATION_IMAGE}:pr-15-dev
+    image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION_DEV}
     environment:
       # Runtime
       - FLASK_DEBUG=True
@@ -187,7 +188,7 @@ services:
       service: notification
 
   event-relay:
-    image: ${BENTOV2_EVENT_RELAY_IMAGE}:latest-dev
+    image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION_DEV}
     environment:
       - NODE_ENV=development
     volumes:
