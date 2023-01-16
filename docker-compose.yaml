@@ -331,6 +331,9 @@ services:
     image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION}
     container_name: ${BENTOV2_EVENT_RELAY_CONTAINER_NAME}
     environment:
+      # Default to production NODE_ENV - shouldn't really change anything, though.
+      - NODE_ENV=production
+
       # If true, JSON_MESSAGES will parse all messages recieved from the subscription
       # and de-serialize them before passing them to the socket.io connection.
       # e.g. If the message {"test": true} is passed with JSON_MESSAGES on, the
@@ -339,11 +342,6 @@ services:
       # Otherwise, the message will be:
       # {"message": "{\"test\": true}", "channel": "chord.something"}
       - JSON_MESSAGES=true
-
-      # Default: blank, base path for the service-info endpoint
-      # If blank, the service-info endpoint will be mounted on /service-info
-      # If e.g. /base, the endpoint will be mounted on /base/service-info
-      #- SERVICE_URL_BASE_PATH=
 
       # socket.io "path" for the server created by the service.
       - SOCKET_IO_PATH=${BENTOV2_EVENT_RELAY_SOCKET_IO_PATH}
