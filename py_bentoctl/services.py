@@ -5,7 +5,7 @@ import subprocess
 
 from termcolor import cprint
 
-from .config import BENTO_DOCKER_SERVICES, COMPOSE, BENTO_SERVICES_DATA
+from .config import DOCKER_COMPOSE_SERVICES, COMPOSE, BENTO_SERVICES_DATA
 from .state import MODE_DEV, MODE_PROD, get_state, set_state_services
 
 __all__ = [
@@ -57,6 +57,12 @@ def translate_service_aliases(service: str):
     return service
 
 
+def check_service_is_compose(compose_service: str):
+    if compose_service not in DOCKER_COMPOSE_SERVICES:
+        cprint(f"  {compose_service} not in Docker Compose services: {DOCKER_COMPOSE_SERVICES}")
+        exit(1)
+
+
 def _run_service_in_dev_mode(compose_service: str):
     print(f"Running {compose_service} in development mode...")
     subprocess.check_call((*compose_with_files_dev, "up", "-d", compose_service))
@@ -76,7 +82,11 @@ def run_service(compose_service: str):
 
     if compose_service == "all":
         # special: run everything
-        subprocess.check_call((*compose_with_files_prod, "up", "-d"))
+        subprocess.check_call((
+            *compose_with_files_prod,
+            "up", "-d",
+            *(s for s in DOCKER_COMPOSE_SERVICES if service_state.get(s, {}).get("mode") != "dev")
+        ))
 
         for service, service_settings in service_state.items():
             if service_settings["mode"] == MODE_DEV:
@@ -84,8 +94,8 @@ def run_service(compose_service: str):
 
         return
 
-    if compose_service not in BENTO_DOCKER_SERVICES:
-        cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}", "red")
+    if compose_service not in DOCKER_COMPOSE_SERVICES:
+        cprint(f"  {compose_service} not in list of services: {DOCKER_COMPOSE_SERVICES}", "red")
         exit(1)
 
     if service_state[compose_service]["mode"] == MODE_DEV:
@@ -102,9 +112,7 @@ def stop_service(compose_service: str):
         subprocess.check_call((*COMPOSE, "down"))
         return
 
-    if compose_service not in BENTO_DOCKER_SERVICES:
-        cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}", "red")
-        exit(1)
+    check_service_is_compose(compose_service)
 
     print(f"Stopping {compose_service}...")
     subprocess.check_call((*COMPOSE, "stop", compose_service))
@@ -120,13 +128,11 @@ def clean_service(compose_service: str):
 
     if compose_service == "all":
         # special: stop everything
-        for s in BENTO_DOCKER_SERVICES:
+        for s in DOCKER_COMPOSE_SERVICES:
             clean_service(s)
         return
 
-    if compose_service not in BENTO_DOCKER_SERVICES:
-        cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}")
-        exit(1)
+    check_service_is_compose(compose_service)
 
     print(f"Stopping {compose_service}...")
     subprocess.check_call((*COMPOSE, "rm", "-svf", compose_service))
@@ -141,9 +147,7 @@ def work_on_service(compose_service: str):
         cprint(f"  Cannot work on all services.", "red")
         exit(1)
 
-    if compose_service not in BENTO_DOCKER_SERVICES:
-        cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}")
-        exit(1)
+    check_service_is_compose(compose_service)
 
     if compose_service not in BENTO_SERVICES_DATA:
         cprint(f"  {compose_service} not in bento_services.json: {list(BENTO_SERVICES_DATA.keys())}")
@@ -182,9 +186,7 @@ def prod_service(compose_service: str):
             prod_service(service)
         return
 
-    if compose_service not in BENTO_DOCKER_SERVICES:
-        cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}")
-        exit(1)
+    check_service_is_compose(compose_service)
 
     if compose_service not in BENTO_SERVICES_DATA:
         cprint(f"  {compose_service} not in bento_services.json: {list(BENTO_SERVICES_DATA.keys())}")
@@ -214,9 +216,7 @@ def pull_service(compose_service: str):
         subprocess.check_call((*COMPOSE, "pull"))
         return
 
-    if compose_service not in BENTO_DOCKER_SERVICES:
-        cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}", "red")
-        exit(1)
+    check_service_is_compose(compose_service)
 
     print(f"Pulling {compose_service}...")
 
@@ -244,9 +244,7 @@ def pull_service(compose_service: str):
 def enter_shell_for_service(compose_service: str, shell: str):
     compose_service = translate_service_aliases(compose_service)
 
-    if compose_service not in BENTO_DOCKER_SERVICES:
-        cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}")
-        exit(1)
+    check_service_is_compose(compose_service)
 
     cmd = COMPOSE[0]
     compose_args = COMPOSE[1:]
@@ -256,9 +254,7 @@ def enter_shell_for_service(compose_service: str, shell: str):
 def run_as_shell_for_service(compose_service: str, shell: str):
     compose_service = translate_service_aliases(compose_service)
 
-    if compose_service not in BENTO_DOCKER_SERVICES:
-        cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}")
-        exit(1)
+    check_service_is_compose(compose_service)
 
     cmd = COMPOSE[0]
     compose_args = COMPOSE[1:]

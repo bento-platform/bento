@@ -4,11 +4,16 @@ import json
 import os
 import pathlib
 import shutil
+import yaml
 
 from typing import Optional
 
 __all__ = [
-    "BENTO_DOCKER_SERVICES",
+    "DOCKER_COMPOSE_FILE_BASE",
+    "DOCKER_COMPOSE_FILE_DEV",
+    "DOCKER_COMPOSE_FILE_PROD",
+    "DOCKER_COMPOSE_BASE_DATA",
+    "DOCKER_COMPOSE_SERVICES",
 
     "COMPOSE",
     "USER",
@@ -23,8 +28,14 @@ __all__ = [
     "BENTO_ORCHESTRATION_STATE_DB_FILE",
 ]
 
-BENTO_DOCKER_SERVICES: list[str] = [
-    x.strip() for x in (os.getenv("SERVICES") or "").strip("\"").split(" ") if x.strip()]
+DOCKER_COMPOSE_FILE_BASE = "./docker-compose.yaml"
+DOCKER_COMPOSE_FILE_DEV = "./docker-compose.dev.yaml"
+DOCKER_COMPOSE_FILE_PROD = "./docker-compose.prod.yaml"
+
+
+with open(DOCKER_COMPOSE_FILE_BASE) as dcf:
+    DOCKER_COMPOSE_BASE_DATA = yaml.load(dcf, yaml.Loader)
+DOCKER_COMPOSE_SERVICES = tuple(DOCKER_COMPOSE_BASE_DATA["services"].keys())
 
 COMPOSE: Optional[tuple[str, ...]] = ("docker", "compose")
 if shutil.which("docker-compose"):
