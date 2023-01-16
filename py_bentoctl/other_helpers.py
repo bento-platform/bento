@@ -64,15 +64,16 @@ def init_self_signed_certs():
         cprint("done.", "green")
 
         print("Creating certificate file... ", end="")
-        create_cert(certs_dir, pkey, crt_name)
+        create_cert(certs_dir, pkey, crt_name, domain_val)
         cprint("done.", "green")
 
-def create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str):
+def create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, common_name: str):
     subject = issuer = x509.Name([
         x509.NameAttribute(NameOID.COUNTRY_NAME, u"CA"),
         x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Quebec"),
         x509.NameAttribute(NameOID.LOCALITY_NAME, u"Montreal"),
-        x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"C3G McGill")
+        x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"C3G McGill"),
+        x509.NameAttribute(NameOID.COMMON_NAME, u"{}".format(common_name))
     ])
 
     cert = x509.CertificateBuilder().subject_name(
