@@ -170,7 +170,7 @@ services:
     cpus: ${BENTOV2_DROP_BOX_CPUS}
     cpu_shares: 1024
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
@@ -216,7 +216,7 @@ services:
     cpus: ${BENTOV2_SERVICE_REGISTRY_CPUS}
     cpu_shares: 256
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
@@ -252,7 +252,7 @@ services:
     cpus: ${BENTOV2_NOTIFICATION_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_NOTIFICATION_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_NOTIFICATION_INTERNAL_PORT}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
@@ -311,7 +311,7 @@ services:
     cpus: ${BENTOV2_EVENT_RELAY_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
