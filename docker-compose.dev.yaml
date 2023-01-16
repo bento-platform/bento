@@ -103,7 +103,7 @@ services:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes
     volumes:
-      - ./repos/wes/bento_wes:/wes/bento_wes
+      - ./repos/wes:/wes
       - ${BENTOV2_WES_DEV_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_DEV_VOL_TMP_DIR}:/wes/tmp
       - ${BENTOV2_WES_DEV_DROP_BOX_VOL_DIR}:/data
