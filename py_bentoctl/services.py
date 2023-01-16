@@ -178,8 +178,9 @@ def prod_service(compose_service: str):
     service_state = get_state()["services"]
 
     if compose_service == "all":
-        # TODO
-        pass
+        for service in BENTO_SERVICES_DATA:
+            prod_service(service)
+        return
 
     if compose_service not in BENTO_DOCKER_SERVICES:
         cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}")
