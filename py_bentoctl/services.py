@@ -6,6 +6,7 @@ import subprocess
 from termcolor import cprint
 
 from .config import BENTO_DOCKER_SERVICES, COMPOSE, BENTO_SERVICES_DATA
+from .state import MODE_DEV, MODE_PROD, get_state, set_state_services
 
 __all__ = [
     "run_service",
@@ -56,22 +57,41 @@ def translate_service_aliases(service: str):
     return service
 
 
+def _run_service_in_dev_mode(compose_service: str):
+    print(f"Running {compose_service} in development mode...")
+    subprocess.check_call((*compose_with_files_dev, "up", "-d", compose_service))
+
+
+def _run_service_in_prod_mode(compose_service: str):
+    print(f"Running {compose_service} in production mode...")
+    subprocess.check_call((*compose_with_files_prod, "up", "-d", compose_service))
+
+
 def run_service(compose_service: str):
     compose_service = translate_service_aliases(compose_service)
+
+    service_state = get_state()["services"]
 
     # TODO: Look up dev/prod mode based on compose_service
 
     if compose_service == "all":
         # special: run everything
         subprocess.check_call((*compose_with_files_prod, "up", "-d"))
+
+        for service, service_settings in service_state.items():
+            if service_settings["mode"] == MODE_DEV:
+                _run_service_in_dev_mode(service)
+
         return
 
     if compose_service not in BENTO_DOCKER_SERVICES:
         cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}", "red")
         exit(1)
 
-    print(f"Running {compose_service}...")
-    subprocess.check_call((*compose_with_files_prod, "up", "-d", compose_service))
+    if service_state[compose_service]["mode"] == MODE_DEV:
+        _run_service_in_dev_mode(compose_service)
+    else:
+        _run_service_in_prod_mode(compose_service)
 
 
 def stop_service(compose_service: str):
@@ -115,6 +135,8 @@ def clean_service(compose_service: str):
 def work_on_service(compose_service: str):
     compose_service = translate_service_aliases(compose_service)
 
+    service_state = get_state()["services"]
+
     if compose_service == "all":
         cprint(f"  Cannot work on all services.", "red")
         exit(1)
@@ -134,12 +156,53 @@ def work_on_service(compose_service: str):
         subprocess.check_call(("git", "clone", BENTO_SERVICES_DATA[compose_service]["repository"], repo_path))
         # TODO
 
+    # Save state change
+    set_state_services({
+        **service_state,
+        compose_service: {
+            **service_state[compose_service],
+            "mode": MODE_DEV,
+        },
+    })
+
     # Clean up existing container
     clean_service(compose_service)
 
     # Start new dev container
-    print(f"Running {compose_service} in development mode...")
-    subprocess.check_call((*compose_with_files_dev, "up", "-d", compose_service))
+    _run_service_in_dev_mode(compose_service)
+
+
+def prod_service(compose_service: str):
+    compose_service = translate_service_aliases(compose_service)
+
+    service_state = get_state()["services"]
+
+    if compose_service == "all":
+        # TODO
+        pass
+
+    if compose_service not in BENTO_DOCKER_SERVICES:
+        cprint(f"  {compose_service} not in list of services: {BENTO_DOCKER_SERVICES}")
+        exit(1)
+
+    if compose_service not in BENTO_SERVICES_DATA:
+        cprint(f"  {compose_service} not in bento_services.json: {list(BENTO_SERVICES_DATA.keys())}")
+        exit(1)
+
+    # Save state change
+    set_state_services({
+        **service_state,
+        compose_service: {
+            **service_state[compose_service],
+            "mode": MODE_PROD,
+        },
+    })
+
+    # Clean up existing container
+    clean_service(compose_service)
+
+    # Start new dev container
+    _run_service_in_prod_mode(compose_service)
 
 
 def pull_service(compose_service: str):
