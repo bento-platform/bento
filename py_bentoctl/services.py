@@ -257,8 +257,6 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
 
     check_service_is_compose(compose_service)
 
-    print(f"Pulling {compose_service}...")
-
     image_t = service_image_vars.get(compose_service)
     if image_t is None:
         err(f"  {compose_service} not in service_image_vars keys: {list(service_image_vars.keys())}")
@@ -283,6 +281,8 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
     if image_version is None:
         err(f"  {image_version_var_final} is not set")
         exit(1)
+
+    print(f"Pulling {compose_service} ({image}:{image_version})...")
 
     # TODO: Pull dev if in dev mode
     subprocess.check_call(("docker", "pull", f"{image}:{image_version}"))  # Use subprocess to get nice output
