@@ -45,7 +45,7 @@ def init_self_signed_certs(force: bool):
     cprint("done.", "green")
 
     # Check for existing cert files first
-    cert_files = list(certs_dir.glob('*.crt')) + list(certs_dir.glob('*.key'))
+    cert_files = list(certs_dir.glob('*.crt')) + list(certs_dir.glob('*.key')) + list(certs_dir.glob("*.pem"))
     if not force and any(cert_files):
         cprint("WARNING: Cert files detected in the target directory, new cert creation skipped.", "yellow")
         cprint("To create new certs, remove all \".crt\" and \".key\" files in target directory first.", "yellow")
@@ -58,12 +58,12 @@ def init_self_signed_certs(force: bool):
         domain_val = os.getenv(domain_var)
 
         #  Create private key for domain
-        print("Creating .pem file for domain: {} --> {} ... ".format(domain, domain_val), end="")
+        print("Creating .key file for domain: {} -> {} ... ".format(domain, domain_val), end="")
         pkey = create_private_key(certs_dir, priv_key_name)
         cprint("done.", "green")
 
         # Create signed cert for domain 
-        print("Creating certificate file... ", end="")
+        print("Creating certificate file for domain: {} -> {} ... ".format(domain, domain_val), end="")
         create_cert(certs_dir, pkey, crt_name, domain_val)
         cprint("done.", "green")
 
@@ -93,7 +93,7 @@ def create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, comm
         critical=False
     ).sign(pkey, hashes.SHA256())
 
-    cert_path = path / crt_name
+    cert_path = (path / crt_name)
     with open(cert_path, "wb") as f:
         f.write(cert.public_bytes(serialization.Encoding.PEM))
     
@@ -109,7 +109,6 @@ def create_private_key(path: pathlib.Path, pkey_name: str):
         f.write(key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.TraditionalOpenSSL,
-            # TODO: add passphrase arg?
             encryption_algorithm=serialization.BestAvailableEncryption(b"passphrase"),
         ))
     return key
