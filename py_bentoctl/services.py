@@ -111,7 +111,7 @@ def run_service(compose_service: str):
         err(f"  {compose_service} not in list of services: {DOCKER_COMPOSE_SERVICES}")
         exit(1)
 
-    if service_state[compose_service]["mode"] == MODE_DEV:
+    if service_state.get(compose_service, {}).get("mode") == MODE_DEV:
         _run_service_in_dev_mode(compose_service)
     else:
         _run_service_in_prod_mode(compose_service)
