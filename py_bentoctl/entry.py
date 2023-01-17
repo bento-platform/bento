@@ -6,7 +6,7 @@ import sys
 from abc import ABC, abstractmethod
 
 from .auth_helper import init_auth
-from .config import DOCKER_COMPOSE_SERVICES
+from .config import DOCKER_COMPOSE_SERVICES, BENTO_SERVICES_DATA
 from . import services as s
 from . import other_helpers as oh
 
@@ -95,7 +95,7 @@ class WorkOn(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("service", type=str, choices=DOCKER_COMPOSE_SERVICES, help="Service to work on.")
+        sp.add_argument("service", type=str, choices=tuple(BENTO_SERVICES_DATA.keys()), help="Service to work on.")
 
     @staticmethod
     def exec(args):
@@ -107,11 +107,25 @@ class Prod(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=DOCKER_COMPOSE_SERVICES, help="Service to switch to production mode.")
+            "service", type=str, choices=tuple(BENTO_SERVICES_DATA.keys()),
+            help="Service to switch to production mode.")
 
     @staticmethod
     def exec(args):
         s.prod_service(args.service)
+
+
+class Mode(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, nargs="?", default="all", choices=(*BENTO_SERVICES_DATA.keys(), "all"),
+            help="Service to switch to production mode.")
+
+    @staticmethod
+    def exec(args):
+        s.mode_service(args.service)
 
 
 class Pull(SubCommand):
@@ -192,6 +206,7 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("clean", "Clean services.", Clean)
     _add_subparser("work-on", "Work on a specific service in development mode.", WorkOn)
     _add_subparser("prod", "Switch a service back to production mode.", Prod)
+    _add_subparser("mode", "See if a service (or which services) are in production/development mode.", Mode)
     _add_subparser("pull", "Pull the production image for a specific service.", Pull)
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell)
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)

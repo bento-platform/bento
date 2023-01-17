@@ -2,6 +2,7 @@ import docker
 import os
 import pathlib
 import subprocess
+import sys
 
 from termcolor import cprint
 from typing import Dict, Optional, Tuple
@@ -58,6 +59,10 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
 docker_client = docker.from_env()
 
 
+def err(msg):
+    cprint(msg, "red", file=sys.stderr)
+
+
 def translate_service_aliases(service: str):
     if service in BENTO_SERVICES_DATA_BY_KIND:
         return BENTO_SERVICES_DATA_BY_KIND[service]["compose_id"]
@@ -67,7 +72,7 @@ def translate_service_aliases(service: str):
 
 def check_service_is_compose(compose_service: str):
     if compose_service not in DOCKER_COMPOSE_SERVICES:
-        cprint(f"  {compose_service} not in Docker Compose services: {DOCKER_COMPOSE_SERVICES}")
+        err(f"  {compose_service} not in Docker Compose services: {DOCKER_COMPOSE_SERVICES}")
         exit(1)
 
 
@@ -103,7 +108,7 @@ def run_service(compose_service: str):
         return
 
     if compose_service not in DOCKER_COMPOSE_SERVICES:
-        cprint(f"  {compose_service} not in list of services: {DOCKER_COMPOSE_SERVICES}", "red")
+        err(f"  {compose_service} not in list of services: {DOCKER_COMPOSE_SERVICES}")
         exit(1)
 
     if service_state[compose_service]["mode"] == MODE_DEV:
@@ -151,13 +156,13 @@ def work_on_service(compose_service: str):
     service_state = get_state()["services"]
 
     if compose_service == "all":
-        cprint(f"  Cannot work on all services.", "red")
+        err(f"  Cannot work on all services.")
         exit(1)
 
     check_service_is_compose(compose_service)
 
     if compose_service not in BENTO_SERVICES_DATA:
-        cprint(f"  {compose_service} not in bento_services.json: {list(BENTO_SERVICES_DATA.keys())}")
+        err(f"  {compose_service} not in bento_services.json: {list(BENTO_SERVICES_DATA.keys())}")
         exit(1)
 
     if not (repo_path := pathlib.Path.cwd() / "repos" / compose_service).exists():
@@ -198,7 +203,7 @@ def prod_service(compose_service: str):
     check_service_is_compose(compose_service)
 
     if compose_service not in BENTO_SERVICES_DATA:
-        cprint(f"  {compose_service} not in bento_services.json: {list(BENTO_SERVICES_DATA.keys())}")
+        err(f"  {compose_service} not in bento_services.json: {list(BENTO_SERVICES_DATA.keys())}")
         exit(1)
 
     # Save state change
@@ -220,6 +225,27 @@ def prod_service(compose_service: str):
     _run_service_in_prod_mode(compose_service)
 
 
+def mode_service(compose_service: str):
+    # TODO: conn dependency injection for this and other commands
+
+    compose_service = translate_service_aliases(compose_service)
+    service_state = get_state()["services"]
+
+    if compose_service == "all":
+        for service in service_state:
+            mode_service(service)
+        return
+
+    if compose_service not in service_state:
+        err(f"  {compose_service} not in state[services] dict: {list(service_state.keys())}")
+        exit(1)
+
+    mode = service_state[compose_service]["mode"]
+
+    print(f"{compose_service[:18].rjust(18)} ", end="")
+    cprint(mode, "green" if mode == MODE_PROD else "blue")
+
+
 def pull_service(compose_service: str, existing_service_state: Optional[dict] = None):
     compose_service = translate_service_aliases(compose_service)
     service_state = existing_service_state or get_state()["services"]
@@ -235,7 +261,7 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
 
     image_t = service_image_vars.get(compose_service)
     if image_t is None:
-        cprint(f"  {compose_service} not in service_image_vars keys: {list(service_image_vars.keys())}", "red")
+        err(f"  {compose_service} not in service_image_vars keys: {list(service_image_vars.keys())}")
         exit(1)
 
     image_var, image_version_var, image_dev_version_var = image_t
@@ -245,17 +271,17 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
 
     if image_version_var_final is None:  # occurs if in dev mode (somehow) but with no dev image
         # TODO: Fix the state
-        cprint(f"  {compose_service} does not have a dev image", "red")
+        err(f"  {compose_service} does not have a dev image")
         exit(1)
 
     image = os.getenv(image_var)
     image_version = os.getenv(image_version_var_final)
 
     if image is None:
-        cprint(f"  {image_var} is not set", "red")
+        err(f"  {image_var} is not set")
         exit(1)
     if image_version is None:
-        cprint(f"  {image_version_var_final} is not set", "red")
+        err(f"  {image_version_var_final} is not set")
         exit(1)
 
     # TODO: Pull dev if in dev mode
