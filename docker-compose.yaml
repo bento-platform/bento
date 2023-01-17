@@ -1,10 +1,6 @@
 #TODO: volumes
 
 secrets:
-  keycloak-admin-user:
-    file: $PWD/tmp/secrets/keycloak-admin-user
-  keycloak-admin-password:
-    file: $PWD/tmp/secrets/keycloak-admin-password
   keycloak-cert-file:
     file: $PWD/${BENTOV2_CERTS_DIR}/auth_fullchain1.crt
   keycloak-cert-key-file:

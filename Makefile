@@ -86,7 +86,6 @@ data-dirs:
 	mkdir -p ${BENTOV2_DROP_BOX_VOL_DIR}
 	mkdir -p ${BENTOV2_KATSU_DB_PROD_VOL_DIR}
 	mkdir -p ${BENTOV2_NOTIFICATION_VOL_DIR}
-	mkdir -p ${BENTOV2_FEDERATION_PROD_VOL_DIR}
 	mkdir -p ${BENTOV2_WES_VOL_DIR}
 	mkdir -p ${BENTOV2_REDIS_VOL_DIR}
 
@@ -172,20 +171,6 @@ init-public:
 .PHONY: docker-secrets
 docker-secrets:
 	@echo "-- Creating Docker Secrets --"
-
-	@# AuthN Admin secrets
-	@# User:
-	@echo "- Creating Admin User" && \
-		echo ${BENTOV2_AUTH_ADMIN_USER} > $(PWD)/tmp/secrets/keycloak-admin-user && \
-		docker secret create keycloak-admin-user $(PWD)/tmp/secrets/keycloak-admin-user &
-
-	@# Password:
-	@# TODO: use 'secret' generator
-	@#$(MAKE) secret-keycloak-admin-password
-	@echo "- Creating Admin Password" && \
-		echo ${BENTOV2_AUTH_ADMIN_PASSWORD} > $(PWD)/tmp/secrets/keycloak-admin-password && \
-		docker secret create keycloak-admin-password $(PWD)/tmp/secrets/keycloak-admin-password &
-
 
 	@# Database
 	@# User:
@@ -429,9 +414,6 @@ clean-all-volume-dirs:
 .PHONY: clean-secrets
 clean-secrets:
 	rm -rf $(PWD)/tmp/secrets
-
-	docker secret rm keycloak-admin-user
-	docker secret rm keycloak-admin-password
 
 	docker secret rm metadata-app-secret
 	docker secret rm metadata-db-user
