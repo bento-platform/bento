@@ -12,6 +12,7 @@ from termcolor import cprint
 from typing import Optional
 
 from .config import COMPOSE, MODE, DEV_MODE
+from .utils import err
 
 __all__ = ["init_auth"]
 
@@ -34,9 +35,12 @@ AUTH_TEST_PASSWORD = os.getenv("BENTOV2_AUTH_TEST_PASSWORD")
 AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
 
 
-docker_client = docker.from_env()
+if not AUTH_ADMIN_USER:
+    err("Missing environment value for BENTOV2_AUTH_ADMIN_USER")
+    exit(1)
 
-print(docker_client.containers.list())
+
+docker_client = docker.from_env()
 
 
 def make_keycloak_url(path: str) -> str:
@@ -82,7 +86,7 @@ def init_auth():
         ))
 
         if not res.ok:
-            cprint(f"  Failed to sign in as {AUTH_ADMIN_USER}; {res.json()}", "red", file=sys.stderr)
+            err(f"  Failed to sign in as {AUTH_ADMIN_USER}; {res.json()}")
             exit(1)
 
         return res.json()
@@ -92,7 +96,7 @@ def init_auth():
         existing_realms = existing_realms_res.json()
 
         if not existing_realms_res.ok:
-            cprint(f"    Failed to fetch existing realms: {existing_realms}", "red", file=sys.stderr)
+            err(f"    Failed to fetch existing realms: {existing_realms}")
             exit(1)
 
         for r in existing_realms:
