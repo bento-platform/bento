@@ -178,6 +178,27 @@ class InitDirs(SubCommand):
     def exec(args):
         oh.init_dirs()
 
+class InitCerts(SubCommand):
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "--force", "-f", action="store_true",
+            help="Removes all previously created certs and keys before creating new ones.")
+    @staticmethod
+    def exec(args):
+        oh.init_self_signed_certs(args.force)
+
+class InitWeb(SubCommand):
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, choices=["public", "private"],
+            help="Prepares the web applications for deployment.")
+
+    @staticmethod
+    def exec(args):
+        oh.init_web(args.service)
+
 
 def main(args: Optional[list[str]] = None) -> int:
     args = args or sys.argv[1:]
@@ -198,6 +219,7 @@ def main(args: Optional[list[str]] = None) -> int:
     # Init helpers
     _add_subparser("init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
     _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
+    _add_subparser("init-certs", "Initialize ssl certificates for bentov2 gateway domains.", InitCerts)
 
     # Service commands
     _add_subparser("run", "Run Bento services.", Run)
