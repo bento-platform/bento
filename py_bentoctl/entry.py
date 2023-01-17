@@ -164,6 +164,18 @@ class InitCerts(SubCommand):
     def exec(args):
         oh.init_self_signed_certs(args.force)
 
+class InitWeb(SubCommand):
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, choices=["public", "private"],
+            help="Prepares the web applications for deployment.")
+
+    @staticmethod
+    def exec(args):
+        oh.init_web(args.service)
+
+
 def main(args: Optional[list[str]] = None) -> int:
     args = args or sys.argv[1:]
 

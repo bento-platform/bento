@@ -36,8 +36,7 @@ AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
 
 docker_client = docker.from_env()
 
-# print(docker_client.containers.list())
-# print(docker_client.containers.get("bentov2-authh"))
+print(docker_client.containers.list())
 
 
 def make_keycloak_url(path: str) -> str:
