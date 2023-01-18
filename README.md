@@ -12,6 +12,18 @@ counterpart, built with Docker instead of Singularity.
 
 
 
+## `bentoctl`
+
+### Usage
+
+TODO
+
+### Migrating to `bentoctl`
+
+TODO
+
+
+
 ## Makefile
 The Makefile contains a set of tools to faciliate testing, development, and deployments. Ranging from `build`, `run`, and `clean` commands, operators may have an easier time using these rather than fiddling with raw `docker` and `docker-compose` commands.
 
