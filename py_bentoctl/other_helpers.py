@@ -56,17 +56,21 @@ def init_self_signed_certs(force: bool):
         domain_var, priv_key_name, crt_name = cert_domains_vars[domain].values()
         domain_val = os.getenv(domain_var)
 
+        if domain_val is None:
+            cprint(f"error: {domain_var} env variable ({domain}) is not set", "red")
+            exit(1)
+
         #  Create private key for domain
         print("Creating .key file for domain: {} -> {} ... ".format(domain, domain_val), end="")
-        pkey = create_private_key(certs_dir, priv_key_name)
+        pkey = _create_private_key(certs_dir, priv_key_name)
         cprint("done.", "green")
 
         # Create signed cert for domain 
         print("Creating certificate file for domain: {} -> {} ... ".format(domain, domain_val), end="")
-        create_cert(certs_dir, pkey, crt_name, domain_val)
+        _create_cert(certs_dir, pkey, crt_name, domain_val)
         cprint("done.", "green")
 
-def create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, common_name: str):
+def _create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, common_name: str):
     subject = issuer = x509.Name([
         x509.NameAttribute(NameOID.COUNTRY_NAME, u"CA"),
         x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Quebec"),
@@ -97,7 +101,7 @@ def create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, comm
         f.write(cert.public_bytes(serialization.Encoding.PEM))
     
 
-def create_private_key(path: pathlib.Path, pkey_name: str):
+def _create_private_key(path: pathlib.Path, pkey_name: str):
     key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048
@@ -111,13 +115,9 @@ def create_private_key(path: pathlib.Path, pkey_name: str):
         ))
     return key
 
-def clean_self_signed_certs():
-    pass
-
 def init_dirs():
     data_dir_vars = {
         "root": "BENTOV2_ROOT_DATA_DIR",
-
         "auth": "BENTOV2_AUTH_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
         "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR",
