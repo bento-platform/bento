@@ -171,6 +171,22 @@ class RunShell(SubCommand):
         s.run_as_shell_for_service(args.service, args.shell)
 
 
+class Logs(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            help="Service to check logs of.")
+        sp.add_argument(
+            "--follow", "-f", action="store_true",
+            help="Whether to follow the logs (keep them open and show new entries).")
+
+    @staticmethod
+    def exec(args):
+        s.logs_service(args.service, args.follow)
+
+
 # Other helpers
 
 class InitDirs(SubCommand):
@@ -232,6 +248,7 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("pull", "Pull the production image for a specific service.", Pull)
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell)
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
+    _add_subparser("logs", "Check logs for a service.", Logs)
 
     p_args = parser.parse_args(args)
 
