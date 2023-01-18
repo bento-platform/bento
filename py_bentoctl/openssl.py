@@ -10,7 +10,8 @@ from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes
 
 
-def _create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, common_name: str):
+def _create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey,
+                 crt_name: str, common_name: str):
     subject = issuer = x509.Name([
         x509.NameAttribute(NameOID.COUNTRY_NAME, u"CA"),
         x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Quebec"),

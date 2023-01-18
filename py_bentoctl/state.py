@@ -16,7 +16,7 @@ __all__ = [
 
 STATE_SCHEMA = """
 CREATE TABLE IF NOT EXISTS kvstore (
-    k TEXT PRIMARY KEY, 
+    k TEXT PRIMARY KEY,
     v TEXT
 );
 """
@@ -41,8 +41,10 @@ def get_state(conn: Optional[sqlite3.Connection] = None):
     try:
         with db:
             db.executescript(STATE_SCHEMA)
-            db.execute("INSERT OR IGNORE INTO kvstore (k, v) VALUES ('services', ?)",
-                       (json.dumps(first_run_services),))
+            db.execute(
+                "INSERT OR IGNORE INTO kvstore (k, v) VALUES ('services', ?)",
+                (json.dumps(first_run_services),
+                 ))
             db.commit()
 
             rs = db.execute("SELECT v FROM kvstore WHERE k = 'services'")
@@ -50,19 +52,23 @@ def get_state(conn: Optional[sqlite3.Connection] = None):
                 return {"services": json.loads(services_r[0])}
 
             print(
-                "Something went wrong while loading service status from state.", file=sys.stderr)
+                "Something went wrong while loading service status from state.",
+                file=sys.stderr)
             exit(1)
 
     finally:
         db.close()
 
 
-def set_state_services(services: Dict[str, Dict[str, Any]], conn: Optional[sqlite3.Connection] = None):
+def set_state_services(
+        services: Dict[str, Dict[str, Any]], conn: Optional[sqlite3.Connection] = None):
     db = conn or get_db()
     try:
         with db:
             db.execute(
-                "INSERT OR REPLACE INTO kvstore (k, v) VALUES ('services', ?)", (json.dumps(services),))
+                "INSERT OR REPLACE INTO kvstore (k, v) VALUES ('services', ?)",
+                (json.dumps(services),
+                 ))
             db.commit()
         return get_state(conn=db)
     finally:

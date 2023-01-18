@@ -169,13 +169,17 @@ def work_on_service(compose_service: str):
         err(f"  {compose_service} not in bento_services.json: {list(BENTO_SERVICES_DATA.keys())}")
         exit(1)
 
-    if not (repo_path := pathlib.Path.cwd() / "repos" / compose_service).exists():
+    if not (repo_path := pathlib.Path.cwd() /
+            "repos" / compose_service).exists():
         # Clone the repository if it doesn't already exist
         cprint(
             f"  Cloning {compose_service} repository into repos/ ...", "blue")
         # TODO: clone ssh...
         subprocess.check_call(
-            ("git", "clone", BENTO_SERVICES_DATA[compose_service]["repository"], repo_path))
+            ("git",
+             "clone",
+             BENTO_SERVICES_DATA[compose_service]["repository"],
+             repo_path))
         # TODO
 
     # Save state change
@@ -253,7 +257,8 @@ def mode_service(compose_service: str):
     cprint(mode, "green" if mode == MODE_PROD else "blue")
 
 
-def pull_service(compose_service: str, existing_service_state: Optional[dict] = None):
+def pull_service(compose_service: str,
+                 existing_service_state: Optional[dict] = None):
     compose_service = translate_service_aliases(compose_service)
     service_state = existing_service_state or get_state()["services"]
 

@@ -43,8 +43,12 @@ def init_self_signed_certs(force: bool):
     cert_files = list(certs_dir.glob('*.crt')) + \
         list(certs_dir.glob('*.key')) + list(certs_dir.glob("*.pem"))
     if not force and any(cert_files):
-        cprint("WARNING: Cert files detected in the target directory, new cert creation skipped.", "yellow")
-        cprint("To create new certs, remove all \".crt\" and \".key\" files in target directory first.", "yellow")
+        cprint(
+            "WARNING: Cert files detected in the target directory, new cert creation skipped.",
+            "yellow")
+        cprint(
+            "To create new certs, remove all \".crt\" and \".key\" files in target directory first.",
+            "yellow")
         for f in cert_files:
             cprint("Cert file path: {}".format(f), "yellow")
         return
@@ -56,7 +60,8 @@ def init_self_signed_certs(force: bool):
 
         if domain_val is None:
             cprint(
-                f"error: {domain_var} env variable ({domain}) is not set", "red")
+                f"error: {domain_var} env variable ({domain}) is not set",
+                "red")
             exit(1)
 
         #  Create private key for domain
@@ -93,7 +98,8 @@ def init_dirs():
         data_dir = os.getenv(dir_var)
         if data_dir is None:
             cprint(
-                f"error: {dir_for} data directory ({dir_var}) is not set", "red")
+                f"error: {dir_for} data directory ({dir_var}) is not set",
+                "red")
             exit(1)
 
         pathlib.Path(os.getenv(dir_var)).mkdir(parents=True, exist_ok=True)
