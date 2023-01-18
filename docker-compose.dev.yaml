@@ -50,8 +50,8 @@ services:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu
     volumes:
-      - ./repos/katsu/katsu:/app/katsu
-      - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp
+      - ./repos/katsu:/app
+      - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp:ro
     environment:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True

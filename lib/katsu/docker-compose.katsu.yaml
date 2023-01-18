@@ -36,8 +36,8 @@ services:
     volumes:
       # Custom Katsu config
       - ./config.json:${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}/chord_metadata_service/config.json
-      # Temp WES dir
-      - ${BENTOV2_KATSU_PROD_WES_VOL_TMP_DIR}:/wes/tmp
+      # Temp WES dir (read only mount, since we are just pulling files from it)
+      - ${BENTOV2_KATSU_PROD_WES_VOL_TMP_DIR}:/wes/tmp:ro
     mem_limit: ${BENTOV2_KATSU_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_KATSU_CPUS}
     cpu_shares: 1024
