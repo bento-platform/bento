@@ -1,10 +1,6 @@
 name: Lint
 on:
   push:
-    branches:
-      - "main"
-      - "develop"
-  pull_request:
 jobs:
   py-lint:
     runs-on: ubuntu-latest
