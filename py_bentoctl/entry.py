@@ -232,6 +232,7 @@ class InitCerts(SubCommand):
     def exec(args):
         oh.init_self_signed_certs(args.force)
 
+
 class InitDocker(SubCommand):
     @staticmethod
     def exec(args):

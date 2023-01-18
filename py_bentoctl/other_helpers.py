@@ -118,6 +118,7 @@ def init_docker():
     client.networks.create("bridge-net", driver="bridge", check_duplicate=True)
     cprint("done.", "green")
 
+
 def init_secrets():
     # TODO: init docker-swarm/tmp secrets
     pass
