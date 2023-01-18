@@ -2,7 +2,7 @@ name: Lint
 on:
   push:
     paths:
-      - "./py_bentoctl"
+      - '**.py'
   pull_request:
 
 jobs:
