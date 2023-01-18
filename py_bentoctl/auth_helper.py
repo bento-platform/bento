@@ -62,7 +62,8 @@ def keycloak_req(
             headers = {}
         headers["Authorization"] = f"Bearer {bearer_token}"
 
-    kwargs = dict(**(dict(headers=headers) if headers else {}), verify=not DEV_MODE)
+    kwargs = dict(**(dict(headers=headers) if headers else {}),
+                  verify=not DEV_MODE)
 
     if method == "get":
         return requests.get(make_keycloak_url(path), **kwargs)
@@ -101,7 +102,8 @@ def init_auth():
 
         for r in existing_realms:
             if r["realm"] == AUTH_REALM:
-                cprint(f"    Found existing realm: {AUTH_REALM}; using that.", "yellow")
+                cprint(
+                    f"    Found existing realm: {AUTH_REALM}; using that.", "yellow")
                 return
 
         create_realm_res = keycloak_req("admin/realms", method="post", bearer_token=token, json={
@@ -112,7 +114,8 @@ def init_auth():
         })
 
         if not create_realm_res.ok:
-            cprint(f"    Failed to create realm: {AUTH_REALM}; {create_realm_res.json()}", "red", file=sys.stderr)
+            cprint(
+                f"    Failed to create realm: {AUTH_REALM}; {create_realm_res.json()}", "red", file=sys.stderr)
             exit(1)
 
     def create_web_client_if_needed(token: str) -> str:
@@ -123,12 +126,14 @@ def init_auth():
             existing_clients = existing_clients_res.json()
 
             if not existing_clients_res.ok:
-                cprint(f"    Failed to fetch existing clients: {existing_clients}", "red", file=sys.stderr)
+                cprint(
+                    f"    Failed to fetch existing clients: {existing_clients}", "red", file=sys.stderr)
                 exit(1)
 
             for c in existing_clients:
                 if c["clientId"] == AUTH_CLIENT_ID:
-                    cprint(f"    Found existing client: {AUTH_CLIENT_ID}; using that.", "yellow")
+                    cprint(
+                        f"    Found existing client: {AUTH_CLIENT_ID}; using that.", "yellow")
                     return c["id"]
 
             return None
@@ -169,10 +174,12 @@ def init_auth():
             client_kc_id = fetch_existing_client_id()
 
         # Fetch and return secret
-        client_secret_res = keycloak_req(f"{p}/{client_kc_id}/client-secret", bearer_token=token)
+        client_secret_res = keycloak_req(
+            f"{p}/{client_kc_id}/client-secret", bearer_token=token)
         client_secret_data = client_secret_res.json()
         if not client_secret_res.ok:
-            cprint(f"    Failed to get client secret for {AUTH_CLIENT_ID}; {client_secret_data}")
+            cprint(
+                f"    Failed to get client secret for {AUTH_CLIENT_ID}; {client_secret_data}")
             exit(1)
 
         return client_secret_data["value"]
@@ -184,12 +191,14 @@ def init_auth():
         existing_users = existing_users_res.json()
 
         if not existing_users_res.ok:
-            cprint(f"    Failed to fetch existing users: {existing_users}", "red", file=sys.stderr)
+            cprint(
+                f"    Failed to fetch existing users: {existing_users}", "red", file=sys.stderr)
             exit(1)
 
         for u in existing_users:
             if u["username"] == AUTH_TEST_USER:
-                cprint(f"    Found existing user: {AUTH_TEST_USER}; using that.", "yellow")
+                cprint(
+                    f"    Found existing user: {AUTH_TEST_USER}; using that.", "yellow")
                 return
 
         create_user_res = keycloak_req(p, bearer_token=token, method="post", json={
@@ -209,7 +218,8 @@ def init_auth():
         print("Using external IdP, skipping setup.")
         exit(0)
 
-    print(f"[bentoctl] Using internal IdP, setting up Keycloak...    (MODE={MODE})")
+    print(
+        f"[bentoctl] Using internal IdP, setting up Keycloak...    (MODE={MODE})")
 
     try:
         docker_client.containers.get(AUTH_CONTAINER_NAME)
@@ -245,6 +255,7 @@ def init_auth():
         success()
     except requests.exceptions.HTTPError:
         # Not found
-        cprint(f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?", "red")
+        cprint(
+            f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?", "red")
 
     cprint("Done.", "green")

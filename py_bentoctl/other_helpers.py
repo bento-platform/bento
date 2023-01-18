@@ -8,6 +8,8 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes
+
+
 def init_web():
     # TODO
     pass
@@ -44,31 +46,36 @@ def init_self_signed_certs(force: bool):
     cprint("done.", "green")
 
     # Check for existing cert files first
-    cert_files = list(certs_dir.glob('*.crt')) + list(certs_dir.glob('*.key')) + list(certs_dir.glob("*.pem"))
+    cert_files = list(certs_dir.glob('*.crt')) + \
+        list(certs_dir.glob('*.key')) + list(certs_dir.glob("*.pem"))
     if not force and any(cert_files):
         cprint("WARNING: Cert files detected in the target directory, new cert creation skipped.", "yellow")
         cprint("To create new certs, remove all \".crt\" and \".key\" files in target directory first.", "yellow")
         for f in cert_files:
             cprint("Cert file path: {}".format(f), "yellow")
         return
-    
+
     for domain in cert_domains_vars.keys():
-        domain_var, priv_key_name, crt_name = cert_domains_vars[domain].values()
+        domain_var, priv_key_name, crt_name = cert_domains_vars[domain].values(
+        )
         domain_val = os.getenv(domain_var)
 
         if domain_val is None:
-            cprint(f"error: {domain_var} env variable ({domain}) is not set", "red")
+            cprint(
+                f"error: {domain_var} env variable ({domain}) is not set", "red")
             exit(1)
 
         #  Create private key for domain
-        print("Creating .key file for domain: {} -> {} ... ".format(domain, domain_val), end="")
+        print("Creating .key file for domain: {} -> {} ... ".format(domain,
+              domain_val), end="")
         pkey = _create_private_key(certs_dir, priv_key_name)
         cprint("done.", "green")
 
-        # Create signed cert for domain 
+        # Create signed cert for domain
         print("Creating certificate file for domain: {} -> {} ... ".format(domain, domain_val), end="")
         _create_cert(certs_dir, pkey, crt_name, domain_val)
         cprint("done.", "green")
+
 
 def _create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, common_name: str):
     subject = issuer = x509.Name([
@@ -99,7 +106,7 @@ def _create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, com
     cert_path = (path / crt_name)
     with open(cert_path, "wb") as f:
         f.write(cert.public_bytes(serialization.Encoding.PEM))
-    
+
 
 def _create_private_key(path: pathlib.Path, pkey_name: str):
     key = rsa.generate_private_key(
@@ -114,6 +121,7 @@ def _create_private_key(path: pathlib.Path, pkey_name: str):
             encryption_algorithm=serialization.NoEncryption(),
         ))
     return key
+
 
 def init_dirs():
     data_dir_vars = {
@@ -136,7 +144,8 @@ def init_dirs():
 
         data_dir = os.getenv(dir_var)
         if data_dir is None:
-            cprint(f"error: {dir_for} data directory ({dir_var}) is not set", "red")
+            cprint(
+                f"error: {dir_for} data directory ({dir_var}) is not set", "red")
             exit(1)
 
         pathlib.Path(os.getenv(dir_var)).mkdir(parents=True, exist_ok=True)

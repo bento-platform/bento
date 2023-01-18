@@ -95,7 +95,8 @@ class WorkOn(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("service", type=str, choices=tuple(BENTO_SERVICES_DATA.keys()), help="Service to work on.")
+        sp.add_argument("service", type=str, choices=tuple(
+            BENTO_SERVICES_DATA.keys()), help="Service to work on.")
 
     @staticmethod
     def exec(args):
@@ -178,15 +179,18 @@ class InitDirs(SubCommand):
     def exec(args):
         oh.init_dirs()
 
+
 class InitCerts(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
             "--force", "-f", action="store_true",
             help="Removes all previously created certs and keys before creating new ones.")
+
     @staticmethod
     def exec(args):
         oh.init_self_signed_certs(args.force)
+
 
 class InitWeb(SubCommand):
     @staticmethod
@@ -207,7 +211,8 @@ def main(args: Optional[list[str]] = None) -> int:
         description="Tools for managing a Bento deployment (development or production).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("--version", "-v", action="version", version=__version__)
+    parser.add_argument("--version", "-v",
+                        action="version", version=__version__)
 
     subparsers = parser.add_subparsers()
 
@@ -217,21 +222,29 @@ def main(args: Optional[list[str]] = None) -> int:
         subcommand.add_args(subparser)
 
     # Init helpers
-    _add_subparser("init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
-    _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
-    _add_subparser("init-certs", "Initialize ssl certificates for bentov2 gateway domains.", InitCerts)
+    _add_subparser(
+        "init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
+    _add_subparser(
+        "init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
+    _add_subparser(
+        "init-certs", "Initialize ssl certificates for bentov2 gateway domains.", InitCerts)
 
     # Service commands
     _add_subparser("run", "Run Bento services.", Run)
     _add_subparser("stop", "Stop Bento services.", Stop)
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
-    _add_subparser("work-on", "Work on a specific service in development mode.", WorkOn)
+    _add_subparser(
+        "work-on", "Work on a specific service in development mode.", WorkOn)
     _add_subparser("prod", "Switch a service back to production mode.", Prod)
-    _add_subparser("mode", "See if a service (or which services) are in production/development mode.", Mode)
-    _add_subparser("pull", "Pull the production image for a specific service.", Pull)
-    _add_subparser("shell", "Run a shell inside an already-running service container.", Shell)
-    _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
+    _add_subparser(
+        "mode", "See if a service (or which services) are in production/development mode.", Mode)
+    _add_subparser(
+        "pull", "Pull the production image for a specific service.", Pull)
+    _add_subparser(
+        "shell", "Run a shell inside an already-running service container.", Shell)
+    _add_subparser(
+        "run-as-shell", "Run a shell inside a stopped service container.", RunShell)
 
     p_args = parser.parse_args(args)
 
