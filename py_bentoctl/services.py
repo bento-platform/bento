@@ -169,7 +169,8 @@ def work_on_service(compose_service: str):
         # Clone the repository if it doesn't already exist
         cprint(f"  Cloning {compose_service} repository into repos/ ...", "blue")
         # TODO: clone ssh...
-        subprocess.check_call(("git", "clone", BENTO_SERVICES_DATA[compose_service]["repository"], repo_path))
+        subprocess.check_call((
+            "git", "clone", "--recurse-submodules", BENTO_SERVICES_DATA[compose_service]["repository"], repo_path))
         # TODO
 
     # Save state change
