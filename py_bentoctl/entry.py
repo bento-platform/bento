@@ -232,6 +232,11 @@ class InitCerts(SubCommand):
     def exec(args):
         oh.init_self_signed_certs(args.force)
 
+class InitDocker(SubCommand):
+    @staticmethod
+    def exec(args):
+        oh.init_docker()
+
 
 class InitWeb(SubCommand):
     @staticmethod
@@ -254,7 +259,7 @@ def main(args: Optional[list[str]] = None) -> int:
 
     parser.add_argument("--version", "-v",
                         action="version", version=__version__)
-
+    parser.add_argument("--debug", "-d", action="store_true")
     subparsers = parser.add_subparsers()
 
     def _add_subparser(arg: str, help_text: str, subcommand: Type[SubCommand]):
@@ -273,6 +278,11 @@ def main(args: Optional[list[str]] = None) -> int:
         "init-certs",
         "Initialize ssl certificates for bentov2 gateway domains.",
         InitCerts)
+    _add_subparser(
+        "init-docker",
+        "Init docker swarm and network.",
+        InitDocker
+    )
 
     # Service commands
     _add_subparser("run", "Run Bento services.", Run)
@@ -301,6 +311,16 @@ def main(args: Optional[list[str]] = None) -> int:
 
     if not getattr(p_args, "func", None):
         p_args = parser.parse_args(("--help",))
+
+    if getattr(p_args, "debug", False):
+        import debugpy
+
+        debugpy.listen(5678)
+        print("Waiting for debugger attach")
+        print("Connect with a remote attach python debugger to start")
+        debugpy.wait_for_client()
+        debugpy.breakpoint()
+        print('break on this line')
 
     try:
         p_args.func(p_args)

@@ -1,5 +1,6 @@
 import os
 import pathlib
+import docker
 from termcolor import cprint
 from .openssl import _create_cert, _create_private_key
 
@@ -107,11 +108,15 @@ def init_dirs():
 
 
 def init_docker():
-    # TODO: docker swarm (ignore / suppress error)
+    client = docker.from_env()
 
-    # TODO: create network(s) if needed
-    pass
+    # Init swarm
+    client.swarm.init()
 
+    # Docker network creation
+    print("Creating docker network (bridge-net) if needed... ", end="")
+    client.networks.create("bridge-net", driver="bridge", check_duplicate=True)
+    cprint("done.", "green")
 
 def init_secrets():
     # TODO: init docker-swarm/tmp secrets
