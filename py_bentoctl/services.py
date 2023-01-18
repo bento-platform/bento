@@ -24,6 +24,7 @@ __all__ = [
     "work_on_service",
     "enter_shell_for_service",
     "run_as_shell_for_service",
+    "logs_service",
 ]
 
 BENTO_SERVICES_DATA_BY_KIND = {
@@ -311,3 +312,19 @@ def run_as_shell_for_service(compose_service: str, shell: str):
     cmd = COMPOSE[0]
     compose_args = COMPOSE[1:]
     os.execvp(cmd, (cmd, *compose_args, "run", compose_service, shell))  # TODO: Detect shell
+
+
+def logs_service(compose_service: str, follow: bool):
+    compose_service = translate_service_aliases(compose_service)
+    extra_args = ("-f",) if follow else ()
+
+    if compose_service == "all":
+        # special: show all logs
+        subprocess.check_call((*COMPOSE, "logs", *extra_args))
+        return
+
+    check_service_is_compose(compose_service)
+
+    cmd = COMPOSE[0]
+    compose_args = COMPOSE[1:]
+    os.execvp(cmd, (cmd, *compose_args, "logs", *extra_args, compose_service))
