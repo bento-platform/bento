@@ -8,7 +8,6 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes
-
 def init_web():
     # TODO
     pass
@@ -99,7 +98,6 @@ def create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, comm
     
 
 def create_private_key(path: pathlib.Path, pkey_name: str):
-
     key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048
@@ -109,7 +107,7 @@ def create_private_key(path: pathlib.Path, pkey_name: str):
         f.write(key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.TraditionalOpenSSL,
-            encryption_algorithm=serialization.BestAvailableEncryption(b"passphrase"),
+            encryption_algorithm=serialization.NoEncryption(),
         ))
     return key
 
