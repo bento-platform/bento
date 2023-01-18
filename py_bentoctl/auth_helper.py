@@ -11,7 +11,7 @@ from termcolor import cprint
 
 from typing import Optional
 
-from .config import COMPOSE, MODE, DEV_MODE
+from .config import COMPOSE, DEV_MODE
 from .utils import err
 
 __all__ = ["init_auth"]
@@ -236,14 +236,14 @@ def init_auth():
             exit(1)
 
     def success():
-        cprint(f"    Success.", "green")
+        cprint("    Success.", "green")
 
     if USE_EXTERNAL_IDP in ("1", "true"):
         print("Using external IdP, skipping setup.")
         exit(0)
 
     print(
-        f"[bentoctl] Using internal IdP, setting up Keycloak...    (MODE={MODE})")
+        "[bentoctl] Using internal IdP, setting up Keycloak...    (MODE={MODE})")
 
     try:
         docker_client.containers.get(AUTH_CONTAINER_NAME)
@@ -274,7 +274,7 @@ def init_auth():
     create_test_user_if_needed(access_token)
     success()
 
-    print(f"  Restarting the Keycloak container")
+    print("  Restarting the Keycloak container")
     try:
         kc = docker_client.containers.get(AUTH_CONTAINER_NAME)
         kc.restart()

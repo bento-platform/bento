@@ -160,7 +160,7 @@ def work_on_service(compose_service: str):
     service_state = get_state()["services"]
 
     if compose_service == "all":
-        err(f"  Cannot work on all services.")
+        err("  Cannot work on all services.")
         exit(1)
 
     check_service_is_compose(compose_service)

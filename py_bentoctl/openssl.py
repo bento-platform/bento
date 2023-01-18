@@ -1,8 +1,5 @@
 import datetime
-import os
 import pathlib
-import glob
-from termcolor import cprint
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography import x509
