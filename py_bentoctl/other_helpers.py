@@ -132,14 +132,56 @@ def init_docker():
         cprint("network created, done.", "green")
 
 
-def init_secrets():
-    # TODO: init docker-swarm/tmp secrets
-    pass
+def init_secrets(force: bool):
+    client = docker.from_env()
+    KATSU_VARS = {
+        "user": {
+            "env_var": "BENTOV2_KATSU_DB_USER",
+            "secret_name": "metadata-db-user"
+        },
+        "pw": {
+            "env_var": "BENTOV2_KATSU_DB_PASSWORD",
+            "secret_name": "metadata-db-secret"
+        },
+        "secret": {
+            "env_var": "BENTOV2_KATSU_DB_APP_SECRET",
+            "secret_name": "metadata-app-secret"
+        }
+    }
+
+    for secret_type in KATSU_VARS.keys():
+        env_var, secret_name = KATSU_VARS[secret_type].values()
+        val = os.getenv(env_var)
+        val_bytes = bytes(val, 'UTF-8')
+        path = (pathlib.Path.cwd() / "tmp" / "secrets" / secret_name)
+
+        print(f"Creating secret for {secret_type}: {secret_name} ...", end="")
+        existing_secrets = [scrt for scrt in client.secrets.list(filters={"name": secret_name}) if scrt is not None]
+        if len(existing_secrets) == 0:
+            with open(path, "wb") as f:
+                f.write(val_bytes)
+            client.secrets.create(name=secret_name, data=val_bytes)
+            cprint(" done.", "green")
+        elif force:
+            for scrt in existing_secrets:
+                client.api.remove_secret(scrt.id)
+            client.secrets.create(name=secret_name, data=val_bytes)
+            cprint(" done.", "green")
+        else:
+            cprint(f" {secret_name} already exists, skipping.", "yellow")
+
+    # TODO: Use Hashicorp/Vault for more secure secret mgmt?
 
 
 def clean_secrets():
-    # TODO
-    pass
+    client = docker.from_env()
+    for secret in client.secrets.list():
+        print(f"Removing secret: {secret.id} ... ", end="")
+        success = client.api.remove_secret(secret.id)
+        if success:
+            cprint("done.", "green")
+        else:
+            cprint("failed.", "red")
 
 
 def clean_logs():
