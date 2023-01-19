@@ -165,6 +165,8 @@ def init_secrets(force: bool):
         elif force:
             for scrt in existing_secrets:
                 client.api.remove_secret(scrt.id)
+            with open(path, "wb") as f:
+                f.write(val_bytes)
             client.secrets.create(name=secret_name, data=val_bytes)
             cprint(" done.", "green")
         else:
