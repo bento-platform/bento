@@ -51,7 +51,7 @@ def init_self_signed_certs(force: bool):
             "To create new certs, remove all \".crt\" and \".key\" files in target directory first.",
             "yellow")
         for f in cert_files:
-            cprint("Cert file path: {}".format(f), "yellow")
+            cprint(f"Cert file path: {f}", "yellow")
         return
 
     for domain in cert_domains_vars.keys():
@@ -66,8 +66,8 @@ def init_self_signed_certs(force: bool):
             exit(1)
 
         #  Create private key for domain
-        print("Creating .key file for domain: {} -> {} ... ".format(domain,
-              domain_val), end="")
+        print(
+            f"Creating .key file for domain: {domain} -> {domain_val} ... ", end="")
         pkey = _create_private_key(certs_dir, priv_key_name)
         cprint("done.", "green")
 
@@ -108,15 +108,28 @@ def init_dirs():
 
 
 def init_docker():
-    client = docker.from_env()
+    client: docker.DockerClient = docker.from_env()
 
     # Init swarm
-    client.swarm.init()
+    try:
+        print("Initializing docker swarm, if necessary ...", end="")
+        swarm_id = client.swarm.init()
+        cprint("done.", "green")
+        print(f"Swarm id: {swarm_id}")
+    except docker.errors.APIError:
+        cprint("   Error encountered, skipping.", "red")
+        cprint("   Likely due to docker already being in a swarm.", "yellow")
 
-    # Docker network creation
-    print("Creating docker network (bridge-net) if needed... ", end="")
-    client.networks.create("bridge-net", driver="bridge", check_duplicate=True)
-    cprint("done.", "green")
+    # Init Docker network(s)
+
+    base_net_name = "bridge-net"
+    print(f"Creating docker network ({base_net_name}) if needed... ", end="")
+    try:
+        client.networks.get(base_net_name)
+        cprint("exists already, done.", "green")
+    except docker.errors.NotFound:
+        client.networks.create("bridge-net", driver="bridge")
+        cprint("network created, done.", "green")
 
 
 def init_secrets():
