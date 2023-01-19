@@ -245,14 +245,17 @@ class InitSecrets(SubCommand):
         sp.add_argument(
             "--force", "-f", action="store_true",
             help="Removes all previously created secrets before creating new ones.")
+
     @staticmethod
     def exec(args):
         return oh.init_secrets(args.force)
+
 
 class CleanSecrets(SubCommand):
     @staticmethod
     def exec(args):
         return oh.clean_secrets()
+
 
 class InitWeb(SubCommand):
     @staticmethod
@@ -303,6 +306,11 @@ def main(args: Optional[list[str]] = None) -> int:
         "init-secrets",
         "Init docker secrets",
         InitSecrets
+    )
+    _add_subparser(
+        "init-web",
+        "Init web app (public or private) files",
+        InitWeb
     )
     _add_subparser(
         "clean-secrets",

@@ -1,19 +1,42 @@
 import os
 import pathlib
+import shutil
 import docker
 from termcolor import cprint
 from .openssl import _create_cert, _create_private_key
 
 
-def init_web():
-    # TODO
-    pass
+def init_web(service: str):
 
+    if service not in ["public", "private"]:
+        cprint("You must specify the service type (public or private)")
+        exit(1)
+    
+    if service == "public":
+        _init_web_public()
+    elif service == "private":
+        _init_web_private()
 
-def init_public():
-    # TODO
-    pass
+def _init_web_public():
+    root_path = pathlib.Path.cwd()
+    public_path = (root_path / "lib" / "public")
 
+    # TODO: make a generic function for file copies like this
+    if (pathlib.Path.is_file(public_path / "about.html")):
+        print("About HTML file exists, skipping...")
+    else:
+        shutil.copyfile(src=(root_path/"etc"/"default.about.html"))
+
+def _init_web_private():
+    print("Init public web folder with branding image ...", end="")
+    root_path = pathlib.Path.cwd()
+    web_path = (root_path / "lib" / "web")
+    web_path.mkdir(parents=True, exist_ok=True)
+
+    src_file = (root_path / "etc" / "default.branding.png")
+    dst_file = (web_path / "branding.png")
+    shutil.copyfile(src=src_file, dst=dst_file)
+    cprint(" done.", "green")
 
 def init_self_signed_certs(force: bool):
     cert_domains_vars = {
