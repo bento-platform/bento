@@ -39,7 +39,13 @@ class Run(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            "service",
+            type=str,
+            nargs="?",
+            default="all",
+            choices=(
+                *DOCKER_COMPOSE_SERVICES,
+                "all"),
             help="Service to run, or 'all' to run everything.")
         sp.add_argument(
             "--pull", "-p", action="store_true",
@@ -57,7 +63,13 @@ class Stop(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            "service",
+            type=str,
+            nargs="?",
+            default="all",
+            choices=(
+                *DOCKER_COMPOSE_SERVICES,
+                "all"),
             help="Service to stop, or 'all' to stop everything.")
 
     @staticmethod
@@ -70,7 +82,13 @@ class Restart(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            "service",
+            type=str,
+            nargs="?",
+            default="all",
+            choices=(
+                *DOCKER_COMPOSE_SERVICES,
+                "all"),
             help="Service to restart, or 'all' to restart everything.")
 
     @staticmethod
@@ -95,7 +113,8 @@ class WorkOn(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("service", type=str, choices=tuple(BENTO_SERVICES_DATA.keys()), help="Service to work on.")
+        sp.add_argument("service", type=str, choices=tuple(
+            BENTO_SERVICES_DATA.keys()), help="Service to work on.")
 
     @staticmethod
     def exec(args):
@@ -120,7 +139,13 @@ class Mode(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*BENTO_SERVICES_DATA.keys(), "all"),
+            "service",
+            type=str,
+            nargs="?",
+            default="all",
+            choices=(
+                *BENTO_SERVICES_DATA.keys(),
+                "all"),
             help="Service to switch to production mode.")
 
     @staticmethod
@@ -132,9 +157,8 @@ class Pull(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
-            help="Service to pull image for.")
+        sp.add_argument("service", type=str, nargs="?", default="all", choices=(
+            *DOCKER_COMPOSE_SERVICES, "all"), help="Service to pull image for.")
 
     @staticmethod
     def exec(args):
@@ -146,9 +170,18 @@ class Shell(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=DOCKER_COMPOSE_SERVICES, help="Service to enter a shell for.")
+            "service",
+            type=str,
+            choices=DOCKER_COMPOSE_SERVICES,
+            help="Service to enter a shell for.")
         sp.add_argument(
-            "--shell", "-s", default="/bin/bash", type=str, choices=("/bin/bash", "/bin/sh"),
+            "--shell",
+            "-s",
+            default="/bin/bash",
+            type=str,
+            choices=(
+                "/bin/bash",
+                "/bin/sh"),
             help="Shell to use inside the service container.")
 
     @staticmethod
@@ -161,9 +194,18 @@ class RunShell(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=DOCKER_COMPOSE_SERVICES, help="Service to run a shell for.")
+            "service",
+            type=str,
+            choices=DOCKER_COMPOSE_SERVICES,
+            help="Service to run a shell for.")
         sp.add_argument(
-            "--shell", "-s", default="/bin/bash", type=str, choices=("/bin/bash", "/bin/sh"),
+            "--shell",
+            "-s",
+            default="/bin/bash",
+            type=str,
+            choices=(
+                "/bin/bash",
+                "/bin/sh"),
             help="Shell to run inside the service container.")
 
     @staticmethod
@@ -194,15 +236,42 @@ class InitDirs(SubCommand):
     def exec(args):
         oh.init_dirs()
 
+
 class InitCerts(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
             "--force", "-f", action="store_true",
             help="Removes all previously created certs and keys before creating new ones.")
+
     @staticmethod
     def exec(args):
         oh.init_self_signed_certs(args.force)
+
+
+class InitDocker(SubCommand):
+    @staticmethod
+    def exec(args):
+        oh.init_docker()
+
+
+class InitSecrets(SubCommand):
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "--force", "-f", action="store_true",
+            help="Removes all previously created secrets before creating new ones.")
+
+    @staticmethod
+    def exec(args):
+        return oh.init_secrets(args.force)
+
+
+class CleanSecrets(SubCommand):
+    @staticmethod
+    def exec(args):
+        return oh.clean_secrets()
+
 
 class InitWeb(SubCommand):
     @staticmethod
@@ -223,8 +292,9 @@ def main(args: Optional[list[str]] = None) -> int:
         description="Tools for managing a Bento deployment (development or production).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("--version", "-v", action="version", version=__version__)
-
+    parser.add_argument("--version", "-v",
+                        action="version", version=__version__)
+    parser.add_argument("--debug", "-d", action="store_true")
     subparsers = parser.add_subparsers()
 
     def _add_subparser(arg: str, help_text: str, subcommand: Type[SubCommand]):
@@ -233,27 +303,76 @@ def main(args: Optional[list[str]] = None) -> int:
         subcommand.add_args(subparser)
 
     # Init helpers
-    _add_subparser("init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
-    _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
-    _add_subparser("init-certs", "Initialize ssl certificates for bentov2 gateway domains.", InitCerts)
+    _add_subparser(
+        "init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
+    _add_subparser(
+        "init-auth",
+        "Configure authentication for BentoV2 with a local Keycloak instance.",
+        InitAuth)
+    _add_subparser(
+        "init-certs",
+        "Initialize ssl certificates for bentov2 gateway domains.",
+        InitCerts)
+    _add_subparser(
+        "init-docker",
+        "Init docker swarm and network.",
+        InitDocker
+    )
+    _add_subparser(
+        "init-secrets",
+        "Init docker secrets",
+        InitSecrets
+    )
+    _add_subparser(
+        "init-web",
+        "Init web app (public or private) files",
+        InitWeb
+    )
+    _add_subparser(
+        "clean-secrets",
+        "Clean docker secrets",
+        CleanSecrets
+    )
 
     # Service commands
     _add_subparser("run", "Run Bento services.", Run)
     _add_subparser("stop", "Stop Bento services.", Stop)
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
-    _add_subparser("work-on", "Work on a specific service in development mode.", WorkOn)
+    _add_subparser(
+        "work-on", "Work on a specific service in development mode.", WorkOn)
     _add_subparser("prod", "Switch a service back to production mode.", Prod)
-    _add_subparser("mode", "See if a service (or which services) are in production/development mode.", Mode)
-    _add_subparser("pull", "Pull the production image for a specific service.", Pull)
-    _add_subparser("shell", "Run a shell inside an already-running service container.", Shell)
-    _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
+    _add_subparser(
+        "mode",
+        "See if a service (or which services) are in production/development mode.",
+        Mode)
+    _add_subparser(
+        "pull", "Pull the production image for a specific service.", Pull)
+    _add_subparser(
+        "shell",
+        "Run a shell inside an already-running service container.",
+        Shell)
+    _add_subparser(
+        "run-as-shell",
+        "Run a shell inside a stopped service container.",
+        RunShell)
     _add_subparser("logs", "Check logs for a service.", Logs)
 
     p_args = parser.parse_args(args)
 
     if not getattr(p_args, "func", None):
         p_args = parser.parse_args(("--help",))
+
+    # For remote interactive python debugging
+    if getattr(p_args, "debug", False):
+        import debugpy
+
+        debugpy.listen(5678)
+        print("Waiting for debugger attach")
+        print("Connect with a remote attach python debugger to start")
+        debugpy.wait_for_client()
+        debugpy.breakpoint()
+        print('break on this line')
 
     try:
         p_args.func(p_args)

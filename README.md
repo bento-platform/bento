@@ -10,7 +10,14 @@ counterpart, built with Docker instead of Singularity.
   <img src="https://github.com/bento-platform/bentoV2/blob/qa/v2.4/diagram.png?raw=true" alt="diagram" style="align:middle;"/>
 </div>
 
+## py_bentoctl
+This command line tool offers a series of commands and parameters that are helpful to setup the Docker environment for BentoV2 services. Consider using it instead of the Makefile for better cross-compatibility on Windows.
 
+Bentoctl is a Python module app lauched by a bash script that loads .env files variables to the environment. For an overview of its features type the following from the root of the project:
+```
+./bentoctl.bash
+```
+> Note: the flags `--debug, -d` are intended for interactive remote Python debugging of Bentoctl. See [VSCode instructions](https://code.visualstudio.com/docs/python/debugging#_local-script-debugging) or [PyCharm instructions](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html) for IDE setup.
 
 ## `bentoctl`
 
@@ -102,7 +109,16 @@ due to the different directories Gohan's Makefile can be called from.
 
 <br />
 
-### Create self-signed TLS certificates
+### Create self-signed TLS certificates (bentoctl)
+
+Setting up the certificates with bentoctl can be done in a single command.
+From the project root, run
+```
+./bentoctl.bash init-certs
+```
+> This command will skip all certificate generation if it detects previously created files. To force an override, simply add the option `--force, -f`.
+
+### Create self-signed TLS certificates (With Makefile)
 
 First, set up your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development with the following steps;
 

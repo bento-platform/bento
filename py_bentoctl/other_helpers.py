@@ -1,23 +1,42 @@
-import datetime
 import os
 import pathlib
-import glob
+import shutil
+import docker
 from termcolor import cprint
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography import x509
-from cryptography.x509.oid import NameOID
-from cryptography.hazmat.primitives import hashes
-
-def init_web():
-    # TODO
-    pass
+from .openssl import _create_cert, _create_private_key
 
 
-def init_public():
-    # TODO
-    pass
+def init_web(service: str):
 
+    if service not in ["public", "private"]:
+        cprint("You must specify the service type (public or private)")
+        exit(1)
+    
+    if service == "public":
+        _init_web_public()
+    elif service == "private":
+        _init_web_private()
+
+def _init_web_public():
+    root_path = pathlib.Path.cwd()
+    public_path = (root_path / "lib" / "public")
+
+    # TODO: make a generic function for file copies like this
+    if (pathlib.Path.is_file(public_path / "about.html")):
+        print("About HTML file exists, skipping...")
+    else:
+        shutil.copyfile(src=(root_path/"etc"/"default.about.html"))
+
+def _init_web_private():
+    print("Init public web folder with branding image ...", end="")
+    root_path = pathlib.Path.cwd()
+    web_path = (root_path / "lib" / "web")
+    web_path.mkdir(parents=True, exist_ok=True)
+
+    src_file = (root_path / "etc" / "default.branding.png")
+    dst_file = (web_path / "branding.png")
+    shutil.copyfile(src=src_file, dst=dst_file)
+    cprint(" done.", "green")
 
 def init_self_signed_certs(force: bool):
     cert_domains_vars = {
@@ -45,81 +64,45 @@ def init_self_signed_certs(force: bool):
     cprint("done.", "green")
 
     # Check for existing cert files first
-    cert_files = list(certs_dir.glob('*.crt')) + list(certs_dir.glob('*.key')) + list(certs_dir.glob("*.pem"))
+    cert_files = list(certs_dir.glob('*.crt')) + \
+        list(certs_dir.glob('*.key')) + list(certs_dir.glob("*.pem"))
     if not force and any(cert_files):
-        cprint("WARNING: Cert files detected in the target directory, new cert creation skipped.", "yellow")
-        cprint("To create new certs, remove all \".crt\" and \".key\" files in target directory first.", "yellow")
+        cprint(
+            "WARNING: Cert files detected in the target directory, new cert creation skipped.",
+            "yellow")
+        cprint(
+            "To create new certs, remove all \".crt\" and \".key\" files in target directory first.",
+            "yellow")
         for f in cert_files:
-            cprint("Cert file path: {}".format(f), "yellow")
+            cprint(f"Cert file path: {f}", "yellow")
         return
-    
+
     for domain in cert_domains_vars.keys():
-        domain_var, priv_key_name, crt_name = cert_domains_vars[domain].values()
+        domain_var, priv_key_name, crt_name = cert_domains_vars[domain].values(
+        )
         domain_val = os.getenv(domain_var)
 
+        if domain_val is None:
+            cprint(
+                f"error: {domain_var} env variable ({domain}) is not set",
+                "red")
+            exit(1)
+
         #  Create private key for domain
-        print("Creating .key file for domain: {} -> {} ... ".format(domain, domain_val), end="")
-        pkey = create_private_key(certs_dir, priv_key_name)
+        print(
+            f"Creating .key file for domain: {domain} -> {domain_val} ... ", end="")
+        pkey = _create_private_key(certs_dir, priv_key_name)
         cprint("done.", "green")
 
-        # Create signed cert for domain 
+        # Create signed cert for domain
         print("Creating certificate file for domain: {} -> {} ... ".format(domain, domain_val), end="")
-        create_cert(certs_dir, pkey, crt_name, domain_val)
+        _create_cert(certs_dir, pkey, crt_name, domain_val)
         cprint("done.", "green")
 
-def create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, common_name: str):
-    subject = issuer = x509.Name([
-        x509.NameAttribute(NameOID.COUNTRY_NAME, u"CA"),
-        x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Quebec"),
-        x509.NameAttribute(NameOID.LOCALITY_NAME, u"Montreal"),
-        x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"C3G McGill"),
-        x509.NameAttribute(NameOID.COMMON_NAME, u"{}".format(common_name))
-    ])
-
-    cert = x509.CertificateBuilder().subject_name(
-        subject
-    ).issuer_name(
-        issuer
-    ).public_key(
-        pkey.public_key()
-    ).serial_number(
-        x509.random_serial_number()
-    ).not_valid_before(
-        datetime.datetime.utcnow()
-    ).not_valid_after(
-        datetime.datetime.utcnow() + datetime.timedelta(days=365)
-    ).add_extension(
-        x509.SubjectAlternativeName([x509.DNSName(u"localhost")]),
-        critical=False
-    ).sign(pkey, hashes.SHA256())
-
-    cert_path = (path / crt_name)
-    with open(cert_path, "wb") as f:
-        f.write(cert.public_bytes(serialization.Encoding.PEM))
-    
-
-def create_private_key(path: pathlib.Path, pkey_name: str):
-
-    key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048
-    )
-    pkey_path = (path / pkey_name)
-    with open((pkey_path), "wb") as f:
-        f.write(key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.TraditionalOpenSSL,
-            encryption_algorithm=serialization.BestAvailableEncryption(b"passphrase"),
-        ))
-    return key
-
-def clean_self_signed_certs():
-    pass
 
 def init_dirs():
     data_dir_vars = {
         "root": "BENTOV2_ROOT_DATA_DIR",
-
         "auth": "BENTOV2_AUTH_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
         "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR",
@@ -138,7 +121,9 @@ def init_dirs():
 
         data_dir = os.getenv(dir_var)
         if data_dir is None:
-            cprint(f"error: {dir_for} data directory ({dir_var}) is not set", "red")
+            cprint(
+                f"error: {dir_for} data directory ({dir_var}) is not set",
+                "red")
             exit(1)
 
         pathlib.Path(os.getenv(dir_var)).mkdir(parents=True, exist_ok=True)
@@ -146,20 +131,82 @@ def init_dirs():
 
 
 def init_docker():
-    # TODO: docker swarm (ignore / suppress error)
+    client: docker.DockerClient = docker.from_env()
 
-    # TODO: create network(s) if needed
-    pass
+    # Init swarm
+    try:
+        print("Initializing docker swarm, if necessary ...", end="")
+        swarm_id = client.swarm.init()
+        cprint("done.", "green")
+        print(f"Swarm id: {swarm_id}")
+    except docker.errors.APIError:
+        cprint("   Error encountered, skipping.", "red")
+        cprint("   Likely due to docker already being in a swarm.", "yellow")
+
+    # Init Docker network(s)
+
+    base_net_name = "bridge-net"
+    print(f"Creating docker network ({base_net_name}) if needed... ", end="")
+    try:
+        client.networks.get(base_net_name)
+        cprint("exists already, done.", "green")
+    except docker.errors.NotFound:
+        client.networks.create("bridge-net", driver="bridge")
+        cprint("network created, done.", "green")
 
 
-def init_secrets():
-    # TODO
-    pass
+def init_secrets(force: bool):
+    client = docker.from_env()
+    KATSU_VARS = {
+        "user": {
+            "env_var": "BENTOV2_KATSU_DB_USER",
+            "secret_name": "metadata-db-user"
+        },
+        "pw": {
+            "env_var": "BENTOV2_KATSU_DB_PASSWORD",
+            "secret_name": "metadata-db-secret"
+        },
+        "secret": {
+            "env_var": "BENTOV2_KATSU_DB_APP_SECRET",
+            "secret_name": "metadata-app-secret"
+        }
+    }
+
+    for secret_type in KATSU_VARS.keys():
+        env_var, secret_name = KATSU_VARS[secret_type].values()
+        val = os.getenv(env_var)
+        val_bytes = bytes(val, 'UTF-8')
+        path = (pathlib.Path.cwd() / "tmp" / "secrets" / secret_name)
+
+        print(f"Creating secret for {secret_type}: {secret_name} ...", end="")
+        existing_secrets = [scrt for scrt in client.secrets.list(filters={"name": secret_name}) if scrt is not None]
+        if len(existing_secrets) == 0:
+            with open(path, "wb") as f:
+                f.write(val_bytes)
+            client.secrets.create(name=secret_name, data=val_bytes)
+            cprint(" done.", "green")
+        elif force:
+            for scrt in existing_secrets:
+                client.api.remove_secret(scrt.id)
+            with open(path, "wb") as f:
+                f.write(val_bytes)
+            client.secrets.create(name=secret_name, data=val_bytes)
+            cprint(" done.", "green")
+        else:
+            cprint(f" {secret_name} already exists, skipping.", "yellow")
+
+    # TODO: Use Hashicorp/Vault for more secure secret mgmt?
 
 
 def clean_secrets():
-    # TODO
-    pass
+    client = docker.from_env()
+    for secret in client.secrets.list():
+        print(f"Removing secret: {secret.id} ... ", end="")
+        success = client.api.remove_secret(secret.id)
+        if success:
+            cprint("done.", "green")
+        else:
+            cprint("failed.", "red")
 
 
 def clean_logs():
