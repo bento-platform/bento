@@ -7,25 +7,26 @@ from .openssl import _create_cert, _create_private_key
 
 
 def init_web(service: str):
-
     if service not in ["public", "private"]:
         cprint("You must specify the service type (public or private)")
         exit(1)
-    
+
     if service == "public":
         _init_web_public()
     elif service == "private":
         _init_web_private()
+
 
 def _init_web_public():
     root_path = pathlib.Path.cwd()
     public_path = (root_path / "lib" / "public")
 
     # TODO: make a generic function for file copies like this
-    if (pathlib.Path.is_file(public_path / "about.html")):
+    if pathlib.Path.is_file(public_path / "about.html"):
         print("About HTML file exists, skipping...")
     else:
         shutil.copyfile(src=(root_path/"etc"/"default.about.html"))
+
 
 def _init_web_private():
     print("Init public web folder with branding image ...", end="")
@@ -37,6 +38,7 @@ def _init_web_private():
     dst_file = (web_path / "branding.png")
     shutil.copyfile(src=src_file, dst=dst_file)
     cprint(" done.", "green")
+
 
 def init_self_signed_certs(force: bool):
     cert_domains_vars = {
@@ -157,7 +159,7 @@ def init_docker():
 
 def init_secrets(force: bool):
     client = docker.from_env()
-    KATSU_VARS = {
+    katsu_vars = {
         "user": {
             "env_var": "BENTOV2_KATSU_DB_USER",
             "secret_name": "metadata-db-user"
@@ -172,8 +174,8 @@ def init_secrets(force: bool):
         }
     }
 
-    for secret_type in KATSU_VARS.keys():
-        env_var, secret_name = KATSU_VARS[secret_type].values()
+    for secret_type in katsu_vars.keys():
+        env_var, secret_name = katsu_vars[secret_type].values()
         val = os.getenv(env_var)
         val_bytes = bytes(val, 'UTF-8')
         path = (pathlib.Path.cwd() / "tmp" / "secrets" / secret_name)
