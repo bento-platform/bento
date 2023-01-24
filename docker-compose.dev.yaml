@@ -42,9 +42,7 @@ services:
       service: gateway
 
   katsu:
-    build:
-      context: $PWD/lib/katsu
-      dockerfile: Dockerfile.dev
+    image: ${BENTOV2_KATSU_IMAGE}:latest-dev
     networks:
       - bridge-net
     depends_on:
@@ -53,7 +51,7 @@ services:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu
     volumes:
-      - ./lib/katsu/katsu:/app/katsu
+      - ./lib/katsu/katsu:/app
       - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp
     environment:
       - CHORD_DEBUG=true
