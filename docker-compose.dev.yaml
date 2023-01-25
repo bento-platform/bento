@@ -136,7 +136,7 @@ services:
     volumes:
       - ./lib/drs/chord_drs:/drs/chord_drs
       # Override main drs data directory
-      - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/data
+      - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/bento_drs/data
       - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp
 
   beacon:
