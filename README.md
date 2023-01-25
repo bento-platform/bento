@@ -35,29 +35,6 @@ pip3 install -r requirements.txt
 ```
 Once the requirements are installed, you are ready to use bentoctl!
 
-<<<<<<< HEAD
-### Usage
-Bentoctl prints out the commands and options available when called with no arguments or the help flag (`--help, -h`)
-```
-# Show bentoctl commands and options
-./bentoctl.bash
-./bentoctl.bash --help
-./bentoctl.bash -h
-
-# Show command options for bentoctl run command
-./bentoctl.bash run -h
-
-# Runs the gateway container
-./bentoctl.bash run gateway
-
-# Run any command in remote python debug mode with --debug, -d
-./bentoctl.bash -d run gateway
-```
-
-### Migrating to `bentoctl`
-
-TODO
-=======
 This command line tool offers a series of commands and parameters that are helpful to set up the Docker environment for 
 Bento services. It is designed to facilitate fast development and have better cross-platform compatibility versus the 
 Makefile.
@@ -128,7 +105,6 @@ make run-web
 
 
 
->>>>>>> gateway-integration
 ## Makefile
 The Makefile contains a set of tools to faciliate testing, development, and deployments. Ranging from `build`, `run`, 
 and `clean` commands, operators may have an easier time using these rather than fiddling with raw `docker` and 
