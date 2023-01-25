@@ -10,7 +10,7 @@ counterpart, built with Docker instead of Singularity.
   <img src="https://github.com/bento-platform/bentoV2/blob/qa/v2.4/diagram.png?raw=true" alt="diagram" style="align:middle;"/>
 </div>
 
-## py_bentoctl
+## `bentoctl`
 This command line tool offers a series of commands and parameters that are helpful to setup the Docker environment for BentoV2 services. Consider using it instead of the Makefile for better cross-compatibility on Windows.
 
 Bentoctl is a Python module app lauched by a bash script that loads .env files variables to the environment. For an overview of its features type the following from the root of the project:
@@ -19,18 +19,42 @@ Bentoctl is a Python module app lauched by a bash script that loads .env files v
 ```
 > Note: the flags `--debug, -d` are intended for interactive remote Python debugging of Bentoctl. See [VSCode instructions](https://code.visualstudio.com/docs/python/debugging#_local-script-debugging) or [PyCharm instructions](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html) for IDE setup.
 
-## `bentoctl`
+### Prerequisites
+Bentoctl depends on python packages, we recommend installing them in a venv (virtual environment).
+
+```
+# Create venv under ./env
+python3 -m venv env
+
+# Acivate venv in terminal
+source env/bin/activate
+
+# Install python requirements
+pip3 install -r requirements.txt
+```
+Once the requirements are installed, you are ready to use bentoctl!
 
 ### Usage
+Bentoctl prints out the commands and options available when called with no arguments or the help flag (`--help, -h`)
+```
+# Show bentoctl commands and options
+./bentoctl.bash
+./bentoctl.bash --help
+./bentoctl.bash -h
 
-TODO
+# Show command options for bentoctl run command
+./bentoctl.bash run -h
+
+# Runs the gateway container
+./bentoctl.bash run gateway
+
+# Run any command in remote python debug mode with --debug, -d
+./bentoctl.bash -d run gateway
+```
 
 ### Migrating to `bentoctl`
 
 TODO
-
-
-
 ## Makefile
 The Makefile contains a set of tools to faciliate testing, development, and deployments. Ranging from `build`, `run`, and `clean` commands, operators may have an easier time using these rather than fiddling with raw `docker` and `docker-compose` commands.
 
