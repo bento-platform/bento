@@ -13,11 +13,12 @@ counterpart, built with Docker instead of Singularity.
 ## `bentoctl`
 This command line tool offers a series of commands and parameters that are helpful to setup the Docker environment for BentoV2 services. Consider using it instead of the Makefile for better cross-compatibility on Windows.
 
-Bentoctl is a Python module app lauched by a bash script that loads .env files variables to the environment. For an overview of its features type the following from the root of the project:
-```
-./bentoctl.bash
-```
-> Note: the flags `--debug, -d` are intended for interactive remote Python debugging of Bentoctl. See [VSCode instructions](https://code.visualstudio.com/docs/python/debugging#_local-script-debugging) or [PyCharm instructions](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html) for IDE setup.
+
+## Requirements
+- Docker >= 19.03.8
+- Docker Compose >= 2.14.0
+
+
 
 ### Prerequisites
 Bentoctl depends on python packages, we recommend installing them in a venv (virtual environment).
@@ -34,6 +35,7 @@ pip3 install -r requirements.txt
 ```
 Once the requirements are installed, you are ready to use bentoctl!
 
+<<<<<<< HEAD
 ### Usage
 Bentoctl prints out the commands and options available when called with no arguments or the help flag (`--help, -h`)
 ```
@@ -55,12 +57,84 @@ Bentoctl prints out the commands and options available when called with no argum
 ### Migrating to `bentoctl`
 
 TODO
-## Makefile
-The Makefile contains a set of tools to faciliate testing, development, and deployments. Ranging from `build`, `run`, and `clean` commands, operators may have an easier time using these rather than fiddling with raw `docker` and `docker-compose` commands.
+=======
+This command line tool offers a series of commands and parameters that are helpful to set up the Docker environment for 
+Bento services. It is designed to facilitate fast development and have better cross-platform compatibility versus the 
+Makefile.
 
-## Requirements
-- Docker >= 19.03.8
-- Docker Compose >=1.29.0
+This CLI is specifyed by a Python module, `py_bentoctl`, lauched by a Bash script, 
+`./bentoctl.bash`. The Bash wrapper loads various `.env` files to set up the Bento environment. 
+
+For an overview of `bentoctl`'s features, type the following from the root of the project:
+
+```
+./bentoctl.bash
+```
+
+> **Note:** the flags `--debug, -d` are intended for interactive remote Python debugging of the `bentoctl` module 
+> itself. See [VSCode instructions](https://code.visualstudio.com/docs/python/debugging#_local-script-debugging) or 
+> [PyCharm instructions](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html) for IDE setup.
+
+To make interacting with the CLI quicker, consider adding an alias for calling `bentoctl.bash`, putting the following
+in your `.bash_profile` or `.zshrc` file:
+
+**Bash/ZSH:** `alias bentoctl="./bentoctl.bash"`
+
+
+### Migrating to `bentoctl`
+
+Key changes versus the Makefile include:
+
+#### Running all services
+
+**Makefile:** `make run-all`
+
+**`bentoctl`:** `./bentoctl.bash run`
+
+
+#### Switching a service (e.g., `web`) to development mode
+
+##### Makefile
+
+```bash
+make clean-web
+make run-web-dev
+```
+
+##### `bentoctl`
+
+> **Note:** that the first time `work-on` is called, it will clone the service in question in the `repos/` directory 
+> and run the version of the service that code specifies.
+> This is a change from the old approach, where the repos were located in `lib/`.
+
+```bash
+./bentoctl.bash work-on web
+```
+
+#### Switching a service (e.g., `web`) to production mode
+
+##### Makefile
+
+```bash
+make clean-web-dev
+make run-web
+```
+
+##### `bentoctl`
+
+```bash
+./bentoctl.bash prod web
+```
+
+
+
+>>>>>>> gateway-integration
+## Makefile
+The Makefile contains a set of tools to faciliate testing, development, and deployments. Ranging from `build`, `run`, 
+and `clean` commands, operators may have an easier time using these rather than fiddling with raw `docker` and 
+`docker-compose` commands.
+
+
 
 ## Installation
 
@@ -133,18 +207,23 @@ due to the different directories Gohan's Makefile can be called from.
 
 <br />
 
-### Create self-signed TLS certificates (bentoctl)
+### Create self-signed TLS certificates (`bentoctl`)
 
-Setting up the certificates with bentoctl can be done in a single command.
+Setting up the certificates with `bentoctl` can be done in a single command.
 From the project root, run
-```
+
+```bash
 ./bentoctl.bash init-certs
 ```
-> This command will skip all certificate generation if it detects previously created files. To force an override, simply add the option `--force, -f`.
+
+> This command will skip all certificate generation if it detects previously created files. 
+> To force an override, simply add the option `--force, -f`.
 
 ### Create self-signed TLS certificates (With Makefile)
 
-First, set up your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development with the following steps;
+First, set up your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) 
+in the `.env` file. You can then create the corresponding TLS certificates for local development with the following 
+steps:
 
 From the project root, run
 ```
@@ -204,11 +283,14 @@ make auth-setup
 make auth-setup
 ```
 
-This last step boots and configures the local OIDC provider (**Keycloak**) container and reconfigure the gateway to utilize new variables generated during the OIDC configuration.
+This last step boots and configures the local OIDC provider (**Keycloak**) container and reconfigure the gateway to 
+utilize new variables generated during the OIDC configuration.
 
-> NOTE: by default, the `gateway` service *does* need to be running for this to work as the configuration will pass via the URL set in the `.env` file which points to the gateway.
+> NOTE: by default, the `gateway` service *does* need to be running for this to work as the configuration will pass via 
+> the URL set in the `.env` file which points to the gateway.
 >
-> If you do not plan to use the built-in OIDC provider, you will have to handle the `auth_config` and `instance_config` manually (see `./etc/auth/..` and `./etc/scripts/..` for further details)
+> If you do not plan to use the built-in OIDC provider, you will have to handle the `auth_config` and `instance_config` 
+> manually (see `./etc/auth/..` and `./etc/scripts/..` for further details)
 
 The `CLIENT_SECRET` environment variable must be set using the value provided
 by Keycloak. Using a browser, connect to the `auth` endpoint (by default `https://bentov2auth.local`) and use the admin credentials from the env file. Once within
@@ -357,6 +439,8 @@ https://portal.bentov2.local/api/gohan/genes/overview
 ```
 
 <br />
+
+
 
 ## Development
 To build upon the `bento_web` service while using bentoV2 *(Note; this can be done with a number of other services in the stack with slight modifications : see the 'Makefile' and '.env' for details)*, a few accomodations need to be made to your workspace.
