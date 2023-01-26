@@ -40,11 +40,20 @@ source env/bin/activate
 
 # Install dependencies
 pip3 install -r requirements.txt
-
-# Optional: create an alias for bentoctl (run from project's root)
-echo "alias bentoctl=${PWD}/.bentoctl.bash" > ~/.bash_aliases
 ```
+To make interacting with the CLI quicker, consider adding an alias for calling `bentoctl.bash`, putting the following
+in your `.bash_aliases`, `.bash_profile` or `.zshrc` file:
 
+**Bash/ZSH:** `alias bentoctl="./bentoctl.bash"`
+
+For a quick setup, use the following to append the alias to the file of your choice.
+```
+# Optional: create an alias for bentoctl (run from project's root)
+echo "alias bentoctl=${PWD}/bentoctl.bash" > ~/.bash_aliases
+
+# Simply use your alias!
+bentoctl --help
+```
 ### Usage
 For an overview of `bentoctl`'s features, type the following from the root of the project:
 
@@ -55,12 +64,6 @@ For an overview of `bentoctl`'s features, type the following from the root of th
 > **Note:** the flags `--debug, -d` are intended for interactive remote Python debugging of the `bentoctl` module 
 > itself. See [VSCode instructions](https://code.visualstudio.com/docs/python/debugging#_local-script-debugging) or 
 > [PyCharm instructions](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html) for IDE setup.
-
-To make interacting with the CLI quicker, consider adding an alias for calling `bentoctl.bash`, putting the following
-in your `.bash_profile` or `.zshrc` file:
-
-**Bash/ZSH:** `alias bentoctl="./bentoctl.bash"`
-
 
 ### Migrating to `bentoctl`
 
