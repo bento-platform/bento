@@ -24,9 +24,28 @@ This command line tool offers a series of commands and parameters that are helpf
 Bento services. It is designed to facilitate fast development and have better cross-platform compatibility versus the 
 Makefile.
 
-This CLI is specifyed by a Python module, `py_bentoctl`, lauched by a Bash script, 
-`./bentoctl.bash`. The Bash wrapper loads various `.env` files to set up the Bento environment. 
+### Prerequisites
 
+This CLI is specifyed by a Python module, `py_bentoctl`, lauched by a Bash script, 
+`./bentoctl.bash`. The Bash wrapper loads various `.env` files to set up the Bento environment.
+
+The `bentoctl` script depends on python packages, we recommend using a virtual environment for this.
+
+```
+# Create a venv under ./env
+python3 -m venv env
+
+# Activate the python env
+source env/bin/activate
+
+# Install dependencies
+pip3 install -r requirements.txt
+
+# Optional: create an alias for bentoctl (run from project's root)
+echo "alias bentoctl=${PWD}/.bentoctl.bash" > ~/.bash_aliases
+```
+
+### Usage
 For an overview of `bentoctl`'s features, type the following from the root of the project:
 
 ```
