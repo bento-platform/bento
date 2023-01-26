@@ -23,9 +23,12 @@ def _init_web_public():
 
     # TODO: make a generic function for file copies like this
     if pathlib.Path.is_file(public_path / "about.html"):
-        print("About HTML file exists, skipping...")
+        print("About HTML file exists, skipping...", end="")
     else:
-        shutil.copyfile(src=(root_path/"etc"/"default.about.html"))
+        shutil.copyfile(
+            src=(root_path / "etc" / "default.about.html"),
+            dst=(public_path / "about.html"))
+    cprint("done.", "green")
 
 
 def _init_web_private():
