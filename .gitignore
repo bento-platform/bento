@@ -4,6 +4,7 @@ local.env
 .vscode/*
 .idea/*
 
+env
 .bentoctl.state.db
 tmp
 

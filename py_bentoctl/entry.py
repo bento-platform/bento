@@ -146,7 +146,7 @@ class Mode(SubCommand):
             choices=(
                 *BENTO_SERVICES_DATA.keys(),
                 "all"),
-            help="Service to switch to production mode.")
+            help="Displays the current mode of the service(s).")
 
     @staticmethod
     def exec(args):
