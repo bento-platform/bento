@@ -191,18 +191,6 @@ BENTOV2_AUTH_REALM=bentov2
 BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
 ```
 
-### Clone Gohan repository in ./lib and setup Gohan's environment variables
-Depending on your git setup, clone Gohan's repository
-```terminal
-cd lib
-git clone git@github.com:bento-platform/gohan.git
-```
-Follow the instructions from Gohan's README to set up the environment file.
-
-> IMPORTANT: when Gohan is used in the context of Bento (in other words, not as
-a standalone application), the paths in Gohan's .env file should be made **absolute**
-due to the different directories Gohan's Makefile can be called from.
-
 <br />
 
 ### Create self-signed TLS certificates (`bentoctl`)
@@ -344,53 +332,10 @@ lib/public/translations/<en|fr>.json
 ### Setup Gohan service
 
 Run
-```
-make init-gohan
-```
-
-Or, alternatively:
 
 ```
-cd lib
-git clone https://github.com/bento-platform/gohan.git -b ${GOHAN_TAG_OR_BRANCH}
-
-cd gohan
-```
-
-Create a local file for environment variables with default settings by running
-
-```
-cp ./etc/example.env .env
-```
-
-##### If running a development instance locally
-
-Set the following in the gohan .env file
-
-```
-GOHAN_API_IMAGE=bentov2-gohan-api
-..
-GOHAN_API_CONTAINER_NAME=bentov2-gohan-api
-...
-GOHAN_ES_CONTAINER_NAME=bentov2-gohan-elasticsearch
-...
-GOHAN_DRS_CONTAINER_NAME=bentov2-drs
-...
-GOHAN_API_API_DRS_BRIDGE_DIR_CONTAINERIZED=/data
-GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED=/data
-...
-# must point to a local drop-box data directory
-GOHAN_API_VCF_PATH=/home/user/Public/bentoV2/lib/drop-box/data-x
-...
-GOHAN_API_GTF_PATH=./data/tmp
-...
-GOHAN_API_AUTHZ_ENABLED=false
-```
-
-Run
-
-```
-make run-gohan
+make run-gohan-api
+make run-gohan-elasticsearch
 ```
 
 to start `bentov2-gohan-api` and `bentov2-gohan-elasticsearch` containers.

@@ -89,6 +89,11 @@ data-dirs:
 	mkdir -p ${BENTOV2_WES_VOL_DIR}
 	mkdir -p ${BENTOV2_REDIS_VOL_DIR}
 
+	mkdir -p ${BENTOV2_GOHAN_API_VCF_PATH}
+	mkdir -p ${BENTOV2_GOHAN_API_GTF_PATH}
+	mkdir -p ${BENTOV2_GOHAN_ES_DATA_DIR}
+
+
 
 
 
@@ -149,19 +154,6 @@ init-public:
 	
 	@echo done
 
-# init-gohan:
-# 	@cd lib && \
-# 	\
-# 	if [ ! -d "./gohan" ]; then \
-# 		echo "-- Cloning Gohan --" ; \
-# 		[[  -z "${GOHAN_TAG_OR_BRANCH}" ]] && echo "GOHAN_TAG_OR_BRANCH is not set, using master branch" ; \
-# 		git clone ${GOHAN_REPO} -b ${GOHAN_TAG_OR_BRANCH} ; \
-# 	else \
-# 	    cd gohan && \
-# 		git fetch; \
-# 		git checkout ${GOHAN_TAG_OR_BRANCH}; \
-# 		echo "-- Gohan already cloned --" ; \
-# 	fi
 
 
 

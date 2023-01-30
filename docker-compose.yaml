@@ -449,7 +449,7 @@ services:
     expose:
       - ${BENTOV2_GOHAN_API_INTERNAL_PORT}
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_API_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_API_INTERNAL_PORT}/service-info" ]
       timeout: 5s
       interval: 1m
       retries: 3
