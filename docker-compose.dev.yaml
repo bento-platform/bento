@@ -75,7 +75,7 @@ services:
     image: adminer:4.8.1
     networks:
       - bridge-net
-    container_name: katsu-adminer
+    container_name: bentov2-katsu-adminer
     restart: unless-stoped
     ports:
       - 8080:8080

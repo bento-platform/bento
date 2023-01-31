@@ -19,17 +19,40 @@ def init_web(service: str):
 
 def _init_web_public():
     root_path = pathlib.Path.cwd()
-    public_path = (root_path / "lib" / "public")
 
-    # TODO: make a generic function for file copies like this
-    if pathlib.Path.is_file(public_path / "about.html"):
-        print("About HTML file exists, skipping...", end="")
+    # Init lib dir
+    public_path = (root_path / "lib" / "public")
+    translation_path = (public_path / "translations")
+    translation_path.mkdir(parents=True, exist_ok=True)
+
+    # About html page
+    _file_copy(
+        (root_path / "etc" / "default.about.html"),
+        (public_path / "about.html")
+    )
+    # Branding image
+    _file_copy(
+        (root_path / "etc" / "default.public.branding.png"),
+        (public_path / "branding.png")
+    )
+    # English translations
+    _file_copy(
+        (root_path / "etc" / "templates" / "translations" / "en.example.json"),
+        (translation_path / "en.json")
+    )
+    # French translations
+    _file_copy(
+        (root_path / "etc" / "templates" / "translations" / "fr.example.json"),
+        (translation_path / "fr.json")
+    )
+
+def _file_copy(src_path: pathlib.Path, dst_path: pathlib.Path):
+    if dst_path.is_file():
+        print(f"File {dst_path} exists, skipping copy.")
     else:
-        print("Copying 'about' HTML file exists, skipping...", end="")
-        shutil.copyfile(
-            src=(root_path / "etc" / "default.about.html"),
-            dst=(public_path / "about.html"))
-    cprint("done.", "green")
+        print(f"Copying {src_path} to {dst_path}...", end="")
+        shutil.copyfile(src_path, dst_path)
+        cprint("done.", "green")
 
 
 def _init_web_private():
