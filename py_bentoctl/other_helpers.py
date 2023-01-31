@@ -25,6 +25,7 @@ def _init_web_public():
     if pathlib.Path.is_file(public_path / "about.html"):
         print("About HTML file exists, skipping...", end="")
     else:
+        print("Copying 'about' HTML file exists, skipping...", end="")
         shutil.copyfile(
             src=(root_path / "etc" / "default.about.html"),
             dst=(public_path / "about.html"))

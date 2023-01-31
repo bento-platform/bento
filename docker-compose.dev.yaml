@@ -71,6 +71,14 @@ services:
     volumes:
       - ${BENTOV2_KATSU_DB_DEV_VOL_DIR}:/var/lib/postgresql/data
 
+  adminer:
+    image: adminer:4.8.1
+    networks:
+      - bridge-net
+    container_name: katsu-adminer
+    restart: unless-stoped
+    ports:
+      - 8080:8080
 
   aggregation:
     image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION_DEV}
