@@ -39,6 +39,13 @@ compose_with_files_dev = (
 compose_with_files_prod = (
     *COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_PROD)
 
+def _get_compose(service: str):
+    # For services that are only in docker-compose.dev.yaml (e.g. adminer)
+    if service in DOCKER_COMPOSE_DEV_SERVICES:
+        return compose_with_files_dev
+    else:
+        return COMPOSE
+
 
 # TODO: More elegant solution for service-image associations
 service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
@@ -135,7 +142,7 @@ def stop_service(compose_service: str):
     check_service_is_compose(compose_service)
 
     print(f"Stopping {compose_service}...")
-    subprocess.check_call((*COMPOSE, "stop", compose_service))
+    subprocess.check_call((*_get_compose(compose_service), "stop", compose_service))
 
 
 def restart_service(compose_service: str):
@@ -155,7 +162,7 @@ def clean_service(compose_service: str):
     check_service_is_compose(compose_service)
 
     print(f"Stopping {compose_service}...")
-    subprocess.check_call((*COMPOSE, "rm", "-svf", compose_service))
+    subprocess.check_call((*_get_compose(compose_service), "rm", "-svf", compose_service))
 
 
 def work_on_service(compose_service: str):
