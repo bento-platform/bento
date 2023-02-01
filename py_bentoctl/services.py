@@ -111,7 +111,8 @@ def run_service(compose_service: str):
         subprocess.check_call((
             *compose_with_files_prod,
             "up", "-d",
-            *(s for s in DOCKER_COMPOSE_SERVICES if service_state.get(s, {}).get("mode") != "dev")
+            *(s for s in DOCKER_COMPOSE_SERVICES if service_state.get(s, {}).get("mode") != "dev" and (
+                s not in DOCKER_COMPOSE_DEV_SERVICES))
         ))
 
         for service, service_settings in service_state.items():
@@ -136,7 +137,7 @@ def stop_service(compose_service: str):
 
     if compose_service == "all":
         # special: stop everything
-        subprocess.check_call((*COMPOSE, "down"))
+        subprocess.check_call((*_get_compose(compose_service), "down"))
         return
 
     check_service_is_compose(compose_service)
