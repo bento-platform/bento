@@ -8,6 +8,7 @@ from termcolor import cprint
 from typing import Dict, Optional, Tuple
 
 from .config import (
+    DOCKER_COMPOSE_DEV_SERVICES,
     DOCKER_COMPOSE_FILE_BASE,
     DOCKER_COMPOSE_FILE_DEV,
     DOCKER_COMPOSE_FILE_PROD,
@@ -116,10 +117,11 @@ def run_service(compose_service: str):
         err(f"  {compose_service} not in list of services: {DOCKER_COMPOSE_SERVICES}")
         exit(1)
 
-    if service_state.get(compose_service, {}).get("mode") == MODE_DEV:
+    if service_state.get(compose_service, {}).get("mode") == MODE_DEV or (
+        compose_service in DOCKER_COMPOSE_DEV_SERVICES):
         _run_service_in_dev_mode(compose_service)
     else:
-        _run_service_in_prod_mode(compose_service)
+        _run_service_in_dev_mode(compose_service)
 
 
 def stop_service(compose_service: str):

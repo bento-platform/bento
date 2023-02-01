@@ -76,7 +76,7 @@ services:
     networks:
       - bridge-net
     container_name: bentov2-katsu-adminer
-    restart: unless-stoped
+    restart: unless-stopped
     ports:
       - 8080:8080
 
