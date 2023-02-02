@@ -5,6 +5,8 @@ services:
   katsu:
     image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION}
     container_name: ${BENTOV2_KATSU_CONTAINER_NAME}
+    depends-on:
+      - katsu-db
     expose:
       - ${BENTOV2_KATSU_INTERNAL_PORT}
     environment:
@@ -36,13 +38,6 @@ services:
       - ./config.json:${BENTOV2_KATSU_INTERNAL_PROJECT_DIRECTORY}/chord_metadata_service/config.json
       # Temp WES dir
       - ${BENTOV2_KATSU_PROD_WES_VOL_TMP_DIR}:/wes/tmp
-    entrypoint:
-      - /bin/sh
-      - -c
-      - |
-        python manage.py makemigrations
-        python manage.py migrate
-        gunicorn chord_metadata_service.metadata.wsgi:application -w 2 --threads 2 -b 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT}
     mem_limit: ${BENTOV2_KATSU_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_KATSU_CPUS}
     cpu_shares: 1024
