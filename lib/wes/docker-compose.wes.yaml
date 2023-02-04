@@ -18,7 +18,7 @@ services:
       #/wes/womtool.jar
       # Allow-list (comma-separated) for hosts that workflow files can be downloaded
       # from - prevents possibly insecure WDLs from being ran
-      - WORKFLOW_HOST_ALLOW_LIST=${GOHAN_API_CONTAINER_NAME}:${GOHAN_API_INTERNAL_PORT},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
+      - WORKFLOW_HOST_ALLOW_LIST=${BENTOV2_GOHAN_API_CONTAINER_NAME}:${BENTOV2_GOHAN_API_INTERNAL_PORT},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
 
       # DRS configuration options:
       # - Where the DRS instance to use is located. Technically, if not set this
@@ -32,8 +32,9 @@ services:
       - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/ott
       - TT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/tt
       - FLASK_ENV=development
-      - CHORD_DEBUG=True
+      - CHORD_DEBUG=False
       - FLASK_DEBUG=False
+      - BENTO_VALIDATE_SSL=False
 
       - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
     networks:

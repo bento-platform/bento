@@ -96,6 +96,7 @@ services:
       - BENTO_PUBLIC_KATSU_URL=${BENTO_PUBLIC_KATSU_URL}
       - BENTO_PUBLIC_MAX_QUERY_PARAMETERS=${BENTO_PUBLIC_MAX_QUERY_PARAMETERS}
       - BENTO_PUBLIC_PORTAL_URL=${BENTO_PUBLIC_PORTAL_URL}
+      - BENTO_PUBLIC_TRANSLATED=${BENTO_PUBLIC_TRANSLATED}
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
     volumes:
@@ -170,7 +171,7 @@ services:
     cpus: ${BENTOV2_DROP_BOX_CPUS}
     cpu_shares: 1024
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
@@ -216,7 +217,7 @@ services:
     cpus: ${BENTOV2_SERVICE_REGISTRY_CPUS}
     cpu_shares: 256
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
@@ -252,7 +253,7 @@ services:
     cpus: ${BENTOV2_NOTIFICATION_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_NOTIFICATION_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_NOTIFICATION_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
@@ -278,7 +279,7 @@ services:
       # {"message": {"test": true}, "channel": "chord.something"}
       # Otherwise, the message will be:
       # {"message": "{\"test\": true}", "channel": "chord.something"}
-      - JSON_MESSAGES="true"
+      - JSON_MESSAGES=true
 
       # Default: blank, base path for the service-info endpoint
       # If blank, the service-info endpoint will be mounted on /service-info
@@ -286,7 +287,7 @@ services:
       #- SERVICE_URL_BASE_PATH=
 
       # socket.io "path" for the server created by the service.
-      - SOCKET_IO_PATH="${BENTOV2_EVENT_RELAY_SOCKET_IO_PATH}"
+      - SOCKET_IO_PATH=${BENTOV2_EVENT_RELAY_SOCKET_IO_PATH}
 
       # Connection string (URL or path to UNIX socket file) for the Redis instance.
       - REDIS_CONNECTION=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
@@ -294,7 +295,7 @@ services:
       # Subscription pattern the Redis PubSub connection. The default is configured
       # to be chord.* for the Bento platform, but it can be set to anything.
       # See https://redis.io/topics/pubsub and specifically the pattern-matching.
-      - REDIS_SUBSCRIBE_PATTERN="chord.*"
+      - REDIS_SUBSCRIBE_PATTERN=bento.*
 
       # Where the service will listen for requests. Can be a UNIX socket path or a
       # port number (e.g. 8080, which is the default value if nothing is set.)
@@ -311,7 +312,7 @@ services:
     cpus: ${BENTOV2_EVENT_RELAY_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}
@@ -394,7 +395,7 @@ services:
     expose:
       - ${BENTOV2_GOHAN_API_INTERNAL_PORT}
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_API_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_API_INTERNAL_PORT}/service-info" ]
       timeout: 5s
       interval: 1m
       retries: 3

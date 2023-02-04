@@ -7,7 +7,6 @@ services:
     environment: 
       # Runtime
       - FLASK_DEBUG=False
-      - FLASK_APP=app
       - DATABASE=/drs/bento_drs/data/db/  # slightly confused naming, folder for database to go in
       - DATA=/drs/bento_drs/data/obj/  # DRS file objects, vs. the database
       
@@ -29,7 +28,7 @@ services:
     cpus: ${BENTOV2_DRS_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:${BENTOV2_DRS_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_DRS_INTERNAL_PORT}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}

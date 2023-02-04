@@ -12,10 +12,10 @@ services:
   web:
     image: ${BENTOV2_WEB_IMAGE}:latest-dev
     volumes:
-      - ./lib/web/bento_web:/web/bento_web
+      - ./lib/web/bento_web:/web
     # Execute npm build/install and watch, and
     # nginx "listener" upon container startup
-    entrypoint: sh /web/bento_web/entrypoint.dev.sh
+    entrypoint: sh /web/entrypoint.dev.sh
     extends:
       file: docker-compose.yaml
       service: web
@@ -42,9 +42,7 @@ services:
       service: gateway
 
   katsu:
-    build:
-      context: $PWD/lib/katsu
-      dockerfile: Dockerfile.dev
+    image: ${BENTOV2_KATSU_IMAGE}:latest-dev
     networks:
       - bridge-net
     depends_on:
@@ -53,7 +51,7 @@ services:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu
     volumes:
-      - ./lib/katsu/katsu:/app/katsu
+      - ./lib/katsu/katsu:/app
       - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp
     environment:
       - CHORD_DEBUG=true
@@ -136,18 +134,13 @@ services:
       - "${BENTOV2_DRS_EXTERNAL_PORT}:5000"
       - "${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_DRS_DEBUGGER_INTERNAL_PORT}"
     volumes:
-      - ./lib/drs/bento_drs:/drs/bento_drs
-      - ./lib/drs/startup.sh:/drs/bento_drs/chord_drs/startup.sh:ro
+      - ./lib/drs/chord_drs:/drs/chord_drs
       # Override main drs data directory
       - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/bento_drs/data
       - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp
-    command: >
-      sh -c /drs/bento_drs/chord_drs/startup.sh
 
   beacon:
-    build:
-      context: $PWD/lib/beacon
-      dockerfile: Dockerfile.dev
+    image: ${BEACON_IMAGE}:${BEACON_VERSION}-dev
     networks:
       - bridge-net
     environment:
@@ -159,11 +152,10 @@ services:
       service: beacon
     volumes:
       - ./lib/beacon/bento_beacon:/beacon/bento_beacon
+      - ./lib/beacon/config:/config
     ports:
       - "${BEACON_EXTERNAL_PORT}:${BEACON_INTERNAL_PORT}"
       - "${BEACON_DEBUGGER_EXTERNAL_PORT}:${BEACON_DEBUGGER_INTERNAL_PORT}"
-    command: >
-      sh -c "python -m debugpy --wait-for-client --listen 0.0.0.0:${BEACON_DEBUGGER_INTERNAL_PORT} -m flask run --no-debugger --no-reload --host=0.0.0.0 "
 
   service-registry:
     build:
