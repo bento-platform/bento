@@ -234,23 +234,29 @@ Finally, ensure that the local domain name is set in the machines `hosts` file (
 
 
 ```bash
-# Once the certificates are ready, initialize the cluster configs secrets
-./bentoctl.bash init-chord-services
-./bentoctl.bash init-dirs
-./bentoctl.bash init-docker
-./bentoctl.bash init-secrets
+# Once the certificates are ready, initialize various aspects of the cluster:
+./bentoctl.bash init-all
+# Which is equivalent to:
 
-# Initialize bento_web and bento_public
-./bentoctl.bash init-web private
-./bentoctl.bash init-web public
+#   # Once the certificates are ready, initialize the cluster configs secrets
+#   ./bentoctl.bash init-dirs
+#   ./bentoctl.bash init-docker
+#   ./bentoctl.bash init-secrets
+#   
+#   # Initialize bento_web and bento_public
+#   ./bentoctl.bash init-web private
+#   ./bentoctl.bash init-web public
 
 # If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), 
 # i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
 ./bentoctl.bash run gateway
 # and
 ./bentoctl.bash init-auth
+# then EDIT YOUR ENVIRONMENT TO INCLUDE THE RESULTING CLIENT SECRET VIA CLIENT_SECRET=... ! after this,
+# restart the gateway:
+./bentoctl.bash restart gateway
 
-# Otherwise, only start the cluster's gateway with
+# Otherwise, only start the cluster's gateway after setting CLIENT_SECRET with
 ./bentoctl.bash run gateway
 ```
 
@@ -261,7 +267,6 @@ Finally, ensure that the local domain name is set in the machines `hosts` file (
 
 ```sh
 # Once the certificates are ready, initialize the cluster configs secrets
-make init-chord-services
 make init-dirs
 make init-docker
 make docker-secrets
