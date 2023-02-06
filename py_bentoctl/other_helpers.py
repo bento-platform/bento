@@ -47,6 +47,7 @@ def _init_web_public():
         (translation_path / "fr.json")
     )
 
+
 def _file_copy(src_path: pathlib.Path, dst_path: pathlib.Path):
     if dst_path.is_file():
         print(f"File {dst_path} exists, skipping copy.")
