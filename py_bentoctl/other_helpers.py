@@ -62,10 +62,10 @@ def _file_copy(src_path: pathlib.Path, dst_path: pathlib.Path, force: bool = Fal
 
     if dst_path.is_file():
         if not force:
-            warn(f"file {dst_path} exists, skipping copy.")
+            warn(f"destination exists, skipping copy.")
             return
 
-        cprint(f"file {dst_path} exists, overwriting... ", "yellow", file=sys.stderr, end="")
+        cprint(f"destination exists, overwriting... ", "yellow", file=sys.stderr, end="")
 
     shutil.copyfile(src_path, dst_path)
     cprint("done.", "green")
@@ -158,10 +158,12 @@ def init_dirs():
     }
 
     task_print("Creating temporary secrets directory if needed...")
-    (pathlib.Path.cwd() / "tmp" / "secrets").mkdir(parents=True, exist_ok=True)
-    task_print_done()
+    secrets_dir = pathlib.Path.cwd() / "tmp" / "secrets"
+    secrets_dir_exists = secrets_dir.exists()
+    secrets_dir.mkdir(parents=True, exist_ok=True)
+    task_print_done(msg="already exists." if secrets_dir_exists else "done.")
 
-    print("Creating data directories...")
+    print("Creating data directories if needed...")
     for dir_for, dir_var in data_dir_vars.items():
         task_print(f"  {dir_for}")
 
@@ -170,8 +172,12 @@ def init_dirs():
             err(f"error: {dir_for} data directory ({dir_var}) is not set")
             exit(1)
 
-        pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
-        task_print_done()
+        data_dir_path = pathlib.Path(data_dir)
+
+        already_exists = data_dir_path.exists()
+
+        data_dir_path.mkdir(parents=True, exist_ok=True)
+        task_print_done(msg="already exists." if already_exists else "done.")
 
 
 def init_docker():
@@ -183,8 +189,8 @@ def init_docker():
         swarm_id = client.swarm.init()
         task_print_done()
         info(f"Swarm ID: {swarm_id}")
-    except docker.errors.APIError as e:
-        warn(f" error encountered ({e}), skipping.")  # continues on the task_print line
+    except docker.errors.APIError:
+        warn(f" error encountered, skipping.")  # continues on the task_print line
         warn("    Likely due to docker already being in a swarm.")
 
     # Init Docker network(s)
