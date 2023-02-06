@@ -31,9 +31,9 @@ services:
       - TT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/tt
 
       - FLASK_ENV=production
-      - CHORD_DEBUG=True
+      - CHORD_DEBUG=False
+      - FLASK_DEBUG=False
       - BENTO_VALIDATE_SSL=False
-      - FLASK_DEBUG=True
 
       - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
     networks:

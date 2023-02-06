@@ -5,10 +5,9 @@ services:
     environment: 
       # Runtime
       - FLASK_DEBUG=False
-      - FLASK_APP=app
-      - DATABASE=/drs/data/db/  # slightly confused naming, folder for database to go in
-      - DATA=/drs/data/obj/  # DRS file objects, vs. the database
-      
+      - DATABASE=/drs/bento_drs/data/db/  # slightly confused naming, folder for database to go in
+      - DATA=/drs/bento_drs/data/obj/  # DRS file objects, vs. the database
+
       - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
     networks:
       - bridge-net
