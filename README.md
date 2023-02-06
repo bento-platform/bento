@@ -188,7 +188,7 @@ From the project root, run
 ```
 
 > This command will skip all certificate generation if it detects previously created files. 
-> To force an override, simply add the option `--force, -f`.
+> To force an override, simply add the option `--force` / `-f`.
 
 ### Create self-signed TLS certificates (With Makefile)
 
