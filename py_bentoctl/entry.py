@@ -72,9 +72,14 @@ class Restart(SubCommand):
         sp.add_argument(
             "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
             help="Service to restart, or 'all' to restart everything.")
+        sp.add_argument(
+            "--pull", "-p", action="store_true",
+            help="Try to pull the corresponding service image first.")
 
     @staticmethod
     def exec(args):
+        if args.pull:
+            s.pull_service(args.service)
         s.restart_service(args.service)
 
 
