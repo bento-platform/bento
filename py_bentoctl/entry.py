@@ -287,7 +287,7 @@ class InitWeb(SubCommand):
 
 def main(args: Optional[list[str]] = None) -> int:
     args = args or sys.argv[1:]
-    
+
     # For remote interactive python debugging
     if '-d' in args or '--debug' in args:
         import debugpy
@@ -298,7 +298,7 @@ def main(args: Optional[list[str]] = None) -> int:
         debugpy.wait_for_client()
         debugpy.breakpoint()
         print('break on this line')
-    
+
     parser = argparse.ArgumentParser(
         description="Tools for managing a Bento deployment (development or production).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)

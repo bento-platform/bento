@@ -16,6 +16,7 @@ from .config import (
     COMPOSE, BENTO_SERVICES_DATA,
 )
 from .state import MODE_DEV, MODE_PROD, get_state, set_state_services
+from .utils import info, err
 
 __all__ = [
     "run_service",
@@ -34,10 +35,9 @@ BENTO_SERVICES_DATA_BY_KIND = {
 }
 
 
-compose_with_files_dev = (
-    *COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_DEV)
-compose_with_files_prod = (
-    *COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_PROD)
+compose_with_files_dev = (*COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_DEV)
+compose_with_files_prod = (*COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_PROD)
+
 
 def _get_compose(service: str):
     # For services that are only in docker-compose.dev.yaml (e.g. adminer)
@@ -70,10 +70,6 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
 docker_client = docker.from_env()
 
 
-def err(msg):
-    cprint(msg, "red", file=sys.stderr)
-
-
 def translate_service_aliases(service: str):
     if service in BENTO_SERVICES_DATA_BY_KIND:
         return BENTO_SERVICES_DATA_BY_KIND[service]["compose_id"]
@@ -88,15 +84,13 @@ def check_service_is_compose(compose_service: str):
 
 
 def _run_service_in_dev_mode(compose_service: str):
-    print(f"Running {compose_service} in development mode...")
-    subprocess.check_call(
-        (*compose_with_files_dev, "up", "-d", compose_service))
+    info(f"Running {compose_service} in development mode...")
+    subprocess.check_call((*compose_with_files_dev, "up", "-d", compose_service))
 
 
 def _run_service_in_prod_mode(compose_service: str):
-    print(f"Running {compose_service} in production mode...")
-    subprocess.check_call(
-        (*compose_with_files_prod, "up", "-d", compose_service))
+    info(f"Running {compose_service} in production mode...")
+    subprocess.check_call((*compose_with_files_prod, "up", "-d", compose_service))
 
 
 def run_service(compose_service: str):
@@ -111,8 +105,10 @@ def run_service(compose_service: str):
         subprocess.check_call((
             *compose_with_files_prod,
             "up", "-d",
-            *(s for s in DOCKER_COMPOSE_SERVICES if service_state.get(s, {}).get("mode") != "dev" and (
-                s not in DOCKER_COMPOSE_DEV_SERVICES))
+            *(
+                s for s in DOCKER_COMPOSE_SERVICES
+                if service_state.get(s, {}).get("mode") != "dev" and s not in DOCKER_COMPOSE_DEV_SERVICES
+            )
         ))
 
         for service, service_settings in service_state.items():
@@ -125,8 +121,7 @@ def run_service(compose_service: str):
         err(f"  {compose_service} not in list of services: {DOCKER_COMPOSE_SERVICES}")
         exit(1)
 
-    if service_state.get(compose_service, {}).get("mode") == MODE_DEV or (
-        compose_service in DOCKER_COMPOSE_DEV_SERVICES):
+    if service_state.get(compose_service, {}).get("mode") == MODE_DEV or compose_service in DOCKER_COMPOSE_DEV_SERVICES:
         _run_service_in_dev_mode(compose_service)
     else:
         _run_service_in_dev_mode(compose_service)
@@ -142,7 +137,7 @@ def stop_service(compose_service: str):
 
     check_service_is_compose(compose_service)
 
-    print(f"Stopping {compose_service}...")
+    info(f"Stopping {compose_service}...")
     subprocess.check_call((*_get_compose(compose_service), "stop", compose_service))
 
 
@@ -162,7 +157,7 @@ def clean_service(compose_service: str):
 
     check_service_is_compose(compose_service)
 
-    print(f"Stopping {compose_service}...")
+    info(f"Stopping {compose_service}...")
     subprocess.check_call((*_get_compose(compose_service), "rm", "-svf", compose_service))
 
 
@@ -257,8 +252,7 @@ def mode_service(compose_service: str):
         return
 
     if compose_service not in service_state:
-        err(
-            f"  {compose_service} not in state[services] dict: {list(service_state.keys())}")
+        err(f"  {compose_service} not in state[services] dict: {list(service_state.keys())}")
         exit(1)
 
     mode = service_state[compose_service]["mode"]
@@ -305,14 +299,13 @@ def pull_service(compose_service: str,
         err(f"  {image_version_var_final} is not set")
         exit(1)
 
-    print(f"Pulling {compose_service} ({image}:{image_version})...")
+    info(f"Pulling {compose_service} ({image}:{image_version})...")
 
     # TODO: Pull dev if in dev mode
     # Use subprocess to get nice output
     subprocess.check_call(("docker", "pull", f"{image}:{image_version}"))
     subprocess.check_call((
-        *(compose_with_files_dev if service_mode ==
-          "dev" else compose_with_files_prod),
+        *(compose_with_files_dev if service_mode == "dev" else compose_with_files_prod),
         "pull", compose_service
     ))
 
@@ -324,8 +317,7 @@ def enter_shell_for_service(compose_service: str, shell: str):
 
     cmd = COMPOSE[0]
     compose_args = COMPOSE[1:]
-    os.execvp(cmd, (cmd, *compose_args, "exec", "-it",
-              compose_service, shell))  # TODO: Detect shell
+    os.execvp(cmd, (cmd, *compose_args, "exec", "-it", compose_service, shell))  # TODO: Detect shell
 
 
 def run_as_shell_for_service(compose_service: str, shell: str):
