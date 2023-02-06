@@ -1,20 +1,24 @@
 import os
 import pathlib
 import shutil
+
 import docker
 import docker.errors
+
 from termcolor import cprint
+
 from .openssl import _create_cert, _create_private_key
+from .utils import task_print, task_print_done, info, warn, err
 
 
 def init_web(service: str):
-    if service not in ["public", "private"]:
-        cprint("You must specify the service type (public or private)")
+    if service not in ("public", "private"):
+        err("You must specify the service type (public or private)")
         exit(1)
 
     if service == "public":
         _init_web_public()
-    elif service == "private":
+    else:  # private
         _init_web_private()
 
 
@@ -50,15 +54,17 @@ def _init_web_public():
 
 def _file_copy(src_path: pathlib.Path, dst_path: pathlib.Path):
     if dst_path.is_file():
-        print(f"File {dst_path} exists, skipping copy.")
-    else:
-        print(f"Copying {src_path} to {dst_path}...", end="")
-        shutil.copyfile(src_path, dst_path)
-        cprint("done.", "green")
+        warn(f"File {dst_path} exists, skipping copy.")
+        return
+
+    task_print(f"Copying {src_path} to {dst_path}...")
+    shutil.copyfile(src_path, dst_path)
+    cprint("done.", "green")
 
 
 def _init_web_private():
-    print("Init public web folder with branding image ...", end="")
+    task_print("Init public web folder with branding image...")
+
     root_path = pathlib.Path.cwd()
     web_path = (root_path / "lib" / "web")
     web_path.mkdir(parents=True, exist_ok=True)
@@ -66,7 +72,8 @@ def _init_web_private():
     src_file = (root_path / "etc" / "default.branding.png")
     dst_file = (web_path / "branding.png")
     shutil.copyfile(src=src_file, dst=dst_file)
-    cprint(" done.", "green")
+
+    task_print_done()
 
 
 def init_self_signed_certs(force: bool):
@@ -90,22 +97,17 @@ def init_self_signed_certs(force: bool):
 
     # Init cert directory in gateway
     certs_dir = (pathlib.Path.cwd() / "certs")
-    print("Creating certs directory if needed... ", end="")
+    task_print("Creating certs directory if needed...")
     certs_dir.mkdir(parents=True, exist_ok=True)
-    cprint("done.", "green")
+    task_print_done()
 
     # Check for existing cert files first
-    cert_files = list(certs_dir.glob('*.crt')) + \
-        list(certs_dir.glob('*.key')) + list(certs_dir.glob("*.pem"))
+    cert_files = list(certs_dir.glob('*.crt')) + list(certs_dir.glob('*.key')) + list(certs_dir.glob("*.pem"))
     if not force and any(cert_files):
-        cprint(
-            "WARNING: Cert files detected in the target directory, new cert creation skipped.",
-            "yellow")
-        cprint(
-            "To create new certs, remove all \".crt\" and \".key\" files in target directory first.",
-            "yellow")
+        warn("WARNING: Cert files detected in the target directory, new cert creation skipped.")
+        warn("To create new certs, remove all \".crt\" and \".key\" files in target directory first.")
         for f in cert_files:
-            cprint(f"Cert file path: {f}", "yellow")
+            warn(f"Cert file path: {f}")
         return
 
     for domain in cert_domains_vars.keys():
@@ -114,21 +116,18 @@ def init_self_signed_certs(force: bool):
         domain_val = os.getenv(domain_var)
 
         if domain_val is None:
-            cprint(
-                f"error: {domain_var} env variable ({domain}) is not set",
-                "red")
+            err(f"error: {domain_var} env variable ({domain}) is not set")
             exit(1)
 
         #  Create private key for domain
-        print(
-            f"Creating .key file for domain: {domain} -> {domain_val} ... ", end="")
+        task_print(f"Creating .key file for domain: {domain} -> {domain_val} ...")
         pkey = _create_private_key(certs_dir, priv_key_name)
-        cprint("done.", "green")
+        task_print_done()
 
         # Create signed cert for domain
-        print("Creating certificate file for domain: {} -> {} ... ".format(domain, domain_val), end="")
+        task_print(f"Creating certificate file for domain: {domain} -> {domain_val} ...")
         _create_cert(certs_dir, pkey, crt_name, domain_val)
-        cprint("done.", "green")
+        task_print_done()
 
 
 def init_dirs():
@@ -142,23 +141,21 @@ def init_dirs():
         "wes": "BENTOV2_WES_VOL_DIR",
     }
 
-    print("Creating temporary secrets directory if needed... ", end="")
+    task_print("Creating temporary secrets directory if needed...")
     (pathlib.Path.cwd() / "tmp" / "secrets").mkdir(parents=True, exist_ok=True)
-    cprint("done.", "green")
+    task_print_done()
 
     print("Creating data directories...")
     for dir_for, dir_var in data_dir_vars.items():
-        print(f"  {dir_for} ", end="")
+        task_print(f"  {dir_for}")
 
         data_dir = os.getenv(dir_var)
         if data_dir is None:
-            cprint(
-                f"error: {dir_for} data directory ({dir_var}) is not set",
-                "red")
+            err(f"error: {dir_for} data directory ({dir_var}) is not set")
             exit(1)
 
-        pathlib.Path(os.getenv(dir_var)).mkdir(parents=True, exist_ok=True)
-        cprint("done.", "green")
+        pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
+        task_print_done()
 
 
 def init_docker():
@@ -166,24 +163,24 @@ def init_docker():
 
     # Init swarm
     try:
-        print("Initializing docker swarm, if necessary ...", end="")
+        task_print("Initializing docker swarm, if necessary...")
         swarm_id = client.swarm.init()
-        cprint("done.", "green")
-        print(f"Swarm id: {swarm_id}")
-    except docker.errors.APIError:
-        cprint("   Error encountered, skipping.", "red")
-        cprint("   Likely due to docker already being in a swarm.", "yellow")
+        task_print_done()
+        info(f"Swarm ID: {swarm_id}")
+    except docker.errors.APIError as e:
+        warn(f" error encountered ({e}), skipping.")  # continues on the task_print line
+        warn("    Likely due to docker already being in a swarm.")
 
     # Init Docker network(s)
 
     base_net_name = "bridge-net"
-    print(f"Creating docker network ({base_net_name}) if needed... ", end="")
+    task_print(f"Creating docker network ({base_net_name}) if needed...")
     try:
         client.networks.get(base_net_name)
-        cprint("exists already, done.", "green")
+        task_print_done("exists already.")
     except docker.errors.NotFound:
         client.networks.create("bridge-net", driver="bridge")
-        cprint("network created, done.", "green")
+        task_print_done("network created.")
 
 
 def init_secrets(force: bool):
@@ -206,25 +203,29 @@ def init_secrets(force: bool):
     for secret_type in katsu_vars.keys():
         env_var, secret_name = katsu_vars[secret_type].values()
         val = os.getenv(env_var)
-        val_bytes = bytes(val, 'UTF-8')
+        val_bytes = bytes(val, "UTF-8")
         path = (pathlib.Path.cwd() / "tmp" / "secrets" / secret_name)
 
-        print(f"Creating secret for {secret_type}: {secret_name} ...", end="")
+        task_print(f"Creating secret for {secret_type}: {secret_name} ...")
+
         existing_secrets = [scrt for scrt in client.secrets.list(filters={"name": secret_name}) if scrt is not None]
-        if len(existing_secrets) == 0:
+
+        if not existing_secrets:
             with open(path, "wb") as f:
                 f.write(val_bytes)
             client.secrets.create(name=secret_name, data=val_bytes)
-            cprint(" done.", "green")
+            task_print_done()
+
         elif force:
             for scrt in existing_secrets:
                 client.api.remove_secret(scrt.id)
             with open(path, "wb") as f:
                 f.write(val_bytes)
             client.secrets.create(name=secret_name, data=val_bytes)
-            cprint(" done.", "green")
+            task_print_done()
+
         else:
-            cprint(f" {secret_name} already exists, skipping.", "yellow")
+            warn(f"  {secret_name} already exists, skipping.")
 
     # TODO: Use Hashicorp/Vault for more secure secret mgmt?
 
@@ -232,12 +233,12 @@ def init_secrets(force: bool):
 def clean_secrets():
     client = docker.from_env()
     for secret in client.secrets.list():
-        print(f"Removing secret: {secret.id} ... ", end="")
+        task_print(f"Removing secret: {secret.id} ...")
         success = client.api.remove_secret(secret.id)
         if success:
-            cprint("done.", "green")
+            task_print_done()
         else:
-            cprint("failed.", "red")
+            err("failed.")
 
 
 def clean_logs():
