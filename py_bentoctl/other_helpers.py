@@ -2,6 +2,7 @@ import os
 import pathlib
 import shutil
 import docker
+import docker.errors
 from termcolor import cprint
 from .openssl import _create_cert, _create_private_key
 
