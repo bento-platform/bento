@@ -330,13 +330,13 @@ def logs_service(compose_service: str, follow: bool):
     compose_service = translate_service_aliases(compose_service)
     extra_args = ("-f",) if follow else ()
 
+    cmd = COMPOSE[0]
+    compose_args = COMPOSE[1:]
+
     if compose_service == "all":
         # special: show all logs
-        subprocess.check_call((*COMPOSE, "logs", *extra_args))
+        os.execvp(cmd, (cmd, *compose_args, "logs", *extra_args))
         return
 
     check_service_is_compose(compose_service)
-
-    cmd = COMPOSE[0]
-    compose_args = COMPOSE[1:]
     os.execvp(cmd, (cmd, *compose_args, "logs", *extra_args, compose_service))
