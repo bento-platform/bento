@@ -237,10 +237,13 @@ class InitWeb(SubCommand):
     def add_args(sp):
         sp.add_argument(
             "service", type=str, choices=["public", "private"], help="Prepares the web applications for deployment.")
+        sp.add_argument(
+            "--force", "-f", action="store_true",
+            help="Overwrites any existing branding/translation/etc.")
 
     @staticmethod
     def exec(args):
-        oh.init_web(args.service)
+        oh.init_web(args.service, args.force)
 
 
 def main(args: Optional[list[str]] = None) -> int:

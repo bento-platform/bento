@@ -1,6 +1,7 @@
 import os
 import pathlib
 import shutil
+import sys
 
 import docker
 import docker.errors
@@ -11,18 +12,18 @@ from .openssl import _create_cert, _create_private_key
 from .utils import task_print, task_print_done, info, warn, err
 
 
-def init_web(service: str):
+def init_web(service: str, force: bool):
     if service not in ("public", "private"):
         err("You must specify the service type (public or private)")
         exit(1)
 
     if service == "public":
-        _init_web_public()
+        _init_web_public(force)
     else:  # private
-        _init_web_private()
+        _init_web_private(force)
 
 
-def _init_web_public():
+def _init_web_public(force: bool):
     root_path = pathlib.Path.cwd()
 
     # Init lib dir
@@ -33,46 +34,61 @@ def _init_web_public():
     # About html page
     _file_copy(
         (root_path / "etc" / "default.about.html"),
-        (public_path / "about.html")
+        (public_path / "about.html"),
+        force=force,
     )
     # Branding image
     _file_copy(
         (root_path / "etc" / "default.public.branding.png"),
-        (public_path / "branding.png")
+        (public_path / "branding.png"),
+        force=force,
     )
     # English translations
     _file_copy(
         (root_path / "etc" / "templates" / "translations" / "en.example.json"),
-        (translation_path / "en.json")
+        (translation_path / "en.json"),
+        force=force,
     )
     # French translations
     _file_copy(
         (root_path / "etc" / "templates" / "translations" / "fr.example.json"),
-        (translation_path / "fr.json")
+        (translation_path / "fr.json"),
+        force=force,
     )
 
 
-def _file_copy(src_path: pathlib.Path, dst_path: pathlib.Path):
-    if dst_path.is_file():
-        warn(f"File {dst_path} exists, skipping copy.")
-        return
-
+def _file_copy(src_path: pathlib.Path, dst_path: pathlib.Path, force: bool = False):
     task_print(f"Copying {src_path} to {dst_path}...")
+
+    if dst_path.is_file():
+        if not force:
+            warn(f"file {dst_path} exists, skipping copy.")
+            return
+
+        cprint(f"file {dst_path} exists, overwriting... ", "yellow", file=sys.stderr, end="")
+
     shutil.copyfile(src_path, dst_path)
     cprint("done.", "green")
 
 
-def _init_web_private():
+def _init_web_private(force: bool):
     task_print("Init public web folder with branding image...")
 
     root_path = pathlib.Path.cwd()
     web_path = (root_path / "lib" / "web")
     web_path.mkdir(parents=True, exist_ok=True)
 
-    src_file = (root_path / "etc" / "default.branding.png")
-    dst_file = (web_path / "branding.png")
-    shutil.copyfile(src=src_file, dst=dst_file)
+    src_branding = (root_path / "etc" / "default.branding.png")
+    dst_branding = (web_path / "branding.png")
 
+    if dst_branding.is_file():
+        if not force:
+            warn(f"file {dst_branding} exists, skipping copy.")
+            return
+
+        cprint(f"file {dst_branding} exists, overwriting... ", "yellow", file=sys.stderr, end="")
+
+    shutil.copyfile(src=src_branding, dst=dst_branding)
     task_print_done()
 
 
