@@ -11,21 +11,21 @@ __all__ = [
 ]
 
 
-def task_print(msg: str):
+def task_print(msg: str) -> None:
     print(msg, end=" ", file=sys.stderr)
 
 
-def task_print_done(msg: str = "done."):
+def task_print_done(msg: str = "done.") -> None:
     cprint(msg, "green", file=sys.stderr)
 
 
-def info(msg: str):
+def info(msg: str) -> None:
     cprint(msg, "blue", file=sys.stderr)
 
 
-def warn(msg: str):
+def warn(msg: str) -> None:
     cprint(msg, "yellow", file=sys.stderr)
 
 
-def err(msg: str):
+def err(msg: str) -> None:
     cprint(msg, "red", file=sys.stderr)
