@@ -2,7 +2,6 @@ import docker
 import os
 import pathlib
 import subprocess
-import sys
 
 from termcolor import cprint
 from typing import Dict, Optional, Tuple
@@ -181,11 +180,7 @@ def work_on_service(compose_service: str):
         cprint(
             f"  Cloning {compose_service} repository into repos/ ...", "blue")
         subprocess.check_call(
-            ("git",
-             "clone",
-             "--recurse-submodules",
-             BENTO_SERVICES_DATA[compose_service]["repository"],
-             repo_path))
+            ("git", "clone", "--recurse-submodules", BENTO_SERVICES_DATA[compose_service]["repository"], repo_path))
 
     # Save state change
     service_state = set_state_services({
@@ -261,8 +256,7 @@ def mode_service(compose_service: str):
     cprint(mode, "green" if mode == MODE_PROD else "blue")
 
 
-def pull_service(compose_service: str,
-                 existing_service_state: Optional[dict] = None):
+def pull_service(compose_service: str, existing_service_state: Optional[dict] = None):
     compose_service = translate_service_aliases(compose_service)
     service_state = existing_service_state or get_state()["services"]
 
