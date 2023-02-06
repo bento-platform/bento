@@ -62,10 +62,10 @@ def _file_copy(src_path: pathlib.Path, dst_path: pathlib.Path, force: bool = Fal
 
     if dst_path.is_file():
         if not force:
-            warn(f"destination exists, skipping copy.")
+            warn("destination exists, skipping copy.")
             return
 
-        cprint(f"destination exists, overwriting... ", "yellow", file=sys.stderr, end="")
+        cprint("destination exists, overwriting... ", "yellow", file=sys.stderr, end="")
 
     shutil.copyfile(src_path, dst_path)
     cprint("done.", "green")
