@@ -46,21 +46,6 @@ export CURRENT_UID
 EXECUTED_NOW=$(shell date +%FT%T%Z)
 export EXECUTED_NOW
 
-
-#>>>
-# init chord service configuration files
-#<<<
-.PHONY: init-chord-services
-init-chord-services:
-	@echo "-- Initializing CHORD service configuration files  --"
-
-	@# copy services json to the microservices that need it
-	@echo "- Providing a complete chord_services.json to lib/service-registry"
-	@envsubst < ${PWD}/etc/templates/chord_services.example.json > $(PWD)/lib/service-registry/chord_services.json;
-
-	@echo "-- Done --"
-
-
 #>>>
 # create non-repo directories
 #<<<
