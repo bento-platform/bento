@@ -227,10 +227,37 @@ to create the bentov2 cert for `bentov2auth.local` (or whatever other domain you
 Finally, ensure that the local domain name is set in the machines `hosts` file (for Linux users, this is likely `/etc/hosts`, and in Windows, `C:\Windows\System32\drivers\etc\hosts`) pointing to either `localhost`, `127.0.0.1`, or `0.0.0.0`, depending on whichever gets the job done on your system.
 
 
-### Boot the gateway controller (NGINX by default)
+### Boot the gateway (OpenResty)
+
+
+#### `bentoctl` version:
+
+
+```bash
+# Once the certificates are ready, initialize the cluster configs secrets
+./bentoctl.bash init-chord-services
+./bentoctl.bash init-dirs
+./bentoctl.bash init-docker
+./bentoctl.bash init-secrets
+
+# Initialize bento_web and bento_public
+./bentoctl.bash init-web private
+./bentoctl.bash init-web public
+
+# If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), 
+# i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
+./bentoctl.bash run gateway
+# and
+./bentoctl.bash init-auth
+
+# Otherwise, only start the cluster's gateway with
+./bentoctl.bash run gateway
+```
+
+
+#### `Makefile` version:
 
 > NOTE: `make` commands seen here aren't the only tools for operating this cluster. See the `Makefile` for further documentation.
-
 
 ```sh
 # Once the certificates are ready, initialize the cluster configs secrets
@@ -238,9 +265,6 @@ make init-chord-services
 make init-dirs
 make init-docker
 make docker-secrets
-
-# Build base images
-make build-common-base
 
 # Prepare web-service
 make init-web
@@ -251,10 +275,12 @@ make run-gateway
 make auth-setup
 
 # Otherwise, only open & configure the cluster's gateway with
-make auth-setup
+make run-gateway
 ```
 
-This last step boots and configures the local OIDC provider (**Keycloak**) container and reconfigure the gateway to 
+#### Note on Keycloak
+
+This last step boots and configures the local OIDC provider (**Keycloak**) container and reconfigures the gateway to 
 utilize new variables generated during the OIDC configuration.
 
 > NOTE: by default, the `gateway` service *does* need to be running for this to work as the configuration will pass via 
@@ -264,21 +290,25 @@ utilize new variables generated during the OIDC configuration.
 > manually (see `./etc/auth/..` and `./etc/scripts/..` for further details)
 
 The `CLIENT_SECRET` environment variable must be set using the value provided
-by Keycloak. Using a browser, connect to the `auth` endpoint (by default `https://bentov2auth.local`) and use the admin credentials from the env file. Once within
-Keycloak interface, navigate to the *Configure/Clients* menu. Select `local_bentov2`
-in the list of clients and switch to the *Credentials* tab. Copy the secret from
+by Keycloak. If `bentoctl` was used, this should have been printed to the console when `init-auth` was run.
+
+Using a browser, connect to the `auth` endpoint (by default `https://bentov2auth.local`) and use the admin 
+credentials from the env file. Once within Keycloak interface, navigate to the *Configure/Clients* menu. Select 
+`local_bentov2` in the list of clients and switch to the *Credentials* tab. Copy the secret from
 there and paste it in your .env file.
 
 ![Keycloak UI: get client secret](docs/img/keycloak_client_secret.png)
 
-### Setup Bento-Public
 
-Run
-```
-make init-public
+### Additional setup of Bento-Public
+
+After running
+
+```bash
+./bentoctl.bash init-web public
 ```
 
-Adjust the default translation set as necessary
+Adjust the default translation set as necessary:
 
 ```
 lib/public/translations/<en|fr>.json
@@ -316,9 +346,19 @@ lib/public/translations/<en|fr>.json
 
 ### Setup Gohan service
 
+#### `bentoctl`
+
 Run
 
+```bash
+./bentoctl.bash run gohan
 ```
+
+#### `Makefile`
+
+Run
+
+```bash
 make run-gohan-api
 make run-gohan-elasticsearch
 ```
@@ -329,7 +369,15 @@ to start `bentov2-gohan-api` and `bentov2-gohan-elasticsearch` containers.
 
 ### Start the cluster
 
+#### `bentoctl`
+
+```bash
+./bentoctl.bash run all
 ```
+
+#### `Makefile`
+
+```bash
 make run-all
 ```
 
@@ -337,18 +385,38 @@ to trigger the series of initial build events (using `docker-compose`) for the r
 
 ### Stop the cluster
 
+#### `bentoctl`
+
 Run
+
+```bash
+./bentoctl.bash stop all
 ```
+
+to shut down the whole cluster.
+
+To remove the Docker containers, run the following:
+
+```bash
+./bentoctl.bash clean all
+```
+
+#### `Makefile`
+
+Run
+```bash
 make stop-all
 ```
 to shut down the whole cluster,
 
-```
+```bash
 make clean-all
 ```
-to remove the docker containers and images from disk,
+to remove the docker containers from disk.
 
-> NOTE: application data does persist (see `./lib/[auth, drs, katsu]/data` directories, for example)
+> NOTE: application data does persist after cleaning 
+> (depending on data path, e.g., `./data/[auth, drs, katsu]/...` directories)
+
 
 ### Gohan Genes 'Catalogue' Setup Tips:
 Upon initial startup of a fresh instance, it may of use, depending on the use-case, to perform the following:
@@ -371,23 +439,61 @@ https://portal.bentov2.local/api/gohan/genes/overview
 
 
 ## Development
-To build upon the `bento_web` service while using bentoV2 *(Note; this can be done with a number of other services in the stack with slight modifications : see the 'Makefile' and '.env' for details)*, a few accomodations need to be made to your workspace.
-First, move your local bento_web project to the `./lib/web` directory, or clone the web project there with
 
-```
-cd lib/web
-git clone https://github.com/bento-platform/bento_web.git
+### Accessing containers with `bentoctl`
+
+To start a shell session within a particular container, use the following command (here, `web` is used as an example):
+
+```bash
+./bentoctl shell web
 ```
 
-You will then have `lib/web/bento_web` available.
+Optionally, the shell to run can be specified via `--shell /bin/bash` or `--shell /bin/sh`.
+
+
+### Working on web (`bentoctl` version)
+
+To work on the `bento_web` repository within a BentoV2 environment, run the following command:
+
+```bash
+./bentoctl work-on web
+```
+
+This will clone the `bento_web` repository into `./repos/web` if necessary, and start it in development mode,
+which means on-the-fly Webpack building will be available.
+
+
+### Working on web (`Makefile` version)
+
+To build upon the `bento_web` service while using bentoV2 *(Note; this can be done with a number of other services in 
+the stack with slight modifications : see the 'Makefile' and '.env' for details)*, a few accomodations need to be made 
+to your workspace.
+
+First, move your local bento_web project to the `./repos` directory (named `web`):
+
+```bash
+mv ./path/to/my/bentoweb ./repos/web
+```
+
+**OR** clone the web project there with
+
+```bash
+cd repos
+git clone https://github.com/bento-platform/bento_web.git -o web
+```
+
+You will then have `repos/web` available.
 
 Once this is set, you can run
 ```
 make run-web-dev
 ```
-which will spin up the `web` container tethered to your local directory with a docker `volume`. Internally, `npm run watch` is executed (see `./lib/web/dev_startup.sh`) so changes made locally will be reflected in the container - the service will then recompile and render.
+which will spin up the `web` container tethered to your local directory with a docker `volume`. Internally, 
+`npm run watch` is executed (see `./lib/web/dev_startup.sh`) so changes made locally will be reflected in the container 
+- the service will then recompile and render.
 
-> Note: if you get stuck on an NGINX `500 Internal Service Error`, give it another minute to spin up. If it persists, run `docker exec -it bentov2-web sh` to access the container, and then run `npm run watch` manually.
+> Note: if you get stuck on an NGINX `500 Internal Service Error`, give it another minute to spin up. If it persists, 
+> run `docker exec -it bentov2-web sh` to access the container, and then run `npm run watch` manually.
 
 
 <br />

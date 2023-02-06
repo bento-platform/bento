@@ -274,8 +274,8 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
     _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
     _add_subparser("init-certs", "Initialize ssl certificates for bentov2 gateway domains.", InitCerts)
-    _add_subparser("init-docker", "Init docker swarm and network.", InitDocker)
-    _add_subparser("init-secrets", "Init docker secrets", InitSecrets)
+    _add_subparser("init-docker", "Init Docker swarm and network.", InitDocker)
+    _add_subparser("init-secrets", "Init Docker secrets", InitSecrets)
     _add_subparser("init-web", "Init web app (public or private) files", InitWeb)
     _add_subparser("clean-secrets", "Clean Docker secrets", CleanSecrets)
 
