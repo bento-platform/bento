@@ -378,6 +378,8 @@ to start `bentov2-gohan-api` and `bentov2-gohan-elasticsearch` containers.
 
 ```bash
 ./bentoctl.bash run all
+# or
+./bentoctl.bash run
 ```
 
 #### `Makefile`
