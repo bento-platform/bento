@@ -1,0 +1,58 @@
+services:
+  cbioportal:
+    restart: unless-stopped
+    image: ${BENTO_CBIOPORTAL_IMAGE}:${BENTO_CBIOPORTAL_IMAGE_VERSION}
+    container_name: ${BENTO_CBIOPORTAL_CONTAINER_NAME}
+    environment:
+      SHOW_DEBUG_INFO: "true"
+    ports:
+      - "${BENTO_CBIOPORTAL_EXTERNAL_PORT}:${BENTO_CBIOPORTAL_INTERNAL_PORT}"
+    volumes:
+      - ${BENTO_CBIOPORTAL_STUDY_DIR}:/study/
+      - ./config/portal.properties:/cbioportal/portal.properties:ro
+    depends_on:
+      - cbioportal-db
+      - cbioportal-session
+    command: /bin/sh -c "
+        java -Xms2g -Xmx4g 
+        -Dauthenticate=noauthsessionservice 
+        -Dsession.service.url=http://cbioportal-session:${CBIOPORTAL_SESSION_SERVER_PORT}/api/sessions/my_portal/ 
+        -jar webapp-runner.jar 
+        -AmaxHttpHeaderSize=16384 
+        -AconnectionTimeout=20000 
+        --enable-compression 
+        /cbioportal-webapp
+      "
+
+  cbioportal-db:
+    restart: unless-stopped
+    image: ${BENTO_CBIOPORTAL_DATABASE_IMAGE}:${BENTO_CBIOPORTAL_DATABASE_IMAGE_VERSION}
+    container_name: ${BENTO_CBIOPORTAL_DATABASE_CONTAINER_NAME}
+    environment:
+      MYSQL_DATABASE: ${BENTO_CBIOPORTAL_DATABASE_DBNAME}
+      MYSQL_USER: ${BENTO_CBIOPORTAL_DATABASE_DBUSER}
+      MYSQL_PASSWORD: ${BENTO_CBIOPORTAL_DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${BENTO_CBIOPORTAL_DATABASE_ROOT_PASSWORD}
+    volumes:
+      - ${BENTO_CBIOPORTAL_DATA_DIR}/cgds.sql:/docker-entrypoint-initdb.d/cgds.sql:ro
+      - ${BENTO_CBIOPORTAL_DATA_DIR}/seed.sql.gz:/docker-entrypoint-initdb.d/seed.sql.gz:ro
+      - ${BENTO_CBIOPORTAL_DATABASE_DATA_DIR}:/var/lib/mysql
+
+  cbioportal-session:
+    restart: unless-stopped
+    image: ${BENTO_CBIOPORTAL_SESSION_IMAGE}:${BENTO_CBIOPORTAL_SESSION_IMAGE_VERSION}
+    container_name: ${BENTO_CBIOPORTAL_SESSION_SERVICE_CONTAINER_NAME}
+    environment:
+      SERVER_PORT: ${CBIOPORTAL_SESSION_SERVER_PORT}
+      JAVA_OPTS: -Dspring.data.mongodb.uri=mongodb://${BENTO_CBIOPORTAL_SESSION_DATABASE_CONTAINER_NAME}:27017/session
+    depends_on:
+      - cbioportal-session-db
+
+  cbioportal-session-db:
+    restart: unless-stopped
+    image: ${CBIOPORTAL_SESSION_DATABASE_IMAGE}:${CBIOPORTAL_SESSION_DATABASE_IMAGE_VERSION}
+    container_name: ${BENTO_CBIOPORTAL_SESSION_DATABASE_CONTAINER_NAME}
+    environment:
+      MONGO_INITDB_DATABASE: session
+    volumes:
+      - ${BENTO_CBIOPORTAL_SESSION_DATABASE_DATA_DIR}:/data/db
