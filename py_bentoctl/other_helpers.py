@@ -190,7 +190,7 @@ def init_docker():
         task_print_done()
         info(f"Swarm ID: {swarm_id}")
     except docker.errors.APIError:
-        warn(f" error encountered, skipping.")  # continues on the task_print line
+        warn(" error encountered, skipping.")  # continues on the task_print line
         warn("    Likely due to docker already being in a swarm.")
 
     # Init Docker network(s)
