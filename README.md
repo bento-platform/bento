@@ -176,7 +176,8 @@ specified in the step above.
 ### Initialize and boot the gateway
 
 
-#### `bentoctl` version:
+> NOTE: `./bentoctl.bash` commands seen here aren't the only tools for operating this cluster. 
+> Run `./bentoctl.bash --help` for further documentation.
 
 
 ```bash
@@ -209,30 +210,6 @@ specified in the step above.
 ./bentoctl.bash run gateway
 ```
 
-
-#### `Makefile` version:
-
-> NOTE: `make` commands seen here aren't the only tools for operating this cluster. See the `Makefile` for further 
-> documentation.
-
-```sh
-# Once the certificates are ready, initialize the cluster configs secrets
-make init-dirs
-make init-docker
-make docker-secrets
-
-# Prepare web-service
-make init-web
-
-# If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), i.e setting 
-# BENTOV2_USE_EXTERNAL_IDP=0, run both
-make run-gateway
-# and
-make auth-setup
-
-# Otherwise, only open & configure the cluster's gateway with
-make run-gateway
-```
 
 #### Note on Keycloak
 
