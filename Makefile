@@ -291,33 +291,6 @@ run-%:
 
 
 #>>>
-# build all service images
-# - each service building runs on it's own background process to complete faster
-#<<<
-build-all:
-	$(foreach SERVICE, $(SERVICES), \
-		$(MAKE) build-$(SERVICE) &)
-
-	watch -n 2 'docker ps'
-
-
-#>>>
-# build a specified service
-#<<<
-build-%:
-	@# Don't build auth
-	@if [[ $* == auth ]]; then \
-		echo "Auth doens't need to be built! Aborting --"; \
-		exit 1; \
-	fi
-
-	@mkdir -p tmp/logs/${EXECUTED_NOW}/$*
-	@echo "-- Building $* --" && \
-		docker-compose build --no-cache $* &> tmp/logs/${EXECUTED_NOW}/$*/build.log
-
-
-
-#>>>
 # stop all services
 #<<<
 stop-all:
@@ -395,14 +368,6 @@ clean-secrets:
 	docker secret rm metadata-app-secret
 	docker secret rm metadata-db-user
 	docker secret rm metadata-db-secret
-
-#>>>
-# clean docker services
-#<<<
-.PHONY: clean-chord-services
-clean-chord-services:
-	rm $(PWD)/lib/*/chord_services.json
-
 
 
 #>>>
