@@ -157,9 +157,9 @@ BENTOV2_PRIVATE_MODE=false
 
 BENTOV2_ROOT_DATA_DIR=~/bentov2/data
 ```
-If the internal IdP is being used (by default, Keycloak), credential variables should also be provided. The *admin* credentials are used to connect to the Keycloak UI
-for authentication management (adding users, getting client credentials,...).
-The *test* credentials will be used to authenticate on the Bento Portal.
+If the internal IdP is being used (by default, Keycloak), credential variables should also be provided. The *admin* 
+credentials are used to connect to the Keycloak UI for authentication management (adding users, getting client 
+credentials,...). The *test* credentials will be used to authenticate on the Bento Portal.
 
 ```
 BENTOV2_AUTH_ADMIN_USER=testadmin
@@ -178,7 +178,9 @@ BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openi
 
 <br />
 
-### Create self-signed TLS certificates (`bentoctl`)
+### *Development only:* create self-signed TLS certificates 
+
+#### With `bentoctl`
 
 Setting up the certificates with `bentoctl` can be done in a single command.
 From the project root, run
@@ -190,7 +192,7 @@ From the project root, run
 > This command will skip all certificate generation if it detects previously created files. 
 > To force an override, simply add the option `--force` / `-f`.
 
-### Create self-signed TLS certificates (With Makefile)
+#### With `Makefile`
 
 First, set up your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) 
 in the `.env` file. You can then create the corresponding TLS certificates for local development with the following 
@@ -224,10 +226,25 @@ openssl req -newkey rsa:2048 -nodes \
 ```
 to create the bentov2 cert for `bentov2auth.local` (or whatever other domain you use)
 
-Finally, ensure that the local domain name is set in the machines `hosts` file (for Linux users, this is likely `/etc/hosts`, and in Windows, `C:\Windows\System32\drivers\etc\hosts`) pointing to either `localhost`, `127.0.0.1`, or `0.0.0.0`, depending on whichever gets the job done on your system.
+
+### Hosts file configuration
+
+Ensure that the local domain names are set in the machines `hosts` file (for Linux users, this is likely 
+`/etc/hosts`, and in Windows, `C:\Windows\System32\drivers\etc\hosts`) pointing to either `localhost`, `127.0.0.1`, 
+or `0.0.0.0`, depending on whichever gets the job done on your system.
+
+With the default development configuration, this might look something like:
+
+```
+# ... system stuff above
+127.0.0.1	bentov2.local
+127.0.0.1	portal.bentov2.local
+127.0.0.1	bentov2auth.local
+# ... other stuff below
+```
 
 
-### Boot the gateway (OpenResty)
+### Initialize and boot the gateway
 
 
 #### `bentoctl` version:
@@ -252,18 +269,22 @@ Finally, ensure that the local domain name is set in the machines `hosts` file (
 ./bentoctl.bash run gateway
 # and
 ./bentoctl.bash init-auth
+
 # then EDIT YOUR ENVIRONMENT TO INCLUDE THE RESULTING CLIENT SECRET VIA CLIENT_SECRET=... ! after this,
 # restart the gateway:
 ./bentoctl.bash restart gateway
 
-# Otherwise, only start the cluster's gateway after setting CLIENT_SECRET with
+# -----------
+# If using an external identity provider, only start the cluster's gateway
+# after setting CLIENT_SECRET in your local environment file
 ./bentoctl.bash run gateway
 ```
 
 
 #### `Makefile` version:
 
-> NOTE: `make` commands seen here aren't the only tools for operating this cluster. See the `Makefile` for further documentation.
+> NOTE: `make` commands seen here aren't the only tools for operating this cluster. See the `Makefile` for further 
+> documentation.
 
 ```sh
 # Once the certificates are ready, initialize the cluster configs secrets
@@ -274,7 +295,8 @@ make docker-secrets
 # Prepare web-service
 make init-web
 
-# If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
+# If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), i.e setting 
+# BENTOV2_USE_EXTERNAL_IDP=0, run both
 make run-gateway
 # and
 make auth-setup
@@ -356,7 +378,8 @@ lib/public/translations/<en|fr>.json
 Run
 
 ```bash
-./bentoctl.bash run gohan
+./bentoctl.bash run gohan-api
+# gohan-elasticsearch will be automatically started
 ```
 
 #### `Makefile`
@@ -388,7 +411,8 @@ to start `bentov2-gohan-api` and `bentov2-gohan-elasticsearch` containers.
 make run-all
 ```
 
-to trigger the series of initial build events (using `docker-compose`) for the rest of bento's supporting microservices, and then run them.
+to trigger the series of initial build events (using `docker-compose`) for the rest of Bento's supporting microservices, 
+and then run them.
 
 ### Stop the cluster
 
@@ -509,7 +533,8 @@ which will spin up the `web` container tethered to your local directory with a d
 
 First, head on over to https://github.com/mozilla/geckodriver/releases and download the latest geckodriver.
 
-Decompress the .tar.gz or .zip and move the `geckodriver` over to the `./etc/tests/integration` directory. After that, simply run
+Decompress the .tar.gz or .zip and move the `geckodriver` over to the `./etc/tests/integration` directory. After that, 
+simply run
 ```
 make run-tests
 ```
