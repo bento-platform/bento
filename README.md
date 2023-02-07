@@ -41,6 +41,7 @@ source env/bin/activate
 # Install dependencies
 pip3 install -r requirements.txt
 ```
+
 To make interacting with the CLI quicker, consider adding an alias for calling `bentoctl.bash`, putting the following
 in your `.bash_aliases`, `.bash_profile` or `.zshrc` file:
 
