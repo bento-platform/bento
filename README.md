@@ -18,6 +18,12 @@ counterpart, built with Docker instead of Singularity.
 
 
 
+## Migration documents
+
+* [v2.10 to v2.11](./docs/migrating_to_2_11.md)
+
+
+
 ## `bentoctl`: the BentoV2 command line management tool
 
 This command line tool offers a series of commands and parameters that are helpful to set up the Docker environment for 
