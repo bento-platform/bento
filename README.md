@@ -55,7 +55,9 @@ echo "alias bentoctl=${PWD}/bentoctl.bash" > ~/.bash_aliases
 # Simply use your alias!
 bentoctl --help
 ```
+
 ### Usage
+
 For an overview of `bentoctl`'s features, type the following from the root of the project:
 
 ```
@@ -65,51 +67,6 @@ For an overview of `bentoctl`'s features, type the following from the root of th
 > **Note:** the flags `--debug, -d` are intended for interactive remote Python debugging of the `bentoctl` module 
 > itself. See [VSCode instructions](https://code.visualstudio.com/docs/python/debugging#_local-script-debugging) or 
 > [PyCharm instructions](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html) for IDE setup.
-
-### Migrating to `bentoctl`
-
-Key changes versus the Makefile include:
-
-#### Running all services
-
-**Makefile:** `make run-all`
-
-**`bentoctl`:** `./bentoctl.bash run`
-
-
-#### Switching a service (e.g., `web`) to development mode
-
-##### Makefile
-
-```bash
-make clean-web
-make run-web-dev
-```
-
-##### `bentoctl`
-
-> **Note:** that the first time `work-on` is called, it will clone the service in question in the `repos/` directory 
-> and run the version of the service that code specifies.
-> This is a change from the old approach, where the repos were located in `lib/`.
-
-```bash
-./bentoctl.bash work-on web
-```
-
-#### Switching a service (e.g., `web`) to production mode
-
-##### Makefile
-
-```bash
-make clean-web-dev
-make run-web
-```
-
-##### `bentoctl`
-
-```bash
-./bentoctl.bash prod web
-```
 
 
 
