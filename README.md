@@ -137,7 +137,8 @@ BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openi
 
 ### *Development only:* create self-signed TLS certificates 
 
-#### With `bentoctl`
+First, set up your local Bento and Keycloak hostnames (something like `bentov2.local`, `portal.bentov2.local`, and 
+`bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development.
 
 Setting up the certificates with `bentoctl` can be done in a single command.
 From the project root, run
@@ -146,45 +147,11 @@ From the project root, run
 ./bentoctl.bash init-certs
 ```
 
-> This command will skip all certificate generation if it detects previously created files. 
+> **NOTE:** This command will skip all certificate generation if it detects previously created files. 
 > To force an override, simply add the option `--force` / `-f`.
 
-#### With `Makefile`
 
-First, set up your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) 
-in the `.env` file. You can then create the corresponding TLS certificates for local development with the following 
-steps:
-
-From the project root, run
-```
-mkdir -p ./certs
-```
-
-> NOTE: In the steps below, ensure the domain names in `.env` and the cert Common Names match up
-
-Then run
-```
-openssl req -newkey rsa:2048 -nodes \
-    -keyout ./certs/privkey1.key -x509 \
-    -days 365 -out ./certs/fullchain1.crt
-
-openssl req -newkey rsa:2048 -nodes \
-    -keyout ./certs/portal_privkey1.key -x509 \
-    -days 365 -out ./certs/portal_fullchain1.crt
-```
-to create the bentov2 cert for `bentov2.local` (or whatever other domain you use)
-
-Next, if you're running an OIDC provider container locally (default is Keycloak), run
-```
-openssl req -newkey rsa:2048 -nodes \
-    -keyout ./certs/auth_privkey1.key -x509 \
-    -days 365 \
-    -out ./certs/auth_fullchain1.crt
-```
-to create the bentov2 cert for `bentov2auth.local` (or whatever other domain you use)
-
-
-### Hosts file configuration
+### *Development only:* Hosts file configuration
 
 Ensure that the local domain names are set in the machines `hosts` file (for Linux users, this is likely 
 `/etc/hosts`, and in Windows, `C:\Windows\System32\drivers\etc\hosts`) pointing to either `localhost`, `127.0.0.1`, 
@@ -199,6 +166,11 @@ With the default development configuration, this might look something like:
 127.0.0.1	bentov2auth.local
 # ... other stuff below
 ```
+
+This is **not needed** in production, since the domains should have DNS records.
+
+Make sure these values match the values in the `.env` file and what was issued in the self-signed certificates, as 
+specified in the step above.
 
 
 ### Initialize and boot the gateway
@@ -328,33 +300,7 @@ lib/public/translations/<en|fr>.json
 ```
 
 
-### Setup Gohan service
-
-#### `bentoctl`
-
-Run
-
-```bash
-./bentoctl.bash run gohan-api
-# gohan-elasticsearch will be automatically started
-```
-
-#### `Makefile`
-
-Run
-
-```bash
-make run-gohan-api
-make run-gohan-elasticsearch
-```
-
-to start `bentov2-gohan-api` and `bentov2-gohan-elasticsearch` containers.
-
-
-
 ### Start the cluster
-
-#### `bentoctl`
 
 ```bash
 ./bentoctl.bash run all
@@ -362,18 +308,10 @@ to start `bentov2-gohan-api` and `bentov2-gohan-elasticsearch` containers.
 ./bentoctl.bash run
 ```
 
-#### `Makefile`
+to run all Bento services.
 
-```bash
-make run-all
-```
-
-to trigger the series of initial build events (using `docker-compose`) for the rest of Bento's supporting microservices, 
-and then run them.
 
 ### Stop the cluster
-
-#### `bentoctl`
 
 Run
 
@@ -388,19 +326,6 @@ To remove the Docker containers, run the following:
 ```bash
 ./bentoctl.bash clean all
 ```
-
-#### `Makefile`
-
-Run
-```bash
-make stop-all
-```
-to shut down the whole cluster,
-
-```bash
-make clean-all
-```
-to remove the docker containers from disk.
 
 > NOTE: application data does persist after cleaning 
 > (depending on data path, e.g., `./data/[auth, drs, katsu]/...` directories)
@@ -439,7 +364,7 @@ To start a shell session within a particular container, use the following comman
 Optionally, the shell to run can be specified via `--shell /bin/bash` or `--shell /bin/sh`.
 
 
-### Working on web (`bentoctl` version)
+### Working on `web` (as an example)
 
 To work on the `bento_web` repository within a BentoV2 environment, run the following command:
 
@@ -451,40 +376,25 @@ This will clone the `bento_web` repository into `./repos/web` if necessary, and 
 which means on-the-fly Webpack building will be available.
 
 
-### Working on web (`Makefile` version)
+#### Migrating the repository from v2.10 and prior
 
-To build upon the `bento_web` service while using bentoV2 *(Note; this can be done with a number of other services in 
-the stack with slight modifications : see the 'Makefile' and '.env' for details)*, a few accomodations need to be made 
-to your workspace.
-
-First, move your local bento_web project to the `./repos` directory (named `web`):
+Move your local `bento_web` project to the `./repos` directory (named `web`):
 
 ```bash
 mv ./path/to/my/bentoweb ./repos/web
 ```
 
-**OR** clone the web project there with
-
-```bash
-cd repos
-git clone https://github.com/bento-platform/bento_web.git -o web
-```
-
-You will then have `repos/web` available.
-
-Once this is set, you can run
-```
-make run-web-dev
-```
-which will spin up the `web` container tethered to your local directory with a docker `volume`. Internally, 
-`npm run watch` is executed (see `./lib/web/dev_startup.sh`) so changes made locally will be reflected in the container 
-- the service will then recompile and render.
+You will then have `repos/web` available for the `./bentoctl.bash work-on web` command, which will spin up the 
+`web` container tethered to your local directory with a Docker volume. Internally, 
+`npm run watch` is executed so changes made locally will be reflected in the container.
 
 > Note: if you get stuck on an NGINX `500 Internal Service Error`, give it another minute to spin up. If it persists, 
-> run `docker exec -it bentov2-web sh` to access the container, and then run `npm run watch` manually.
+> run `./bentoctl.bash shell web` to access the container, and then run `npm run watch` manually.
 
 
 <br />
+
+
 
 ## Testing
 
@@ -498,39 +408,38 @@ make run-tests
 
 This will run a set of both unit `(TODO)` and integration tests. See the `Makefile` for more details
 
+
+
 ## Troubleshooting
 
-- The logs for each individual service can be accessed by running
+### Accessing service logs
+
+The logs for each individual service can be accessed by running
 
 ```
-docker logs bentov2-<service>
+./bentoctl.bash logs <service>
 ```
+
 for example:
-```
-docker logs bentov2-katsu
-```
-
-- To restart all services
 
 ```
-make stop-all
-make run-all
-make auth-setup
+./bentoctl.bash logs katsu
 ```
 
-- If a service container doesn't start with `make run-all` start it individually, e.g.
+If you want to follow the logs live, append the `-f` option. If no service is specified, logs
+from all running Docker containers will be shown.
+
+### Restarting all services
+
+To restart all services
 
 ```
-make run-drs
+./bentoctl.bash stop all
+./bentoctl.bash run all
 ```
 
-- Running development instance locally: If federation service throws 500 ERROR, e.g.:
+One can also start services individually, e.g.:
 
 ```
-ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:852)
-ERROR:tornado.access:500 POST /private/dataset-search/...
-```
-In lib/federation/docker-compose.federation.yaml, set
-```
-CHORD_DEBUG=true
+./bentoctl.bash run drs
 ```
