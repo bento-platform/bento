@@ -12,6 +12,8 @@ counterpart, built with Docker instead of Singularity.
 
 
 
+<br />
+
 ## Requirements
 - Docker >= 19.03.8
 - Docker Compose >= 2.14.0
@@ -23,6 +25,8 @@ counterpart, built with Docker instead of Singularity.
 * [v2.10 to v2.11](./docs/migrating_to_2_11.md)
 
 
+
+<br />
 
 ## `bentoctl`: the BentoV2 command line management tool
 
@@ -76,6 +80,8 @@ For an overview of `bentoctl`'s features, type the following from the root of th
 > [PyCharm instructions](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html) for IDE setup.
 
 
+
+<br />
 
 ## Installation
 
@@ -148,7 +154,7 @@ Bento's clinical/phenotypic metadata service:
 cp ./etc/katsu.config.example.json ./lib/katsu/config.json
 ```
 
-<br />
+
 
 ### 2. *Development only:* create self-signed TLS certificates 
 
@@ -340,9 +346,9 @@ https://portal.bentov2.local/api/gohan/genes/ingestion/requests
 https://portal.bentov2.local/api/gohan/genes/overview
 ```
 
+
+
 <br />
-
-
 
 ## Development
 
@@ -385,9 +391,8 @@ You will then have `repos/web` available for the `./bentoctl.bash work-on web` c
 > run `./bentoctl.bash shell web` to access the container, and then run `npm run watch` manually.
 
 
+
 <br />
-
-
 
 ## Testing
 
@@ -402,6 +407,8 @@ make run-tests
 This will run a set of both unit `(TODO)` and integration tests. See the `Makefile` for more details
 
 
+
+<br />
 
 ## Troubleshooting
 
