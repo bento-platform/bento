@@ -37,7 +37,7 @@ This CLI is specifyed by a Python module, `py_bentoctl`, lauched by a Bash scrip
 
 The `bentoctl` script depends on python packages, we recommend using a virtual environment for this.
 
-```
+```bash
 # Create a venv under ./env
 python3 -m venv env
 
@@ -54,7 +54,8 @@ in your `.bash_aliases`, `.bash_profile` or `.zshrc` file:
 **Bash/ZSH:** `alias bentoctl="./bentoctl.bash"`
 
 For a quick setup, use the following to append the alias to the file of your choice.
-```
+
+```bash
 # Optional: create an alias for bentoctl (run from project's root)
 echo "alias bentoctl=${PWD}/bentoctl.bash" > ~/.bash_aliases
 
@@ -66,7 +67,7 @@ bentoctl --help
 
 For an overview of `bentoctl`'s features, type the following from the root of the project:
 
-```
+```bash
 ./bentoctl.bash
 ```
 
@@ -78,10 +79,14 @@ For an overview of `bentoctl`'s features, type the following from the root of th
 
 ## Installation
 
-### Provision configuration files
+### 1. Provision configuration files
 
-Depending on your use either development or deployment you will need to cp the right template file
-```
+#### Instance-specific environment variable file: `local.env`
+
+Depending on your use, development or deployment, you will need to copy the right template file
+to `local.env` in the root of the `bentoV2` folder:
+
+```bash
 # Dev
 cp ./etc/bento_dev.env local.env
 
@@ -89,18 +94,11 @@ cp ./etc/bento_dev.env local.env
 cp ./etc/bento_deploy.env local.env
 ```
 
-Then, run --
-```
-# public service configuration file. Required if BENTOV2_USE_BENTO_PUBLIC flag is set to `1`
-# See Katsu documentation for more information about the specifications
-cp ./etc/katsu.config.example.json ./lib/katsu/config.json
-```
-
--then modify the values as seen applicable..
+Then, modify the values as seen .
 For example;
 
-```
-local.env
+```bash
+# in local.env:
 
 BENTOV2_DOMAIN=bentov2.local
 BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
@@ -112,30 +110,47 @@ BENTOV2_USE_EXTERNAL_IDP=0
 BENTOV2_USE_BENTO_PUBLIC=1
 BENTOV2_PRIVATE_MODE=false
 
+# set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
 BENTOV2_ROOT_DATA_DIR=~/bentov2/data
 ```
-If the internal IdP is being used (by default, Keycloak), credential variables should also be provided. The *admin* 
-credentials are used to connect to the Keycloak UI for authentication management (adding users, getting client 
-credentials,...). The *test* credentials will be used to authenticate on the Bento Portal.
 
-```
+If the internal OIDC identity provider (IdP) is being used (by default, Keycloak), variables specifying default 
+credentials should also be provided. The *admin* credentials are used to connect to the Keycloak UI for authentication 
+management (adding users, getting client credentials, ...). The *test* credentials will be used to authenticate on the 
+Bento Portal.
+
+```bash
 BENTOV2_AUTH_ADMIN_USER=testadmin
 BENTOV2_AUTH_ADMIN_PASSWORD=testpassword123
 
 BENTOV2_AUTH_TEST_USER=testuser
 BENTOV2_AUTH_TEST_PASSWORD=testpassword123
 ```
-Otherwise, adjust the following AUTH variables according to the extenal IdP's specifications;
-```
+
+If using an *external* identity provider, adjust the following AUTH variables according to the external IdP's 
+specifications:
+
+```bash
 BENTOV2_AUTH_CLIENT_ID=local_bentov2
 BENTOV2_AUTH_REALM=bentov2
 
 BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
 ```
 
+#### `bento_public` configuration
+
+Then, copy the `bento_public` configuration file to its correct location for use by Katsu, 
+Bento's clinical/phenotypic metadata service:
+
+```bash
+# public service configuration file. Required if BENTOV2_USE_BENTO_PUBLIC flag is set to `1`
+# See Katsu documentation for more information about the specifications
+cp ./etc/katsu.config.example.json ./lib/katsu/config.json
+```
+
 <br />
 
-### *Development only:* create self-signed TLS certificates 
+### 2. *Development only:* create self-signed TLS certificates 
 
 First, set up your local Bento and Keycloak hostnames (something like `bentov2.local`, `portal.bentov2.local`, and 
 `bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development.
@@ -151,7 +166,7 @@ From the project root, run
 > To force an override, simply add the option `--force` / `-f`.
 
 
-### *Development only:* Hosts file configuration
+### 3. *Development only:* Hosts file configuration
 
 Ensure that the local domain names are set in the machines `hosts` file (for Linux users, this is likely 
 `/etc/hosts`, and in Windows, `C:\Windows\System32\drivers\etc\hosts`) pointing to either `localhost`, `127.0.0.1`, 
@@ -173,7 +188,7 @@ Make sure these values match the values in the `.env` file and what was issued i
 specified in the step above.
 
 
-### Initialize and boot the gateway
+### 4. Initialize and boot the gateway
 
 
 > NOTE: `./bentoctl.bash` commands seen here aren't the only tools for operating this cluster. 
@@ -233,7 +248,7 @@ there and paste it in your .env file.
 ![Keycloak UI: get client secret](docs/img/keycloak_client_secret.png)
 
 
-### Additional setup of Bento-Public
+### 5. Additional setup of Bento-Public
 
 After running
 
@@ -243,8 +258,8 @@ After running
 
 Adjust the default translation set as necessary:
 
-```
-lib/public/translations/<en|fr>.json
+```js
+// lib/public/translations/<en|fr>.json
 
 {
   "Age": "Age",
@@ -277,7 +292,7 @@ lib/public/translations/<en|fr>.json
 ```
 
 
-### Start the cluster
+### 6. Start the cluster
 
 ```bash
 ./bentoctl.bash run all
@@ -288,7 +303,7 @@ lib/public/translations/<en|fr>.json
 to run all Bento services.
 
 
-### Stop the cluster
+#### Stopping and cleaning the cluster
 
 Run
 
@@ -308,7 +323,8 @@ To remove the Docker containers, run the following:
 > (depending on data path, e.g., `./data/[auth, drs, katsu]/...` directories)
 
 
-### Gohan Genes 'Catalogue' Setup Tips:
+### 7. Set up Gohan's gene catalogue (*optional*; required for gene querying support)
+
 Upon initial startup of a fresh instance, it may of use, depending on the use-case, to perform the following:
 
 ```
