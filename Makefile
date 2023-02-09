@@ -104,20 +104,6 @@ docker-secrets:
 		docker secret create metadata-db-secret $(PWD)/tmp/secrets/metadata-db-secret
 
 
-
-#>>>
-# run all services
-# - each service runs (and maybe builds) on it's own background process to complete faster
-#<<<
-run-all:
-	$(foreach SERVICE, $(SERVICES), \
-		$(MAKE) run-$(SERVICE) &)
-
-	watch -n 2 'docker ps'
-
-
-
-
 #>>>
 # inspect a specific service
 #<<<
@@ -162,17 +148,6 @@ clean-%:
 #<<<
 clean-all-volume-dirs:
 	sudo rm -r ${BENTOV2_ROOT_DATA_DIR}
-
-#>>>
-# clean docker secrets
-#<<<
-.PHONY: clean-secrets
-clean-secrets:
-	rm -rf $(PWD)/tmp/secrets
-
-	docker secret rm metadata-app-secret
-	docker secret rm metadata-db-user
-	docker secret rm metadata-db-secret
 
 
 #>>>
