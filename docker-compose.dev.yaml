@@ -11,6 +11,8 @@ services:
     image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION_DEV}
     volumes:
       - ./repos/web:/web
+    environment:
+      - BENTO_GIT_REPOSITORY_DIR=/web
     # Execute npm build/install and watch, and
     # nginx "listener" upon container startup
     extends:
@@ -54,6 +56,7 @@ services:
       - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp:ro
     environment:
       - BENTO_DEBUG=True
+      - BENTO_GIT_REPOSITORY_DIR=/app
       - CHORD_DEBUG=True
       - DEBUGGER_PORT=${BENTOV2_KATSU_DEBUGGER_EXTERNAL_PORT}
     ports:
@@ -75,7 +78,7 @@ services:
     image: adminer:4.8.1
     networks:
       - bridge-net
-    container_name: bentov2-katsu-adminer
+    container_name: ${BENTOV2_PREFIX}-katsu-adminer
     restart: unless-stopped
     ports:
       - 8080:8080
@@ -107,6 +110,7 @@ services:
       - CHORD_DEBUG=True
       - FLASK_DEBUG=true
       - DEBUGGER_PORT=${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}
+      - BENTO_GIT_REPOSITORY_DIR=/wes
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes
@@ -124,6 +128,7 @@ services:
     environment:
       - FLASK_DEBUG=true
       - DEBUGGER_PORT=${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}
+      - BENTO_GIT_REPOSITORY_DIR=/drs
     networks:
       - bridge-net
     extends:
@@ -133,7 +138,7 @@ services:
       - "${BENTOV2_DRS_EXTERNAL_PORT}:5000"
       - "${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_DRS_DEBUGGER_INTERNAL_PORT}"
     volumes:
-      - ./repos/drs/chord_drs:/drs/chord_drs
+      - ./repos/drs:/drs
       # Override main drs data directory
       - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/chord_drs/data
       - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp
@@ -147,12 +152,12 @@ services:
       - CHORD_DEBUG=True
       - BENTO_BEACON_DEBUG=true
       - FLASK_ENV=development
+      - BENTO_GIT_REPOSITORY_DIR=/beacon
     extends:
       file: $PWD/lib/beacon/docker-compose.beacon.yaml
       service: beacon
     volumes:
-      - ./repos/beacon/bento_beacon:/beacon/bento_beacon
-      - ./repos/beacon/config:/config
+      - ./repos/beacon:/beacon
     ports:
       - "${BENTO_BEACON_EXTERNAL_PORT}:${BENTO_BEACON_INTERNAL_PORT}"
       - "${BENTO_BEACON_DEBUGGER_EXTERNAL_PORT}:${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}"
@@ -160,11 +165,13 @@ services:
   service-registry:
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION_DEV}
     volumes:
-      - ./repos/service-registry/bento_service_registry:/service-registry/bento_service_registry/
-      - ./lib/service-registry/chord_services.json:/service-registry/bento_service_registry/chord_services.json:ro
+      - ./repos/service-registry:/service-registry
+      - ./etc/bento_services.json:/bento_services.json:ro
     environment:
       - FLASK_DEBUG=True
       - BENTO_DEBUG=True
+      - BENTO_SERVICES=/bento_services.json
+      - BENTO_GIT_REPOSITORY_DIR=/service_registry
     extends:
       file: docker-compose.yaml
       service: service-registry
@@ -175,8 +182,9 @@ services:
         # Runtime
         - FLASK_DEBUG=True
         - BENTO_DEBUG=True
+        - BENTO_GIT_REPOSITORY_DIR=/drop-box
       volumes:
-        - ./repos/drop-box/bento_drop_box_service:/drop-box/bento_drop_box_service/
+        - ./repos/drop-box:/drop-box
       extends:
         file: docker-compose.yaml
         service: drop-box
@@ -187,6 +195,7 @@ services:
       # Runtime
       - FLASK_DEBUG=True
       - BENTO_DEBUG=True
+      - BENTO_GIT_REPOSITORY_DIR=/notification
     volumes:
       - ./repos/notification:/notification
     extends:
@@ -197,6 +206,7 @@ services:
     image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION_DEV}
     environment:
       - NODE_ENV=development
+      - BENTO_GIT_REPOSITORY_DIR=/app
     volumes:
       - ./repos/event-relay:/app
     extends:
