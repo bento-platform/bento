@@ -13,8 +13,6 @@ services:
       - ./repos/web:/web
     environment:
       - BENTO_GIT_REPOSITORY_DIR=/web
-    # Execute npm build/install and watch, and
-    # nginx "listener" upon container startup
     extends:
       file: docker-compose.yaml
       service: web
