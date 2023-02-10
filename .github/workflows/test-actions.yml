@@ -41,3 +41,13 @@ jobs:
 
       - name: Show /etc/hosts
         run: cat /etc/hosts
+
+      - name: Add /etc/hosts entries
+        run: |
+          printf "127.0.0.1\tbentov2.local\n" >> /etc/hosts
+          printf "127.0.0.1\tportal.bentov2.local\n" >> /etc/hosts
+          printf "127.0.0.1\tbentov2auth.local\n" >> /etc/hosts
+          cat /etc/hosts
+
+      - name: Run init-all
+        run: ./bentoctl.bash init-all
