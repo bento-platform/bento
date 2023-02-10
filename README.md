@@ -256,15 +256,10 @@ there and paste it in your .env file.
 ![Keycloak UI: get client secret](docs/img/keycloak_client_secret.png)
 
 
-### 5. Additional setup of Bento-Public
+### 5. *Production only:* set up translations for Bento-Public
 
-After running
-
-```bash
-./bentoctl.bash init-web public
-```
-
-Adjust the default translation set as necessary:
+Now that Bento Public has been initialized by either `./bentoctl.bash init-all` or `./bentoctl.bash init-web public`,
+adjust the default translation set as necessary:
 
 ```js
 // lib/public/translations/<en|fr>.json
