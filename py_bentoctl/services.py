@@ -121,7 +121,8 @@ def run_service(compose_service: str):
         err(f"  {compose_service} not in list of services: {DOCKER_COMPOSE_SERVICES}")
         exit(1)
 
-    if service_state.get(compose_service, {}).get("mode") == MODE_LOCAL or compose_service in DOCKER_COMPOSE_DEV_SERVICES:
+    if service_state.get(compose_service, {}).get("mode") == MODE_LOCAL or \
+            compose_service in DOCKER_COMPOSE_DEV_SERVICES:
         _run_service_in_local_mode(compose_service)
     else:
         _run_service_in_local_mode(compose_service)
