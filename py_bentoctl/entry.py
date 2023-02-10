@@ -222,24 +222,24 @@ class InitDocker(SubCommand):
         oh.init_docker()
 
 
-class InitSecrets(SubCommand):
+# class InitSecrets(SubCommand):
+#
+#     @staticmethod
+#     def add_args(sp):
+#         sp.add_argument(
+#             "--force", "-f", action="store_true",
+#             help="Removes all previously created secrets before creating new ones.")
+#
+#     @staticmethod
+#     def exec(args):
+#         return oh.init_secrets(args.force)
 
-    @staticmethod
-    def add_args(sp):
-        sp.add_argument(
-            "--force", "-f", action="store_true",
-            help="Removes all previously created secrets before creating new ones.")
 
-    @staticmethod
-    def exec(args):
-        return oh.init_secrets(args.force)
-
-
-class CleanSecrets(SubCommand):
-
-    @staticmethod
-    def exec(args):
-        return oh.clean_secrets()
+# class CleanSecrets(SubCommand):
+#
+#     @staticmethod
+#     def exec(args):
+#         return oh.clean_secrets()
 
 
 class InitWeb(SubCommand):
@@ -268,7 +268,7 @@ class InitAll(SubCommand):
         oh.init_self_signed_certs(force=False)
         oh.init_dirs()
         oh.init_docker()
-        oh.init_secrets(force=False)
+        # oh.init_secrets(force=False)
         oh.init_web("private", force=False)
         oh.init_web("public", force=False)
 
@@ -305,13 +305,13 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
     _add_subparser("init-certs", "Initialize ssl certificates for bentov2 gateway domains.", InitCerts)
     _add_subparser("init-docker", "Init Docker swarm and networks.", InitDocker)
-    _add_subparser("init-secrets", "Init Docker secrets", InitSecrets)
+    # _add_subparser("init-secrets", "Init Docker secrets", InitSecrets)
     _add_subparser("init-web", "Init web app (public or private) files", InitWeb)
     _add_subparser(
         "init-all",
         "Initialize certs, directories, Docker swarm/networks, secrets, and web portals. DOES NOT initialize Keycloak.",
         InitAll)
-    _add_subparser("clean-secrets", "Clean Docker secrets", CleanSecrets)
+    # _add_subparser("clean-secrets", "Clean Docker secrets", CleanSecrets)
 
     # Service commands
     _add_subparser("run", "Run Bento services.", Run, aliases=["start"])

@@ -9,7 +9,15 @@ import docker.errors
 from termcolor import cprint
 
 from .openssl import _create_cert, _create_private_key
-from .utils import task_print, task_print_done, info, warn, err
+from .utils import task_print, task_print_done, warn, err
+
+
+__all__ = [
+    "init_web",
+    "init_docker",
+    "init_dirs",
+    "init_self_signed_certs",
+]
 
 
 def init_web(service: str, force: bool):
@@ -184,15 +192,15 @@ def init_docker():
     client: docker.DockerClient = docker.from_env()
 
     # Init swarm
-
-    try:
-        task_print("Initializing Docker Swarm, if necessary...")
-        swarm_id = client.swarm.init()
-        task_print_done()
-        info(f"Swarm ID: {swarm_id}")
-    except docker.errors.APIError:
-        warn(" error encountered, skipping.")  # continues on the task_print line
-        warn("    Likely due to Docker already being in Swarm mode.")
+    #
+    # try:
+    #     task_print("Initializing Docker Swarm, if necessary...")
+    #     swarm_id = client.swarm.init()
+    #     task_print_done()
+    #     info(f"Swarm ID: {swarm_id}")
+    # except docker.errors.APIError as e:
+    #     warn(" error encountered, skipping.")  # continues on the task_print line
+    #     warn(f"    Likely due to Docker already being in Swarm mode ({e})")
 
     # Init Docker network(s)
 
@@ -206,62 +214,62 @@ def init_docker():
         task_print_done("network created.")
 
 
-def init_secrets(force: bool):
-    client = docker.from_env()
-    katsu_vars = {
-        "user": {
-            "env_var": "BENTOV2_KATSU_DB_USER",
-            "secret_name": "metadata-db-user"
-        },
-        "pw": {
-            "env_var": "BENTOV2_KATSU_DB_PASSWORD",
-            "secret_name": "metadata-db-secret"
-        },
-        "secret": {
-            "env_var": "BENTOV2_KATSU_DB_APP_SECRET",
-            "secret_name": "metadata-app-secret"
-        }
-    }
-
-    for secret_type in katsu_vars.keys():
-        env_var, secret_name = katsu_vars[secret_type].values()
-        val = os.getenv(env_var)
-        val_bytes = bytes(val, "UTF-8")
-        path = (pathlib.Path.cwd() / "tmp" / "secrets" / secret_name)
-
-        task_print(f"Creating secret for {secret_type}: {secret_name} ...")
-
-        existing_secrets = [scrt for scrt in client.secrets.list(filters={"name": secret_name}) if scrt is not None]
-
-        if not existing_secrets:
-            with open(path, "wb") as f:
-                f.write(val_bytes)
-            client.secrets.create(name=secret_name, data=val_bytes)
-            task_print_done()
-
-        elif force:
-            for scrt in existing_secrets:
-                client.api.remove_secret(scrt.id)
-            with open(path, "wb") as f:
-                f.write(val_bytes)
-            client.secrets.create(name=secret_name, data=val_bytes)
-            task_print_done()
-
-        else:
-            warn(f"  {secret_name} already exists, skipping.")
-
-    # TODO: Use Hashicorp/Vault for more secure secret mgmt?
-
-
-def clean_secrets():
-    client = docker.from_env()
-    for secret in client.secrets.list():
-        task_print(f"Removing secret: {secret.id} ...")
-        success = client.api.remove_secret(secret.id)
-        if success:
-            task_print_done()
-        else:
-            err("failed.")
+# def init_secrets(force: bool):
+#     client = docker.from_env()
+#     katsu_vars = {
+#         "user": {
+#             "env_var": "BENTOV2_KATSU_DB_USER",
+#             "secret_name": "metadata-db-user"
+#         },
+#         "pw": {
+#             "env_var": "BENTOV2_KATSU_DB_PASSWORD",
+#             "secret_name": "metadata-db-secret"
+#         },
+#         "secret": {
+#             "env_var": "BENTOV2_KATSU_DB_APP_SECRET",
+#             "secret_name": "metadata-app-secret"
+#         }
+#     }
+#
+#     for secret_type in katsu_vars.keys():
+#         env_var, secret_name = katsu_vars[secret_type].values()
+#         val = os.getenv(env_var)
+#         val_bytes = bytes(val, "UTF-8")
+#         path = (pathlib.Path.cwd() / "tmp" / "secrets" / secret_name)
+#
+#         task_print(f"Creating secret for {secret_type}: {secret_name} ...")
+#
+#         existing_secrets = [scrt for scrt in client.secrets.list(filters={"name": secret_name}) if scrt is not None]
+#
+#         if not existing_secrets:
+#             with open(path, "wb") as f:
+#                 f.write(val_bytes)
+#             client.secrets.create(name=secret_name, data=val_bytes)
+#             task_print_done()
+#
+#         elif force:
+#             for scrt in existing_secrets:
+#                 client.api.remove_secret(scrt.id)
+#             with open(path, "wb") as f:
+#                 f.write(val_bytes)
+#             client.secrets.create(name=secret_name, data=val_bytes)
+#             task_print_done()
+#
+#         else:
+#             warn(f"  {secret_name} already exists, skipping.")
+#
+#     # TODO: Use Hashicorp/Vault for more secure secret mgmt?
+#
+#
+# def clean_secrets():
+#     client = docker.from_env()
+#     for secret in client.secrets.list():
+#         task_print(f"Removing secret: {secret.id} ...")
+#         success = client.api.remove_secret(secret.id)
+#         if success:
+#             task_print_done()
+#         else:
+#             err("failed.")
 
 
 def clean_logs():

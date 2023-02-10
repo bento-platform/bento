@@ -1,10 +1,10 @@
-secrets:
-  metadata-app-secret:
-    file: $PWD/tmp/secrets/metadata-app-secret
-  metadata-db-user:
-    file: $PWD/tmp/secrets/metadata-db-user
-  metadata-db-secret:
-    file: $PWD/tmp/secrets/metadata-db-secret
+#secrets:
+#  metadata-app-secret:
+#    file: $PWD/tmp/secrets/metadata-app-secret
+#  metadata-db-user:
+#    file: $PWD/tmp/secrets/metadata-db-user
+#  metadata-db-secret:
+#    file: $PWD/tmp/secrets/metadata-db-secret
 
 services:
   web:
