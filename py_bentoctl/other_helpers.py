@@ -184,14 +184,15 @@ def init_docker():
     client: docker.DockerClient = docker.from_env()
 
     # Init swarm
+
     try:
-        task_print("Initializing docker swarm, if necessary...")
+        task_print("Initializing Docker Swarm, if necessary...")
         swarm_id = client.swarm.init()
         task_print_done()
         info(f"Swarm ID: {swarm_id}")
     except docker.errors.APIError:
         warn(" error encountered, skipping.")  # continues on the task_print line
-        warn("    Likely due to docker already being in a swarm.")
+        warn("    Likely due to Docker already being in Swarm mode.")
 
     # Init Docker network(s)
 
