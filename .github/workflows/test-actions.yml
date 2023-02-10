@@ -1,4 +1,4 @@
-name: Lint
+name: Test
 on:
   push:
     paths:
@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  lint:
+  test_dev_init:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,8 +16,9 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install flake8
-        run: python -m pip install flake8
+      - name: Install bentoctl dependencies
+        run: pip install -r requirements.txt
 
-      - name: Run linter
-        run: flake8 --config py_bentoctl/tox.ini py_bentoctl/
+      - name: Check bentoctl can run
+        run: ./bentoctl.bash --help
+  
