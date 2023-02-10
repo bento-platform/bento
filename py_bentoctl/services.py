@@ -123,9 +123,9 @@ def run_service(compose_service: str):
 
     if service_state.get(compose_service, {}).get("mode") == MODE_LOCAL or \
             compose_service in DOCKER_COMPOSE_DEV_SERVICES:
-        _run_service_in_local_mode(compose_service)
+        _run_service_in_local_mode(compose_service)  # 'dev' / local mode
     else:
-        _run_service_in_local_mode(compose_service)
+        _run_service_in_prebuilt_mode(compose_service)
 
 
 def stop_service(compose_service: str):
