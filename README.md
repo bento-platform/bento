@@ -38,10 +38,10 @@ Makefile.
 
 ### Prerequisites
 
-This CLI is specifyed by a Python module, `py_bentoctl`, lauched by a Bash script, 
+This CLI is specified by a Python module, `py_bentoctl`, launched by a Bash script, 
 `./bentoctl.bash`. The Bash wrapper loads various `.env` files to set up the Bento environment.
 
-The `bentoctl` script depends on python packages, we recommend using a virtual environment for this.
+The `bentoctl` script depends on Python packages, we recommend using a virtual environment for this.
 
 ```bash
 # Create a venv under ./env
@@ -105,6 +105,7 @@ cp ./etc/bento_deploy.env local.env
 Then, modify the values as seen .
 For example;
 
+#TODO: It'd be nice if the snippet below looked more like the real file. It's the same parameters but they're currently in a different order.
 ```bash
 # in local.env:
 
