@@ -226,10 +226,12 @@ specified in the step above.
 # then EDIT YOUR ENVIRONMENT TO INCLUDE THE RESULTING CLIENT SECRET VIA CLIENT_SECRET=... ! after this,
 # restart the gateway:
 ./bentoctl.bash restart gateway
+```
 
-# -----------
-# If using an external identity provider, only start the cluster's gateway
-# after setting CLIENT_SECRET in your local environment file
+**If using an external identity provider**, only start the cluster's gateway
+after setting `CLIENT_SECRET` in your local environment file:
+
+```bash
 ./bentoctl.bash run gateway
 ```
 
@@ -242,11 +244,12 @@ utilize new variables generated during the OIDC configuration.
 > NOTE: by default, the `gateway` service *does* need to be running for this to work as the configuration will pass via 
 > the URL set in the `.env` file which points to the gateway.
 >
-> If you do not plan to use the built-in OIDC provider, you will have to handle the `auth_config` and `instance_config` 
-> manually (see `./etc/auth/..` and `./etc/scripts/..` for further details)
+> If you do not plan to use the built-in OIDC provider, you will have to handle auth configuration manually.
 
-The `CLIENT_SECRET` environment variable must be set using the value provided
-by Keycloak. If `bentoctl` was used, this should have been printed to the console when `init-auth` was run.
+The `CLIENT_SECRET` environment variable must be set using the value provided by Keycloak. If `bentoctl` was used, 
+this should have been printed to the console when `init-auth` was run.
+
+##### If you need to retrieve `CLIENT_SECRET` manually:
 
 Using a browser, connect to the `auth` endpoint (by default `https://bentov2auth.local`) and use the admin 
 credentials from the env file. Once within Keycloak interface, navigate to the *Configure/Clients* menu. Select 
@@ -301,6 +304,7 @@ adjust the default translation set as necessary:
 ./bentoctl.bash run all
 # or
 ./bentoctl.bash run
+# (these are synonymous)
 ```
 
 to run all Bento services.
