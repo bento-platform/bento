@@ -14,7 +14,7 @@ from .config import (
     DOCKER_COMPOSE_SERVICES,
     COMPOSE, BENTO_SERVICES_DATA,
 )
-from .state import MODE_DEV, MODE_PROD, get_state, set_state_services
+from .state import MODE_LOCAL, MODE_PREBUILT, get_state, set_state_services
 from .utils import info, err
 
 __all__ = [
@@ -83,13 +83,13 @@ def check_service_is_compose(compose_service: str):
         exit(1)
 
 
-def _run_service_in_dev_mode(compose_service: str):
-    info(f"Running {compose_service} in development mode...")
+def _run_service_in_local_mode(compose_service: str):
+    info(f"Running {compose_service} in local (development) mode...")
     subprocess.check_call((*compose_with_files_dev, "up", "-d", compose_service))
 
 
-def _run_service_in_prod_mode(compose_service: str):
-    info(f"Running {compose_service} in production mode...")
+def _run_service_in_prebuilt_mode(compose_service: str):
+    info(f"Running {compose_service} in prebuilt (production) mode...")
     subprocess.check_call((*compose_with_files_prod, "up", "-d", compose_service))
 
 
@@ -112,8 +112,8 @@ def run_service(compose_service: str):
         ))
 
         for service, service_settings in service_state.items():
-            if service_settings["mode"] == MODE_DEV:
-                _run_service_in_dev_mode(service)
+            if service_settings["mode"] == MODE_LOCAL:
+                _run_service_in_local_mode(service)
 
         return
 
@@ -121,10 +121,10 @@ def run_service(compose_service: str):
         err(f"  {compose_service} not in list of services: {DOCKER_COMPOSE_SERVICES}")
         exit(1)
 
-    if service_state.get(compose_service, {}).get("mode") == MODE_DEV or compose_service in DOCKER_COMPOSE_DEV_SERVICES:
-        _run_service_in_dev_mode(compose_service)
+    if service_state.get(compose_service, {}).get("mode") == MODE_LOCAL or compose_service in DOCKER_COMPOSE_DEV_SERVICES:
+        _run_service_in_local_mode(compose_service)
     else:
-        _run_service_in_dev_mode(compose_service)
+        _run_service_in_local_mode(compose_service)
 
 
 def stop_service(compose_service: str):
@@ -188,7 +188,7 @@ def work_on_service(compose_service: str):
         **service_state,
         compose_service: {
             **service_state[compose_service],
-            "mode": MODE_DEV,
+            "mode": MODE_LOCAL,
         },
     })["services"]
 
@@ -199,7 +199,7 @@ def work_on_service(compose_service: str):
     pull_service(compose_service, service_state)
 
     # Start new dev container
-    _run_service_in_dev_mode(compose_service)
+    _run_service_in_local_mode(compose_service)
 
 
 def prod_service(compose_service: str):
@@ -222,7 +222,7 @@ def prod_service(compose_service: str):
         **service_state,
         compose_service: {
             **service_state[compose_service],
-            "mode": MODE_PROD,
+            "mode": MODE_PREBUILT,
         },
     })["services"]
 
@@ -233,7 +233,7 @@ def prod_service(compose_service: str):
     pull_service(compose_service, service_state)
 
     # Start new production container
-    _run_service_in_prod_mode(compose_service)
+    _run_service_in_prebuilt_mode(compose_service)
 
 
 def mode_service(compose_service: str):
@@ -252,9 +252,14 @@ def mode_service(compose_service: str):
         exit(1)
 
     mode = service_state[compose_service]["mode"]
+    colour = "green" if mode == MODE_PREBUILT else "blue"
+    if mode == MODE_PREBUILT:
+        mode += "\t(prod)"
+    else:
+        mode += "\t(dev)"
 
     print(f"{compose_service[:18].rjust(18)} ", end="")
-    cprint(mode, "green" if mode == MODE_PROD else "blue")
+    cprint(mode, colour)
 
 
 def pull_service(compose_service: str, existing_service_state: Optional[dict] = None):
