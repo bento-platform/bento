@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 import pathlib
-import shutil
 import yaml
 
 from typing import Tuple
@@ -38,8 +37,6 @@ MODE = os.getenv("MODE")
 DEV_MODE = MODE == "dev"
 
 COMPOSE: Tuple[str, ...] = ("docker", "compose")
-if shutil.which("docker-compose"):
-    COMPOSE = ("docker-compose",)
 
 # Load base docker-compose services list
 with open(DOCKER_COMPOSE_FILE_BASE) as dcf:
