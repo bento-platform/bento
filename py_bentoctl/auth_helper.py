@@ -250,7 +250,6 @@ def init_auth():
     client_secret = create_web_client_if_needed(access_token)
     cprint(
         f"    Please set CLIENT_SECRET to {client_secret} in local.env and restart the gateway",
-        "black",
         attrs=["bold"])
     success()
 
