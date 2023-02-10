@@ -314,7 +314,7 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("clean-secrets", "Clean Docker secrets", CleanSecrets)
 
     # Service commands
-    _add_subparser("run", "Run Bento services.", Run)
+    _add_subparser("run", "Run Bento services.", Run, aliases=["start"])
     _add_subparser("stop", "Stop Bento services.", Stop)
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
