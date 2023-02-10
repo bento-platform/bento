@@ -44,9 +44,9 @@ jobs:
 
       - name: Add /etc/hosts entries
         run: |
-          printf "127.0.0.1\tbentov2.local\n" >> /etc/hosts
-          printf "127.0.0.1\tportal.bentov2.local\n" >> /etc/hosts
-          printf "127.0.0.1\tbentov2auth.local\n" >> /etc/hosts
+          printf "127.0.0.1\tbentov2.local\n" | sudo tee -a /etc/hosts
+          printf "127.0.0.1\tportal.bentov2.local\n" | sudo tee -a /etc/hosts
+          printf "127.0.0.1\tbentov2auth.local\n" | sudo tee -a /etc/hosts
           cat /etc/hosts
 
       - name: Run init-all
