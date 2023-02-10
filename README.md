@@ -104,6 +104,9 @@ cp ./etc/bento_deploy.env local.env
 
 Then, modify the values as seen; depending on if you're using the instance for development or deployment.
 
+
+##### Development example
+
 The below is an example of a completed development configuration:
 
 ```bash
@@ -111,14 +114,20 @@ The below is an example of a completed development configuration:
 
 MODE=dev
 
-# Feature switches
+# Gateway/domains -----------------------------------------------------
+BENTOV2_DOMAIN=bentov2.local
+BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
+BENTOV2_AUTH_DOMAIN=bentov2auth.local
+# ---------------------------------------------------------------------
+
+# Feature switches ----------------------------------------------------
 BENTOV2_USE_EXTERNAL_IDP=0
 BENTOV2_USE_BENTO_PUBLIC=1
+BENTOV2_PRIVATE_MODE=false
+# ---------------------------------------------------------------------
 
 # set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
 BENTOV2_ROOT_DATA_DIR=~/bentov2/data
-
-BENTOV2_PRIVATE_MODE=false
 
 # Auth ----------------------------------------------------------------
 #  - Session secret should be set to a unique secure value.
@@ -159,7 +168,7 @@ BENTOV2_AUTH_TEST_USER=testuser
 BENTOV2_AUTH_TEST_PASSWORD=testpassword123
 ```
 
-If using an *external* identity provider, adjust the following AUTH variables according to the external IdP's 
+If using an *external* identity provider, adjust the following auth variables according to the external IdP's 
 specifications:
 
 ```bash
