@@ -102,25 +102,48 @@ cp ./etc/bento_dev.env local.env
 cp ./etc/bento_deploy.env local.env
 ```
 
-Then, modify the values as seen .
-For example;
+Then, modify the values as seen; depending on if you're using the instance for development or deployment.
 
-#TODO: It'd be nice if the snippet below looked more like the real file. It's the same parameters but they're currently in a different order.
+The below is an example of a completed development configuration:
+
 ```bash
 # in local.env:
 
-BENTOV2_DOMAIN=bentov2.local
-BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
-BENTOV2_AUTH_DOMAIN=bentov2auth.local
-
 MODE=dev
 
+# Feature switches
 BENTOV2_USE_EXTERNAL_IDP=0
 BENTOV2_USE_BENTO_PUBLIC=1
-BENTOV2_PRIVATE_MODE=false
 
 # set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
 BENTOV2_ROOT_DATA_DIR=~/bentov2/data
+
+BENTOV2_PRIVATE_MODE=false
+
+# Auth ----------------------------------------------------------------
+#  - Session secret should be set to a unique secure value.
+#    this adds security and allows sessions to exist across gateway restarts.
+#  - Empty by default, to be filled by local.env
+#  - IMPORTANT: set before starting gateway
+BENTOV2_SESSION_SECRET=my-very-secret-session-secret  # !!! ADD SOMETHING MORE SECURE !!!
+
+BENTOV2_AUTH_ADMIN_USER=admin
+BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
+
+BENTOV2_AUTH_TEST_USER=user
+BENTOV2_AUTH_TEST_PASSWORD=user  # !!! obviously for dev only !!!
+
+# Set CLIENT_SECRET *after* Keycloak is up and running; then, restart it.
+CLIENT_SECRET=from-running-init-auth...
+# --------------------------------------------------------------------
+
+BENTOV2_KATSU_APP_SECRET=some-random-phrase-here   # !!! ADD SOMETHING MORE SECURE !!!
+
+# Development settings ------------------------------------------------
+
+# - Git configuration
+BENTO_GIT_NAME=David  # Change this to your name
+BENTO_GIT_EMAIL=do-not-reply@example.org  # Change this to your GitHub account email
 ```
 
 If the internal OIDC identity provider (IdP) is being used (by default, Keycloak), variables specifying default 
