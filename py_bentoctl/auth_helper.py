@@ -34,12 +34,13 @@ AUTH_TEST_PASSWORD = os.getenv("BENTOV2_AUTH_TEST_PASSWORD")
 AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
 
 
-if not AUTH_ADMIN_USER:
-    err("Missing environment value for BENTOV2_AUTH_ADMIN_USER")
-    exit(1)
-
-
 docker_client = docker.from_env()
+
+
+def check_auth_admin_user():
+    if not AUTH_ADMIN_USER:
+        err("Missing environment value for BENTOV2_AUTH_ADMIN_USER")
+        exit(1)
 
 
 def make_keycloak_url(path: str) -> str:
@@ -77,6 +78,8 @@ def keycloak_req(
 
 
 def init_auth():
+    check_auth_admin_user()
+
     def get_session():
         res = keycloak_req(
             "realms/master/protocol/openid-connect/token",
