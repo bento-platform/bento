@@ -76,6 +76,13 @@ alias bentoctl="./bentoctl.bash"
 
 From here, you can use `bentoctl` instead of `./bentoctl.bash` to manage BentoV2.
 
+## Install Docker Compose Plugin (optional)
+On Ubuntu, for example
+```
+apt-get install docker-compose-plugin
+```
+see [this stackoverflow post](https://stackoverflow.com/questions/66514436/difference-between-docker-compose-and-docker-compose)
+
 
 ## Pull new images
 
