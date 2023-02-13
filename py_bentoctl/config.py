@@ -21,6 +21,8 @@ __all__ = [
     "MODE",
     "DEV_MODE",
 
+    "BENTO_GIT_CLONE_HTTPS",
+
     "BENTO_SERVICES_PATH",
     "BENTO_SERVICES_DATA",
 
@@ -35,6 +37,8 @@ USER = os.getenv("USER")
 
 MODE = os.getenv("MODE")
 DEV_MODE = MODE == "dev"
+
+BENTO_GIT_CLONE_HTTPS: bool = os.getenv("BENTO_GIT_CLONE_HTTPS", "0").lower().strip() in ("1", "true")
 
 COMPOSE: Tuple[str, ...] = ("docker", "compose")
 
@@ -66,5 +70,4 @@ with open(BENTO_SERVICES_PATH, "r") as sf:
     BENTO_SERVICES_DATA = json.load(sf)
 
 
-BENTO_ORCHESTRATION_STATE_DB_FILE = os.getenv(
-    "BENTO_ORCHESTRATION_STATE_DB", "./.bentoctl.state.db")
+BENTO_ORCHESTRATION_STATE_DB_FILE = os.getenv("BENTO_ORCHESTRATION_STATE_DB", "./.bentoctl.state.db")

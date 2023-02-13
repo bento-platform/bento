@@ -12,7 +12,9 @@ from .config import (
     DOCKER_COMPOSE_FILE_DEV,
     DOCKER_COMPOSE_FILE_PROD,
     DOCKER_COMPOSE_SERVICES,
-    COMPOSE, BENTO_SERVICES_DATA,
+    COMPOSE,
+    BENTO_SERVICES_DATA,
+    BENTO_GIT_CLONE_HTTPS,
 )
 from .state import MODE_LOCAL, MODE_PREBUILT, get_state, set_state_services
 from .utils import info, err
@@ -180,10 +182,11 @@ def work_on_service(compose_service: str):
     if not (repo_path := pathlib.Path.cwd() /
             "repos" / compose_service).exists():
         # Clone the repository if it doesn't already exist
-        cprint(
-            f"  Cloning {compose_service} repository into repos/ ...", "blue")
-        subprocess.check_call(
-            ("git", "clone", "--recurse-submodules", BENTO_SERVICES_DATA[compose_service]["repository"], repo_path))
+        cprint(f"  Cloning {compose_service} repository into repos/ ...", "blue")
+        repo: str = BENTO_SERVICES_DATA[compose_service]["repository"]
+        if BENTO_GIT_CLONE_HTTPS:
+            repo = repo.replace("git@github.com:", "https://github.com/")
+        subprocess.check_call(("git", "clone", "--recurse-submodules", repo, repo_path))
 
     # Save state change
     service_state = set_state_services({
