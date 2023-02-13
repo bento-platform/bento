@@ -16,7 +16,7 @@ counterpart, built with Docker instead of Singularity.
 
 ## Requirements
 - Docker >= 19.03.8
-- Docker Compose >= 2.14.0
+- Docker Compose >= 2.14.0 (plugin form: you should have the `docker compose` command available, without a dash)
 
 
 
