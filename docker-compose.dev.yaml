@@ -29,6 +29,9 @@ services:
 
   gateway:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION_DEV}
+    volumes:
+      - ./repos/gateway/src:/gateway/src:ro
+      - ./repos/gateway/conf:/gateway/conf:ro
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
     networks:
         bridge-net:
