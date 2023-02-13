@@ -31,6 +31,7 @@ __all__ = [
 BENTO_SERVICES_DATA_BY_KIND = {
     v["service_kind"]: {**v, "compose_id": k}
     for k, v in BENTO_SERVICES_DATA.items()
+    if v.get("service_kind")
 }
 
 
