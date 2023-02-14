@@ -70,6 +70,7 @@ services:
     environment:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
+      - LOG_LEVEL=debug
       - PORT=${BENTOV2_AGGREGATION_INTERNAL_PORT}
       - DEBUGGER_PORT=${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}
     networks:
