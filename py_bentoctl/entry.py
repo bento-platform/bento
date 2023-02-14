@@ -41,9 +41,7 @@ class Run(SubCommand):
         sp.add_argument(
             "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
             help="Service to run, or 'all' to run everything.")
-        sp.add_argument(
-            "--pull", "-p", action="store_true",
-            help="Try to pull the corresponding service image first.")
+        sp.add_argument("--pull", "-p", action="store_true", help="Try to pull the corresponding service image first.")
 
     @staticmethod
     def exec(args):
