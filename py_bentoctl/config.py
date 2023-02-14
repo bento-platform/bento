@@ -10,6 +10,7 @@ from typing import Tuple
 __all__ = [
     "DOCKER_COMPOSE_FILE_BASE",
     "DOCKER_COMPOSE_FILE_DEV",
+    "DOCKER_COMPOSE_FILE_LOCAL",
     "DOCKER_COMPOSE_FILE_PROD",
     "DOCKER_COMPOSE_BASE_DATA",
     "DOCKER_COMPOSE_SERVICES",
@@ -31,6 +32,7 @@ __all__ = [
 
 DOCKER_COMPOSE_FILE_BASE = "./docker-compose.yaml"
 DOCKER_COMPOSE_FILE_DEV = "./docker-compose.dev.yaml"
+DOCKER_COMPOSE_FILE_LOCAL = "./docker-compose.local.yaml"
 DOCKER_COMPOSE_FILE_PROD = "./docker-compose.prod.yaml"
 
 USER = os.getenv("USER")

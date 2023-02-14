@@ -1,24 +1,13 @@
-#secrets:
-#  metadata-app-secret:
-#    file: $PWD/tmp/secrets/metadata-app-secret
-#  metadata-db-user:
-#    file: $PWD/tmp/secrets/metadata-db-user
-#  metadata-db-secret:
-#    file: $PWD/tmp/secrets/metadata-db-secret
+# extends main docker-compose.yml and various service-specific compose files;
+# adds in development/debug environment variables, debugpy ports
 
 services:
   web:
-    image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION_DEV}
-    volumes:
-      - ./repos/web:/web
-    environment:
-      - BENTO_GIT_REPOSITORY_DIR=/web
     extends:
       file: docker-compose.yaml
       service: web
 
   public:
-    image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION_DEV}
     extends:
       file: docker-compose.yaml
       service: public
@@ -28,10 +17,6 @@ services:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
 
   gateway:
-    image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION_DEV}
-    volumes:
-      - ./repos/gateway/src:/gateway/src:ro
-      - ./repos/gateway/conf:/gateway/conf:ro
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
     networks:
         bridge-net:
@@ -44,7 +29,6 @@ services:
       service: gateway
 
   katsu:
-    image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION_DEV}
     networks:
       - bridge-net
     depends_on:
@@ -53,11 +37,9 @@ services:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu
     volumes:
-      - ./repos/katsu:/app
       - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp:ro
     environment:
       - BENTO_DEBUG=True
-      - BENTO_GIT_REPOSITORY_DIR=/app
       - CHORD_DEBUG=True
       - DEBUGGER_PORT=${BENTOV2_KATSU_DEBUGGER_EXTERNAL_PORT}
     ports:
@@ -85,7 +67,6 @@ services:
       - 8080:8080
 
   aggregation:
-    image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION_DEV}
     environment:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
@@ -96,14 +77,11 @@ services:
     extends:
       file: $PWD/lib/aggregation/docker-compose.aggregation.yaml
       service: aggregation
-    volumes:
-      - ./repos/aggregation/bento_aggregation_service:/aggregation/bento_aggregation_service
     ports:
       - "${BENTOV2_AGGREGATION_EXTERNAL_PORT}:${BENTOV2_AGGREGATION_INTERNAL_PORT}"
       - "${BENTOV2_AGGREGATION_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}"
 
   wes:
-    image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION_DEV}
     networks:
       - bridge-net
     environment:
@@ -111,12 +89,10 @@ services:
       - CHORD_DEBUG=True
       - FLASK_DEBUG=true
       - DEBUGGER_PORT=${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}
-      - BENTO_GIT_REPOSITORY_DIR=/wes
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes
     volumes:
-      - ./repos/wes:/wes
       - ${BENTOV2_WES_DEV_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_DEV_VOL_TMP_DIR}:/wes/tmp
       - ${BENTOV2_WES_DEV_DROP_BOX_VOL_DIR}:/data
@@ -125,11 +101,9 @@ services:
       - "${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_WES_DEBUGGER_INTERNAL_PORT}"
 
   drs:
-    image: ${BENTOV2_DRS_IMAGE}:${BENTOV2_DRS_VERSION_DEV}
     environment:
       - FLASK_DEBUG=true
       - DEBUGGER_PORT=${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}
-      - BENTO_GIT_REPOSITORY_DIR=/drs
     networks:
       - bridge-net
     extends:
@@ -139,13 +113,10 @@ services:
       - "${BENTOV2_DRS_EXTERNAL_PORT}:5000"
       - "${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_DRS_DEBUGGER_INTERNAL_PORT}"
     volumes:
-      - ./repos/drs:/drs
       # Override main drs data directory
       - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/chord_drs/data
-      - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp
 
   beacon:
-    image: ${BENTO_BEACON_IMAGE}:${BENTO_BEACON_VERSION_DEV}
     networks:
       - bridge-net
     environment:
@@ -153,63 +124,45 @@ services:
       - CHORD_DEBUG=True
       - BENTO_BEACON_DEBUG=true
       - FLASK_ENV=development
-      - BENTO_GIT_REPOSITORY_DIR=/beacon
     extends:
       file: $PWD/lib/beacon/docker-compose.beacon.yaml
       service: beacon
-    volumes:
-      - ./repos/beacon:/beacon
     ports:
       - "${BENTO_BEACON_EXTERNAL_PORT}:${BENTO_BEACON_INTERNAL_PORT}"
       - "${BENTO_BEACON_DEBUGGER_EXTERNAL_PORT}:${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}"
 
   service-registry:
-    image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION_DEV}
-    volumes:
-      - ./repos/service-registry:/service-registry
-      - ./etc/bento_services.json:/bento_services.json:ro
     environment:
       - FLASK_DEBUG=True
       - BENTO_DEBUG=True
-      - BENTO_SERVICES=/bento_services.json
-      - BENTO_GIT_REPOSITORY_DIR=/service_registry
     extends:
       file: docker-compose.yaml
       service: service-registry
 
   drop-box:
-      image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION_DEV}
-      environment:
-        # Runtime
-        - FLASK_DEBUG=True
-        - BENTO_DEBUG=True
-        - BENTO_GIT_REPOSITORY_DIR=/drop-box
-      volumes:
-        - ./repos/drop-box:/drop-box
-      extends:
-        file: docker-compose.yaml
-        service: drop-box
-
-  notification:
-    image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION_DEV}
     environment:
       # Runtime
       - FLASK_DEBUG=True
       - BENTO_DEBUG=True
-      - BENTO_GIT_REPOSITORY_DIR=/notification
+      - BENTO_GIT_REPOSITORY_DIR=/drop-box
     volumes:
-      - ./repos/notification:/notification
+      - ./repos/drop-box:/drop-box
+    extends:
+      file: docker-compose.yaml
+      service: drop-box
+
+  notification:
+    environment:
+      # Runtime
+      - FLASK_DEBUG=True
+      - BENTO_DEBUG=True
     extends:
       file: docker-compose.yaml
       service: notification
 
   event-relay:
-    image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION_DEV}
     environment:
       - NODE_ENV=development
-      - BENTO_GIT_REPOSITORY_DIR=/app
-    volumes:
-      - ./repos/event-relay:/app
     extends:
       file: docker-compose.yaml
       service: event-relay

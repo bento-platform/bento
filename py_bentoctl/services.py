@@ -10,8 +10,10 @@ from .config import (
     DOCKER_COMPOSE_DEV_SERVICES,
     DOCKER_COMPOSE_FILE_BASE,
     DOCKER_COMPOSE_FILE_DEV,
+    DOCKER_COMPOSE_FILE_LOCAL,
     DOCKER_COMPOSE_FILE_PROD,
     DOCKER_COMPOSE_SERVICES,
+    DEV_MODE,
     COMPOSE,
     BENTO_SERVICES_DATA,
     BENTO_GIT_CLONE_HTTPS,
@@ -38,6 +40,8 @@ BENTO_SERVICES_DATA_BY_KIND = {
 
 
 compose_with_files_dev = (*COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_DEV)
+compose_with_files_dev_and_local = (
+    *COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_DEV, "-f", DOCKER_COMPOSE_FILE_LOCAL)
 compose_with_files_prod = (*COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_PROD)
 
 
@@ -88,12 +92,14 @@ def check_service_is_compose(compose_service: str):
 
 def _run_service_in_local_mode(compose_service: str):
     info(f"Running {compose_service} in local (development) mode...")
-    subprocess.check_call((*compose_with_files_dev, "up", "-d", compose_service))
+    subprocess.check_call((*compose_with_files_dev_and_local, "up", "-d", compose_service))
 
 
 def _run_service_in_prebuilt_mode(compose_service: str):
-    info(f"Running {compose_service} in prebuilt (production) mode...")
-    subprocess.check_call((*compose_with_files_prod, "up", "-d", compose_service))
+    info(f"Running {compose_service} in prebuilt ({'development' if DEV_MODE else 'production'}) mode...")
+
+    compose_files = compose_with_files_dev if DEV_MODE else compose_with_files_prod
+    subprocess.check_call((*compose_files, "up", "-d", compose_service))
 
 
 def run_service(compose_service: str):
@@ -106,11 +112,11 @@ def run_service(compose_service: str):
     if compose_service == "all":
         # special: run everything
         subprocess.check_call((
-            *compose_with_files_prod,
+            *(compose_with_files_dev if DEV_MODE else compose_with_files_prod),
             "up", "-d",
             *(
                 s for s in DOCKER_COMPOSE_SERVICES
-                if service_state.get(s, {}).get("mode") != "dev" and s not in DOCKER_COMPOSE_DEV_SERVICES
+                if service_state.get(s, {}).get("mode") != MODE_LOCAL and s not in DOCKER_COMPOSE_DEV_SERVICES
             )
         ))
 
@@ -258,7 +264,7 @@ def mode_service(compose_service: str):
 
     mode = service_state[compose_service]["mode"]
     colour = "green" if mode == MODE_PREBUILT else "blue"
-    if mode == MODE_PREBUILT:
+    if mode == MODE_PREBUILT and not DEV_MODE:
         mode += "\t(prod)"
     else:
         mode += "\t(dev)"
