@@ -144,9 +144,6 @@ services:
       # Runtime
       - FLASK_DEBUG=True
       - BENTO_DEBUG=True
-      - BENTO_GIT_REPOSITORY_DIR=/drop-box
-    volumes:
-      - ./repos/drop-box:/drop-box
     extends:
       file: docker-compose.yaml
       service: drop-box
