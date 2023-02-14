@@ -23,6 +23,7 @@ services:
       - DJANGO_SETTINGS_MODULE=chord_metadata_service.metadata.settings
       - BENTOV2_PORTAL_DOMAIN=${BENTOV2_PORTAL_DOMAIN}
       - HOST_CONTAINER_NAME=${BENTOV2_KATSU_CONTAINER_NAME}
+      - KATSU_ALLOWED_HOSTS=localhost  # Additional allowed host for healthchecks
     # configs:
     #   - source: chord-metadata-settings
     #     target: /katsu/metadata/settings.py
