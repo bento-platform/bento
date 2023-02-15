@@ -185,14 +185,17 @@ def work_on_service(compose_service: str):
         err(f"  {compose_service} not in bento_services.json: {list(BENTO_SERVICES_DATA.keys())}")
         exit(1)
 
-    if not (repo_path := pathlib.Path.cwd() /
-            "repos" / compose_service).exists():
+    repo_path = pathlib.Path.cwd() / "repos" / compose_service
+    if not repo_path.exists():
         # Clone the repository if it doesn't already exist
         cprint(f"  Cloning {compose_service} repository into repos/ ...", "blue")
         repo: str = BENTO_SERVICES_DATA[compose_service]["repository"]
         if BENTO_GIT_CLONE_HTTPS:
             repo = repo.replace("git@github.com:", "https://github.com/")
         subprocess.check_call(("git", "clone", "--recurse-submodules", repo, repo_path))
+    else:
+        # If the repository already exists, fetch tags to make sure we have any latest release tags
+        subprocess.call(("git", "fetch", "--tags"), cwd=repo_path)
 
     # Save state change
     service_state = set_state_services({
