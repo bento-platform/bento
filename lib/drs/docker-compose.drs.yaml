@@ -21,6 +21,6 @@ services:
     cpus: ${BENTOV2_DRS_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:${BENTOV2_DRS_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_DRS_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
