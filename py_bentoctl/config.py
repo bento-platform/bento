@@ -22,6 +22,10 @@ __all__ = [
     "MODE",
     "DEV_MODE",
 
+    "BENTOV2_USE_EXTERNAL_IDP",
+    "BENTOV2_USE_BENTO_PUBLIC",
+    "BENTO_CBIOPORTAL_ENABLED",
+
     "BENTO_GIT_CLONE_HTTPS",
 
     "BENTO_SERVICES_PATH",
@@ -39,6 +43,15 @@ USER = os.getenv("USER")
 
 MODE = os.getenv("MODE")
 DEV_MODE = MODE == "dev"
+
+
+def _env_get_bool(var: str, default: bool = False) -> bool:
+    return os.getenv(var, str(default).lower()).lower().strip() in ("1", "true")
+
+
+BENTOV2_USE_EXTERNAL_IDP: bool = _env_get_bool("BENTOV2_USE_BENTO_PUBLIC", default=False)
+BENTOV2_USE_BENTO_PUBLIC: bool = _env_get_bool("BENTOV2_USE_BENTO_PUBLIC", default=True)
+BENTO_CBIOPORTAL_ENABLED: bool = _env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False)
 
 BENTO_GIT_CLONE_HTTPS: bool = os.getenv("BENTO_GIT_CLONE_HTTPS", "0").lower().strip() in ("1", "true")
 
