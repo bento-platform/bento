@@ -86,7 +86,7 @@ class Clean(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
             help="Service to clean, or 'all' to clean everything.")
 
     @staticmethod
