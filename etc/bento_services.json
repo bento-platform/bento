@@ -72,5 +72,8 @@
     "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
     "repository": "git@github.com:bento-platform/bento_beacon.git",
     "data_service": false
+  },
+  "gateway": {
+    "repository": "git@github.com:bento-platform/bento_gateway.git"
   }
 }

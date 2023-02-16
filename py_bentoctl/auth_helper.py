@@ -4,7 +4,6 @@ import docker
 import os
 import requests
 import subprocess
-import sys
 import urllib3
 
 from termcolor import cprint
@@ -12,7 +11,7 @@ from termcolor import cprint
 from typing import Optional
 
 from .config import COMPOSE, DEV_MODE
-from .utils import err
+from .utils import info, warn, err
 
 __all__ = ["init_auth"]
 
@@ -35,12 +34,13 @@ AUTH_TEST_PASSWORD = os.getenv("BENTOV2_AUTH_TEST_PASSWORD")
 AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
 
 
-if not AUTH_ADMIN_USER:
-    err("Missing environment value for BENTOV2_AUTH_ADMIN_USER")
-    exit(1)
-
-
 docker_client = docker.from_env()
+
+
+def check_auth_admin_user():
+    if not AUTH_ADMIN_USER:
+        err("Missing environment value for BENTOV2_AUTH_ADMIN_USER")
+        exit(1)
 
 
 def make_keycloak_url(path: str) -> str:
@@ -78,6 +78,8 @@ def keycloak_req(
 
 
 def init_auth():
+    check_auth_admin_user()
+
     def get_session():
         res = keycloak_req(
             "realms/master/protocol/openid-connect/token",
@@ -105,9 +107,7 @@ def init_auth():
 
         for r in existing_realms:
             if r["realm"] == AUTH_REALM:
-                cprint(
-                    f"    Found existing realm: {AUTH_REALM}; using that.",
-                    "yellow")
+                warn(f"    Found existing realm: {AUTH_REALM}; using that.")
                 return
 
         create_realm_res = keycloak_req(
@@ -122,10 +122,7 @@ def init_auth():
             })
 
         if not create_realm_res.ok:
-            cprint(
-                f"    Failed to create realm: {AUTH_REALM}; {create_realm_res.json()}",
-                "red",
-                file=sys.stderr)
+            err(f"    Failed to create realm: {AUTH_REALM}; {create_realm_res.json()}")
             exit(1)
 
     def create_web_client_if_needed(token: str) -> str:
@@ -136,17 +133,12 @@ def init_auth():
             existing_clients = existing_clients_res.json()
 
             if not existing_clients_res.ok:
-                cprint(
-                    f"    Failed to fetch existing clients: {existing_clients}",
-                    "red",
-                    file=sys.stderr)
+                err(f"    Failed to fetch existing clients: {existing_clients}")
                 exit(1)
 
             for c in existing_clients:
                 if c["clientId"] == AUTH_CLIENT_ID:
-                    cprint(
-                        f"    Found existing client: {AUTH_CLIENT_ID}; using that.",
-                        "yellow")
+                    warn(f"    Found existing client: {AUTH_CLIENT_ID}; using that.")
                     return c["id"]
 
             return None
@@ -180,21 +172,16 @@ def init_auth():
                 }
             })
             if not create_client_res.ok:
-                cprint(
-                    f"    Failed to create client: {AUTH_CLIENT_ID}; {create_client_res.json()}",
-                    "red",
-                    file=sys.stderr)
+                err(f"    Failed to create client: {AUTH_CLIENT_ID}; {create_client_res.json()}")
                 exit(1)
 
             client_kc_id = fetch_existing_client_id()
 
         # Fetch and return secret
-        client_secret_res = keycloak_req(
-            f"{p}/{client_kc_id}/client-secret", bearer_token=token)
+        client_secret_res = keycloak_req(f"{p}/{client_kc_id}/client-secret", bearer_token=token)
         client_secret_data = client_secret_res.json()
         if not client_secret_res.ok:
-            cprint(
-                f"    Failed to get client secret for {AUTH_CLIENT_ID}; {client_secret_data}")
+            err(f"    Failed to get client secret for {AUTH_CLIENT_ID}; {client_secret_data}")
             exit(1)
 
         return client_secret_data["value"]
@@ -206,83 +193,77 @@ def init_auth():
         existing_users = existing_users_res.json()
 
         if not existing_users_res.ok:
-            cprint(
-                f"    Failed to fetch existing users: {existing_users}",
-                "red",
-                file=sys.stderr)
+            err(f"    Failed to fetch existing users: {existing_users}")
             exit(1)
 
         for u in existing_users:
             if u["username"] == AUTH_TEST_USER:
-                cprint(
-                    f"    Found existing user: {AUTH_TEST_USER}; using that.",
-                    "yellow")
+                warn(f"    Found existing user: {AUTH_TEST_USER}; using that.")
                 return
 
-        create_user_res = keycloak_req(p,
-                                       bearer_token=token,
-                                       method="post",
-                                       json={"username": AUTH_TEST_USER,
-                                             "enabled": True,
-                                             "credentials": [{"type": "password",
-                                                              "value": AUTH_TEST_PASSWORD,
-                                                              "temporary": False}],
-                                             })
+        create_user_res = keycloak_req(
+            p,
+            bearer_token=token,
+            method="post",
+            json={
+                "username": AUTH_TEST_USER,
+                "enabled": True,
+                "credentials": [
+                    {
+                        "type": "password",
+                        "value": AUTH_TEST_PASSWORD,
+                        "temporary": False
+                    }
+                ],
+            })
         if not create_user_res.ok:
-            cprint(
-                f"    Failed to create user: {AUTH_TEST_USER}; {create_user_res.json()}",
-                "red",
-                file=sys.stderr)
+            err(f"    Failed to create user: {AUTH_TEST_USER}; {create_user_res.json()}")
             exit(1)
 
     def success():
         cprint("    Success.", "green")
 
     if USE_EXTERNAL_IDP in ("1", "true"):
-        print("Using external IdP, skipping setup.")
+        info("Using external IdP, skipping setup.")
         exit(0)
 
-    print(
-        "[bentoctl] Using internal IdP, setting up Keycloak...    (MODE={MODE})")
+    info(f"[bentoctl] Using internal IdP, setting up Keycloak...    (DEV_MODE={DEV_MODE})")
 
     try:
         docker_client.containers.get(AUTH_CONTAINER_NAME)
     except requests.exceptions.HTTPError:
-        print(f"  Starting {AUTH_CONTAINER_NAME}...")
+        info(f"  Starting {AUTH_CONTAINER_NAME}...")
         # Not found, so we need to start it
         subprocess.check_call((*COMPOSE, "up", "-d", "auth"))
         success()
 
-    print(f"  Signing in as {AUTH_ADMIN_USER}...")
+    info(f"  Signing in as {AUTH_ADMIN_USER}...")
     session = get_session()
     access_token = session["access_token"]
     success()
 
-    print(f"  Creating realm: {AUTH_REALM}")
+    info(f"  Creating realm: {AUTH_REALM}")
     create_realm_if_needed(access_token)
     success()
 
-    print(f"  Creating web client: {AUTH_CLIENT_ID}")
+    info(f"  Creating web client: {AUTH_CLIENT_ID}")
     client_secret = create_web_client_if_needed(access_token)
     cprint(
         f"    Please set CLIENT_SECRET to {client_secret} in local.env and restart the gateway",
-        "black",
         attrs=["bold"])
     success()
 
-    print(f"  Creating user: {AUTH_TEST_USER}")
+    info(f"  Creating user: {AUTH_TEST_USER}")
     create_test_user_if_needed(access_token)
     success()
 
-    print("  Restarting the Keycloak container")
+    info("  Restarting the Keycloak container")
     try:
         kc = docker_client.containers.get(AUTH_CONTAINER_NAME)
         kc.restart()
         success()
     except requests.exceptions.HTTPError:
         # Not found
-        cprint(
-            f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?",
-            "red")
+        err(f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?")
 
     cprint("Done.", "green")

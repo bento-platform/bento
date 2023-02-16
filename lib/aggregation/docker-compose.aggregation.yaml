@@ -19,7 +19,7 @@ services:
     cpus: ${BENTOV2_AGGREGATION_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:${BENTOV2_AGGREGATION_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_AGGREGATION_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}

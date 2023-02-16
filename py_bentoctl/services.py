@@ -2,7 +2,6 @@ import docker
 import os
 import pathlib
 import subprocess
-import sys
 
 from termcolor import cprint
 from typing import Dict, Optional, Tuple
@@ -11,11 +10,16 @@ from .config import (
     DOCKER_COMPOSE_DEV_SERVICES,
     DOCKER_COMPOSE_FILE_BASE,
     DOCKER_COMPOSE_FILE_DEV,
+    DOCKER_COMPOSE_FILE_LOCAL,
     DOCKER_COMPOSE_FILE_PROD,
     DOCKER_COMPOSE_SERVICES,
-    COMPOSE, BENTO_SERVICES_DATA,
+    DEV_MODE,
+    COMPOSE,
+    BENTO_SERVICES_DATA,
+    BENTO_GIT_CLONE_HTTPS,
 )
-from .state import MODE_DEV, MODE_PROD, get_state, set_state_services
+from .state import MODE_LOCAL, MODE_PREBUILT, get_state, set_state_services
+from .utils import info, err
 
 __all__ = [
     "run_service",
@@ -31,13 +35,15 @@ __all__ = [
 BENTO_SERVICES_DATA_BY_KIND = {
     v["service_kind"]: {**v, "compose_id": k}
     for k, v in BENTO_SERVICES_DATA.items()
+    if v.get("service_kind")
 }
 
 
-compose_with_files_dev = (
-    *COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_DEV)
-compose_with_files_prod = (
-    *COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_PROD)
+compose_with_files_dev = (*COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_DEV)
+compose_with_files_dev_and_local = (
+    *COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_DEV, "-f", DOCKER_COMPOSE_FILE_LOCAL)
+compose_with_files_prod = (*COMPOSE, "-f", DOCKER_COMPOSE_FILE_BASE, "-f", DOCKER_COMPOSE_FILE_PROD)
+
 
 def _get_compose(service: str):
     # For services that are only in docker-compose.dev.yaml (e.g. adminer)
@@ -63,15 +69,12 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
     "public": ("BENTO_PUBLIC_IMAGE", "BENTO_PUBLIC_VERSION", "BENTO_PUBLIC_VERSION_DEV"),
     "service-registry": ("BENTOV2_SERVICE_REGISTRY_IMAGE", "BENTOV2_SERVICE_REGISTRY_VERSION",
                          "BENTOV2_SERVICE_REGISTRY_VERSION_DEV"),
+    "web": ("BENTOV2_WEB_IMAGE", "BENTOV2_WEB_VERSION", "BENTOV2_WEB_VERSION_DEV"),
     "wes": ("BENTOV2_WES_IMAGE", "BENTOV2_WES_VERSION", "BENTOV2_WES_VERSION_DEV"),
 }
 
 
 docker_client = docker.from_env()
-
-
-def err(msg):
-    cprint(msg, "red", file=sys.stderr)
 
 
 def translate_service_aliases(service: str):
@@ -87,16 +90,16 @@ def check_service_is_compose(compose_service: str):
         exit(1)
 
 
-def _run_service_in_dev_mode(compose_service: str):
-    print(f"Running {compose_service} in development mode...")
-    subprocess.check_call(
-        (*compose_with_files_dev, "up", "-d", compose_service))
+def _run_service_in_local_mode(compose_service: str):
+    info(f"Running {compose_service} in local (development) mode...")
+    subprocess.check_call((*compose_with_files_dev_and_local, "up", "-d", compose_service))
 
 
-def _run_service_in_prod_mode(compose_service: str):
-    print(f"Running {compose_service} in production mode...")
-    subprocess.check_call(
-        (*compose_with_files_prod, "up", "-d", compose_service))
+def _run_service_in_prebuilt_mode(compose_service: str):
+    info(f"Running {compose_service} in prebuilt ({'development' if DEV_MODE else 'production'}) mode...")
+
+    compose_files = compose_with_files_dev if DEV_MODE else compose_with_files_prod
+    subprocess.check_call((*compose_files, "up", "-d", compose_service))
 
 
 def run_service(compose_service: str):
@@ -109,15 +112,17 @@ def run_service(compose_service: str):
     if compose_service == "all":
         # special: run everything
         subprocess.check_call((
-            *compose_with_files_prod,
+            *(compose_with_files_dev if DEV_MODE else compose_with_files_prod),
             "up", "-d",
-            *(s for s in DOCKER_COMPOSE_SERVICES if service_state.get(s, {}).get("mode") != "dev" and (
-                s not in DOCKER_COMPOSE_DEV_SERVICES))
+            *(
+                s for s in DOCKER_COMPOSE_SERVICES
+                if service_state.get(s, {}).get("mode") != MODE_LOCAL and s not in DOCKER_COMPOSE_DEV_SERVICES
+            )
         ))
 
         for service, service_settings in service_state.items():
-            if service_settings["mode"] == MODE_DEV:
-                _run_service_in_dev_mode(service)
+            if service_settings["mode"] == MODE_LOCAL:
+                _run_service_in_local_mode(service)
 
         return
 
@@ -125,11 +130,11 @@ def run_service(compose_service: str):
         err(f"  {compose_service} not in list of services: {DOCKER_COMPOSE_SERVICES}")
         exit(1)
 
-    if service_state.get(compose_service, {}).get("mode") == MODE_DEV or (
-        compose_service in DOCKER_COMPOSE_DEV_SERVICES):
-        _run_service_in_dev_mode(compose_service)
+    if service_state.get(compose_service, {}).get("mode") == MODE_LOCAL or \
+            compose_service in DOCKER_COMPOSE_DEV_SERVICES:
+        _run_service_in_local_mode(compose_service)  # 'dev' / local mode
     else:
-        _run_service_in_dev_mode(compose_service)
+        _run_service_in_prebuilt_mode(compose_service)
 
 
 def stop_service(compose_service: str):
@@ -142,7 +147,7 @@ def stop_service(compose_service: str):
 
     check_service_is_compose(compose_service)
 
-    print(f"Stopping {compose_service}...")
+    info(f"Stopping {compose_service}...")
     subprocess.check_call((*_get_compose(compose_service), "stop", compose_service))
 
 
@@ -162,7 +167,7 @@ def clean_service(compose_service: str):
 
     check_service_is_compose(compose_service)
 
-    print(f"Stopping {compose_service}...")
+    info(f"Stopping {compose_service}...")
     subprocess.check_call((*_get_compose(compose_service), "rm", "-svf", compose_service))
 
 
@@ -180,24 +185,24 @@ def work_on_service(compose_service: str):
         err(f"  {compose_service} not in bento_services.json: {list(BENTO_SERVICES_DATA.keys())}")
         exit(1)
 
-    if not (repo_path := pathlib.Path.cwd() /
-            "repos" / compose_service).exists():
+    repo_path = pathlib.Path.cwd() / "repos" / compose_service
+    if not repo_path.exists():
         # Clone the repository if it doesn't already exist
-        cprint(
-            f"  Cloning {compose_service} repository into repos/ ...", "blue")
-        subprocess.check_call(
-            ("git",
-             "clone",
-             "--recurse-submodules",
-             BENTO_SERVICES_DATA[compose_service]["repository"],
-             repo_path))
+        cprint(f"  Cloning {compose_service} repository into repos/ ...", "blue")
+        repo: str = BENTO_SERVICES_DATA[compose_service]["repository"]
+        if BENTO_GIT_CLONE_HTTPS:
+            repo = repo.replace("git@github.com:", "https://github.com/")
+        subprocess.check_call(("git", "clone", "--recurse-submodules", repo, repo_path))
+    else:
+        # If the repository already exists, fetch tags to make sure we have any latest release tags
+        subprocess.call(("git", "fetch", "--tags"), cwd=repo_path)
 
     # Save state change
     service_state = set_state_services({
         **service_state,
         compose_service: {
             **service_state[compose_service],
-            "mode": MODE_DEV,
+            "mode": MODE_LOCAL,
         },
     })["services"]
 
@@ -208,7 +213,7 @@ def work_on_service(compose_service: str):
     pull_service(compose_service, service_state)
 
     # Start new dev container
-    _run_service_in_dev_mode(compose_service)
+    _run_service_in_local_mode(compose_service)
 
 
 def prod_service(compose_service: str):
@@ -231,7 +236,7 @@ def prod_service(compose_service: str):
         **service_state,
         compose_service: {
             **service_state[compose_service],
-            "mode": MODE_PROD,
+            "mode": MODE_PREBUILT,
         },
     })["services"]
 
@@ -242,7 +247,7 @@ def prod_service(compose_service: str):
     pull_service(compose_service, service_state)
 
     # Start new production container
-    _run_service_in_prod_mode(compose_service)
+    _run_service_in_prebuilt_mode(compose_service)
 
 
 def mode_service(compose_service: str):
@@ -257,18 +262,21 @@ def mode_service(compose_service: str):
         return
 
     if compose_service not in service_state:
-        err(
-            f"  {compose_service} not in state[services] dict: {list(service_state.keys())}")
+        err(f"  {compose_service} not in state[services] dict: {list(service_state.keys())}")
         exit(1)
 
     mode = service_state[compose_service]["mode"]
+    colour = "green" if mode == MODE_PREBUILT else "blue"
+    if mode == MODE_PREBUILT and not DEV_MODE:
+        mode += "\t(prod)"
+    else:
+        mode += "\t(dev)"
 
     print(f"{compose_service[:18].rjust(18)} ", end="")
-    cprint(mode, "green" if mode == MODE_PROD else "blue")
+    cprint(mode, colour)
 
 
-def pull_service(compose_service: str,
-                 existing_service_state: Optional[dict] = None):
+def pull_service(compose_service: str, existing_service_state: Optional[dict] = None):
     compose_service = translate_service_aliases(compose_service)
     service_state = existing_service_state or get_state()["services"]
 
@@ -305,14 +313,13 @@ def pull_service(compose_service: str,
         err(f"  {image_version_var_final} is not set")
         exit(1)
 
-    print(f"Pulling {compose_service} ({image}:{image_version})...")
+    info(f"Pulling {compose_service} ({image}:{image_version})...")
 
     # TODO: Pull dev if in dev mode
     # Use subprocess to get nice output
     subprocess.check_call(("docker", "pull", f"{image}:{image_version}"))
     subprocess.check_call((
-        *(compose_with_files_dev if service_mode ==
-          "dev" else compose_with_files_prod),
+        *(compose_with_files_dev if service_mode == "dev" else compose_with_files_prod),
         "pull", compose_service
     ))
 
@@ -324,8 +331,7 @@ def enter_shell_for_service(compose_service: str, shell: str):
 
     cmd = COMPOSE[0]
     compose_args = COMPOSE[1:]
-    os.execvp(cmd, (cmd, *compose_args, "exec", "-it",
-              compose_service, shell))  # TODO: Detect shell
+    os.execvp(cmd, (cmd, *compose_args, "exec", "-it", compose_service, shell))  # TODO: Detect shell
 
 
 def run_as_shell_for_service(compose_service: str, shell: str):
@@ -344,13 +350,13 @@ def logs_service(compose_service: str, follow: bool):
     compose_service = translate_service_aliases(compose_service)
     extra_args = ("-f",) if follow else ()
 
+    cmd = COMPOSE[0]
+    compose_args = COMPOSE[1:]
+
     if compose_service == "all":
         # special: show all logs
-        subprocess.check_call((*COMPOSE, "logs", *extra_args))
+        os.execvp(cmd, (cmd, *compose_args, "logs", *extra_args))
         return
 
     check_service_is_compose(compose_service)
-
-    cmd = COMPOSE[0]
-    compose_args = COMPOSE[1:]
     os.execvp(cmd, (cmd, *compose_args, "logs", *extra_args, compose_service))
