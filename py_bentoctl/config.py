@@ -68,15 +68,13 @@ if DEV_MODE:
     with open(DOCKER_COMPOSE_FILE_DEV) as dcf_dev:
         DOCKER_COMPOSE_DEV_BASE_DATA = yaml.load(dcf_dev, yaml.Loader)
 
-    DOCKER_COMPOSE_DEV_SERVICES = tuple(
+    DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = tuple(
         service for service in DOCKER_COMPOSE_DEV_BASE_DATA["services"].keys()
         if service not in BASE_SERVICES)
-
-    DOCKER_COMPOSE_SERVICES = BASE_SERVICES + DOCKER_COMPOSE_DEV_SERVICES
-
 else:
-    DOCKER_COMPOSE_SERVICES = BASE_SERVICES
     DOCKER_COMPOSE_DEV_SERVICES = ()
+
+DOCKER_COMPOSE_SERVICES: Tuple[str, ...] = BASE_SERVICES + DOCKER_COMPOSE_DEV_SERVICES
 
 
 BENTO_SERVICES_PATH = os.getenv("BENTO_SERVICES", pathlib.Path(
