@@ -19,7 +19,7 @@ services:
     command: /bin/sh -c "
         java -Xms2g -Xmx4g 
         -Dauthenticate=noauthsessionservice 
-        -Dsession.service.url=http://cbioportal-session:${CBIOPORTAL_SESSION_SERVER_PORT}/api/sessions/my_portal/ 
+        -Dsession.service.url=http://cbioportal-session:${BENTO_CBIOPORTAL_SESSION_SERVER_PORT}/api/sessions/my_portal/ 
         -jar webapp-runner.jar 
         -AmaxHttpHeaderSize=16384 
         -AconnectionTimeout=20000 
@@ -46,9 +46,9 @@ services:
   cbioportal-session:
     restart: unless-stopped
     image: ${BENTO_CBIOPORTAL_SESSION_IMAGE}:${BENTO_CBIOPORTAL_SESSION_IMAGE_VERSION}
-    container_name: ${BENTO_CBIOPORTAL_SESSION_SERVICE_CONTAINER_NAME}
+    container_name: ${BENTO_CBIOPORTAL_SESSION_CONTAINER_NAME}
     environment:
-      SERVER_PORT: ${CBIOPORTAL_SESSION_SERVER_PORT}
+      SERVER_PORT: ${BENTO_CBIOPORTAL_SESSION_SERVER_PORT}
       JAVA_OPTS: -Dspring.data.mongodb.uri=mongodb://${BENTO_CBIOPORTAL_SESSION_DATABASE_CONTAINER_NAME}:27017/session
     networks:
       - bentov2-net-cbioportal
@@ -57,7 +57,7 @@ services:
 
   cbioportal-session-db:
     restart: unless-stopped
-    image: ${CBIOPORTAL_SESSION_DATABASE_IMAGE}:${CBIOPORTAL_SESSION_DATABASE_IMAGE_VERSION}
+    image: ${BENTO_CBIOPORTAL_SESSION_DATABASE_IMAGE}:${BENTO_CBIOPORTAL_SESSION_DATABASE_IMAGE_VERSION}
     container_name: ${BENTO_CBIOPORTAL_SESSION_DATABASE_CONTAINER_NAME}
     environment:
       MONGO_INITDB_DATABASE: session
