@@ -5,7 +5,7 @@ import os
 import pathlib
 import yaml
 
-from typing import Tuple
+from typing import Iterable, Tuple
 
 __all__ = [
     "DOCKER_COMPOSE_FILE_BASE",
@@ -13,8 +13,10 @@ __all__ = [
     "DOCKER_COMPOSE_FILE_LOCAL",
     "DOCKER_COMPOSE_FILE_PROD",
     "DOCKER_COMPOSE_BASE_DATA",
+
     "DOCKER_COMPOSE_SERVICES",
     "DOCKER_COMPOSE_DEV_SERVICES",
+    "DOCKER_COMPOSE_CBIOPORTAL_SERVICES",
 
     "COMPOSE",
     "USER",
@@ -38,6 +40,7 @@ DOCKER_COMPOSE_FILE_BASE = "./docker-compose.yaml"
 DOCKER_COMPOSE_FILE_DEV = "./docker-compose.dev.yaml"
 DOCKER_COMPOSE_FILE_LOCAL = "./docker-compose.local.yaml"
 DOCKER_COMPOSE_FILE_PROD = "./docker-compose.prod.yaml"
+DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL = "./lib/cbioportal/docker-compose.cbioportal.yaml"
 
 USER = os.getenv("USER")
 
@@ -63,18 +66,30 @@ with open(DOCKER_COMPOSE_FILE_BASE) as dcf:
 
 BASE_SERVICES: Tuple[str, ...] = tuple(DOCKER_COMPOSE_BASE_DATA["services"].keys())
 
+
+def _filter_base_services(services: Iterable[str]) -> Tuple[str, ...]:
+    return tuple(service for service in services if service not in BASE_SERVICES)
+
+
 # Load dev docker-compose services list if in DEV_MODE
+DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = ()
 if DEV_MODE:
     with open(DOCKER_COMPOSE_FILE_DEV) as dcf_dev:
         DOCKER_COMPOSE_DEV_BASE_DATA = yaml.load(dcf_dev, yaml.Loader)
+    DOCKER_COMPOSE_DEV_SERVICES = _filter_base_services(DOCKER_COMPOSE_DEV_BASE_DATA["services"].keys())
 
-    DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = tuple(
-        service for service in DOCKER_COMPOSE_DEV_BASE_DATA["services"].keys()
-        if service not in BASE_SERVICES)
-else:
-    DOCKER_COMPOSE_DEV_SERVICES = ()
+DOCKER_COMPOSE_CBIOPORTAL_SERVICES: Tuple[str, ...] = ()
+if BENTO_CBIOPORTAL_ENABLED:
+    with open(DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL) as dcf_cbp:
+        DOCKER_COMPOSE_CBIOPORTAL_BASE_DATA = yaml.load(dcf_cbp, yaml.Loader)
+    DOCKER_COMPOSE_CBIOPORTAL_SERVICES = _filter_base_services(DOCKER_COMPOSE_CBIOPORTAL_BASE_DATA["services"].keys())
 
-DOCKER_COMPOSE_SERVICES: Tuple[str, ...] = BASE_SERVICES + DOCKER_COMPOSE_DEV_SERVICES
+# Final amalgamation of services for Bento taking into account dev/prod mode and feature flags
+DOCKER_COMPOSE_SERVICES: Tuple[str, ...] = (
+    BASE_SERVICES +
+    DOCKER_COMPOSE_DEV_SERVICES +
+    DOCKER_COMPOSE_CBIOPORTAL_SERVICES
+)
 
 
 BENTO_SERVICES_PATH = os.getenv("BENTO_SERVICES", pathlib.Path(

@@ -29,7 +29,7 @@ BENTO_SERVICES_DATA_BY_KIND = {
 
 
 def _get_compose_with_files(dev: bool = False, local: bool = False):
-    with_cbioportal = ("-f", "./lib/cbioportal/docker-compose.cbioportal.yml") if c.BENTO_CBIOPORTAL_ENABLED else ()
+    with_cbioportal = ("-f", c.DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL) if c.BENTO_CBIOPORTAL_ENABLED else ()
 
     if dev:
         return (
@@ -107,8 +107,6 @@ def run_service(compose_service: str):
     compose_service = translate_service_aliases(compose_service)
 
     service_state = get_state()["services"]
-
-    # TODO: Look up dev/prod mode based on compose_service
 
     if compose_service == "all":
         # special: run everything

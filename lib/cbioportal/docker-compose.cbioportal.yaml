@@ -2,6 +2,7 @@ services:
   cbioportal:
     restart: unless-stopped
     image: ${BENTO_CBIOPORTAL_IMAGE}:${BENTO_CBIOPORTAL_IMAGE_VERSION}
+    platform: linux/amd64  # No arm64 build
     container_name: ${BENTO_CBIOPORTAL_CONTAINER_NAME}
     environment:
       SHOW_DEBUG_INFO: "true"
@@ -30,6 +31,7 @@ services:
   cbioportal-db:
     restart: unless-stopped
     image: ${BENTO_CBIOPORTAL_DATABASE_IMAGE}:${BENTO_CBIOPORTAL_DATABASE_IMAGE_VERSION}
+    platform: linux/amd64  # cBioPortal wants MySQL v5.7, which doesn't have an arm64 build
     container_name: ${BENTO_CBIOPORTAL_DATABASE_CONTAINER_NAME}
     environment:
       MYSQL_DATABASE: ${BENTO_CBIOPORTAL_DATABASE_DBNAME}
@@ -46,6 +48,7 @@ services:
   cbioportal-session:
     restart: unless-stopped
     image: ${BENTO_CBIOPORTAL_SESSION_IMAGE}:${BENTO_CBIOPORTAL_SESSION_IMAGE_VERSION}
+    platform: linux/amd64  # No arm64 build
     container_name: ${BENTO_CBIOPORTAL_SESSION_CONTAINER_NAME}
     environment:
       SERVER_PORT: ${BENTO_CBIOPORTAL_SESSION_SERVER_PORT}
