@@ -2,7 +2,8 @@ import os
 import pathlib
 import subprocess
 
-from .utils import info
+from . import config as c
+from .utils import info, err
 
 
 __all__ = [
@@ -27,6 +28,10 @@ CBIOPORTAL_SEED_DB_HG38_PATH = CBIOPORTAL_SEED_DATA_PATH / "seed-hg38.sql.gz"
 
 
 def init_cbioportal():
+    if not c.BENTO_CBIOPORTAL_ENABLED:
+        err("cBioPortal must be enabled in local.env before initialization")
+        exit(1)
+
     if not CBIOPORTAL_SCHEMA_PATH.exists():
         info("cBioPortal schema does not exist; downloading now...")
         subprocess.check_call(("curl", "-L", CBIOPORTAL_SCHEMA_SQL_URL, "-o", str(CBIOPORTAL_SCHEMA_PATH)))

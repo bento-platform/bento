@@ -56,6 +56,11 @@ BENTOV2_USE_EXTERNAL_IDP: bool = _env_get_bool("BENTOV2_USE_BENTO_PUBLIC", defau
 BENTOV2_USE_BENTO_PUBLIC: bool = _env_get_bool("BENTOV2_USE_BENTO_PUBLIC", default=True)
 BENTO_CBIOPORTAL_ENABLED: bool = _env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False)
 
+if not DEV_MODE and BENTO_CBIOPORTAL_ENABLED:
+    import sys
+    print("cBioPortal for production deployments is not finished.", file=sys.stderr)
+    exit(1)
+
 BENTO_GIT_CLONE_HTTPS: bool = os.getenv("BENTO_GIT_CLONE_HTTPS", "0").lower().strip() in ("1", "true")
 
 COMPOSE: Tuple[str, ...] = ("docker", "compose")
