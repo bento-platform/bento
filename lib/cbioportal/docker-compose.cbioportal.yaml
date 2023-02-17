@@ -41,7 +41,7 @@ services:
     volumes:
       - ./lib/cbioportal/seed_data/cgds.sql:/docker-entrypoint-initdb.d/cgds.sql:ro
       - ./lib/cbioportal/seed_data/seed-hg19.sql.gz:/docker-entrypoint-initdb.d/seed-hg19.sql.gz:ro
-      - ./lib/cbioportal/seed_data/seed-hg38.sql.gz:/docker-entrypoint-initdb.d/seed-hg38.sql.gz:ro
+      # - ./lib/cbioportal/seed_data/seed-hg38.sql.gz:/docker-entrypoint-initdb.d/seed-hg38.sql.gz:ro
       - ${BENTO_CBIOPORTAL_DATABASE_DATA_DIR}:/var/lib/mysql
 
   cbioportal-session:
