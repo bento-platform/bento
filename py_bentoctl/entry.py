@@ -7,10 +7,12 @@ from abc import ABC, abstractmethod
 
 from .auth_helper import init_auth
 from .config import DOCKER_COMPOSE_SERVICES, BENTO_SERVICES_DATA
+from . import config as c
+from . import feature_helpers as fh
 from . import services as s
 from . import other_helpers as oh
 
-from typing import List, Optional, Type
+from typing import Optional, Tuple, Type
 
 __version__ = "0.1.0"
 
@@ -47,6 +49,10 @@ class Run(SubCommand):
     def exec(args):
         if args.pull:
             s.pull_service(args.service)
+
+        if c.BENTO_CBIOPORTAL_ENABLED:
+            fh.init_cbioportal()
+
         s.run_service(args.service)
 
 
@@ -293,7 +299,7 @@ def main(args: Optional[list[str]] = None) -> int:
     parser.add_argument("--debug", "-d", action="store_true")
     subparsers = parser.add_subparsers()
 
-    def _add_subparser(arg: str, help_text: str, subcommand: Type[SubCommand], aliases: List[str] = []):
+    def _add_subparser(arg: str, help_text: str, subcommand: Type[SubCommand], aliases: Tuple[str, ...] = ()):
         subparser = subparsers.add_parser(arg, help=help_text, aliases=aliases)
         subparser.set_defaults(func=subcommand.exec)
         subcommand.add_args(subparser)
@@ -312,17 +318,17 @@ def main(args: Optional[list[str]] = None) -> int:
     # _add_subparser("clean-secrets", "Clean Docker secrets", CleanSecrets)
 
     # Service commands
-    _add_subparser("run", "Run Bento services.", Run, aliases=["start"])
+    _add_subparser("run", "Run Bento services.", Run, aliases=("start",))
     _add_subparser("stop", "Stop Bento services.", Stop)
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
-    _add_subparser("work-on", "Work on a specific service in development mode.", WorkOn, aliases=["dev", "develop"])
-    _add_subparser("prod", "Switch a service back to prebuilt/production mode.", Prod, aliases=["prebuilt"])
+    _add_subparser("work-on", "Work on a specific service in development mode.", WorkOn, aliases=("dev", "develop"))
+    _add_subparser("prod", "Switch a service back to prebuilt/production mode.", Prod, aliases=("prebuilt",))
     _add_subparser(
         "mode", "See if a service (or which services) are in production/development mode.", Mode,
-        aliases=["state", "status"])
+        aliases=("state", "status"))
     _add_subparser("pull", "Pull the production image for a specific service.", Pull)
-    _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=["sh"])
+    _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=("sh",))
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
     _add_subparser("logs", "Check logs for a service.", Logs)
 
