@@ -2,11 +2,13 @@
 
 import docker
 import os
+import pathlib
 import requests
 import subprocess
 import urllib3
 
 from termcolor import cprint
+from urllib3.exceptions import InsecureRequestWarning
 
 from typing import Optional
 
@@ -15,7 +17,7 @@ from .utils import info, warn, err
 
 __all__ = ["init_auth"]
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+urllib3.disable_warnings(InsecureRequestWarning)
 
 USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")

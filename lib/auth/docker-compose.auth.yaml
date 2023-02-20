@@ -1,0 +1,48 @@
+services:
+  auth:
+    image: ${BENTOV2_AUTH_IMAGE}:${BENTOV2_AUTH_VERSION}
+    container_name: ${BENTOV2_AUTH_CONTAINER_NAME}
+    command: [ "--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true", "start" ]
+    depends_on:
+      - redis
+      - auth-db
+    expose:
+      - ${BENTOV2_AUTH_INTERNAL_PORT}
+    networks:
+      - bridge-net
+      - auth-db-net
+    volumes:
+      - ${BENTOV2_AUTH_VOL_DIR}:/opt/keycloak/data
+      - ${PWD}/${BENTOV2_CERTS_DIR}/auth_fullchain1.crt:/run/secrets/keycloak-cert-file:ro
+      - ${PWD}/${BENTOV2_CERTS_DIR}/auth_privkey1.key:/run/secrets/keycloak-cert-key-file:ro
+    environment:
+      - KC_HTTP_ENABLED=true
+      - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
+      - KEYCLOAK_ADMIN=${BENTOV2_AUTH_ADMIN_USER}
+      - KEYCLOAK_ADMIN_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
+      - KC_HTTPS_CERTIFICATE_FILE=/run/secrets/keycloak-cert-file
+      - KC_HTTPS_CERTIFICATE_KEY_FILE=/run/secrets/keycloak-cert-key-file
+      - KC_HOSTNAME_STRICT=false
+      - KC_PROXY=passthrough
+    mem_limit: ${BENTOV2_AUTH_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_AUTH_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:8443", "-k" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+
+  auth-db:
+    image: postgres:13
+    container_name: ${BENTOV2_AUTH_DB_CONTAINER_NAME}
+    networks:
+      - auth-db-net
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q" ]
+
+networks:
+  bridge-net:
+    external: true
+  auth-db-net:
+    external: true
+    name: ${BENTO_AUTH_DB_NETWORK}

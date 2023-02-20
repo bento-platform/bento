@@ -93,37 +93,16 @@ services:
 
 
   auth:
-    image: ${BENTOV2_AUTH_IMAGE}:${BENTOV2_AUTH_VERSION}
-    container_name: ${BENTOV2_AUTH_CONTAINER_NAME}
-    command: ["--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true", "start"]
-#    command: ["-b", "${BENTOV2_AUTH_SERVICE_HOST}", "-Dkeycloak.migration.strategy=IGNORE_EXISTING"]
-    depends_on:
-      - redis
-    expose:
-      - ${BENTOV2_AUTH_INTERNAL_PORT}
+    extends:
+      file: ${PWD}/lib/auth/docker-compose.auth.yaml
+      service: auth
     networks:
       - bridge-net
-    volumes:
-      - ${BENTOV2_AUTH_VOL_DIR}:/opt/keycloak/data
-      - ${PWD}/${BENTOV2_CERTS_DIR}/auth_fullchain1.crt:/run/secrets/keycloak-cert-file:ro
-      - ${PWD}/${BENTOV2_CERTS_DIR}/auth_privkey1.key:/run/secrets/keycloak-cert-key-file:ro
-    environment:
-      - KC_HTTP_ENABLED=true
-      - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
-      - KEYCLOAK_ADMIN=${BENTOV2_AUTH_ADMIN_USER}
-      - KEYCLOAK_ADMIN_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
-      - KC_HTTPS_CERTIFICATE_FILE=/run/secrets/keycloak-cert-file
-      - KC_HTTPS_CERTIFICATE_KEY_FILE=/run/secrets/keycloak-cert-key-file
-      - KC_HOSTNAME_STRICT=false
-      - KC_PROXY=passthrough
-    mem_limit: ${BENTOV2_AUTH_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_AUTH_CPUS}
-    cpu_shares: 512
-    healthcheck:
-      test: [ "CMD", "curl", "https://localhost:8443", "-k" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+
+  auth-db:
+    extends:
+      file: ${PWD}/lib/auth/docker-compose.auth.yaml
+      service: auth-db
 
 
   public:
@@ -303,7 +282,6 @@ services:
     extends:
       file: $PWD/lib/aggregation/docker-compose.aggregation.yaml
       service: aggregation
-
 
 
   event-relay:

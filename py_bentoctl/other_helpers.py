@@ -1,6 +1,7 @@
 import os
 import pathlib
 import shutil
+import subprocess
 import sys
 
 import docker
@@ -171,7 +172,7 @@ def init_dirs():
     secrets_dir.mkdir(parents=True, exist_ok=True)
     task_print_done(msg="already exists." if secrets_dir_exists else "done.")
 
-    print("Creating data directories if needed...")
+    print("Creating data directories if needed... this may ask you for your password to set permissions.")
     for dir_for, dir_var in data_dir_vars.items():
         task_print(f"  {dir_for}")
 
@@ -185,6 +186,9 @@ def init_dirs():
         already_exists = data_dir_path.exists()
 
         data_dir_path.mkdir(parents=True, exist_ok=True)
+
+        subprocess.run(("sudo", "chown", "1000:1000"))
+
         task_print_done(msg="already exists." if already_exists else "done.")
 
 
