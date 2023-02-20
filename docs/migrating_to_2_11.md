@@ -152,9 +152,9 @@ make run-web-dev
 ./bentoctl.bash work-on web
 ```
 
-This will automatically restart the service in development mode, using code in `./repos/web`.
+This will automatically restart the service in a local development mode, using code in `./repos/web`.
 
-### Switching a service (e.g., `web`) to production mode
+### Switching a service (e.g., `web`) to pre-built mode
 
 #### Makefile
 
@@ -166,5 +166,8 @@ make run-web
 #### `bentoctl`
 
 ```bash
-./bentoctl.bash prod web
+./bentoctl.bash prebuilt web
 ```
+
+This will start in either production mode (if `MODE=prod` in `local.env`) or development mode, but with a 
+pre-built image, if `MODE=dev`.
