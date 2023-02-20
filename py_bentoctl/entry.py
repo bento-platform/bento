@@ -295,12 +295,12 @@ def main(args: Optional[list[str]] = None) -> int:
     # Generic initialization helpers
     _add_subparser("init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
     _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
-    _add_subparser("init-certs", "Initialize ssl certificates for bentov2 gateway domains.", InitCerts)
+    _add_subparser("init-certs", "Initialize ssl certificates for BentoV2 gateway domains.", InitCerts)
     _add_subparser("init-docker", "Initialize Docker configuration & networks.", InitDocker)
     _add_subparser("init-web", "Init web app (public or private) files", InitWeb)
     _add_subparser(
         "init-all",
-        "Initialize certs, directories, Docker swarm/networks, secrets, and web portals. DOES NOT initialize Keycloak.",
+        "Initialize certs, directories, Docker networks, secrets, and web portals. DOES NOT initialize Keycloak.",
         InitAll)
 
     # Feature-specific initialization commands
