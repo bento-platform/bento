@@ -111,13 +111,13 @@ class WorkOn(SubCommand):
         s.work_on_service(args.service)
 
 
-class Prod(SubCommand):
+class Prebuilt(SubCommand):
 
     @staticmethod
     def add_args(sp):
         sp.add_argument(
             "service", type=str, choices=tuple(BENTO_SERVICES_DATA.keys()),
-            help="Service to switch to production mode.")
+            help="Service to switch to pre-built mode (will use an entirely pre-built image with code).")
 
     @staticmethod
     def exec(args):
@@ -311,8 +311,9 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("stop", "Stop Bento services.", Stop)
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
-    _add_subparser("work-on", "Work on a specific service in development mode.", WorkOn, aliases=("dev", "develop"))
-    _add_subparser("prod", "Switch a service back to prebuilt/production mode.", Prod, aliases=("prebuilt",))
+    _add_subparser(
+        "work-on", "Work on a specific service in a local development mode.", WorkOn, aliases=("dev", "develop"))
+    _add_subparser("prebuilt", "Switch a service back to prebuilt mode.", Prebuilt, aliases=("pre-built", "prod"))
     _add_subparser(
         "mode", "See if a service (or which services) are in production/development mode.", Mode,
         aliases=("state", "status"))
