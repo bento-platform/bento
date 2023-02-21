@@ -290,10 +290,10 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
         err(f"  {compose_service} not in service_image_vars keys: {list(service_image_vars.keys())}")
         exit(1)
 
-    image_var, image_version_var, image_dev_version_var = image_t
+    image_var, image_version_var, image_local_version_var = image_t
     service_mode = service_state.get(compose_service, {}).get("mode")
 
-    image_version_var_final: str = image_dev_version_var if service_mode == "dev" else image_version_var
+    image_version_var_final: str = image_local_version_var if service_mode == MODE_LOCAL else image_version_var
 
     # occurs if in dev mode (somehow) but with no dev image
     if image_version_var_final is None:
