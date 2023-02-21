@@ -3,6 +3,9 @@ services:
   gateway:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION}
     container_name: ${BENTOV2_GATEWAY_CONTAINER_NAME}
+    depends_on:
+      redis:
+        condition: service_healthy
     environment:
       - CHORD_DEBUG=false
       - CHORD_PERMISSIONS=true
