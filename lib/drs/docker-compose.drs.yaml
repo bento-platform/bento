@@ -2,6 +2,7 @@ services:
   drs:
     image: ${BENTOV2_DRS_IMAGE}:${BENTOV2_DRS_VERSION}
     container_name: ${BENTOV2_DRS_CONTAINER_NAME}
+    user: "${BENTO_UID}:${BENTO_GID}"
     environment: 
       # Runtime
       - FLASK_DEBUG=False
@@ -10,12 +11,12 @@ services:
 
       - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
     networks:
-      - bridge-net
+      - drs-net
     expose:
       - ${BENTOV2_DRS_INTERNAL_PORT}
     volumes:
       - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/data
-      - ${BENTOV2_DRS_PROD_WES_VOL_DIR}:/wes/tmp
+      - ${BENTOV2_DRS_PROD_WES_VOL_DIR}:/wes/tmp:ro
       - ${BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR}:${BENTOV2_GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
     mem_limit: ${BENTOV2_DRS_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_DRS_CPUS}
@@ -24,3 +25,8 @@ services:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_DRS_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+
+networks:
+  drs-net:
+    external: true
+    name: ${BENTO_DRS_NETWORK}

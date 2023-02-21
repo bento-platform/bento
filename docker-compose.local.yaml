@@ -16,8 +16,6 @@ services:
     extends:
       file: docker-compose.dev.yaml
       service: public
-    networks:
-      - bridge-net
 
   gateway:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION_DEV}
@@ -30,8 +28,6 @@ services:
 
   katsu:
     image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION_DEV}
-    networks:
-      - bridge-net
     depends_on:
       - katsu-db
     extends:
@@ -44,16 +40,13 @@ services:
       - BENTO_GIT_REPOSITORY_DIR=/app
 
   katsu-db:
-    networks:
-      - bridge-net
     extends:
       file: docker-compose.dev.yaml
       service: katsu-db
 
   adminer:
     image: adminer:4.8.1
-    networks:
-      - bridge-net
+    # No Docker networks required, bound to host
     container_name: ${BENTOV2_PREFIX}-katsu-adminer
     restart: unless-stopped
     ports:
@@ -63,8 +56,6 @@ services:
     image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION_DEV}
     environment:
       - BENTO_GIT_REPOSITORY_DIR=/aggregation
-    networks:
-      - bridge-net
     extends:
       file: docker-compose.dev.yaml
       service: aggregation
@@ -73,8 +64,6 @@ services:
 
   wes:
     image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION_DEV}
-    networks:
-      - bridge-net
     environment:
       - BENTO_GIT_REPOSITORY_DIR=/wes
     extends:
@@ -87,8 +76,6 @@ services:
     image: ${BENTOV2_DRS_IMAGE}:${BENTOV2_DRS_VERSION_DEV}
     environment:
       - BENTO_GIT_REPOSITORY_DIR=/drs
-    networks:
-      - bridge-net
     extends:
       file: docker-compose.dev.yaml
       service: drs
@@ -97,8 +84,6 @@ services:
 
   beacon:
     image: ${BENTO_BEACON_IMAGE}:${BENTO_BEACON_VERSION_DEV}
-    networks:
-      - bridge-net
     environment:
       - BENTO_GIT_REPOSITORY_DIR=/beacon
     extends:
@@ -148,7 +133,3 @@ services:
     extends:
       file: docker-compose.dev.yaml
       service: event-relay
-
-networks:
-  bridge-net:
-    external: true

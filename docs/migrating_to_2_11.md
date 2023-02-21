@@ -88,6 +88,18 @@ apt-get install docker-compose-plugin
 See [this StackOverflow post](https://stackoverflow.com/questions/66514436/difference-between-docker-compose-and-docker-compose).
 
 
+## Create new Docker networks
+
+v2.11 adds several new Docker networks in an effort to better isolate services from each other to provide better
+security. To create these if needed, run:
+
+```bash
+./bentoctl.bash init-docker
+```
+
+Don't worry; this is idempotent and will not fail if any required network already exists.
+
+
 ## Pull new images
 
 v2.11 needs a bunch of new service images, as specified by `etc/bento.env`. To update the images using the new

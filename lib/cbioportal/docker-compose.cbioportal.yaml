@@ -6,8 +6,9 @@ services:
     environment:
       SHOW_DEBUG_INFO: "true"
     networks:
-      - bridge-net
-      - bentov2-net-cbioportal
+      - cbioportal-net
+      - cbioportal-db-net
+      - cbioportal-session-net
     ports:
       - "${BENTO_CBIOPORTAL_EXTERNAL_PORT}:${BENTO_CBIOPORTAL_INTERNAL_PORT}"
     volumes:
@@ -37,7 +38,7 @@ services:
       MYSQL_PASSWORD: ${BENTO_CBIOPORTAL_DATABASE_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${BENTO_CBIOPORTAL_DATABASE_ROOT_PASSWORD}
     networks:
-      - bentov2-net-cbioportal
+      - cbioportal-db-net
     volumes:
       - ./lib/cbioportal/seed_data/cgds.sql:/docker-entrypoint-initdb.d/cgds.sql:ro
       - ./lib/cbioportal/seed_data/seed-hg19.sql.gz:/docker-entrypoint-initdb.d/seed-hg19.sql.gz:ro
@@ -52,7 +53,7 @@ services:
       SERVER_PORT: ${BENTO_CBIOPORTAL_SESSION_SERVER_PORT}
       JAVA_OPTS: -Dspring.data.mongodb.uri=mongodb://${BENTO_CBIOPORTAL_SESSION_DATABASE_CONTAINER_NAME}:27017/session
     networks:
-      - bentov2-net-cbioportal
+      - cbioportal-session-net
     depends_on:
       - cbioportal-session-db
 
@@ -62,12 +63,17 @@ services:
     environment:
       MONGO_INITDB_DATABASE: session
     networks:
-      - bentov2-net-cbioportal
+      - cbioportal-session-net
     volumes:
       - ${BENTO_CBIOPORTAL_SESSION_DATABASE_DATA_DIR}:/data/db
 
 networks:
-  bridge-net:
+  cbioportal-net:
     external: true
-  bentov2-net-cbioportal:
+    name: ${BENTO_CBIOPORTAL_NETWORK}
+  cbioportal-db-net:
     external: true
+    name: ${BENTO_CBIOPORTAL_DATABASE_NETWORK}
+  cbioportal-session-net:
+    external: true
+    name: ${BENTO_CBIOPORTAL_SESSION_NETWORK}

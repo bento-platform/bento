@@ -3,8 +3,12 @@ services:
   katsu:
     image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION}
     container_name: ${BENTOV2_KATSU_CONTAINER_NAME}
+    user: "${BENTO_UID}:${BENTO_GID}"
     expose:
       - ${BENTOV2_KATSU_INTERNAL_PORT}
+    networks:
+      - katsu-net
+      - katsu-db-net
     depends_on:
       katsu-db:
         condition: service_healthy
@@ -47,12 +51,12 @@ services:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_KATSU_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   katsu-db:
     image: ${BENTOV2_KATSU_DB_IMAGE}:${BENTOV2_KATSU_DB_VERSION}
     container_name: ${BENTOV2_KATSU_DB_CONTAINER_NAME}
+    user: "${BENTO_UID}:${BENTO_GID}"
     environment:
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
       - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
@@ -64,6 +68,8 @@ services:
     #     target: metadata_db_user
     #   - source: metadata-db-secret
     #     target: metadata_db_secret
+    networks:
+      - katsu-db-net
     volumes:
       - ${BENTOV2_KATSU_DB_PROD_VOL_DIR}:/var/lib/postgresql/data
     mem_limit: ${BENTOV2_KATSU_DB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
@@ -73,4 +79,11 @@ services:
       test: [ "CMD", "pg_isready", "-q", "-d", "${BENTOV2_KATSU_DB}", "-U", "${BENTOV2_KATSU_DB_USER}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+
+networks:
+  katsu-net:
+    external: true
+    name: ${BENTO_KATSU_NETWORK}
+  katsu-db-net:
+    external: true
+    name: ${BENTO_KATSU_DB_NETWORK}

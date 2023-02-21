@@ -1,7 +1,6 @@
 import os
 import pathlib
 import shutil
-import subprocess
 import sys
 
 import docker
@@ -11,7 +10,6 @@ from termcolor import cprint
 
 from .openssl import _create_cert, _create_private_key
 from .utils import task_print, task_print_done, warn, err
-
 
 __all__ = [
     "init_web",
@@ -182,13 +180,8 @@ def init_dirs():
             exit(1)
 
         data_dir_path = pathlib.Path(data_dir)
-
         already_exists = data_dir_path.exists()
-
         data_dir_path.mkdir(parents=True, exist_ok=True)
-
-        subprocess.run(("sudo", "chown", "1000:1000"))
-
         task_print_done(msg="already exists." if already_exists else "done.")
 
 
@@ -208,14 +201,42 @@ def init_docker():
 
     # Init Docker network(s)
 
-    base_net_name = "bridge-net"
-    task_print(f"Creating docker network ({base_net_name}) if needed...")
-    try:
-        client.networks.get(base_net_name)
-        task_print_done("exists already.")
-    except docker.errors.NotFound:
-        client.networks.create("bridge-net", driver="bridge")
-        task_print_done("network created.")
+    # network environment variable, kwargs
+    networks = (
+        ("BENTO_AGGREGATION_NETWORK", dict(driver="bridge")),
+        ("BENTO_AUTH_NETWORK", dict(driver="bridge")),
+        ("BENTO_AUTH_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_BEACON_NETWORK", dict(driver="bridge")),
+        ("BENTO_CBIOPORTAL_NETWORK", dict(driver="bridge")),
+        ("BENTO_CBIOPORTAL_DATABASE_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_CBIOPORTAL_SESSION_NETWORK", dict(driver="bridge")),
+        ("BENTO_DROP_BOX_NETWORK", dict(driver="bridge")),
+        ("BENTO_EVENT_RELAY_NETWORK", dict(driver="bridge")),
+        ("BENTO_GOHAN_API_NETWORK", dict(driver="bridge")),
+        ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_KATSU_NETWORK", dict(driver="bridge")),
+        ("BENTO_KATSU_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
+        ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),
+        ("BENTO_REDIS_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_SERVICE_REGISTRY_NETWORK", dict(driver="bridge")),
+        ("BENTO_WEB_NETWORK", dict(driver="bridge")),
+        ("BENTO_WES_NETWORK", dict(driver="bridge")),
+    )
+
+    for net_var, net_kwargs in networks:
+        task_print(f"Creating Docker network (var: {net_var}) if needed...")
+
+        net_name = os.getenv(net_var)
+        if not net_name:
+            cprint(f"failed ({net_var} not set).", "red")
+
+        try:
+            client.networks.get(net_name)
+            task_print_done(f"exists already (name: {net_name}).")
+        except docker.errors.NotFound:
+            client.networks.create(net_name, **net_kwargs)
+            task_print_done(f"network created (name: {net_name}).")
 
 
 # def init_secrets(force: bool):

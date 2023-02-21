@@ -3,6 +3,7 @@ services:
   beacon:
     image: ${BENTO_BEACON_IMAGE}:${BENTO_BEACON_VERSION}
     container_name: ${BENTO_BEACON_CONTAINER_NAME}
+    user: "${BENTO_UID}:${BENTO_GID}"
     environment: 
       - BENTO_BEACON_DEBUG=${BENTO_BEACON_DEBUG}
       - GOHAN_BASE_URL=${BENTO_BEACON_GOHAN_BASE_URL}
@@ -17,9 +18,9 @@ services:
       - BEACON_SMALL_CELL_COUNT_THRESHOLD=${BENTO_BEACON_SMALL_CELL_COUNT_THRESHOLD}
       - BEACON_MAX_FILTERS=${BENTO_BEACON_MAX_FILTERS}
     volumes:
-      - ./config:/config
+      - ./config:/config:ro
     networks: 
-      - bridge-net
+      - beacon-net
     expose:
       - ${BENTO_BEACON_INTERNAL_PORT}
     mem_limit: ${BENTO_BEACON_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
@@ -29,4 +30,8 @@ services:
       test: [ "CMD", "curl", "http://localhost:${BENTO_BEACON_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+
+networks:
+  beacon-net:
+    external: true
+    name: ${BENTO_BEACON_NETWORK}

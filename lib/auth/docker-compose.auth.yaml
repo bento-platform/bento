@@ -9,10 +9,10 @@ services:
     expose:
       - ${BENTOV2_AUTH_INTERNAL_PORT}
     networks:
-      - bridge-net
+      - auth-net
       - auth-db-net
     volumes:
-      - ${BENTOV2_AUTH_VOL_DIR}:/opt/keycloak/data
+      # - ${BENTOV2_AUTH_VOL_DIR}:/opt/keycloak/data
       - ${PWD}/${BENTOV2_CERTS_DIR}/auth_fullchain1.crt:/run/secrets/keycloak-cert-file:ro
       - ${PWD}/${BENTOV2_CERTS_DIR}/auth_privkey1.key:/run/secrets/keycloak-cert-key-file:ro
     environment:
@@ -34,15 +34,23 @@ services:
 
   auth-db:
     image: postgres:13
-    container_name: ${BENTOV2_AUTH_DB_CONTAINER_NAME}
+    container_name: ${BENTO_AUTH_DB_CONTAINER_NAME}
+    user: "${BENTO_UID}:${BENTO_GID}"  # Since we use a bind (FS) mount, set the permissions properly
+    environment:
+      - POSTGRES_USER=${BENTO_AUTH_DB_USER}
+      - POSTGRES_PASSWORD=${BENTO_AUTH_DB_PASSWORD}
+      - POSTGRES_DB=${BENTO_AUTH_DB}
     networks:
       - auth-db-net
+    volumes:
+      - ${BENTOV2_AUTH_VOL_DIR}:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD", "pg_isready", "-q" ]
 
 networks:
-  bridge-net:
+  auth-net:
     external: true
+    name: ${BENTO_AUTH_NETWORK}
   auth-db-net:
     external: true
     name: ${BENTO_AUTH_DB_NETWORK}
