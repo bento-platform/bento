@@ -396,7 +396,7 @@ services:
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      interval: 15s  # Faster interval for services which others may require to be healthy
 
   beacon:
     networks: 
