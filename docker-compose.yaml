@@ -453,8 +453,8 @@ services:
       - ${BENTOV2_GOHAN_API_INTERNAL_PORT}
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_API_INTERNAL_PORT}/service-info" ]
-      timeout: 5s
-      interval: 1m
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
     depends_on:
       - gohan-elasticsearch
 
@@ -476,8 +476,8 @@ services:
       - ${BENTOV2_GOHAN_ES_DATA_DIR}:/usr/share/elasticsearch/data
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_ES_INTERNAL_PORT_1}" ]
-      timeout: 5s
-      interval: 1m
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
 
 networks:
