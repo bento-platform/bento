@@ -2,7 +2,6 @@
 
 import docker
 import os
-import pathlib
 import requests
 import subprocess
 import urllib3
