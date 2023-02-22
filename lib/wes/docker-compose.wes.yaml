@@ -38,6 +38,7 @@ services:
       - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
     networks:
       - wes-net
+      - drs-net
     expose:
       - ${BENTOV2_WES_INTERNAL_PORT}
     mem_limit: ${BENTOV2_WES_MEM_LIMIT}
@@ -50,9 +51,12 @@ services:
     volumes:
       - ${BENTOV2_WES_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
-      - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data
+      - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data:ro  # Read only access to drop box contents via file path
 
 networks:
+  drs-net:
+    external: true
+    name: ${BENTO_DRS_NETWORK}
   wes-net:
     external: true
     name: ${BENTO_WES_NETWORK}
