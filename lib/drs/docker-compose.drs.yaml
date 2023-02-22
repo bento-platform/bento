@@ -2,8 +2,7 @@ services:
   drs:
     image: ${BENTOV2_DRS_IMAGE}:${BENTOV2_DRS_VERSION}
     container_name: ${BENTOV2_DRS_CONTAINER_NAME}
-    user: "${BENTO_UID}:${BENTO_GID}"
-    environment: 
+    environment:
       # Runtime
       - FLASK_DEBUG=False
       - DATABASE=/drs/bento_drs/data/db/  # slightly confused naming, folder for database to go in
