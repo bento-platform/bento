@@ -209,7 +209,6 @@ services:
   drop-box:
     image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
     container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
-    user: "${BENTO_UID}:${BENTO_GID}"
     environment:
       # Runtime
       - FLASK_DEBUG=False
@@ -290,7 +289,6 @@ services:
   notification:
     image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION}
     container_name: ${BENTOV2_NOTIFICATION_CONTAINER_NAME}
-    user: "${BENTO_UID}:${BENTO_GID}"
     environment:
       - FLASK_DEBUG=False
       - FLASK_APP=app

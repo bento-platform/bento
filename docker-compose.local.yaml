@@ -27,12 +27,12 @@ services:
       service: gateway
 
   katsu:
+    extends:
+      file: docker-compose.dev.yaml
+      service: katsu
     image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION_DEV}
     depends_on:
       - katsu-db
-    extends:
-      file: $PWD/lib/katsu/docker-compose.katsu.yaml
-      service: katsu
     volumes:
       - ./repos/katsu:/app
       - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp:ro

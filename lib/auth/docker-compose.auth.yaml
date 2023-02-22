@@ -39,7 +39,6 @@ services:
   auth-db:
     image: postgres:13
     container_name: ${BENTO_AUTH_DB_CONTAINER_NAME}
-    user: "${BENTO_UID}:${BENTO_GID}"  # Since we use a bind (FS) mount, set the permissions properly
     environment:
       - POSTGRES_USER=${BENTO_AUTH_DB_USER}
       - POSTGRES_PASSWORD=${BENTO_AUTH_DB_PASSWORD}

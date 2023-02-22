@@ -3,7 +3,6 @@ services:
   katsu:
     image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION}
     container_name: ${BENTOV2_KATSU_CONTAINER_NAME}
-    user: "${BENTO_UID}:${BENTO_GID}"
     expose:
       - ${BENTOV2_KATSU_INTERNAL_PORT}
     networks:
@@ -56,7 +55,6 @@ services:
   katsu-db:
     image: ${BENTOV2_KATSU_DB_IMAGE}:${BENTOV2_KATSU_DB_VERSION}
     container_name: ${BENTOV2_KATSU_DB_CONTAINER_NAME}
-    user: "${BENTO_UID}:${BENTO_GID}"
     environment:
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
       - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
