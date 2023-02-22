@@ -12,6 +12,7 @@ services:
       katsu-db:
         condition: service_healthy
     environment:
+      - BENTO_UID=${BENTO_UID}
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
       - CHORD_PERMISSIONS=True
       - CHORD_DEBUG=False

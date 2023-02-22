@@ -4,6 +4,7 @@ services:
     image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION}
     container_name: ${BENTOV2_AGGREGATION_CONTAINER_NAME}
     environment:
+      - BENTO_UID=${BENTO_UID}
       - CHORD_DEBUG=False
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
       - OIDC_DISCOVERY_URI=${BENTOV2_AUTH_PUBLIC_URL}/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration

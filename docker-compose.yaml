@@ -15,8 +15,8 @@ services:
       - OIDC_DISCOVERY_URI=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
       - REDIRECT_AFTER_LOGOUT_URI=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_REDIRECT_AFTER_LOGOUT_PATH}
       - CLIENT_ID=${BENTOV2_AUTH_CLIENT_ID}
-      - TOKEN_ENDPOINT_AUTH_METHOD=client_secret_post
       - CLIENT_SECRET
+      - TOKEN_ENDPOINT_AUTH_METHOD=client_secret_post
       - BENTOV2_SESSION_SECRET
 
       - BENTOV2_AUTH_DOMAIN
@@ -156,6 +156,7 @@ services:
       - public-net
       - katsu-net  # Needs to talk to Katsu for public endpoint  TODO: Should use public URL instead!
     environment:
+      - BENTO_UID=${BENTO_UID}
       - BENTO_PUBLIC_SERVICE_ID=${BENTO_PUBLIC_SERVICE_ID}
       - BENTO_PUBLIC_CLIENT_NAME=${BENTO_PUBLIC_CLIENT_NAME}
       - BENTO_PUBLIC_KATSU_URL=${BENTO_PUBLIC_KATSU_URL}
@@ -181,6 +182,7 @@ services:
     expose:
       - ${BENTOV2_WEB_INTERNAL_PORT}
     environment:
+      - BENTO_UID=${BENTO_UID}
       - BENTO_URL=${BENTOV2_PORTAL_PUBLIC_URL}
       - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
@@ -210,6 +212,7 @@ services:
     image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
     container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
     environment:
+      - BENTO_UID=${BENTO_UID}
       # Runtime
       - FLASK_DEBUG=False
       - FLASK_APP=bento_drop_box_service.app
@@ -240,6 +243,8 @@ services:
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION}
     container_name: ${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}
     environment:
+      - BENTO_UID=${BENTO_UID}
+
       # Following the revised bento_services.json schema
       # (see Python typing in bento_service_registry)
       # A list of services on a single domain which are registered in the service
