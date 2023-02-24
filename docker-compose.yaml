@@ -156,14 +156,14 @@ services:
       - public-net
       - katsu-net  # Needs to talk to Katsu for public endpoint  TODO: Should use public URL instead!
     environment:
-      - BENTO_UID=${BENTO_UID}
-      - BENTO_PUBLIC_SERVICE_ID=${BENTO_PUBLIC_SERVICE_ID}
-      - BENTO_PUBLIC_CLIENT_NAME=${BENTO_PUBLIC_CLIENT_NAME}
-      - BENTO_PUBLIC_KATSU_URL=${BENTO_PUBLIC_KATSU_URL}
-      - BENTO_PUBLIC_MAX_QUERY_PARAMETERS=${BENTO_PUBLIC_MAX_QUERY_PARAMETERS}
-      - BENTO_PUBLIC_PORTAL_URL=${BENTO_PUBLIC_PORTAL_URL}
+      - BENTO_UID
+      - BENTO_PUBLIC_SERVICE_ID
+      - BENTO_PUBLIC_CLIENT_NAME
+      - BENTO_PUBLIC_KATSU_URL
+      - BENTO_PUBLIC_MAX_QUERY_PARAMETERS
+      - BENTO_PUBLIC_PORTAL_URL
+      - BENTO_PUBLIC_TRANSLATED
       - INTERNAL_PORT=${BENTO_PUBLIC_INTERNAL_PORT}
-      - BENTO_PUBLIC_TRANSLATED=${BENTO_PUBLIC_TRANSLATED}
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
     volumes:
@@ -182,7 +182,7 @@ services:
     expose:
       - ${BENTOV2_WEB_INTERNAL_PORT}
     environment:
-      - BENTO_UID=${BENTO_UID}
+      - BENTO_UID
       - BENTO_URL=${BENTOV2_PORTAL_PUBLIC_URL}
       - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
@@ -212,7 +212,7 @@ services:
     image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
     container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
     environment:
-      - BENTO_UID=${BENTO_UID}
+      - BENTO_UID
       # Runtime
       - FLASK_DEBUG=False
       - FLASK_APP=bento_drop_box_service.app
@@ -243,7 +243,7 @@ services:
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION}
     container_name: ${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}
     environment:
-      - BENTO_UID=${BENTO_UID}
+      - BENTO_UID
 
       # Following the revised bento_services.json schema
       # (see Python typing in bento_service_registry)
@@ -295,6 +295,7 @@ services:
     image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION}
     container_name: ${BENTOV2_NOTIFICATION_CONTAINER_NAME}
     environment:
+      - BENTO_UID
       - FLASK_DEBUG=False
       - FLASK_APP=app
       - DATABASE=/notification/data
