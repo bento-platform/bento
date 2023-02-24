@@ -11,6 +11,8 @@ services:
     extends:
       file: docker-compose.yaml
       service: public
+    environment:
+      - NODE_ENV=development
     ports:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
 

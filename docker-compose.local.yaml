@@ -13,6 +13,8 @@ services:
 
   public:
     image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION_DEV}
+    volumes:
+      - ./repos/public:/bento-public
     extends:
       file: docker-compose.dev.yaml
       service: public
