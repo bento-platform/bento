@@ -280,7 +280,13 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
 
     if compose_service == "all":
         # special: run everything
-        subprocess.check_call((*c.COMPOSE, "pull"))
+        subprocess.check_call((*_get_compose_with_files(dev=c.DEV_MODE), "pull"))
+
+        # This won't pull local images; loop through those explicitly and pull them
+        for s in c.DOCKER_COMPOSE_SERVICES:
+            if service_state.get(s, {}).get("mode") == MODE_LOCAL:
+                pull_service(s)
+
         return
 
     check_service_is_compose(compose_service)
