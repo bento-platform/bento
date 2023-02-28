@@ -153,7 +153,7 @@ services:
     image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION}
     container_name: ${BENTO_PUBLIC_CONTAINER_NAME}
     networks: 
-      - public-net
+      - public-net  # Bento Public, not a public network!
       - katsu-net  # Needs to talk to Katsu for public endpoint  TODO: Should use public URL instead!
     environment:
       - BENTO_UID
@@ -172,6 +172,10 @@ services:
       
       - $PWD/lib/public/about.html:/runner/www/public/about.html:ro
       - $PWD/lib/public/branding.png:/runner/www/public/assets/branding.png:ro
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
 
   web:
