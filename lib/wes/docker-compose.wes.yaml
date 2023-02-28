@@ -4,7 +4,7 @@ services:
     image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION}
     container_name: ${BENTOV2_WES_CONTAINER_NAME}
     environment:
-      - BENTO_UID=${BENTO_UID}
+      - BENTO_UID
 
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
 

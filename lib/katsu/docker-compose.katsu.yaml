@@ -12,11 +12,11 @@ services:
       katsu-db:
         condition: service_healthy
     environment:
-      - BENTO_UID=${BENTO_UID}
+      - BENTO_UID
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
       - CHORD_PERMISSIONS=True
       - CHORD_DEBUG=False
-      - CHORD_METADATA_SUB_PATH=${CHORD_METADATA_SUB_PATH}
+      - CHORD_METADATA_SUB_PATH
       - INTERNAL_PORT=${BENTOV2_KATSU_INTERNAL_PORT}
       - POSTGRES_HOST=${BENTOV2_KATSU_DB_CONTAINER_NAME}
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
@@ -25,7 +25,7 @@ services:
       - SERVICE_TEMP=/app/tmp
       - SERVICE_SECRET_KEY=${BENTOV2_KATSU_APP_SECRET}
       - DJANGO_SETTINGS_MODULE=chord_metadata_service.metadata.settings
-      - BENTOV2_PORTAL_DOMAIN=${BENTOV2_PORTAL_DOMAIN}
+      - BENTOV2_PORTAL_DOMAIN
         # Allow access by container name or localhost for healthchecks:
       - KATSU_ALLOWED_HOSTS=${BENTOV2_KATSU_CONTAINER_NAME},localhost
     # configs:
