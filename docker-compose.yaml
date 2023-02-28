@@ -489,6 +489,23 @@ services:
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
 
+# Lots of networks! Here, we have more or less one network per service, plus a few ones for databases
+# (which don't even get exposed to the gateway) and some other extras.
+#
+# These are created by running ./bentoctl.bash init-docker ;
+# the cBioPortal ones are only created if cBioPortal is enabled.
+#
+# The rationale behind this multi-network setup is that each service should, by default, not be able to talk to anything
+# except what it *requires*. Databases should only be able to talk to the service which needs them and no one else, not
+# even the gateway, since a database should never be publicly accessible.
+#
+# This is also sort of a quasi-self-documenting setup; if you only put services which need to talk together in the same
+# network, you implicitly document the connections between said services.
+#
+# A concrete example: for the network katsu-net, the 'requirement for membership' is
+#     'who needs to talk to katsu, without going through standard gateway/authentication procedures'?
+# In this fashion, any other service put into katsu-net must have an important reason!
+
 networks:
   aggregation-net:
     external: true
