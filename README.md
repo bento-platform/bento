@@ -65,7 +65,10 @@ For a quick setup, use the following to append the alias to the file of your cho
 # Optional: create an alias for bentoctl (run from project's root)
 echo "alias bentoctl=${PWD}/bentoctl.bash" > ~/.bash_aliases
 
-# Simply use your alias!
+# Now RESTART your terminal and re-source the virtualenv, OR run:
+source ~/.bash_aliases
+
+# Then, use your alias!
 bentoctl --help
 ```
 
@@ -252,6 +255,7 @@ specified in the step above.
 
 # If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), 
 # i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
+./bentoctl.bash run auth
 ./bentoctl.bash run gateway
 # and
 ./bentoctl.bash init-auth

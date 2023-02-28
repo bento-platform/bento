@@ -7,10 +7,12 @@ from abc import ABC, abstractmethod
 
 from .auth_helper import init_auth
 from .config import DOCKER_COMPOSE_SERVICES, BENTO_SERVICES_DATA
+from . import config as c
+from . import feature_helpers as fh
 from . import services as s
 from . import other_helpers as oh
 
-from typing import List, Optional, Type
+from typing import Optional, Tuple, Type
 
 __version__ = "0.1.0"
 
@@ -47,6 +49,10 @@ class Run(SubCommand):
     def exec(args):
         if args.pull:
             s.pull_service(args.service)
+
+        if c.BENTO_CBIOPORTAL_ENABLED:
+            fh.init_cbioportal()
+
         s.run_service(args.service)
 
 
@@ -86,7 +92,7 @@ class Clean(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
             help="Service to clean, or 'all' to clean everything.")
 
     @staticmethod
@@ -105,13 +111,13 @@ class WorkOn(SubCommand):
         s.work_on_service(args.service)
 
 
-class Prod(SubCommand):
+class Prebuilt(SubCommand):
 
     @staticmethod
     def add_args(sp):
         sp.add_argument(
             "service", type=str, choices=tuple(BENTO_SERVICES_DATA.keys()),
-            help="Service to switch to production mode.")
+            help="Service to switch to pre-built mode (will use an entirely pre-built image with code).")
 
     @staticmethod
     def exec(args):
@@ -220,26 +226,6 @@ class InitDocker(SubCommand):
         oh.init_docker()
 
 
-# class InitSecrets(SubCommand):
-#
-#     @staticmethod
-#     def add_args(sp):
-#         sp.add_argument(
-#             "--force", "-f", action="store_true",
-#             help="Removes all previously created secrets before creating new ones.")
-#
-#     @staticmethod
-#     def exec(args):
-#         return oh.init_secrets(args.force)
-
-
-# class CleanSecrets(SubCommand):
-#
-#     @staticmethod
-#     def exec(args):
-#         return oh.clean_secrets()
-
-
 class InitWeb(SubCommand):
 
     @staticmethod
@@ -255,6 +241,13 @@ class InitWeb(SubCommand):
         oh.init_web(args.service, args.force)
 
 
+class InitCBioPortal(SubCommand):
+
+    @staticmethod
+    def exec(args):
+        fh.init_cbioportal()
+
+
 class InitAll(SubCommand):
 
     @staticmethod
@@ -266,9 +259,10 @@ class InitAll(SubCommand):
         oh.init_self_signed_certs(force=False)
         oh.init_dirs()
         oh.init_docker()
-        # oh.init_secrets(force=False)
         oh.init_web("private", force=False)
         oh.init_web("public", force=False)
+        if c.BENTO_CBIOPORTAL_ENABLED:
+            fh.init_cbioportal()
 
 
 def main(args: Optional[list[str]] = None) -> int:
@@ -293,36 +287,38 @@ def main(args: Optional[list[str]] = None) -> int:
     parser.add_argument("--debug", "-d", action="store_true")
     subparsers = parser.add_subparsers()
 
-    def _add_subparser(arg: str, help_text: str, subcommand: Type[SubCommand], aliases: List[str] = []):
+    def _add_subparser(arg: str, help_text: str, subcommand: Type[SubCommand], aliases: Tuple[str, ...] = ()):
         subparser = subparsers.add_parser(arg, help=help_text, aliases=aliases)
         subparser.set_defaults(func=subcommand.exec)
         subcommand.add_args(subparser)
 
-    # Init helpers
+    # Generic initialization helpers
     _add_subparser("init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
     _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
-    _add_subparser("init-certs", "Initialize ssl certificates for bentov2 gateway domains.", InitCerts)
-    _add_subparser("init-docker", "Init Docker swarm and networks.", InitDocker)
-    # _add_subparser("init-secrets", "Init Docker secrets", InitSecrets)
+    _add_subparser("init-certs", "Initialize ssl certificates for BentoV2 gateway domains.", InitCerts)
+    _add_subparser("init-docker", "Initialize Docker configuration & networks.", InitDocker)
     _add_subparser("init-web", "Init web app (public or private) files", InitWeb)
     _add_subparser(
         "init-all",
-        "Initialize certs, directories, Docker swarm/networks, secrets, and web portals. DOES NOT initialize Keycloak.",
+        "Initialize certs, directories, Docker networks, secrets, and web portals. DOES NOT initialize Keycloak.",
         InitAll)
-    # _add_subparser("clean-secrets", "Clean Docker secrets", CleanSecrets)
+
+    # Feature-specific initialization commands
+    _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
 
     # Service commands
-    _add_subparser("run", "Run Bento services.", Run, aliases=["start"])
+    _add_subparser("run", "Run Bento services.", Run, aliases=("start",))
     _add_subparser("stop", "Stop Bento services.", Stop)
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
-    _add_subparser("work-on", "Work on a specific service in development mode.", WorkOn, aliases=["dev", "develop"])
-    _add_subparser("prod", "Switch a service back to prebuilt/production mode.", Prod, aliases=["prebuilt"])
+    _add_subparser(
+        "work-on", "Work on a specific service in a local development mode.", WorkOn, aliases=("dev", "develop"))
+    _add_subparser("prebuilt", "Switch a service back to prebuilt mode.", Prebuilt, aliases=("pre-built", "prod"))
     _add_subparser(
         "mode", "See if a service (or which services) are in production/development mode.", Mode,
-        aliases=["state", "status"])
+        aliases=("state", "status"))
     _add_subparser("pull", "Pull the production image for a specific service.", Pull)
-    _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=["sh"])
+    _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=("sh",))
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
     _add_subparser("logs", "Check logs for a service.", Logs)
 
