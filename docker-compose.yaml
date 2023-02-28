@@ -89,6 +89,7 @@ services:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
+      event-relay-net:
       gohan-api-net:
         aliases:
           - ${BENTOV2_DOMAIN}
