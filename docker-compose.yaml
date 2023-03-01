@@ -71,6 +71,7 @@ services:
       - BENTO_PUBLIC_INTERNAL_PORT
       - BENTO_BEACON_CONTAINER_NAME
       - BENTO_BEACON_INTERNAL_PORT
+      - BENTO_CBIOPORTAL_CONTAINER_NAME
     networks:
       aggregation-net:
         aliases:
