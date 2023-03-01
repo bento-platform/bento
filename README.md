@@ -226,7 +226,14 @@ With the default development configuration, this might look something like:
 # ... other stuff below
 ```
 
-This is **not needed** in production, since the domains should have DNS records.
+If you are working with cBioPortal, you will need another line:
+```
+# ...
+127.0.0.1   cbioportal.bentov2.local
+# ...
+```
+
+Editing `/etc/hosts` is **not needed** in production, since the domains should have DNS records.
 
 Make sure these values match the values in the `.env` file and what was issued in the self-signed certificates, as 
 specified in the step above.
