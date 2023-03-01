@@ -170,6 +170,10 @@ def init_dirs():
         "notification": "BENTOV2_NOTIFICATION_VOL_DIR",
         "redis": "BENTOV2_REDIS_VOL_DIR",
         "wes": "BENTOV2_WES_VOL_DIR",
+
+        # Feature-specific volume dirs - only if the relevant feature is enabled.
+        #  - cBioPortal
+        **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_CBIOPORTAL_ENABLED else {}),
     }
 
     task_print("Creating temporary secrets directory if needed...")
