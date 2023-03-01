@@ -11,7 +11,7 @@ from urllib3.exceptions import InsecureRequestWarning
 
 from typing import Optional
 
-from .config import COMPOSE, DEV_MODE
+from . import config as c
 from .utils import info, warn, err
 
 __all__ = ["init_auth"]
@@ -22,6 +22,7 @@ USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 
 PORTAL_PUBLIC_URL = os.getenv("BENTOV2_PORTAL_PUBLIC_URL")
+CBIOPORTAL_URL = os.getenv("BENTO_CBIOPORTAL_PUBLIC_URL")
 
 AUTH_REALM = os.getenv("BENTOV2_AUTH_REALM")
 AUTH_CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
@@ -63,8 +64,7 @@ def keycloak_req(
             headers = {}
         headers["Authorization"] = f"Bearer {bearer_token}"
 
-    kwargs = dict(**(dict(headers=headers) if headers else {}),
-                  verify=not DEV_MODE)
+    kwargs = dict(**(dict(headers=headers) if headers else {}), verify=not c.DEV_MODE)
 
     if method == "get":
         return requests.get(make_keycloak_url(path), **kwargs)
@@ -106,8 +106,8 @@ def init_auth():
             err(f"    Failed to fetch existing realms: {existing_realms}")
             exit(1)
 
-        for r in existing_realms:
-            if r["realm"] == AUTH_REALM:
+        for realm in existing_realms:
+            if realm["realm"] == AUTH_REALM:
                 warn(f"    Found existing realm: {AUTH_REALM}; using that.")
                 return
 
@@ -137,10 +137,10 @@ def init_auth():
                 err(f"    Failed to fetch existing clients: {existing_clients}")
                 exit(1)
 
-            for c in existing_clients:
-                if c["clientId"] == AUTH_CLIENT_ID:
+            for client in existing_clients:
+                if client["clientId"] == AUTH_CLIENT_ID:
                     warn(f"    Found existing client: {AUTH_CLIENT_ID}; using that.")
-                    return c["id"]
+                    return client["id"]
 
             return None
 
@@ -154,10 +154,12 @@ def init_auth():
                 "standardFlowEnabled": True,
                 "publicClient": False,
                 "redirectUris": [
-                    f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}"
+                    f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
+                    *((f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}",) if c.BENTO_CBIOPORTAL_ENABLED else ()),
                 ],
                 "webOrigins": [
                     f"{PORTAL_PUBLIC_URL}",
+                    *((f"{CBIOPORTAL_URL}",) if c.BENTO_CBIOPORTAL_ENABLED else ()),
                 ],
                 "attributes": {
                     "saml.assertion.signature": "false",
@@ -228,14 +230,14 @@ def init_auth():
         info("Using external IdP, skipping setup.")
         exit(0)
 
-    info(f"[bentoctl] Using internal IdP, setting up Keycloak...    (DEV_MODE={DEV_MODE})")
+    info(f"[bentoctl] Using internal IdP, setting up Keycloak...    (DEV_MODE={c.DEV_MODE})")
 
     try:
         docker_client.containers.get(AUTH_CONTAINER_NAME)
     except requests.exceptions.HTTPError:
         info(f"  Starting {AUTH_CONTAINER_NAME}...")
         # Not found, so we need to start it
-        subprocess.check_call((*COMPOSE, "up", "-d", "auth"))
+        subprocess.check_call((*c.COMPOSE, "up", "-d", "auth"))
         success()
 
     info(f"  Signing in as {AUTH_ADMIN_USER}...")
