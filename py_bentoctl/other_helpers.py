@@ -8,7 +8,7 @@ import docker.errors
 
 from termcolor import cprint
 
-from .openssl import _create_cert, _create_private_key
+from .openssl import create_cert, create_private_key
 from .utils import task_print, task_print_done, warn, err
 
 __all__ = [
@@ -144,12 +144,12 @@ def init_self_signed_certs(force: bool):
 
         #  Create private key for domain
         task_print(f"Creating .key file for domain: {domain} -> {domain_val} ...")
-        pkey = _create_private_key(certs_dir, priv_key_name)
+        pkey = create_private_key(certs_dir, priv_key_name)
         task_print_done()
 
         # Create signed cert for domain
         task_print(f"Creating certificate file for domain: {domain} -> {domain_val} ...")
-        _create_cert(certs_dir, pkey, crt_name, domain_val)
+        create_cert(certs_dir, pkey, crt_name, domain_val)
         task_print_done()
 
 
