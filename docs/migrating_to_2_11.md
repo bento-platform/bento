@@ -186,3 +186,17 @@ make run-web
 
 This will start in either production mode (if `MODE=prod` in `local.env`) or development mode, but with a 
 pre-built image, if `MODE=dev`.
+
+
+## Notes on cBioPortal Usage
+
+If you want to use cBioPortal (which is partially integrated into 2.11), you will need to add
+the cBioPortal URL (with `/*`) as valid redirect URI and, plain, as a valid web origin:
+
+```
+redirect URIs: [..., https://cbioportal.my-bento-domain/*]  # Note: /*
+web origins: [..., https://cbioportal.my-bento-domain]  # Note: no trailing slash
+```
+
+Also, if developing locally, you should regenerate certificates so that a cBioPortal self-signed
+certificate is generated.
