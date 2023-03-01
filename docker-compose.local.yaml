@@ -1,0 +1,154 @@
+# extends docker-compose.dev.yaml; adds in repository volumes + git configuration
+
+services:
+  web:
+    image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION_DEV}
+    volumes:
+      - ./repos/web:/web
+    environment:
+      - BENTO_GIT_REPOSITORY_DIR=/web
+    extends:
+      file: docker-compose.dev.yaml
+      service: web
+
+  public:
+    image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION_DEV}
+    extends:
+      file: docker-compose.dev.yaml
+      service: public
+    networks:
+      - bridge-net
+
+  gateway:
+    image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION_DEV}
+    volumes:
+      - ./repos/gateway/src:/gateway/src:ro
+      - ./repos/gateway/conf:/gateway/conf:ro
+    extends:
+      file: docker-compose.dev.yaml
+      service: gateway
+
+  katsu:
+    image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION_DEV}
+    networks:
+      - bridge-net
+    depends_on:
+      - katsu-db
+    extends:
+      file: $PWD/lib/katsu/docker-compose.katsu.yaml
+      service: katsu
+    volumes:
+      - ./repos/katsu:/app
+      - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp:ro
+    environment:
+      - BENTO_GIT_REPOSITORY_DIR=/app
+
+  katsu-db:
+    networks:
+      - bridge-net
+    extends:
+      file: docker-compose.dev.yaml
+      service: katsu-db
+
+  adminer:
+    image: adminer:4.8.1
+    networks:
+      - bridge-net
+    container_name: ${BENTOV2_PREFIX}-katsu-adminer
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+
+  aggregation:
+    image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION_DEV}
+    environment:
+      - BENTO_GIT_REPOSITORY_DIR=/aggregation
+    networks:
+      - bridge-net
+    extends:
+      file: docker-compose.dev.yaml
+      service: aggregation
+    volumes:
+      - ./repos/aggregation:/aggregation
+
+  wes:
+    image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION_DEV}
+    networks:
+      - bridge-net
+    environment:
+      - BENTO_GIT_REPOSITORY_DIR=/wes
+    extends:
+      file: docker-compose.dev.yaml
+      service: wes
+    volumes:
+      - ./repos/wes:/wes
+
+  drs:
+    image: ${BENTOV2_DRS_IMAGE}:${BENTOV2_DRS_VERSION_DEV}
+    environment:
+      - BENTO_GIT_REPOSITORY_DIR=/drs
+    networks:
+      - bridge-net
+    extends:
+      file: docker-compose.dev.yaml
+      service: drs
+    volumes:
+      - ./repos/drs:/drs
+
+  beacon:
+    image: ${BENTO_BEACON_IMAGE}:${BENTO_BEACON_VERSION_DEV}
+    networks:
+      - bridge-net
+    environment:
+      - BENTO_GIT_REPOSITORY_DIR=/beacon
+    extends:
+      file: docker-compose.dev.yaml
+      service: beacon
+    volumes:
+      - ./repos/beacon:/beacon
+
+  service-registry:
+    image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION_DEV}
+    volumes:
+      - ./repos/service-registry:/service-registry
+      - ./etc/bento_services.json:/bento_services.json:ro
+    environment:
+      - BENTO_SERVICES=/bento_services.json
+      - BENTO_GIT_REPOSITORY_DIR=/service_registry
+    extends:
+      file: docker-compose.dev.yaml
+      service: service-registry
+
+  drop-box:
+    image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION_DEV}
+    environment:
+      - BENTO_GIT_REPOSITORY_DIR=/drop-box
+    volumes:
+      - ./repos/drop-box:/drop-box
+    extends:
+      file: docker-compose.dev.yaml
+      service: drop-box
+
+  notification:
+    image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION_DEV}
+    environment:
+      - BENTO_GIT_REPOSITORY_DIR=/notification
+    volumes:
+      - ./repos/notification:/notification
+    extends:
+      file: docker-compose.dev.yaml
+      service: notification
+
+  event-relay:
+    image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION_DEV}
+    environment:
+      - BENTO_GIT_REPOSITORY_DIR=/app
+    volumes:
+      - ./repos/event-relay:/app
+    extends:
+      file: docker-compose.dev.yaml
+      service: event-relay
+
+networks:
+  bridge-net:
+    external: true

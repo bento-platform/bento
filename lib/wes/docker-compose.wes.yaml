@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
 # -- base wes service
   wes:
@@ -17,7 +15,7 @@ services:
       - WOM_TOOL_LOCATION=
       #/wes/womtool.jar
       # Allow-list (comma-separated) for hosts that workflow files can be downloaded
-      # from - prevents possibly insecure WDLs from being ran
+      # from - prevents possibly insecure WDLs from being run
       - WORKFLOW_HOST_ALLOW_LIST=${BENTOV2_GOHAN_API_CONTAINER_NAME}:${BENTOV2_GOHAN_API_INTERNAL_PORT},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
 
       # DRS configuration options:
@@ -31,7 +29,8 @@ services:
       - DRS_SKIP_TYPES=
       - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/ott
       - TT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/tt
-      - FLASK_ENV=development
+
+      - FLASK_ENV=production
       - CHORD_DEBUG=False
       - FLASK_DEBUG=False
       - BENTO_VALIDATE_SSL=False
@@ -45,7 +44,7 @@ services:
     cpus: ${BENTOV2_WES_CPUS}
     cpu_shares: 1024
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:${BENTOV2_WES_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_WES_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
       retries: ${BENTOV2_HEALTHCHECK_RETRIES}

@@ -1,21 +1,8 @@
-version: '3.7'
-
-secrets:
-  metadata-app-secret:
-    file: $PWD/tmp/secrets/metadata-app-secret
-  metadata-db-user:
-    file: $PWD/tmp/secrets/metadata-db-user
-  metadata-db-secret:
-    file: $PWD/tmp/secrets/metadata-db-secret
+# extends main docker-compose.yml and various service-specific compose files;
+# adds in development/debug environment variables, debugpy ports
 
 services:
   web:
-    image: ${BENTOV2_WEB_IMAGE}:latest-dev
-    volumes:
-      - ./lib/web/bento_web:/web
-    # Execute npm build/install and watch, and
-    # nginx "listener" upon container startup
-    entrypoint: sh /web/entrypoint.dev.sh
     extends:
       file: docker-compose.yaml
       service: web
@@ -42,7 +29,6 @@ services:
       service: gateway
 
   katsu:
-    image: ${BENTOV2_KATSU_IMAGE}:latest-dev
     networks:
       - bridge-net
     depends_on:
@@ -51,21 +37,14 @@ services:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu
     volumes:
-      - ./lib/katsu/katsu:/app
-      - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp
+      - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp:ro
     environment:
-      - CHORD_DEBUG=true
+      - BENTO_DEBUG=True
+      - CHORD_DEBUG=True
       - DEBUGGER_PORT=${BENTOV2_KATSU_DEBUGGER_EXTERNAL_PORT}
     ports:
       - "${BENTOV2_KATSU_EXTERNAL_PORT}:${BENTOV2_KATSU_INTERNAL_PORT}"
       - "${BENTOV2_KATSU_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_KATSU_DEBUGGER_INTERNAL_PORT}"
-    entrypoint:
-      - /bin/sh
-      - -c
-      - |
-        python manage.py makemigrations
-        python manage.py migrate
-        python manage.py runserver --nothreading 0.0.0.0:${BENTOV2_KATSU_INTERNAL_PORT}
 
   katsu-db:
     networks:
@@ -78,41 +57,43 @@ services:
     volumes:
       - ${BENTOV2_KATSU_DB_DEV_VOL_DIR}:/var/lib/postgresql/data
 
+  adminer:
+    image: adminer:4.8.1
+    networks:
+      - bridge-net
+    container_name: ${BENTOV2_PREFIX}-katsu-adminer
+    restart: unless-stopped
+    ports:
+      - 8080:8080
 
-  federation:
-    image: ${BENTOV2_FEDERATION_IMAGE}:latest-dev
+  aggregation:
     environment:
-      - CHORD_DEBUG=${BENTOV2_FEDERATION_DEV_DEBUG}
-      - PORT=${BENTOV2_FEDERATION_INTERNAL_PORT}
-      - DEBUGGER_PORT=${BENTOV2_FEDERATION_DEBUGGER_INTERNAL_PORT}
+      - BENTO_DEBUG=True
+      - CHORD_DEBUG=True
+      - LOG_LEVEL=debug
+      - PORT=${BENTOV2_AGGREGATION_INTERNAL_PORT}
+      - DEBUGGER_PORT=${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}
     networks:
       - bridge-net
     extends:
-      file: $PWD/lib/federation/docker-compose.federation.yaml
-      service: federation
-    volumes:
-      - ./lib/federation/bento_federation_service:/federation/bento_federation_service
+      file: $PWD/lib/aggregation/docker-compose.aggregation.yaml
+      service: aggregation
     ports:
-      - "${BENTOV2_FEDERATION_EXTERNAL_PORT}:${BENTOV2_FEDERATION_INTERNAL_PORT}"
-      - "${BENTOV2_FEDERATION_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_FEDERATION_DEBUGGER_INTERNAL_PORT}"
-    command: >
-      sh -c "python run.py"
+      - "${BENTOV2_AGGREGATION_EXTERNAL_PORT}:${BENTOV2_AGGREGATION_INTERNAL_PORT}"
+      - "${BENTOV2_AGGREGATION_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}"
 
   wes:
-    build:
-      context: $PWD/lib/wes
-      dockerfile: Dockerfile.dev
     networks:
       - bridge-net
     environment:
-      - CHORD_DEBUG=true
+      - BENTO_DEBUG=True
+      - CHORD_DEBUG=True
       - FLASK_DEBUG=true
       - DEBUGGER_PORT=${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes
     volumes:
-      - ./lib/wes/bento_wes:/wes/bento_wes
       - ${BENTOV2_WES_DEV_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_DEV_VOL_TMP_DIR}:/wes/tmp
       - ${BENTOV2_WES_DEV_DROP_BOX_VOL_DIR}:/data
@@ -121,7 +102,6 @@ services:
       - "${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_WES_DEBUGGER_INTERNAL_PORT}"
 
   drs:
-    image: ${BENTOV2_DRS_IMAGE}:latest-dev
     environment:
       - FLASK_DEBUG=true
       - DEBUGGER_PORT=${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}
@@ -134,54 +114,56 @@ services:
       - "${BENTOV2_DRS_EXTERNAL_PORT}:5000"
       - "${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_DRS_DEBUGGER_INTERNAL_PORT}"
     volumes:
-      - ./lib/drs/chord_drs:/drs/chord_drs
       # Override main drs data directory
-      - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/bento_drs/data
-      - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp
+      - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/chord_drs/data
 
   beacon:
-    image: ${BEACON_IMAGE}:${BEACON_VERSION}-dev
     networks:
       - bridge-net
     environment:
-      - CHORD_DEBUG=true
-      - BEACON_DEBUG=true
+      - BENTO_DEBUG=True
+      - CHORD_DEBUG=True
+      - BENTO_BEACON_DEBUG=true
       - FLASK_ENV=development
     extends:
       file: $PWD/lib/beacon/docker-compose.beacon.yaml
       service: beacon
-    volumes:
-      - ./lib/beacon/bento_beacon:/beacon/bento_beacon
-      - ./lib/beacon/config:/config
     ports:
-      - "${BEACON_EXTERNAL_PORT}:${BEACON_INTERNAL_PORT}"
-      - "${BEACON_DEBUGGER_EXTERNAL_PORT}:${BEACON_DEBUGGER_INTERNAL_PORT}"
+      - "${BENTO_BEACON_EXTERNAL_PORT}:${BENTO_BEACON_INTERNAL_PORT}"
+      - "${BENTO_BEACON_DEBUGGER_EXTERNAL_PORT}:${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}"
 
   service-registry:
-    build:
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./lib/service-registry/bento_service_registry:/service-registry/bento_service_registry/
-      - ./lib/service-registry/chord_services.json:/service-registry/bento_service_registry/chord_services.json:ro
     environment:
       - FLASK_DEBUG=True
+      - BENTO_DEBUG=True
     extends:
       file: docker-compose.yaml
       service: service-registry
-    entrypoint: sh -c "gunicorn bento_service_registry.app:application -w 1 --threads 1 -b 0.0.0.0:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}"
-  
+
   drop-box:
-      build:
-        dockerfile: Dockerfile.dev
-      environment:
-        # Runtime
-        - FLASK_DEBUG=True
-      volumes:
-        - ./lib/drop-box/bento_drop_box_service:/drop-box/bento_drop_box_service/
-      extends:
-        file: docker-compose.yaml
-        service: drop-box
-      entrypoint: sh -c "gunicorn bento_drop_box_service.app:application -w 2 --threads 2 -b 0.0.0.0:5000"
+    environment:
+      # Runtime
+      - FLASK_DEBUG=True
+      - BENTO_DEBUG=True
+    extends:
+      file: docker-compose.yaml
+      service: drop-box
+
+  notification:
+    environment:
+      # Runtime
+      - FLASK_DEBUG=True
+      - BENTO_DEBUG=True
+    extends:
+      file: docker-compose.yaml
+      service: notification
+
+  event-relay:
+    environment:
+      - NODE_ENV=development
+    extends:
+      file: docker-compose.yaml
+      service: event-relay
 
 networks:
   bridge-net:

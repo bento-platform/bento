@@ -1,6 +1,8 @@
-# bento v2
+# BentoV2 - Docker-based Bento development and deployment tooling
+
 This repo is intended to be the next generation of Bento deployments.
-Originating from the blueprints in the repo `chord_singularity`, `bentoV2` aims to be much more modular than it's counterpart, built with docker instead of Singularity.
+Originating from the blueprints in the repo `chord_singularity`, `bentoV2` aims to be much more modular than its 
+counterpart, built with Docker instead of Singularity.
 
 
 
@@ -10,19 +12,92 @@ Originating from the blueprints in the repo `chord_singularity`, `bentoV2` aims 
 
 
 
-## Makefile
-The Makefile contains a set of tools to faciliate testing, development, and deployments. Ranging from `build`, `run`, and `clean` commands, operators may have an easier time using these rather than fiddling with raw `docker` and `docker-compose` commands.
+<br />
 
 ## Requirements
 - Docker >= 19.03.8
-- Docker Compose >=1.29.0
+- Docker Compose >= 2.14.0 (plugin form: you should have the `docker compose` command available, without a dash)
+
+
+
+<br />
+
+## Migration documents
+
+* [v2.10 to v2.11](./docs/migrating_to_2_11.md)
+
+
+
+<br />
+
+## `bentoctl`: the BentoV2 command line management tool
+
+This command line tool offers a series of commands and parameters that are helpful to set up the Docker environment for 
+Bento services. It is designed to facilitate fast development and have better cross-platform compatibility versus the 
+Makefile.
+
+### Prerequisites
+
+This CLI is specified by a Python module, `py_bentoctl`, launched by a Bash script, 
+`./bentoctl.bash`. The Bash wrapper loads various `.env` files to set up the Bento environment.
+
+The `bentoctl` script depends on Python packages, we recommend using a virtual environment for this.
+
+```bash
+# Create a venv under ./env
+python3 -m venv env
+
+# Activate the python env
+source env/bin/activate
+
+# Install dependencies
+pip3 install -r requirements.txt
+```
+
+To make interacting with the CLI quicker, consider adding an alias for calling `bentoctl.bash`, putting the following
+in your `.bash_aliases`, `.bash_profile` or `.zshrc` file:
+
+**Bash/ZSH:** `alias bentoctl="./bentoctl.bash"`
+
+For a quick setup, use the following to append the alias to the file of your choice.
+
+```bash
+# Optional: create an alias for bentoctl (run from project's root)
+echo "alias bentoctl=${PWD}/bentoctl.bash" > ~/.bash_aliases
+
+# Now RESTART your terminal and re-source the virtualenv, OR run:
+source ~/.bash_aliases
+
+# Then, use your alias!
+bentoctl --help
+```
+
+### Usage
+
+For an overview of `bentoctl`'s features, type the following from the root of the project:
+
+```bash
+./bentoctl.bash
+```
+
+> **Note:** the flags `--debug, -d` are intended for interactive remote Python debugging of the `bentoctl` module 
+> itself. See [VSCode instructions](https://code.visualstudio.com/docs/python/debugging#_local-script-debugging) or 
+> [PyCharm instructions](https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html) for IDE setup.
+
+
+
+<br />
 
 ## Installation
 
-### Provision configuration files
+### 1. Provision configuration files
 
-Depending on your use either development or deployment you will need to cp the right template file
-```
+#### Instance-specific environment variable file: `local.env`
+
+Depending on your use, development or deployment, you will need to copy the right template file
+to `local.env` in the root of the `bentoV2` folder:
+
+```bash
 # Dev
 cp ./etc/bento_dev.env local.env
 
@@ -30,143 +105,204 @@ cp ./etc/bento_dev.env local.env
 cp ./etc/bento_deploy.env local.env
 ```
 
-Then, run --
-```
-# public service configuration file. Required if BENTOV2_USE_BENTO_PUBLIC flag is set to `1`
-# See Katsu documentation for more information about the specifications
-cp ./etc/katsu.config.example.json ./lib/katsu/config.json
-```
+Then, modify the values as seen; depending on if you're using the instance for development or deployment.
 
--then modify the values as seen applicable..
-For example;
 
-```
-local.env
+##### Development example
 
-BENTOV2_DOMAIN=bentov2.local
-BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
-BENTOV2_AUTH_DOMAIN=bentov2auth.local
+The below is an example of a completed development configuration:
+
+```bash
+# in local.env:
 
 MODE=dev
 
+# Gateway/domains -----------------------------------------------------
+BENTOV2_DOMAIN=bentov2.local
+BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
+BENTOV2_AUTH_DOMAIN=bentov2auth.local
+# ---------------------------------------------------------------------
+
+# Feature switches ----------------------------------------------------
 BENTOV2_USE_EXTERNAL_IDP=0
 BENTOV2_USE_BENTO_PUBLIC=1
 BENTOV2_PRIVATE_MODE=false
+# ---------------------------------------------------------------------
 
+# set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
 BENTOV2_ROOT_DATA_DIR=~/bentov2/data
-```
-On MacOS and some other OSes, `DOLLAR` must be changed from `$` to `$$`
-```
-DOLLAR=$$
-```
-If the internal IdP is being used (by default, Keycloak), credential variables should also be provided. The *admin* credentials are used to connect to the Keycloak UI
-for authentication management (adding users, getting client credentials,...).
-The *test* credentials will be used to authenticate on the Bento Portal.
 
+# Auth ----------------------------------------------------------------
+#  - Session secret should be set to a unique secure value.
+#    this adds security and allows sessions to exist across gateway restarts.
+#  - Empty by default, to be filled by local.env
+#  - IMPORTANT: set before starting gateway
+BENTOV2_SESSION_SECRET=my-very-secret-session-secret  # !!! ADD SOMETHING MORE SECURE !!!
+
+BENTOV2_AUTH_ADMIN_USER=admin
+BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
+
+BENTOV2_AUTH_TEST_USER=user
+BENTOV2_AUTH_TEST_PASSWORD=user  # !!! obviously for dev only !!!
+
+# Set CLIENT_SECRET *after* Keycloak is up and running; then, restart it.
+CLIENT_SECRET=from-running-init-auth...
+# --------------------------------------------------------------------
+
+BENTOV2_KATSU_APP_SECRET=some-random-phrase-here   # !!! ADD SOMETHING MORE SECURE !!!
+
+# Development settings ------------------------------------------------
+
+# - Git configuration
+BENTO_GIT_NAME=David  # Change this to your name
+BENTO_GIT_EMAIL=do-not-reply@example.org  # Change this to your GitHub account email
 ```
+
+If the internal OIDC identity provider (IdP) is being used (by default, Keycloak), variables specifying default 
+credentials should also be provided. The *admin* credentials are used to connect to the Keycloak UI for authentication 
+management (adding users, getting client credentials, ...). The *test* credentials will be used to authenticate on the 
+Bento Portal.
+
+```bash
 BENTOV2_AUTH_ADMIN_USER=testadmin
 BENTOV2_AUTH_ADMIN_PASSWORD=testpassword123
 
 BENTOV2_AUTH_TEST_USER=testuser
 BENTOV2_AUTH_TEST_PASSWORD=testpassword123
 ```
-Otherwise, adjust the following AUTH variables according to the extenal IdP's specifications;
-```
+
+If using an *external* identity provider, adjust the following auth variables according to the external IdP's 
+specifications:
+
+```bash
 BENTOV2_AUTH_CLIENT_ID=local_bentov2
 BENTOV2_AUTH_REALM=bentov2
 
 BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
 ```
 
-<br />
+#### `bento_public` configuration
 
-### Create self-signed TLS certificates
+Then, copy the `bento_public` configuration file to its correct location for use by Katsu, 
+Bento's clinical/phenotypic metadata service:
 
-First, setup your local bentoV2 and authorization hostnames (something like `bentov2.local`, and `bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development with the following steps;
+```bash
+# public service configuration file. Required if BENTOV2_USE_BENTO_PUBLIC flag is set to `1`
+# See Katsu documentation for more information about the specifications
+cp ./etc/katsu.config.example.json ./lib/katsu/config.json
+```
 
+
+
+### 2. *Development only:* create self-signed TLS certificates 
+
+First, set up your local Bento and Keycloak hostnames (something like `bentov2.local`, `portal.bentov2.local`, and 
+`bentov2auth.local`) in the `.env` file. You can then create the corresponding TLS certificates for local development.
+
+Setting up the certificates with `bentoctl` can be done in a single command.
 From the project root, run
+
+```bash
+./bentoctl.bash init-certs
 ```
-mkdir -p ./lib/gateway/certs
+
+> **NOTE:** This command will skip all certificate generation if it detects previously created files. 
+> To force an override, simply add the option `--force` / `-f`.
+
+
+### 3. *Development only:* Hosts file configuration
+
+Ensure that the local domain names are set in the machines `hosts` file (for Linux users, this is likely 
+`/etc/hosts`, and in Windows, `C:\Windows\System32\drivers\etc\hosts`) pointing to either `localhost`, `127.0.0.1`, 
+or `0.0.0.0`, depending on whichever gets the job done on your system.
+
+With the default development configuration, this might look something like:
+
+```
+# ... system stuff above
+127.0.0.1	bentov2.local
+127.0.0.1	portal.bentov2.local
+127.0.0.1	bentov2auth.local
+# ... other stuff below
 ```
 
-> NOTE: In the steps below, ensure the domain names in `.env` and the cert Common Names match up
+This is **not needed** in production, since the domains should have DNS records.
 
-Then run
-```
-openssl req -newkey rsa:2048 -nodes \
-    -keyout ./lib/gateway/certs/privkey1.key -x509 \
-    -days 365 -out ./lib/gateway/certs/fullchain1.crt
-
-openssl req -newkey rsa:2048 -nodes \
-    -keyout ./lib/gateway/certs/portal_privkey1.key -x509 \
-    -days 365 -out ./lib/gateway/certs/portal_fullchain1.crt
-```
-to create the bentov2 cert for `bentov2.local` (or whatever other domain you use)
-
-Next, if you're running an OIDC provider container locally (default is Keycloak), run
-```
-openssl req -newkey rsa:2048 -nodes \
-    -keyout ./lib/gateway/certs/auth_privkey1.key -x509 \
-    -days 365 \
-    -out ./lib/gateway/certs/auth_fullchain1.crt
-```
-to create the bentov2 cert for `bentov2auth.local` (or whatever other domain you use)
-
-Finally, ensure that the local domain name is set in the machines `hosts` file (for Linux users, this is likely `/etc/hosts`, and in Windows, `C:\Windows\System32\drivers\etc\hosts`) pointing to either `localhost`, `127.0.0.1`, or `0.0.0.0`, depending on whichever gets the job done on your system.
+Make sure these values match the values in the `.env` file and what was issued in the self-signed certificates, as 
+specified in the step above.
 
 
-### Boot the gateway controller (NGINX by default)
-
-> NOTE: `make` commands seen here aren't the only tools for operating this cluster. See the `Makefile` for further documentation.
+### 4. Initialize and boot the gateway
 
 
-```sh
-# Once the certificates are ready, initialize the cluster configs secrets
-make init-chord-services
-make init-dirs
-make init-docker
-make docker-secrets
+> NOTE: `./bentoctl.bash` commands seen here aren't the only tools for operating this cluster. 
+> Run `./bentoctl.bash --help` for further documentation.
 
-# Build base images
-make build-common-base
 
-# Prepare web-service
-make init-web
+```bash
+# Once the certificates are ready, initialize various aspects of the cluster:
+./bentoctl.bash init-all
+# Which is equivalent to:
 
-# If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
-make run-gateway
+#   # Once the certificates are ready, initialize the cluster configs secrets
+#   ./bentoctl.bash init-dirs
+#   ./bentoctl.bash init-docker
+#   ./bentoctl.bash init-secrets
+#   
+#   # Initialize bento_web and bento_public
+#   ./bentoctl.bash init-web private
+#   ./bentoctl.bash init-web public
+
+# If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), 
+# i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
+./bentoctl.bash run auth
+./bentoctl.bash run gateway
 # and
-make auth-setup
+./bentoctl.bash init-auth
 
-# Otherwise, only open & configure the cluster's gateway with
-make auth-setup
+# then EDIT YOUR ENVIRONMENT TO INCLUDE THE RESULTING CLIENT SECRET VIA CLIENT_SECRET=... ! after this,
+# restart the gateway:
+./bentoctl.bash restart gateway
 ```
 
-This last step boots and configures the local OIDC provider (**Keycloak**) container and reconfigure the gateway to utilize new variables generated during the OIDC configuration.
+**If using an external identity provider**, only start the cluster's gateway
+after setting `CLIENT_SECRET` in your local environment file:
 
-> NOTE: by default, the `gateway` service *does* need to be running for this to work as the configuration will pass via the URL set in the `.env` file which points to the gateway.
+```bash
+./bentoctl.bash run gateway
+```
+
+
+#### Note on Keycloak
+
+This last step boots and configures the local OIDC provider (**Keycloak**) container and reconfigures the gateway to 
+utilize new variables generated during the OIDC configuration.
+
+> NOTE: by default, the `gateway` service *does* need to be running for this to work as the configuration will pass via 
+> the URL set in the `.env` file which points to the gateway.
 >
-> If you do not plan to use the built-in OIDC provider, you will have to handle the `auth_config` and `instance_config` manually (see `./etc/auth/..` and `./etc/scripts/..` for further details)
+> If you do not plan to use the built-in OIDC provider, you will have to handle auth configuration manually.
 
-The `CLIENT_SECRET` environment variable must be set using the value provided
-by Keycloak. Using a browser, connect to the `auth` endpoint (by default `https://bentov2auth.local`) and use the admin credentials from the env file. Once within
-Keycloak interface, navigate to the *Configure/Clients* menu. Select `local_bentov2`
-in the list of clients and switch to the *Credentials* tab. Copy the secret from
+The `CLIENT_SECRET` environment variable must be set using the value provided by Keycloak. If `bentoctl` was used, 
+this should have been printed to the console when `init-auth` was run.
+
+##### If you need to retrieve `CLIENT_SECRET` manually:
+
+Using a browser, connect to the `auth` endpoint (by default `https://bentov2auth.local`) and use the admin 
+credentials from the env file. Once within Keycloak interface, navigate to the *Configure/Clients* menu. Select 
+`local_bentov2` in the list of clients and switch to the *Credentials* tab. Copy the secret from
 there and paste it in your .env file.
 
 ![Keycloak UI: get client secret](docs/img/keycloak_client_secret.png)
 
-### Setup Bento-Public
 
-Run
-```
-make init-public
-```
+### 5. *Production only:* set up translations for Bento-Public
 
-Adjust the default translation set as necessary
+Now that Bento Public has been initialized by either `./bentoctl.bash init-all` or `./bentoctl.bash init-web public`,
+adjust the default translation set as necessary:
 
-```
-lib/public/translations/<en|fr>.json
+```js
+// lib/public/translations/<en|fr>.json
 
 {
   "Age": "Age",
@@ -199,43 +335,40 @@ lib/public/translations/<en|fr>.json
 ```
 
 
-### Setup Gohan service
+### 6. Start the cluster
+
+```bash
+./bentoctl.bash run all
+# or
+./bentoctl.bash run
+# (these are synonymous)
+```
+
+to run all Bento services.
+
+
+#### Stopping and cleaning the cluster
 
 Run
 
-```
-make run-gohan-api
-make run-gohan-elasticsearch
-```
-
-to start `bentov2-gohan-api` and `bentov2-gohan-elasticsearch` containers.
-
-
-
-### Start the cluster
-
-```
-make run-all
+```bash
+./bentoctl.bash stop all
 ```
 
-to trigger the series of initial build events (using `docker-compose`) for the rest of bento's supporting microservices, and then run them.
+to shut down the whole cluster.
 
-### Stop the cluster
+To remove the Docker containers, run the following:
 
-Run
+```bash
+./bentoctl.bash clean all
 ```
-make stop-all
-```
-to shut down the whole cluster,
 
-```
-make clean-all
-```
-to remove the docker containers and images from disk,
+> NOTE: application data does persist after cleaning 
+> (depending on data path, e.g., `./data/[auth, drs, katsu]/...` directories)
 
-> NOTE: application data does persist (see `./lib/[auth, drs, katsu]/data` directories, for example)
 
-### Gohan Genes 'Catalogue' Setup Tips:
+### 7. Set up Gohan's gene catalogue (*optional*; required for gene querying support)
+
 Upon initial startup of a fresh instance, it may of use, depending on the use-case, to perform the following:
 
 ```
@@ -251,26 +384,50 @@ https://portal.bentov2.local/api/gohan/genes/ingestion/requests
 https://portal.bentov2.local/api/gohan/genes/overview
 ```
 
+
+
 <br />
 
 ## Development
-To build upon the `bento_web` service while using bentoV2 *(Note; this can be done with a number of other services in the stack with slight modifications : see the 'Makefile' and '.env' for details)*, a few accomodations need to be made to your workspace.
-First, move your local bento_web project to the `./lib/web` directory, or clone the web project there with
 
-```
-cd lib/web
-git clone https://github.com/bento-platform/bento_web.git
+### Accessing containers with `bentoctl`
+
+To start a shell session within a particular container, use the following command (here, `web` is used as an example):
+
+```bash
+./bentoctl shell web
 ```
 
-You will then have `lib/web/bento_web` available.
+Optionally, the shell to run can be specified via `--shell /bin/bash` or `--shell /bin/sh`.
 
-Once this is set, you can run
-```
-make run-web-dev
-```
-which will spin up the `web` container tethered to your local directory with a docker `volume`. Internally, `npm run watch` is executed (see `./lib/web/dev_startup.sh`) so changes made locally will be reflected in the container - the service will then recompile and render.
 
-> Note: if you get stuck on an NGINX `500 Internal Service Error`, give it another minute to spin up. If it persists, run `docker exec -it bentov2-web sh` to access the container, and then run `npm run watch` manually.
+### Working on `web` (as an example)
+
+To work on the `bento_web` repository within a BentoV2 environment, run the following command:
+
+```bash
+./bentoctl work-on web
+```
+
+This will clone the `bento_web` repository into `./repos/web` if necessary, and start it in development mode,
+which means on-the-fly Webpack building will be available.
+
+
+#### Migrating the repository from v2.10 and prior
+
+Move your local `bento_web` project to the `./repos` directory (named `web`):
+
+```bash
+mv ./path/to/my/bentoweb ./repos/web
+```
+
+You will then have `repos/web` available for the `./bentoctl.bash work-on web` command, which will spin up the 
+`web` container tethered to your local directory with a Docker volume. Internally, 
+`npm run watch` is executed so changes made locally will be reflected in the container.
+
+> Note: if you get stuck on an NGINX `500 Internal Service Error`, give it another minute to spin up. If it persists, 
+> run `./bentoctl.bash shell web` to access the container, and then run `npm run watch` manually.
+
 
 
 <br />
@@ -279,46 +436,48 @@ which will spin up the `web` container tethered to your local directory with a d
 
 First, head on over to https://github.com/mozilla/geckodriver/releases and download the latest geckodriver.
 
-Decompress the .tar.gz or .zip and move the `geckodriver` over to the `./etc/tests/integration` directory. After that, simply run
+Decompress the .tar.gz or .zip and move the `geckodriver` over to the `./etc/tests/integration` directory. After that, 
+simply run
 ```
 make run-tests
 ```
 
 This will run a set of both unit `(TODO)` and integration tests. See the `Makefile` for more details
 
+
+
+<br />
+
 ## Troubleshooting
 
-- The logs for each individual service can be accessed by running
+### Accessing service logs
+
+The logs for each individual service can be accessed by running
 
 ```
-docker logs bentov2-<service>
+./bentoctl.bash logs <service>
 ```
+
 for example:
-```
-docker logs bentov2-katsu
-```
-
-- To restart all services
 
 ```
-make stop-all
-make run-all
-make auth-setup
+./bentoctl.bash logs katsu
 ```
 
-- If a service container doesn't start with `make run-all` start it individually, e.g.
+If you want to follow the logs live, append the `-f` option. If no service is specified, logs
+from all running Docker containers will be shown.
+
+### Restarting all services
+
+To restart all services
 
 ```
-make run-drs
+./bentoctl.bash stop all
+./bentoctl.bash run all
 ```
 
-- Running development instance locally: If federation service throws 500 ERROR, e.g.:
+One can also start services individually, e.g.:
 
 ```
-ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:852)
-ERROR:tornado.access:500 POST /private/dataset-search/...
-```
-In lib/federation/docker-compose.federation.yaml, set
-```
-CHORD_DEBUG=true
+./bentoctl.bash run drs
 ```

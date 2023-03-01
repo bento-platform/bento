@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   drs:
     image: ${BENTOV2_DRS_IMAGE}:${BENTOV2_DRS_VERSION}
@@ -9,26 +7,20 @@ services:
       - FLASK_DEBUG=False
       - DATABASE=/drs/bento_drs/data/db/  # slightly confused naming, folder for database to go in
       - DATA=/drs/bento_drs/data/obj/  # DRS file objects, vs. the database
-      
-      - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
 
-    # depends_on:
-    #   - variant # wait for `variant` service to start so `drs`
-    #             # service can ping variant service notifying it
-    #             # can query for ingested variants upon startup 
-    networks: 
+      - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
+    networks:
       - bridge-net
     expose:
       - ${BENTOV2_DRS_INTERNAL_PORT}
     volumes:
-      - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/bento_drs/data
+      - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/data
       - ${BENTOV2_DRS_PROD_WES_VOL_DIR}:/wes/tmp
       - ${BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR}:${BENTOV2_GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
     mem_limit: ${BENTOV2_DRS_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_DRS_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:${BENTOV2_DRS_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_DRS_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
