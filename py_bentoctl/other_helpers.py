@@ -122,7 +122,7 @@ def init_self_signed_certs(force: bool):
         **({"cbioportal": {
             "var": "BENTOV2_CBIOPORTAL_DOMAIN",
             "priv_key_name": "cbioportal_privkey1.key",
-            "crt": "cbioportal_fullchain1.key",
+            "crt": "cbioportal_fullchain1.crt",
         }} if c.BENTO_CBIOPORTAL_ENABLED else {}),
     }
 
