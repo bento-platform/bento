@@ -249,9 +249,7 @@ def init_auth():
 
     info(f"  Creating web client: {AUTH_CLIENT_ID}")
     client_secret = create_web_client_if_needed(access_token)
-    cprint(
-        f"    Please set CLIENT_SECRET to {client_secret} in local.env and restart the gateway",
-        attrs=["bold"])
+    cprint(f"    Please set CLIENT_SECRET to {client_secret} in local.env and restart the gateway", attrs=["bold"])
     success()
 
     info(f"  Creating user: {AUTH_TEST_USER}")
