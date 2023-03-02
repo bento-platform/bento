@@ -197,6 +197,7 @@ services:
     environment:
       - BENTO_UID
       - BENTO_CBIOPORTAL_ENABLED
+      - BENTO_CBIOPORTAL_PUBLIC_URL
       - BENTO_URL=${BENTOV2_PORTAL_PUBLIC_URL}
       - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
     mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
