@@ -6,6 +6,8 @@ services:
     extends:
       file: docker-compose.yaml
       service: web
+    environment:
+      - NODE_ENV=development
 
   public:
     extends:
