@@ -42,8 +42,12 @@ Here is what you will need to set in your `local.env` file:
 # Set this to a random secret value
 BENTOV2_SESSION_SECRET=some-long-random-string
 
-# This used to be set by default in bento.env, but now needs explicit setting in local.env
-BENTOV2_KATSU_DB_PASSWORD=devpassword123
+# These used to be set by default in bento.env, but now needs explicit setting in local.env
+BENTOV2_KATSU_APP_SECRET=some-long-random-string
+BENTOV2_KATSU_DB_PASSWORD=some-long-random-string
+
+# This used to be set by default in bento.env; same as above
+BENTOV2_GOHAN_ES_PASSWORD=some-long-random-string
 ```
 
 Remove any lines which look like the following:
