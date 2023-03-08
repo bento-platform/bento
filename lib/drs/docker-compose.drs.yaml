@@ -10,6 +10,9 @@ services:
       - DATA=/drs/bento_drs/data/obj/  # DRS file objects, vs. the database
 
       - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
+
+      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
+      - SERVICE_URL_BASE_PATH=/api/drs
     networks:
       - drs-net
     expose:
