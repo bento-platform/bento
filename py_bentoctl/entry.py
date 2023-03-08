@@ -312,7 +312,8 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
     _add_subparser(
-        "work-on", "Work on a specific service in a local development mode.", WorkOn, aliases=("dev", "develop"))
+        "work-on", "Work on a specific service in a local development mode.", WorkOn,
+        aliases=("dev", "develop", "local"))
     _add_subparser("prebuilt", "Switch a service back to prebuilt mode.", Prebuilt, aliases=("pre-built", "prod"))
     _add_subparser(
         "mode", "See if a service (or which services) are in production/development mode.", Mode,
