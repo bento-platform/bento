@@ -428,6 +428,7 @@ services:
 
   gohan-api:
     networks:
+      - drs-net  # Needs to send VCFs to DRS; doesn't go through auth.
       - gohan-api-net
       - gohan-es-net
     mem_limit: ${BENTOV2_GOHAN_API_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
