@@ -127,9 +127,6 @@ make init-dirs
 make init-docker
 make docker-secrets
 
-# Build base images
-make build-common-base
-
 # Prepare web-service
 make init-web
 
