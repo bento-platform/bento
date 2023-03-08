@@ -15,7 +15,7 @@ services:
     expose:
       - ${BENTOV2_DRS_INTERNAL_PORT}
     volumes:
-      - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/data
+      - ${BENTOV2_DRS_PROD_VOL_DIR}:/drs/bento_drs/data
       - ${BENTOV2_DRS_PROD_WES_VOL_DIR}:/wes/tmp:ro
       - ${BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR}:${BENTOV2_GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
     mem_limit: ${BENTOV2_DRS_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
