@@ -208,3 +208,12 @@ services:
     extends:
       file: docker-compose.yaml
       service: event-relay
+
+  gohan-elasticsearch:
+    # In dev / on Mac, sometimes this will trip up and decide there isn't enough disk space even when there is.
+    # See https://stackoverflow.com/questions/48119189/elasticsearch-6-index-change-to-read-only-after-few-second
+    environment:
+      "cluster.routing.allocation.disk.threshold_enabled": "false"
+    extends:
+      file: docker-compose.yaml
+      service: gohan-elasticsearch
