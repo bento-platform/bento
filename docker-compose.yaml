@@ -304,9 +304,6 @@ services:
 
 
   aggregation:
-    networks:
-      - aggregation-net
-      - katsu-net  # For querying projects/datasets/tables
     extends:
       file: $PWD/lib/aggregation/docker-compose.aggregation.yaml
       service: aggregation

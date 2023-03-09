@@ -13,6 +13,7 @@ services:
       - USE_GOHAN=true
     networks: 
       - aggregation-net
+      - katsu-net  # For querying projects/datasets/tables
     expose:
       - ${BENTOV2_AGGREGATION_INTERNAL_PORT}
     mem_limit: ${BENTOV2_AGGREGATION_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
@@ -27,3 +28,6 @@ networks:
   aggregation-net:
     external: true
     name: ${BENTO_AGGREGATION_NETWORK}
+  katsu-net:
+    external: true
+    name: ${BENTO_KATSU_NETWORK}
