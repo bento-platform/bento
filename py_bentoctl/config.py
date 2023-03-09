@@ -52,7 +52,7 @@ def _env_get_bool(var: str, default: bool = False) -> bool:
     return os.getenv(var, str(default).lower()).lower().strip() in ("1", "true")
 
 
-BENTOV2_USE_EXTERNAL_IDP: bool = _env_get_bool("BENTOV2_USE_BENTO_PUBLIC", default=False)
+BENTOV2_USE_EXTERNAL_IDP: bool = _env_get_bool("BENTOV2_USE_EXTERNAL_IDP", default=False)
 BENTOV2_USE_BENTO_PUBLIC: bool = _env_get_bool("BENTOV2_USE_BENTO_PUBLIC", default=True)
 BENTO_CBIOPORTAL_ENABLED: bool = _env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False)
 
