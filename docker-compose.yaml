@@ -362,9 +362,6 @@ services:
 
 
   wes:
-    networks:
-      - redis-net  # Talks to Redis for event pub/sub and job queueing
-      - wes-net
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes

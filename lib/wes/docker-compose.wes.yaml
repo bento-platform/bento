@@ -42,6 +42,7 @@ services:
       - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
     networks:
       - wes-net
+      - redis-net  # Talks to Redis for event pub/sub and job queueing
       - drs-net
     expose:
       - ${BENTOV2_WES_INTERNAL_PORT}
@@ -61,6 +62,9 @@ networks:
   drs-net:
     external: true
     name: ${BENTO_DRS_NETWORK}
+  redis-net:
+    external: true
+    name: ${BENTO_REDIS_NETWORK}
   wes-net:
     external: true
     name: ${BENTO_WES_NETWORK}
