@@ -44,6 +44,7 @@ lib/web/*
 # bento_public
 lib/public/*
 !lib/public/.gitkeep
+!lib/public/docker-compose.public.yaml
 
 # temp test stuff
 etc/tests/*/__pycache__
