@@ -29,24 +29,20 @@ BENTO_SERVICES_DATA_BY_KIND = {
 
 
 def _get_compose_with_files(dev: bool = False, local: bool = False):
-    with_cbioportal = ("-f", c.DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL) if c.BENTO_CBIOPORTAL_ENABLED else ()
-
-    if dev:
-        return (
-            *c.COMPOSE,
-            "-f", c.DOCKER_COMPOSE_FILE_BASE,
-            "-f", c.DOCKER_COMPOSE_FILE_DEV,
-            *(("-f", c.DOCKER_COMPOSE_FILE_LOCAL) if local else ()),
-            *with_cbioportal,
-        )
-
     if not dev and local:
         raise NotImplementedError("Local mode not implemented with prod")
+
+    with_auth = ("-f", c.DOCKER_COMPOSE_FILE_FEATURE_AUTH) if not c.BENTOV2_USE_EXTERNAL_IDP else ()
+    with_cbioportal = ("-f", c.DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL) if c.BENTO_CBIOPORTAL_ENABLED else ()
 
     return (
         *c.COMPOSE,
         "-f", c.DOCKER_COMPOSE_FILE_BASE,
-        "-f", c.DOCKER_COMPOSE_FILE_PROD,
+
+        *(("-f", c.DOCKER_COMPOSE_FILE_DEV) if dev else ("-f", c.DOCKER_COMPOSE_FILE_PROD)),
+        *(("-f", c.DOCKER_COMPOSE_FILE_LOCAL) if local else ()),
+
+        *with_auth,
         *with_cbioportal,
     )
 

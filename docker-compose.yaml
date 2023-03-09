@@ -146,18 +146,7 @@ services:
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
 
-  # TODO: Remove these auth entries and optionally override with docker-compose.auth.yaml instead
-  auth:
-    extends:
-      file: ${PWD}/lib/auth/docker-compose.auth.yaml
-      service: auth
-
-  auth-db:
-    extends:
-      file: ${PWD}/lib/auth/docker-compose.auth.yaml
-      service: auth-db
-
-
+  # TODO: Remove this entry and optionally override with docker-compose.public.yaml instead
   public:
     image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION}
     container_name: ${BENTO_PUBLIC_CONTAINER_NAME}

@@ -40,6 +40,7 @@ DOCKER_COMPOSE_FILE_BASE = "./docker-compose.yaml"
 DOCKER_COMPOSE_FILE_DEV = "./docker-compose.dev.yaml"
 DOCKER_COMPOSE_FILE_LOCAL = "./docker-compose.local.yaml"
 DOCKER_COMPOSE_FILE_PROD = "./docker-compose.prod.yaml"
+DOCKER_COMPOSE_FILE_FEATURE_AUTH = "./lib/auth/docker-compose.auth.yaml"
 DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL = "./lib/cbioportal/docker-compose.cbioportal.yaml"
 
 USER = os.getenv("USER")
