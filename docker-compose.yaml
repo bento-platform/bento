@@ -180,8 +180,6 @@ services:
 
 
   katsu:
-    depends_on:
-      - katsu-db
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu
@@ -484,21 +482,12 @@ networks:
   auth-net:
     external: true
     name: ${BENTO_AUTH_NETWORK}
-  auth-db-net:
-    external: true
-    name: ${BENTO_AUTH_DB_NETWORK}
   beacon-net:
     external: true
     name: ${BENTO_BEACON_NETWORK}
   cbioportal-net:
     external: true
     name: ${BENTO_CBIOPORTAL_NETWORK}
-  cbioportal-db-net:
-    external: true
-    name: ${BENTO_CBIOPORTAL_DATABASE_NETWORK}
-  cbioportal-session-net:
-    external: true
-    name: ${BENTO_CBIOPORTAL_SESSION_NETWORK}
   drop-box-net:
     external: true
     name: ${BENTO_DROP_BOX_NETWORK}
@@ -517,9 +506,6 @@ networks:
   katsu-net:
     external: true
     name: ${BENTO_KATSU_NETWORK}
-  katsu-db-net:
-    external: true
-    name: ${BENTO_KATSU_DB_NETWORK}
   notification-net:
     external: true
     name: ${BENTO_NOTIFICATION_NETWORK}
