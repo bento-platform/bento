@@ -12,9 +12,8 @@ services:
       - auth-net
       - auth-db-net
     volumes:
-      # - ${BENTOV2_AUTH_VOL_DIR}:/opt/keycloak/data
-      - ${PWD}/${BENTOV2_CERTS_DIR}/auth_fullchain1.crt:/run/secrets/keycloak-cert-file:ro
-      - ${PWD}/${BENTOV2_CERTS_DIR}/auth_privkey1.key:/run/secrets/keycloak-cert-key-file:ro
+      - ${BENTOV2_AUTH_CERTS_DIR}${BENTOV2_AUTH_FULLCHAIN_RELATIVE_PATH}:/run/secrets/keycloak-cert-file:ro
+      - ${BENTOV2_AUTH_CERTS_DIR}${BENTOV2_AUTH_PRIVKEY_RELATIVE_PATH}:/run/secrets/keycloak-cert-key-file:ro
     environment:
       - KC_HTTP_ENABLED=true
       - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
