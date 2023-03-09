@@ -385,10 +385,6 @@ services:
       interval: 15s  # Faster interval for services which others may require to be healthy
 
   beacon:
-    networks: 
-      - beacon-net
-      - gohan-api-net
-      - katsu-net
     extends:
       file: $PWD/lib/beacon/docker-compose.beacon.yaml
       service: beacon

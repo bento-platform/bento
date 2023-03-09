@@ -21,6 +21,8 @@ services:
       - ./config:/config:ro
     networks: 
       - beacon-net
+      - gohan-api-net
+      - katsu-net
     expose:
       - ${BENTO_BEACON_INTERNAL_PORT}
     mem_limit: ${BENTO_BEACON_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
@@ -35,3 +37,9 @@ networks:
   beacon-net:
     external: true
     name: ${BENTO_BEACON_NETWORK}
+  gohan-api-net:
+    external: true
+    name: ${BENTO_GOHAN_API_NETWORK}
+  katsu-net:
+    external: true
+    name: ${BENTO_KATSU_NETWORK}
