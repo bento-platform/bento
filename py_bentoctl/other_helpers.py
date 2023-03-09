@@ -101,21 +101,28 @@ def _init_web_private(force: bool):
 
 
 def init_self_signed_certs(force: bool):
+    certs_dir = (pathlib.Path.cwd() / "certs")
+    auth_certs_dir = (certs_dir / "auth")
+    gateway_certs_dir = (certs_dir / "gateway")
+
     cert_domains_vars = {
         "public": {
             "var": "BENTOV2_DOMAIN",
             "priv_key_name": "privkey1.key",
-            "crt": "fullchain1.crt"
+            "crt": "fullchain1.crt",
+            "dir": gateway_certs_dir,
         },
         "portal": {
             "var": "BENTOV2_PORTAL_DOMAIN",
             "priv_key_name": "portal_privkey1.key",
-            "crt": "portal_fullchain1.crt"
+            "crt": "portal_fullchain1.crt",
+            "dir": gateway_certs_dir,
         },
         "auth": {
             "var": "BENTOV2_AUTH_DOMAIN",
             "priv_key_name": "auth_privkey1.key",
-            "crt": "auth_fullchain1.crt"
+            "crt": "auth_fullchain1.crt",
+            "dir": auth_certs_dir,
         },
 
         # If cBioPortal is enabled, generate a cBioPortal self-signed certificate as well
@@ -123,17 +130,26 @@ def init_self_signed_certs(force: bool):
             "var": "BENTOV2_CBIOPORTAL_DOMAIN",
             "priv_key_name": "cbioportal_privkey1.key",
             "crt": "cbioportal_fullchain1.crt",
+            "dir": gateway_certs_dir,
         }} if c.BENTO_CBIOPORTAL_ENABLED else {}),
     }
 
-    # Init cert directory in gateway
-    certs_dir = (pathlib.Path.cwd() / "certs")
-    task_print("Creating certs directory if needed...")
-    certs_dir.mkdir(parents=True, exist_ok=True)
+    # Init cert directories
+
+    task_print("Creating certs directories if needed...")
+    auth_certs_dir.mkdir(parents=True, exist_ok=True)
+    gateway_certs_dir.mkdir(parents=True, exist_ok=True)
     task_print_done()
 
     # Check for existing cert files first
-    cert_files = list(certs_dir.glob('*.crt')) + list(certs_dir.glob('*.key')) + list(certs_dir.glob("*.pem"))
+    cert_files = [
+        *auth_certs_dir.glob('*.crt'),
+        *auth_certs_dir.glob('*.key'),
+        *auth_certs_dir.glob("*.pem"),
+        *gateway_certs_dir.glob('*.crt'),
+        *gateway_certs_dir.glob('*.key'),
+        *gateway_certs_dir.glob("*.pem"),
+    ]
     if not force and any(cert_files):
         warn("WARNING: Cert files detected in the target directory, new cert creation skipped.")
         warn("To create new certs, remove all \".crt\" and \".key\" files in target directory first.")
@@ -142,8 +158,7 @@ def init_self_signed_certs(force: bool):
         return
 
     for domain in cert_domains_vars.keys():
-        domain_var, priv_key_name, crt_name = cert_domains_vars[domain].values(
-        )
+        domain_var, priv_key_name, crt_name, crt_pk_dir = cert_domains_vars[domain].values()
         domain_val = os.getenv(domain_var)
 
         if domain_val is None:
@@ -152,12 +167,12 @@ def init_self_signed_certs(force: bool):
 
         #  Create private key for domain
         task_print(f"Creating .key file for domain: {domain} -> {domain_val} ...")
-        pkey = create_private_key(certs_dir, priv_key_name)
+        pkey = create_private_key(crt_pk_dir, priv_key_name)
         task_print_done()
 
         # Create signed cert for domain
         task_print(f"Creating certificate file for domain: {domain} -> {domain_val} ...")
-        create_cert(certs_dir, pkey, crt_name, domain_val)
+        create_cert(crt_pk_dir, pkey, crt_name, domain_val)
         task_print_done()
 
 
