@@ -158,25 +158,9 @@ services:
 
 
   web:
-    image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION}
-    container_name: ${BENTOV2_WEB_CONTAINER_NAME}
-    networks:
-      - web-net
-    expose:
-      - ${BENTOV2_WEB_INTERNAL_PORT}
-    environment:
-      - BENTO_UID
-      - BENTO_CBIOPORTAL_ENABLED
-      - BENTO_CBIOPORTAL_PUBLIC_URL
-      - BENTO_URL=${BENTOV2_PORTAL_PUBLIC_URL}
-      - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
-    mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_WEB_CPUS}
-    cpu_shares: 512
-    healthcheck:
-      test: [ "CMD", "wget", "-q0-", "http://localhost:${BENTOV2_WEB_INTERNAL_PORT}", "&&", "echo" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+    extends:
+      file: $PWD/lib/web/docker-compose.web.yaml
+      service: web
 
 
   katsu:

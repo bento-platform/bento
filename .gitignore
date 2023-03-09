@@ -40,6 +40,7 @@ lib/katsu/config.json
 # bento_web
 lib/web/*
 !lib/web/.gitkeep
+!lib/web/docker-compose.web.yaml
 
 # bento_public
 lib/public/*
