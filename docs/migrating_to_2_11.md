@@ -64,7 +64,7 @@ BENTOV2_FEDERATION_DEV_DEBUG=true
 in a virtual environment.
 
 ```bash
-virtualenv -p python3 ./env  # create env folder with virtual environment inside
+python3 -m venv ./env  # create env folder with virtual environment inside
 source ./env/bin/activate  # activate the virtual environment
 pip install -r requirements.txt  # install bentoctl requirements
 ./bentoctl.bash --help  # Make sure bentoctl works and look at the available commands
