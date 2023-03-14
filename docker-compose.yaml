@@ -88,7 +88,7 @@ services:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
-      cbioportal-net:
+      cbioportal-net:  # No aliases needed here; container for sure does not contact the gateway
       drop-box-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -97,7 +97,7 @@ services:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
-      event-relay-net:
+      event-relay-net:  # No aliases needed here; container for sure does not contact the gateway
       gohan-api-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -114,7 +114,7 @@ services:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
-      redis-net:
+      redis-net:  # No aliases needed here; container for sure does not contact the gateway
       service-registry-net:
         aliases:
           - ${BENTOV2_DOMAIN}
