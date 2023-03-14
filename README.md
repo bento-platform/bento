@@ -419,14 +419,16 @@ To work on the `bento_web` repository within a BentoV2 environment, run the foll
 This will clone the `bento_web` repository into `./repos/web` if necessary, and start it in development mode,
 which means on-the-fly Webpack building will be available.
 
-⚠️ **Warning for local dev** ⚠️
+⚠️ **Warning for local development** ⚠️
 
-In local mode, be sure to navigate to the cloned repository `./repos/web/` (or any other service repo you want to work on localy), 
-and checkout on the PR branch from which the dev Docker image was built. 
+In local mode, be sure to navigate to the cloned repository `./repos/web/` (or any other service repo you want to work 
+on locally), and checkout on the PR branch from which the dev Docker image was built. 
 
-You can find the default image tag variables in `./etc/bento.env` and overwrite them in `local.env`, look for the pattern `BENTOV2_(service name)_VERSION`. 
+You can find the default image tag variables in `./etc/bento.env` and overwrite them in `local.env`, look for the 
+pattern `BENTOV2_(service name)_VERSION`. 
 
-The version tags correspond to the PR **number** (not its name), e.g. `BENTOV2_WEB_VERSION=pr-216` indicates that the image was built from PR #216 in bento_web.
+The version tags correspond to the PR **number** (not its name), e.g. `BENTOV2_WEB_VERSION=pr-216` indicates that the 
+image was built from PR #216 in bento_web.
 
 #### Migrating the repository from v2.10 and prior
 
