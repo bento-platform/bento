@@ -490,6 +490,9 @@ networks:
   katsu-net:
     external: true
     name: ${BENTO_KATSU_NETWORK}
+  katsu-db-net:
+    external: true
+    name: ${BENTO_KATSU_DB_NETWORK}
   notification-net:
     external: true
     name: ${BENTO_NOTIFICATION_NETWORK}
