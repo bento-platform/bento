@@ -101,7 +101,7 @@ def _init_web_private(force: bool):
 
 
 def init_self_signed_certs(force: bool):
-    certs_dir = (pathlib.Path.cwd() / "certs")
+    certs_dir = pathlib.Path(os.environ["BENTOV2_CERTS_DIR"])
     auth_certs_dir = (certs_dir / "auth")
     gateway_certs_dir = (certs_dir / "gateway")
 
