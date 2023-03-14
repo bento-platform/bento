@@ -57,6 +57,9 @@ BENTOV2_FEDERATION_PROD_DEBUG=true
 BENTOV2_FEDERATION_DEV_DEBUG=true
 ```
 
+The default development value for `BENTOV2_ROOT_DATA_DIR` was changed to `./data`; this should not affect
+an existing setup.
+
 
 ## Create a Python 3.8+ (preferably 3.10+) virtual environment and install `bentoctl` requirements
 
