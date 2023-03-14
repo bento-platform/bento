@@ -16,6 +16,7 @@ __all__ = [
 
     "DOCKER_COMPOSE_SERVICES",
     "DOCKER_COMPOSE_DEV_SERVICES",
+    "DOCKER_COMPOSE_AUTH_SERVICES",
     "DOCKER_COMPOSE_CBIOPORTAL_SERVICES",
 
     "COMPOSE",
@@ -77,23 +78,32 @@ def _filter_base_services(services: Iterable[str]) -> Tuple[str, ...]:
     return tuple(service for service in services if service not in BASE_SERVICES)
 
 
-# Load dev docker-compose services list if in DEV_MODE
-DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = ()
-if DEV_MODE:
-    with open(DOCKER_COMPOSE_FILE_DEV) as dcf_dev:
-        DOCKER_COMPOSE_DEV_BASE_DATA = yaml.load(dcf_dev, yaml.Loader)
-    DOCKER_COMPOSE_DEV_SERVICES = _filter_base_services(DOCKER_COMPOSE_DEV_BASE_DATA["services"].keys())
+def _get_optional_compose_services(feature_flag: bool, compose_file: str) -> Tuple[str, ...]:
+    if not feature_flag:
+        return ()
 
-DOCKER_COMPOSE_CBIOPORTAL_SERVICES: Tuple[str, ...] = ()
-if BENTO_CBIOPORTAL_ENABLED:
-    with open(DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL) as dcf_cbp:
-        DOCKER_COMPOSE_CBIOPORTAL_BASE_DATA = yaml.load(dcf_cbp, yaml.Loader)
-    DOCKER_COMPOSE_CBIOPORTAL_SERVICES = _filter_base_services(DOCKER_COMPOSE_CBIOPORTAL_BASE_DATA["services"].keys())
+    with open(DOCKER_COMPOSE_FILE_DEV) as cfh:
+        base_data = yaml.load(cfh, yaml.Loader)
+
+    return _filter_base_services(base_data["services"].keys())
+
+
+# Load dev docker-compose services list if in DEV_MODE
+DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = _get_optional_compose_services(DEV_MODE, DOCKER_COMPOSE_FILE_DEV)
+
+# Optional feature compose services start -----------------------------------------------
+DOCKER_COMPOSE_AUTH_SERVICES: Tuple[str, ...] = _get_optional_compose_services(
+    not BENTOV2_USE_EXTERNAL_IDP, DOCKER_COMPOSE_FILE_FEATURE_AUTH)
+
+DOCKER_COMPOSE_CBIOPORTAL_SERVICES: Tuple[str, ...] = _get_optional_compose_services(
+    BENTO_CBIOPORTAL_ENABLED, DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL)
+# end -----------------------------------------------------------------------------------
 
 # Final amalgamation of services for Bento taking into account dev/prod mode and feature flags
 DOCKER_COMPOSE_SERVICES: Tuple[str, ...] = (
     BASE_SERVICES +
     DOCKER_COMPOSE_DEV_SERVICES +
+    DOCKER_COMPOSE_AUTH_SERVICES +
     DOCKER_COMPOSE_CBIOPORTAL_SERVICES
 )
 
