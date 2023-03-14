@@ -3,5 +3,7 @@ services:
     extends:
       file: docker-compose.yaml
       service: web
+    environment:
+      - NODE_ENV=production
     volumes:
       - $PWD/lib/web/branding.png:/web/dist/static/branding.png:ro

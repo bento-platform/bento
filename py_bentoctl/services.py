@@ -29,24 +29,20 @@ BENTO_SERVICES_DATA_BY_KIND = {
 
 
 def _get_compose_with_files(dev: bool = False, local: bool = False):
-    with_cbioportal = ("-f", c.DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL) if c.BENTO_CBIOPORTAL_ENABLED else ()
-
-    if dev:
-        return (
-            *c.COMPOSE,
-            "-f", c.DOCKER_COMPOSE_FILE_BASE,
-            "-f", c.DOCKER_COMPOSE_FILE_DEV,
-            *(("-f", c.DOCKER_COMPOSE_FILE_LOCAL) if local else ()),
-            *with_cbioportal,
-        )
-
     if not dev and local:
         raise NotImplementedError("Local mode not implemented with prod")
+
+    with_auth = ("-f", c.DOCKER_COMPOSE_FILE_FEATURE_AUTH) if not c.BENTOV2_USE_EXTERNAL_IDP else ()
+    with_cbioportal = ("-f", c.DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL) if c.BENTO_CBIOPORTAL_ENABLED else ()
 
     return (
         *c.COMPOSE,
         "-f", c.DOCKER_COMPOSE_FILE_BASE,
-        "-f", c.DOCKER_COMPOSE_FILE_PROD,
+
+        *(("-f", c.DOCKER_COMPOSE_FILE_DEV) if dev else ("-f", c.DOCKER_COMPOSE_FILE_PROD)),
+        *(("-f", c.DOCKER_COMPOSE_FILE_LOCAL) if local else ()),
+
+        *with_auth,
         *with_cbioportal,
     )
 
@@ -280,7 +276,13 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
 
     if compose_service == "all":
         # special: run everything
-        subprocess.check_call((*c.COMPOSE, "pull"))
+        subprocess.check_call((*_get_compose_with_files(dev=c.DEV_MODE), "pull"))
+
+        # This won't pull local images; loop through those explicitly and pull them
+        for s in c.DOCKER_COMPOSE_SERVICES:
+            if service_state.get(s, {}).get("mode") == MODE_LOCAL:
+                pull_service(s)
+
         return
 
     check_service_is_compose(compose_service)
@@ -290,10 +292,10 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
         err(f"  {compose_service} not in service_image_vars keys: {list(service_image_vars.keys())}")
         exit(1)
 
-    image_var, image_version_var, image_dev_version_var = image_t
+    image_var, image_version_var, image_local_version_var = image_t
     service_mode = service_state.get(compose_service, {}).get("mode")
 
-    image_version_var_final: str = image_dev_version_var if service_mode == "dev" else image_version_var
+    image_version_var_final: str = image_local_version_var if service_mode == MODE_LOCAL else image_version_var
 
     # occurs if in dev mode (somehow) but with no dev image
     if image_version_var_final is None:

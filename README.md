@@ -226,7 +226,14 @@ With the default development configuration, this might look something like:
 # ... other stuff below
 ```
 
-This is **not needed** in production, since the domains should have DNS records.
+If you are working with cBioPortal, you will need another line:
+```
+# ...
+127.0.0.1   cbioportal.bentov2.local
+# ...
+```
+
+Editing `/etc/hosts` is **not needed** in production, since the domains should have DNS records.
 
 Make sure these values match the values in the `.env` file and what was issued in the self-signed certificates, as 
 specified in the step above.
@@ -395,7 +402,7 @@ https://portal.bentov2.local/api/gohan/genes/overview
 To start a shell session within a particular container, use the following command (here, `web` is used as an example):
 
 ```bash
-./bentoctl shell web
+./bentoctl.bash shell web
 ```
 
 Optionally, the shell to run can be specified via `--shell /bin/bash` or `--shell /bin/sh`.
@@ -406,12 +413,22 @@ Optionally, the shell to run can be specified via `--shell /bin/bash` or `--shel
 To work on the `bento_web` repository within a BentoV2 environment, run the following command:
 
 ```bash
-./bentoctl work-on web
+./bentoctl.bash work-on web
 ```
 
 This will clone the `bento_web` repository into `./repos/web` if necessary, and start it in development mode,
 which means on-the-fly Webpack building will be available.
 
+⚠️ **Warning for local development** ⚠️
+
+In local mode, be sure to navigate to the cloned repository `./repos/web/` (or any other service repo you want to work 
+on locally), and checkout on the PR branch from which the dev Docker image was built. 
+
+You can find the default image tag variables in `./etc/bento.env` and overwrite them in `local.env`, look for the 
+pattern `BENTOV2_(service name)_VERSION`. 
+
+The version tags correspond to the PR **number** (not its name), e.g. `BENTOV2_WEB_VERSION=pr-216` indicates that the 
+image was built from PR #216 in bento_web.
 
 #### Migrating the repository from v2.10 and prior
 

@@ -6,31 +6,82 @@ services:
     extends:
       file: docker-compose.yaml
       service: web
+    environment:
+      - NODE_ENV=development
 
   public:
     extends:
       file: docker-compose.yaml
       service: public
-    networks: 
-      - bridge-net
+    environment:
+      - NODE_ENV=development
     ports:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
 
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
+    # Other networks are inherited
     networks:
-        bridge-net:
-          aliases:
-            - ${BENTOV2_DOMAIN}
-            - ${BENTOV2_PORTAL_DOMAIN}
-            - ${BENTOV2_AUTH_DOMAIN}
+      aggregation-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      beacon-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      drop-box-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      drs-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      gohan-api-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      katsu-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      notification-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      public-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      service-registry-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      web-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      wes-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
     extends:
       file: docker-compose.yaml
       service: gateway
 
   katsu:
-    networks:
-      - bridge-net
     depends_on:
       - katsu-db
     extends:
@@ -47,8 +98,6 @@ services:
       - "${BENTOV2_KATSU_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_KATSU_DEBUGGER_INTERNAL_PORT}"
 
   katsu-db:
-    networks:
-      - bridge-net
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu-db
@@ -59,8 +108,6 @@ services:
 
   adminer:
     image: adminer:4.8.1
-    networks:
-      - bridge-net
     container_name: ${BENTOV2_PREFIX}-katsu-adminer
     restart: unless-stopped
     ports:
@@ -73,8 +120,6 @@ services:
       - LOG_LEVEL=debug
       - PORT=${BENTOV2_AGGREGATION_INTERNAL_PORT}
       - DEBUGGER_PORT=${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}
-    networks:
-      - bridge-net
     extends:
       file: $PWD/lib/aggregation/docker-compose.aggregation.yaml
       service: aggregation
@@ -83,8 +128,6 @@ services:
       - "${BENTOV2_AGGREGATION_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}"
 
   wes:
-    networks:
-      - bridge-net
     environment:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
@@ -105,8 +148,6 @@ services:
     environment:
       - FLASK_DEBUG=true
       - DEBUGGER_PORT=${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}
-    networks:
-      - bridge-net
     extends:
       file: $PWD/lib/drs/docker-compose.drs.yaml
       service: drs
@@ -118,8 +159,6 @@ services:
       - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/chord_drs/data
 
   beacon:
-    networks:
-      - bridge-net
     environment:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
@@ -165,6 +204,11 @@ services:
       file: docker-compose.yaml
       service: event-relay
 
-networks:
-  bridge-net:
-    external: true
+  gohan-elasticsearch:
+    # In dev / on Mac, sometimes this will trip up and decide there isn't enough disk space even when there is.
+    # See https://stackoverflow.com/questions/48119189/elasticsearch-6-index-change-to-read-only-after-few-second
+    environment:
+      "cluster.routing.allocation.disk.threshold_enabled": "false"
+    extends:
+      file: docker-compose.yaml
+      service: gohan-elasticsearch

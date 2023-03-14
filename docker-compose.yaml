@@ -3,32 +3,42 @@ services:
   gateway:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION}
     container_name: ${BENTOV2_GATEWAY_CONTAINER_NAME}
+    depends_on:
+      redis:
+        condition: service_healthy
     environment:
       - CHORD_DEBUG=false
       - CHORD_PERMISSIONS=true
       - CHORD_PRIVATE_MODE=${BENTOV2_PRIVATE_MODE}
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
+      - CBIOPORTAL_URL=${BENTO_CBIOPORTAL_PUBLIC_URL}/
 
       - OIDC_DISCOVERY_URI=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
       - REDIRECT_AFTER_LOGOUT_URI=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_REDIRECT_AFTER_LOGOUT_PATH}
       - CLIENT_ID=${BENTOV2_AUTH_CLIENT_ID}
-      - TOKEN_ENDPOINT_AUTH_METHOD=client_secret_post
       - CLIENT_SECRET
+      - TOKEN_ENDPOINT_AUTH_METHOD=client_secret_post
       - BENTOV2_SESSION_SECRET
 
       - BENTOV2_AUTH_DOMAIN
       - BENTOV2_DOMAIN
       - BENTOV2_PORTAL_DOMAIN
+      - BENTOV2_CBIOPORTAL_DOMAIN
 
       - BENTOV2_USE_EXTERNAL_IDP
       - BENTOV2_USE_BENTO_PUBLIC
+      - BENTO_CBIOPORTAL_ENABLED
 
       - BENTOV2_GATEWAY_CONTAINER_NAME
+
       - BENTOV2_GATEWAY_INTERNAL_CERTS_DIR
       - BENTOV2_GATEWAY_INTERNAL_PORTAL_FULLCHAIN_RELATIVE_PATH
       - BENTOV2_GATEWAY_INTERNAL_PORTAL_PRIVKEY_RELATIVE_PATH
       - BENTOV2_GATEWAY_INTERNAL_FULLCHAIN_RELATIVE_PATH
       - BENTOV2_GATEWAY_INTERNAL_PRIVKEY_RELATIVE_PATH
+      - BENTOV2_GATEWAY_INTERNAL_CBIOPORTAL_FULLCHAIN_RELATIVE_PATH
+      - BENTOV2_GATEWAY_INTERNAL_CBIOPORTAL_PRIVKEY_RELATIVE_PATH
+
       - BENTOV2_GATEWAY_PUBLIC_ALLOW_FRAME_DOMAINS
 
       - BENTOV2_AUTH_CONTAINER_NAME
@@ -67,8 +77,54 @@ services:
       - BENTO_PUBLIC_INTERNAL_PORT
       - BENTO_BEACON_CONTAINER_NAME
       - BENTO_BEACON_INTERNAL_PORT
+      - BENTO_CBIOPORTAL_CONTAINER_NAME
+      - BENTO_CBIOPORTAL_INTERNAL_PORT
     networks:
-      bridge-net:
+      aggregation-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      auth-net:
+      beacon-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      cbioportal-net:  # No aliases needed here; container for sure does not contact the gateway
+      drop-box-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      drs-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      event-relay-net:  # No aliases needed here; container for sure does not contact the gateway
+      gohan-api-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      katsu-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      notification-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      public-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      redis-net:  # No aliases needed here; container for sure does not contact the gateway
+      service-registry-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      web-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      wes-net:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
@@ -80,8 +136,8 @@ services:
       - "443"
       - "444"
     volumes:
-      - ${BENTOV2_CERTS_DIR}:${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}:ro
-      - $PWD/lib/gateway/services:/gateway/services:ro
+      - ${BENTOV2_GATEWAY_CERTS_DIR}:${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}:ro
+      - ${PWD}/lib/gateway/services:/gateway/services:ro
     mem_limit: ${BENTOV2_GATEWAY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_GATEWAY_CPUS}
     cpu_shares: 512
@@ -89,99 +145,32 @@ services:
       test: [ "CMD", "curl", "https://localhost:443", "-k" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
-  auth:
-    image: ${BENTOV2_AUTH_IMAGE}:${BENTOV2_AUTH_VERSION}
-    container_name: ${BENTOV2_AUTH_CONTAINER_NAME}
-    command: ["--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true", "start"]
-#    command: ["-b", "${BENTOV2_AUTH_SERVICE_HOST}", "-Dkeycloak.migration.strategy=IGNORE_EXISTING"]
-    depends_on:
-      - redis
-    expose:
-      - ${BENTOV2_AUTH_INTERNAL_PORT}
-    networks:
-      - bridge-net
-    volumes:
-      - ${BENTOV2_AUTH_VOL_DIR}:/opt/keycloak/data
-      - ${PWD}/${BENTOV2_CERTS_DIR}/auth_fullchain1.crt:/run/secrets/keycloak-cert-file:ro
-      - ${PWD}/${BENTOV2_CERTS_DIR}/auth_privkey1.key:/run/secrets/keycloak-cert-key-file:ro
-    environment:
-      - KC_HTTP_ENABLED=true
-      - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
-      - KEYCLOAK_ADMIN=${BENTOV2_AUTH_ADMIN_USER}
-      - KEYCLOAK_ADMIN_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
-      - KC_HTTPS_CERTIFICATE_FILE=/run/secrets/keycloak-cert-file
-      - KC_HTTPS_CERTIFICATE_KEY_FILE=/run/secrets/keycloak-cert-key-file
-      - KC_HOSTNAME_STRICT=false
-      - KC_PROXY=passthrough
-    mem_limit: ${BENTOV2_AUTH_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_AUTH_CPUS}
-    cpu_shares: 512
-    healthcheck:
-      test: [ "CMD", "curl", "https://localhost:8443", "-k" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+  # The local auth service is enabled via feature flag and is loaded by bentoctl from lib/auth/docker-compose.auth.yaml.
+  # As such, it does not appear here.
 
 
+  # TODO: Remove this entry and optionally override with docker-compose.public.yaml instead
   public:
-    image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION}
-    container_name: ${BENTO_PUBLIC_CONTAINER_NAME}
-    networks: 
-      - bridge-net
-    environment:
-      - BENTO_PUBLIC_SERVICE_ID=${BENTO_PUBLIC_SERVICE_ID}
-      - BENTO_PUBLIC_CLIENT_NAME=${BENTO_PUBLIC_CLIENT_NAME}
-      - BENTO_PUBLIC_KATSU_URL=${BENTO_PUBLIC_KATSU_URL}
-      - BENTO_PUBLIC_MAX_QUERY_PARAMETERS=${BENTO_PUBLIC_MAX_QUERY_PARAMETERS}
-      - BENTO_PUBLIC_PORTAL_URL=${BENTO_PUBLIC_PORTAL_URL}
-      - INTERNAL_PORT=${BENTO_PUBLIC_INTERNAL_PORT}
-      - BENTO_PUBLIC_TRANSLATED=${BENTO_PUBLIC_TRANSLATED}
-    expose:
-      - "${BENTO_PUBLIC_INTERNAL_PORT}"
-    volumes:
-      - $PWD/lib/public/translations/en.json:/runner/www/public/locales/en/translation_en.json:ro
-      - $PWD/lib/public/translations/fr.json:/runner/www/public/locales/fr/translation_fr.json:ro
-      
-      - $PWD/lib/public/about.html:/runner/www/public/about.html:ro
-      - $PWD/lib/public/branding.png:/runner/www/public/assets/branding.png:ro
+    extends:
+      file: $PWD/lib/public/docker-compose.public.yaml
+      service: public
 
 
   web:
-    image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION}
-    container_name: ${BENTOV2_WEB_CONTAINER_NAME}
-    networks:
-      - bridge-net
-    expose:
-      - ${BENTOV2_WEB_INTERNAL_PORT}
-    environment:
-      - BENTO_URL=${BENTOV2_PORTAL_PUBLIC_URL}
-      - CUSTOM_HEADER=${BENTO_WEB_CUSTOM_HEADER}
-    mem_limit: ${BENTOV2_WEB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_WEB_CPUS}
-    cpu_shares: 512
-    healthcheck:
-      test: [ "CMD", "wget", "-q0-", "http://localhost:${BENTOV2_WEB_INTERNAL_PORT}", "&&", "echo" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+    extends:
+      file: $PWD/lib/web/docker-compose.web.yaml
+      service: web
 
 
   katsu:
-    networks:
-      - bridge-net
-    depends_on:
-      - katsu-db
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu
 
 
   katsu-db:
-    networks:
-      - bridge-net
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu-db
@@ -191,6 +180,7 @@ services:
     image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
     container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
     environment:
+      - BENTO_UID
       # Runtime
       - FLASK_DEBUG=False
       - FLASK_APP=bento_drop_box_service.app
@@ -203,7 +193,7 @@ services:
 
       - SERVICE_URL=${BENTOV2_PORTAL_PUBLIC_URL}/api/drop-box
     networks:
-      - bridge-net
+      - drop-box-net
     expose:
       - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
     volumes:
@@ -215,13 +205,14 @@ services:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   service-registry:
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION}
     container_name: ${BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME}
     environment:
+      - BENTO_UID
+
       # Following the revised bento_services.json schema
       # (see Python typing in bento_service_registry)
       # A list of services on a single domain which are registered in the service
@@ -246,7 +237,7 @@ services:
 
       - INTERNAL_PORT=${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
     networks:
-      - bridge-net
+      - service-registry-net
     expose:
       - ${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}
     volumes:
@@ -258,12 +249,11 @@ services:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   drs:
     networks:
-      - bridge-net
+      - drs-net
     extends:
       file: $PWD/lib/drs/docker-compose.drs.yaml
       service: drs
@@ -273,16 +263,16 @@ services:
     image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION}
     container_name: ${BENTOV2_NOTIFICATION_CONTAINER_NAME}
     environment:
+      - BENTO_UID
       - FLASK_DEBUG=False
       - FLASK_APP=app
       - DATABASE=/notification/data
       - REDIS_HOST=${BENTOV2_REDIS_CONTAINER_NAME}
       - REDIS_PORT=${BENTOV2_REDIS_INTERNAL_PORT}
-
       - INTERNAL_PORT=${BENTOV2_NOTIFICATION_INTERNAL_PORT}
-
     networks:
-      - bridge-net
+      - notification-net
+      - redis-net  # For event pub/sub
     expose:
       - ${BENTOV2_NOTIFICATION_INTERNAL_PORT}
     volumes:
@@ -294,16 +284,12 @@ services:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_NOTIFICATION_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   aggregation:
-    networks:
-      - bridge-net
     extends:
       file: $PWD/lib/aggregation/docker-compose.aggregation.yaml
       service: aggregation
-
 
 
   event-relay:
@@ -342,7 +328,8 @@ services:
     depends_on:
       - redis
     networks:
-      - bridge-net
+      - event-relay-net
+      - redis-net  # For event pub/sub
     expose:
       - ${BENTOV2_EVENT_RELAY_INTERNAL_PORT}
     mem_limit: ${BENTOV2_EVENT_RELAY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
@@ -352,12 +339,9 @@ services:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
 
 
   wes:
-    networks:
-      - bridge-net
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
       service: wes
@@ -367,7 +351,7 @@ services:
     image: ${BENTOV2_REDIS_BASE_IMAGE}:${BENTOV2_REDIS_BASE_IMAGE_VERSION}
     container_name: ${BENTOV2_REDIS_CONTAINER_NAME}
     networks:
-      - bridge-net
+      - redis-net
     expose:
       - ${BENTOV2_REDIS_INTERNAL_PORT}
     volumes:
@@ -378,19 +362,18 @@ services:
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
+      interval: 15s  # Faster interval for services which others may require to be healthy
 
   beacon:
-    networks: 
-      - bridge-net
     extends:
       file: $PWD/lib/beacon/docker-compose.beacon.yaml
       service: beacon
 
   gohan-api:
     networks:
-      - bridge-net
+      - drs-net  # Needs to send VCFs to DRS; doesn't go through auth.
+      - gohan-api-net
+      - gohan-es-net
     mem_limit: ${BENTOV2_GOHAN_API_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_GOHAN_API_CPUS}
     cpu_shares: 1024
@@ -433,9 +416,8 @@ services:
       - ${BENTOV2_GOHAN_API_INTERNAL_PORT}
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_API_INTERNAL_PORT}/service-info" ]
-      timeout: 5s
-      interval: 1m
-      retries: 3
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
     depends_on:
       - gohan-elasticsearch
 
@@ -446,7 +428,7 @@ services:
     cpu_shares: 2048
     container_name: ${BENTOV2_GOHAN_ES_CONTAINER_NAME}
     networks:
-      - bridge-net
+      - gohan-es-net
     environment:
       - ELASTIC_USERNAME=${BENTOV2_GOHAN_ES_USERNAME}
       - ELASTIC_PASSWORD=${BENTOV2_GOHAN_ES_PASSWORD}
@@ -457,11 +439,76 @@ services:
       - ${BENTOV2_GOHAN_ES_DATA_DIR}:/usr/share/elasticsearch/data
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_ES_INTERNAL_PORT_1}" ]
-      timeout: 5s
-      interval: 1m
-      retries: 3
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
+
+# Lots of networks! Here, we have more or less one network per service, plus a few ones for databases
+# (which don't even get exposed to the gateway) and some other extras.
+#
+# These are created by running ./bentoctl.bash init-docker ;
+# the cBioPortal ones are only created if cBioPortal is enabled.
+#
+# The rationale behind this multi-network setup is that each service should, by default, not be able to talk to anything
+# except what it *requires*. Databases should only be able to talk to the service which needs them and no one else, not
+# even the gateway, since a database should never be publicly accessible.
+#
+# This is also sort of a quasi-self-documenting setup; if you only put services which need to talk together in the same
+# network, you implicitly document the connections between said services.
+#
+# A concrete example: for the network katsu-net, the 'requirement for membership' is
+#     'who needs to talk to katsu, without going through standard gateway/authentication procedures'?
+# In this fashion, any other service put into katsu-net must have an important reason!
 
 networks:
-  bridge-net:
+  aggregation-net:
     external: true
+    name: ${BENTO_AGGREGATION_NETWORK}
+  auth-net:
+    external: true
+    name: ${BENTO_AUTH_NETWORK}
+  beacon-net:
+    external: true
+    name: ${BENTO_BEACON_NETWORK}
+  cbioportal-net:
+    external: true
+    name: ${BENTO_CBIOPORTAL_NETWORK}
+  drop-box-net:
+    external: true
+    name: ${BENTO_DROP_BOX_NETWORK}
+  drs-net:
+    external: true
+    name: ${BENTO_DRS_NETWORK}
+  event-relay-net:
+    external: true
+    name: ${BENTO_EVENT_RELAY_NETWORK}
+  gohan-api-net:
+    external: true
+    name: ${BENTO_GOHAN_API_NETWORK}
+  gohan-es-net:
+    external: true
+    name: ${BENTO_GOHAN_ES_NETWORK}
+  katsu-net:
+    external: true
+    name: ${BENTO_KATSU_NETWORK}
+  katsu-db-net:
+    external: true
+    name: ${BENTO_KATSU_DB_NETWORK}
+  notification-net:
+    external: true
+    name: ${BENTO_NOTIFICATION_NETWORK}
+  public-net:
+    external: true
+    name: ${BENTO_PUBLIC_NETWORK}
+  redis-net:
+    external: true
+    name: ${BENTO_REDIS_NETWORK}
+  service-registry-net:
+    external: true
+    name: ${BENTO_SERVICE_REGISTRY_NETWORK}
+  web-net:
+    external: true
+    name: ${BENTO_WEB_NETWORK}
+  wes-net:
+    external: true
+    name: ${BENTO_WES_NETWORK}

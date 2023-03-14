@@ -41,6 +41,13 @@ Here is what you will need to set in your `local.env` file:
 ```bash
 # Set this to a random secret value
 BENTOV2_SESSION_SECRET=some-long-random-string
+
+# These used to be set by default in bento.env, but now needs explicit setting in local.env
+BENTOV2_KATSU_APP_SECRET=some-long-random-string
+BENTOV2_KATSU_DB_PASSWORD=some-long-random-string
+
+# This used to be set by default in bento.env; same as above
+BENTOV2_GOHAN_ES_PASSWORD=some-long-random-string
 ```
 
 Remove any lines which look like the following:
@@ -50,6 +57,9 @@ BENTOV2_FEDERATION_PROD_DEBUG=true
 BENTOV2_FEDERATION_DEV_DEBUG=true
 ```
 
+The default development value for `BENTOV2_ROOT_DATA_DIR` was changed to `./data`; this should not affect
+an existing setup.
+
 
 ## Create a Python 3.8+ (preferably 3.10+) virtual environment and install `bentoctl` requirements
 
@@ -57,7 +67,7 @@ BENTOV2_FEDERATION_DEV_DEBUG=true
 in a virtual environment.
 
 ```bash
-virtualenv -p python3 ./env  # create env folder with virtual environment inside
+python3 -m venv ./env  # create env folder with virtual environment inside
 source ./env/bin/activate  # activate the virtual environment
 pip install -r requirements.txt  # install bentoctl requirements
 ./bentoctl.bash --help  # Make sure bentoctl works and look at the available commands
@@ -86,6 +96,18 @@ apt-get install docker-compose-plugin
 ```
 
 See [this StackOverflow post](https://stackoverflow.com/questions/66514436/difference-between-docker-compose-and-docker-compose).
+
+
+## Create new Docker networks
+
+v2.11 adds several new Docker networks in an effort to better isolate services from each other to provide better
+security. To create these if needed, run:
+
+```bash
+./bentoctl.bash init-docker
+```
+
+Don't worry; this is idempotent and will not fail if any required network already exists.
 
 
 ## Pull new images
@@ -171,3 +193,17 @@ make run-web
 
 This will start in either production mode (if `MODE=prod` in `local.env`) or development mode, but with a 
 pre-built image, if `MODE=dev`.
+
+
+## Notes on cBioPortal Usage
+
+If you want to use cBioPortal (which is partially integrated into 2.11), you will need to add
+the cBioPortal URL (with `/*`) as valid redirect URI and, plain, as a valid web origin:
+
+```
+redirect URIs: [..., https://cbioportal.my-bento-domain/*]  # Note: /*
+web origins: [..., https://cbioportal.my-bento-domain]  # Note: no trailing slash
+```
+
+Also, if developing locally, you should regenerate certificates so that a cBioPortal self-signed
+certificate is generated.

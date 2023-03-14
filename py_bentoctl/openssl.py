@@ -7,8 +7,13 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes
 
+__all__ = [
+    "create_cert",
+    "create_private_key",
+]
 
-def _create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, common_name: str) -> None:
+
+def create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, common_name: str) -> None:
     subject = issuer = x509.Name([
         x509.NameAttribute(NameOID.COUNTRY_NAME, u"CA"),
         x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Quebec"),
@@ -33,7 +38,7 @@ def _create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, com
         f.write(cert.public_bytes(serialization.Encoding.PEM))
 
 
-def _create_private_key(path: pathlib.Path, pkey_name: str) -> rsa.RSAPrivateKey:
+def create_private_key(path: pathlib.Path, pkey_name: str) -> rsa.RSAPrivateKey:
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 
     with open(path / pkey_name, "wb") as f:

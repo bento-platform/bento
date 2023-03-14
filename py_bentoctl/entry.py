@@ -269,7 +269,7 @@ def main(args: Optional[list[str]] = None) -> int:
     args = args or sys.argv[1:]
 
     # For remote interactive python debugging
-    if '-d' in args or '--debug' in args:
+    if "-d" in args or "--debug" in args:
         import debugpy
 
         debugpy.listen(5678)
@@ -277,7 +277,7 @@ def main(args: Optional[list[str]] = None) -> int:
         print("Connect with a remote attach python debugger to start")
         debugpy.wait_for_client()
         debugpy.breakpoint()
-        print('break on this line')
+        print("break on this line")
 
     parser = argparse.ArgumentParser(
         description="Tools for managing a Bento deployment (development or production).",
@@ -312,12 +312,13 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
     _add_subparser(
-        "work-on", "Work on a specific service in a local development mode.", WorkOn, aliases=("dev", "develop"))
+        "work-on", "Work on a specific service in a local development mode.", WorkOn,
+        aliases=("dev", "develop", "local"))
     _add_subparser("prebuilt", "Switch a service back to prebuilt mode.", Prebuilt, aliases=("pre-built", "prod"))
     _add_subparser(
         "mode", "See if a service (or which services) are in production/development mode.", Mode,
         aliases=("state", "status"))
-    _add_subparser("pull", "Pull the production image for a specific service.", Pull)
+    _add_subparser("pull", "Pull the image for a specific service.", Pull)
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=("sh",))
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
     _add_subparser("logs", "Check logs for a service.", Logs)
