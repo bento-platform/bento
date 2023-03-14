@@ -82,7 +82,7 @@ def _get_optional_compose_services(feature_flag: bool, compose_file: str) -> Tup
     if not feature_flag:
         return ()
 
-    with open(DOCKER_COMPOSE_FILE_DEV) as cfh:
+    with open(compose_file) as cfh:
         base_data = yaml.load(cfh, yaml.Loader)
 
     return _filter_base_services(base_data["services"].keys())
