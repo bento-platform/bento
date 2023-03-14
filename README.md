@@ -402,7 +402,7 @@ https://portal.bentov2.local/api/gohan/genes/overview
 To start a shell session within a particular container, use the following command (here, `web` is used as an example):
 
 ```bash
-./bentoctl shell web
+./bentoctl.bash shell web
 ```
 
 Optionally, the shell to run can be specified via `--shell /bin/bash` or `--shell /bin/sh`.
@@ -413,7 +413,7 @@ Optionally, the shell to run can be specified via `--shell /bin/bash` or `--shel
 To work on the `bento_web` repository within a BentoV2 environment, run the following command:
 
 ```bash
-./bentoctl work-on web
+./bentoctl.bash work-on web
 ```
 
 This will clone the `bento_web` repository into `./repos/web` if necessary, and start it in development mode,
