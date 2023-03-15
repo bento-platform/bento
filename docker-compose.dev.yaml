@@ -156,7 +156,9 @@ services:
       - "${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_DRS_DEBUGGER_INTERNAL_PORT}"
     volumes:
       # Override main drs data directory
-      - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/chord_drs/data
+      - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/bento_drs/data
+      - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp:ro
+      - ${BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR}:${BENTOV2_GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
 
   beacon:
     environment:
