@@ -416,19 +416,54 @@ To work on the `bento_web` repository within a BentoV2 environment, run the foll
 ./bentoctl.bash work-on web
 ```
 
-This will clone the `bento_web` repository into `./repos/web` if necessary, and start it in development mode,
-which means on-the-fly Webpack building will be available.
+This will clone the `bento_web` repository into `./repos/web` if necessary, pull the dev image, and start the container in development mode, with a volume mapping to the `./repos/web` directory, which means on-the-fly Webpack building will be available.
+
+
+You can find the default image tag variables in `./etc/bento.env` and overwrite them in `local.env`, look for the 
+pattern `BENTOV2_[name]_VERSION`. 
+
+The version tags correspond to the PR **number** (not its name), e.g. `BENTOV2_WEB_VERSION=pr-216` indicates that the 
+image was built from PR #216 in bento_web.
+
+**Where are the dev images?**
+
+By default, the images used are those built by github CI workflows, triggered by commit and PR events and published to the Bento images [registry](https://github.com/orgs/bento-platform/packages). If after changing the version tag of an image the service container no longer starts, it is probably because the tag does not exist on github. 
+
+To remediate this, you have two options:
+- Create a PR for the branch you want to work on, in order to trigger a CI workflow that will build an image tagged with the PR number.
+- Manually build and tag a docker image on your machine.
+
+**Local bento_web image example**
+
+For the example, lets assume we changed `BENTOV2_WEB_VERSION` to be equal to `localonly`, which automatically makes `BENTOV2_WEB_VERSION_DEV=localonly-dev` 
+```bash
+# Switch web to local mode
+bentoctl work-on web
+
+# Checkout to cloned local service dir
+cd ./repos/web
+
+# Checkout to a specific branch, or create a new one
+git checkout [...]
+
+# Build the dev.Dockerfile on your machine, using the env variables values
+# Tag 1 => BENTOV2_WEB_IMAGE:BENTOV2_WEB_VERSION
+# Tag 2 => BENTOV2_WEB_IMAGE:BENTOV2_WEB_VERSION_DEV
+docker build -f dev.Dockerfile . \
+  -t ghcr.io/bento-platform/bento_web:localonly
+  -t ghcr.io/bento-platform/bento_web:localonly-dev
+
+# Back to root
+cd ../../
+
+# Start web with your local image
+./bentoctl.bash run web
+```
 
 ⚠️ **Warning for local development** ⚠️
 
 In local mode, be sure to navigate to the cloned repository `./repos/web/` (or any other service repo you want to work 
 on locally), and checkout on the PR branch from which the dev Docker image was built. 
-
-You can find the default image tag variables in `./etc/bento.env` and overwrite them in `local.env`, look for the 
-pattern `BENTOV2_(service name)_VERSION`. 
-
-The version tags correspond to the PR **number** (not its name), e.g. `BENTOV2_WEB_VERSION=pr-216` indicates that the 
-image was built from PR #216 in bento_web.
 
 #### Migrating the repository from v2.10 and prior
 
