@@ -36,7 +36,7 @@ services:
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
   auth-db:
-    image: postgres:13
+    image: ${BENTO_AUTH_DB_IMAGE}:${BENTO_AUTH_DB_VERSION}
     container_name: ${BENTO_AUTH_DB_CONTAINER_NAME}
     environment:
       - POSTGRES_USER=${BENTO_AUTH_DB_USER}

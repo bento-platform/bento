@@ -56,6 +56,7 @@ def _get_service_specific_compose(service: str):
 service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
     "aggregation": ("BENTOV2_AGGREGATION_IMAGE", "BENTOV2_AGGREGATION_VERSION", "BENTOV2_AGGREGATION_VERSION_DEV"),
     "auth": ("BENTOV2_AUTH_IMAGE", "BENTOV2_AUTH_VERSION", None),
+    "auth-db": ("BENTO_AUTH_DB_IMAGE", "BENTO_AUTH_DB_VERSION", None),
     "beacon": ("BENTO_BEACON_IMAGE", "BENTO_BEACON_VERSION", "BENTO_BEACON_VERSION_DEV"),
     "drop-box": ("BENTOV2_DROP_BOX_IMAGE", "BENTOV2_DROP_BOX_VERSION", "BENTOV2_DROP_BOX_VERSION_DEV"),
     "drs": ("BENTOV2_DRS_IMAGE", "BENTOV2_DRS_VERSION", "BENTOV2_DRS_VERSION_DEV"),
