@@ -121,16 +121,20 @@ MODE=dev
 BENTOV2_DOMAIN=bentov2.local
 BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
 BENTOV2_AUTH_DOMAIN=bentov2auth.local
+# Unused if cBioPortal is disabled:
+BENTOV2_CBIOPORTAL_DOMAIN=cbioportal.${BENTOV2_DOMAIN}
 # ---------------------------------------------------------------------
 
 # Feature switches ----------------------------------------------------
 BENTOV2_USE_EXTERNAL_IDP=0
 BENTOV2_USE_BENTO_PUBLIC=1
 BENTOV2_PRIVATE_MODE=false
+
+BENTO_CBIOPORTAL_ENABLED=false
 # ---------------------------------------------------------------------
 
 # set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
-BENTOV2_ROOT_DATA_DIR=~/bentov2/data
+BENTOV2_ROOT_DATA_DIR=./data
 
 # Auth ----------------------------------------------------------------
 #  - Session secret should be set to a unique secure value.
@@ -138,6 +142,9 @@ BENTOV2_ROOT_DATA_DIR=~/bentov2/data
 #  - Empty by default, to be filled by local.env
 #  - IMPORTANT: set before starting gateway
 BENTOV2_SESSION_SECRET=my-very-secret-session-secret  # !!! ADD SOMETHING MORE SECURE !!!
+
+#  - Set auth DB password if using a local IDP
+BENTO_AUTH_DB_PASSWORD=some-secure-password
 
 BENTOV2_AUTH_ADMIN_USER=admin
 BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
@@ -149,6 +156,11 @@ BENTOV2_AUTH_TEST_PASSWORD=user  # !!! obviously for dev only !!!
 CLIENT_SECRET=from-running-init-auth...
 # --------------------------------------------------------------------
 
+# Gohan
+BENTOV2_GOHAN_ES_PASSWORD=devpassword567
+
+# Katsu
+BENTOV2_KATSU_DB_PASSWORD=devpassword123
 BENTOV2_KATSU_APP_SECRET=some-random-phrase-here   # !!! ADD SOMETHING MORE SECURE !!!
 
 # Development settings ------------------------------------------------
@@ -416,7 +428,9 @@ To work on the `bento_web` repository within a BentoV2 environment, run the foll
 ./bentoctl.bash work-on web
 ```
 
-This will clone the `bento_web` repository into `./repos/web` if necessary, pull the dev image, and start the container in development mode, with a volume mapping to the `./repos/web` directory, which means on-the-fly Webpack building will be available.
+This will clone the `bento_web` repository into `./repos/web` if necessary, pull the dev image, 
+and start the container in development mode, with a volume mapping to the `./repos/web` directory, 
+which means on-the-fly Webpack building will be available.
 
 You can find the default image tag variables in `./etc/bento.env` and overwrite them in `local.env`, look for the 
 pattern `BENTOV2_[name]_VERSION`. 
@@ -424,9 +438,9 @@ pattern `BENTOV2_[name]_VERSION`.
 The version tags correspond to the PR **number** (not its name), e.g. `BENTOV2_WEB_VERSION=pr-216` indicates that the 
 image was built from PR #216 in bento_web. 
 
-Note: Most of the time, you will not need to worry about changing this, unless changes were made to the dev image's entrypoint.
+**Note: Most of the time, you will not need to worry about changing this, unless changes were made to the dev image's entrypoint.**
 
-**Where are the images?**
+### Where are the docker images?
 
 By default, the images used are those built by github CI workflows, triggered by commit and PR events and published to the Bento images [registry](https://github.com/orgs/bento-platform/packages). If after changing the version tag of an image the service's container can no longer be created, it is probably because the tag does not exist on github.
 
@@ -434,9 +448,9 @@ To remediate this, you have two options:
 - Create a PR for the branch you want to work on, in order to trigger a CI workflow that will build an image tagged with the PR number (**prefered**)
 - Manually build and tag a docker image on your machine (**avoid when possible**)
 
-**Local bento_web image example**
+### Local bento_web image example
 
-Note: this approach is a last resort for local development only. In some situations, we cannot always assume that working CI artifacts are available for every service used by Bento.
+**Note: this approach is a last resort for local development only. In some situations, we cannot always assume that working CI artifacts are available for every service used by Bento.**
 
 
 For the example, lets assume we changed `BENTOV2_WEB_VERSION` to be equal to `localonly`, which automatically makes `BENTOV2_WEB_VERSION_DEV=localonly-dev`.
@@ -464,7 +478,6 @@ cd ../../
 # Start web with your local image
 ./bentoctl.bash run web
 ```
-
 
 ⚠️ **Warning for local development** ⚠️
 
