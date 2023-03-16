@@ -438,6 +438,7 @@ services:
       - ${BENTOV2_GOHAN_ES_JAVA_OPTS}
       - xpack.security.enabled=true
       - discovery.type=${BENTOV2_GOHAN_ES_DISC_TYP}
+      - ingest.geoip.downloader.enabled=false
     volumes: 
       - ${BENTOV2_GOHAN_ES_DATA_DIR}:/usr/share/elasticsearch/data
     healthcheck:
