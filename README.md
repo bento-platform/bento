@@ -438,22 +438,28 @@ pattern `BENTOV2_[name]_VERSION`.
 The version tags correspond to the PR **number** (not its name), e.g. `BENTOV2_WEB_VERSION=pr-216` indicates that the 
 image was built from PR #216 in bento_web. 
 
-**Note: Most of the time, you will not need to worry about changing this, unless changes were made to the dev image's entrypoint.**
+**Note: Most of the time, you will not need to worry about changing this, 
+unless changes were made to the dev image's entrypoint.**
 
 ### Where are the docker images?
 
-By default, the images used are those built by github CI workflows, triggered by commit and PR events and published to the Bento images [registry](https://github.com/orgs/bento-platform/packages). If after changing the version tag of an image the service's container can no longer be created, it is probably because the tag does not exist on github.
+By default, the images used are those built by github CI workflows, triggered by commit and PR events and published 
+to the Bento images [registry](https://github.com/orgs/bento-platform/packages). If after changing the version tag of 
+an image the service's container can no longer be created, it is probably because the tag does not exist on github.
 
 To remediate this, you have two options:
-- Create a PR for the branch you want to work on, in order to trigger a CI workflow that will build an image tagged with the PR number (**prefered**)
+- Create a PR for the branch you want to work on, in order to trigger a CI workflow that will build an image tagged 
+with the PR number (**prefered**)
 - Manually build and tag a docker image on your machine (**avoid when possible**)
 
 ### Local bento_web image example
 
-**Note: this approach is a last resort for local development only. In some situations, we cannot always assume that working CI artifacts are available for every service used by Bento.**
+**Note: this approach is a last resort for local development only. In some situations, we cannot always assume that 
+working CI artifacts are available for every service used by Bento.**
 
 
-For the example, lets assume we changed `BENTOV2_WEB_VERSION` to be equal to `localonly`, which automatically makes `BENTOV2_WEB_VERSION_DEV=localonly-dev`.
+For the example, lets assume we changed `BENTOV2_WEB_VERSION` to be equal to `localonly`, which automatically 
+makes `BENTOV2_WEB_VERSION_DEV=localonly-dev`.
 
 ```bash
 # Switch web to local mode
