@@ -206,7 +206,7 @@ def work_on_service(compose_service: str):
     # Clean up existing container
     clean_service(compose_service)
 
-    # Pull new version of production container if needed
+    # Pull new version of development container if needed
     pull_service(compose_service, service_state)
 
     # Start new dev container
