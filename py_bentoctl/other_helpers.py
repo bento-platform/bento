@@ -210,6 +210,11 @@ def init_dirs():
 
         data_dir_path = pathlib.Path(data_dir)
         already_exists = data_dir_path.exists()
+
+        if already_exists and (data_dir_owner := data_dir_path.owner()) != c.BENTO_USERNAME:
+            err(f"error: data directory {data_dir_path} exists, but is owned by {data_dir_owner}. please fix this!")
+            exit(1)
+
         data_dir_path.mkdir(parents=True, exist_ok=True)
         task_print_done(msg="already exists." if already_exists else "done.")
 
