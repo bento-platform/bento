@@ -446,6 +446,18 @@ You will then have `repos/web` available for the `./bentoctl.bash work-on web` c
 > run `./bentoctl.bash shell web` to access the container, and then run `npm run watch` manually.
 
 
+### Switching `web` back to a pre-built version
+
+In the section above, we switched `web` to a local version where the code is attached to the container via a Docker
+bind mount (i.e., a filesystem path volume). To switch back to a pre-built version of `web`, run the following command:
+
+```bash
+./bentoctl.bash prebuilt web
+```
+
+This will work for any service where both a local development and pre-built image exist.
+
+
 
 <br />
 
