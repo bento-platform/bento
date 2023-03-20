@@ -179,7 +179,6 @@ def init_self_signed_certs(force: bool):
 def init_dirs():
     data_dir_vars = {
         "root": "BENTOV2_ROOT_DATA_DIR",
-        "auth": "BENTOV2_AUTH_VOL_DIR",
         "drs": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
         "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR",
@@ -188,6 +187,8 @@ def init_dirs():
         "wes": "BENTOV2_WES_VOL_DIR",
 
         # Feature-specific volume dirs - only if the relevant feature is enabled.
+        #  - internal IdP
+        **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
         #  - cBioPortal
         **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_CBIOPORTAL_ENABLED else {}),
     }
