@@ -181,6 +181,7 @@ def init_dirs():
         "root": "BENTOV2_ROOT_DATA_DIR",
         "drs": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
+        "gohan": "BENTOV2_GOHAN_DATA_ROOT",
         "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR",
         "notification": "BENTOV2_NOTIFICATION_VOL_DIR",
         "redis": "BENTOV2_REDIS_VOL_DIR",
