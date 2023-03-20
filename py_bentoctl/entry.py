@@ -259,7 +259,7 @@ class InitAll(SubCommand):
     def exec(args):
         oh.init_self_signed_certs(force=False)
         oh.init_dirs()
-        oh.init_docker()
+        oh.init_docker(client=u.get_docker_client())
         oh.init_web("private", force=False)
         oh.init_web("public", force=False)
         if c.BENTO_CBIOPORTAL_ENABLED:
