@@ -213,9 +213,7 @@ def init_dirs():
         task_print_done(msg="already exists." if already_exists else "done.")
 
 
-def init_docker():
-    client: docker.DockerClient = docker.from_env()
-
+def init_docker(client: docker.DockerClient):
     # Init swarm
     #
     # try:

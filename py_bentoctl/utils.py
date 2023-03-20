@@ -1,3 +1,4 @@
+import docker
 import sys
 
 from termcolor import cprint
@@ -8,6 +9,8 @@ __all__ = [
     "info",
     "warn",
     "err",
+
+    "get_docker_client",
 ]
 
 
@@ -29,3 +32,7 @@ def warn(msg: str) -> None:
 
 def err(msg: str) -> None:
     cprint(msg, "red", file=sys.stderr)
+
+
+def get_docker_client() -> docker.DockerClient:
+    return docker.from_env()

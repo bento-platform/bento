@@ -36,9 +36,6 @@ AUTH_TEST_PASSWORD = os.getenv("BENTOV2_AUTH_TEST_PASSWORD")
 AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
 
 
-docker_client = docker.from_env()
-
-
 def check_auth_admin_user():
     if not AUTH_ADMIN_USER:
         err("Missing environment value for BENTOV2_AUTH_ADMIN_USER")
@@ -78,7 +75,7 @@ def keycloak_req(
     raise NotImplementedError
 
 
-def init_auth():
+def init_auth(docker_client: docker.DockerClient):
     check_auth_admin_user()
 
     def get_session():

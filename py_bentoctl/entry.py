@@ -11,6 +11,7 @@ from . import config as c
 from . import feature_helpers as fh
 from . import services as s
 from . import other_helpers as oh
+from . import utils as u
 
 from typing import Optional, Tuple, Type
 
@@ -33,7 +34,7 @@ class InitAuth(SubCommand):
 
     @staticmethod
     def exec(args):
-        init_auth()
+        init_auth(docker_client=u.get_docker_client())
 
 
 class Run(SubCommand):
@@ -223,7 +224,7 @@ class InitDocker(SubCommand):
 
     @staticmethod
     def exec(args):
-        oh.init_docker()
+        oh.init_docker(client=u.get_docker_client())
 
 
 class InitWeb(SubCommand):

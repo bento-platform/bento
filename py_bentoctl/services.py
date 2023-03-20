@@ -1,4 +1,3 @@
-import docker
 import os
 import pathlib
 import subprocess
@@ -74,9 +73,6 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
     "web": ("BENTOV2_WEB_IMAGE", "BENTOV2_WEB_VERSION", "BENTOV2_WEB_VERSION_DEV"),
     "wes": ("BENTOV2_WES_IMAGE", "BENTOV2_WES_VERSION", "BENTOV2_WES_VERSION_DEV"),
 }
-
-
-docker_client = docker.from_env()
 
 
 def translate_service_aliases(service: str):
