@@ -88,6 +88,7 @@ services:
     image: ${BENTO_BEACON_IMAGE}:${BENTO_BEACON_VERSION_DEV}
     environment:
       - BENTO_GIT_REPOSITORY_DIR=/beacon
+      - DEBUGGER_PORT=${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}
     extends:
       file: docker-compose.dev.yaml
       service: beacon
