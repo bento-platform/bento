@@ -165,7 +165,6 @@ services:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
       - BENTO_BEACON_DEBUG=true
-      - FLASK_ENV=development
     extends:
       file: $PWD/lib/beacon/docker-compose.beacon.yaml
       service: beacon
