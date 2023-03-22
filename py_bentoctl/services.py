@@ -26,6 +26,13 @@ BENTO_SERVICES_DATA_BY_KIND = {
     if v.get("service_kind")
 }
 
+BENTO_USER_EXCLUDED_SERVICES = (
+    "auth",
+    "gateway",
+    "katsu-db",
+    "redis",
+)
+
 
 def _get_compose_with_files(dev: bool = False, local: bool = False):
     if not dev and local:
@@ -321,7 +328,7 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
 
 
 def _get_shell_user(compose_service: str) -> Tuple[str, ...]:
-    if compose_service in ("auth", "katsu-db", "redis"):
+    if compose_service in BENTO_USER_EXCLUDED_SERVICES:
         return ()
 
     if compose_service.startswith("cbioportal"):
