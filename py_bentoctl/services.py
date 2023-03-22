@@ -75,30 +75,30 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
 }
 
 
-def translate_service_aliases(service: str):
+def translate_service_aliases(service: str) -> str:
     if service in BENTO_SERVICES_DATA_BY_KIND:
         return BENTO_SERVICES_DATA_BY_KIND[service]["compose_id"]
 
     return service
 
 
-def check_service_is_compose(compose_service: str):
+def check_service_is_compose(compose_service: str) -> None:
     if compose_service not in c.DOCKER_COMPOSE_SERVICES:
         err(f"  {compose_service} not in Docker Compose services: {c.DOCKER_COMPOSE_SERVICES}")
         exit(1)
 
 
-def _run_service_in_local_mode(compose_service: str):
+def _run_service_in_local_mode(compose_service: str) -> None:
     info(f"Running {compose_service} in local (development) mode...")
     subprocess.check_call((*_get_compose_with_files(dev=True, local=True), "up", "-d", compose_service))
 
 
-def _run_service_in_prebuilt_mode(compose_service: str):
+def _run_service_in_prebuilt_mode(compose_service: str) -> None:
     info(f"Running {compose_service} in prebuilt ({'development' if c.DEV_MODE else 'production'}) mode...")
     subprocess.check_call((*_get_compose_with_files(dev=c.DEV_MODE, local=False), "up", "-d", compose_service))
 
 
-def run_service(compose_service: str):
+def run_service(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
     service_state = get_state()["services"]
@@ -130,7 +130,7 @@ def run_service(compose_service: str):
         _run_service_in_prebuilt_mode(compose_service)
 
 
-def stop_service(compose_service: str):
+def stop_service(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
     if compose_service == "all":
@@ -144,12 +144,12 @@ def stop_service(compose_service: str):
     subprocess.check_call((*_get_service_specific_compose(compose_service), "stop", compose_service))
 
 
-def restart_service(compose_service: str):
+def restart_service(compose_service: str) -> None:
     stop_service(compose_service)
     run_service(compose_service)
 
 
-def clean_service(compose_service: str):
+def clean_service(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
     if compose_service == "all":
@@ -164,7 +164,7 @@ def clean_service(compose_service: str):
     subprocess.check_call((*_get_service_specific_compose(compose_service), "rm", "-svf", compose_service))
 
 
-def work_on_service(compose_service: str):
+def work_on_service(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
     service_state = get_state()["services"]
 
@@ -209,7 +209,7 @@ def work_on_service(compose_service: str):
     _run_service_in_local_mode(compose_service)
 
 
-def prod_service(compose_service: str):
+def prod_service(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
     service_state = get_state()["services"]
 
@@ -243,7 +243,7 @@ def prod_service(compose_service: str):
     _run_service_in_prebuilt_mode(compose_service)
 
 
-def mode_service(compose_service: str):
+def mode_service(compose_service: str) -> None:
     # TODO: conn dependency injection for this and other commands
 
     compose_service = translate_service_aliases(compose_service)
@@ -269,7 +269,7 @@ def mode_service(compose_service: str):
     cprint(mode, colour)
 
 
-def pull_service(compose_service: str, existing_service_state: Optional[dict] = None):
+def pull_service(compose_service: str, existing_service_state: Optional[dict] = None) -> None:
     compose_service = translate_service_aliases(compose_service)
     service_state = existing_service_state or get_state()["services"]
 
@@ -328,7 +328,7 @@ def enter_shell_for_service(compose_service: str, shell: str):
     os.execvp(c.COMPOSE[0], (*c.COMPOSE, "exec", "-it", compose_service, shell))  # TODO: Detect shell
 
 
-def run_as_shell_for_service(compose_service: str, shell: str):
+def run_as_shell_for_service(compose_service: str, shell: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
     check_service_is_compose(compose_service)
@@ -337,7 +337,7 @@ def run_as_shell_for_service(compose_service: str, shell: str):
     os.execvp(c.COMPOSE[0], (*c.COMPOSE, "run", compose_service, shell))
 
 
-def logs_service(compose_service: str, follow: bool):
+def logs_service(compose_service: str, follow: bool) -> None:
     compose_service = translate_service_aliases(compose_service)
     extra_args = ("-f",) if follow else ()
 
