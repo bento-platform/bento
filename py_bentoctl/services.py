@@ -320,12 +320,23 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
     subprocess.check_call((*_get_compose_with_files(dev=service_mode == "dev", local=False), "pull", compose_service))
 
 
-def enter_shell_for_service(compose_service: str, shell: str):
+def _get_shell_user(compose_service: str) -> Tuple[str, ...]:
+    if compose_service in ("auth", "katsu-db", "redis"):
+        return ()
+
+    if compose_service.startswith("cbioportal"):
+        return ()
+
+    return "--user", str(c.BENTO_UID)
+
+
+def enter_shell_for_service(compose_service: str, shell: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
     check_service_is_compose(compose_service)
 
-    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "exec", "-it", compose_service, shell))  # TODO: Detect shell
+    # TODO: Detect shell
+    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "exec", "-it", *_get_shell_user(compose_service), compose_service, shell))
 
 
 def run_as_shell_for_service(compose_service: str, shell: str) -> None:
@@ -334,7 +345,7 @@ def run_as_shell_for_service(compose_service: str, shell: str) -> None:
     check_service_is_compose(compose_service)
 
     # TODO: Detect shell
-    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "run", compose_service, shell))
+    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "run", *_get_shell_user(compose_service), compose_service, shell))
 
 
 def logs_service(compose_service: str, follow: bool) -> None:
