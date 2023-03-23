@@ -131,7 +131,7 @@ services:
     environment:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
-      - FLASK_DEBUG=true
+      - FLASK_DEBUG=True
       - DEBUGGER_PORT=${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
@@ -146,7 +146,7 @@ services:
 
   drs:
     environment:
-      - FLASK_DEBUG=true
+      - FLASK_DEBUG=True
       - DEBUGGER_PORT=${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}
     extends:
       file: $PWD/lib/drs/docker-compose.drs.yaml
@@ -162,6 +162,7 @@ services:
 
   beacon:
     environment:
+      - FLASK_DEBUG=True
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
       - BENTO_BEACON_DEBUG=true
