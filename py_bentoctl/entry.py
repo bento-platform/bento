@@ -6,7 +6,6 @@ import sys
 from abc import ABC, abstractmethod
 
 from .auth_helper import init_auth
-from .config import DOCKER_COMPOSE_SERVICES, BENTO_SERVICES_DATA
 from . import config as c
 from . import feature_helpers as fh
 from . import services as s
@@ -42,7 +41,7 @@ class Run(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default="all", choices=(*c.DOCKER_COMPOSE_SERVICES, "all"),
             help="Service to run, or 'all' to run everything.")
         sp.add_argument("--pull", "-p", action="store_true", help="Try to pull the corresponding service image first.")
 
@@ -62,7 +61,7 @@ class Stop(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default="all", choices=(*c.DOCKER_COMPOSE_SERVICES, "all"),
             help="Service to stop, or 'all' to stop everything.")
 
     @staticmethod
@@ -75,7 +74,7 @@ class Restart(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default="all", choices=(*c.DOCKER_COMPOSE_SERVICES, "all"),
             help="Service to restart, or 'all' to restart everything.")
         sp.add_argument(
             "--pull", "-p", action="store_true",
@@ -93,7 +92,7 @@ class Clean(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default="all", choices=(*c.DOCKER_COMPOSE_SERVICES, "all"),
             help="Service to clean, or 'all' to clean everything.")
 
     @staticmethod
@@ -105,7 +104,7 @@ class WorkOn(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("service", type=str, choices=tuple(BENTO_SERVICES_DATA.keys()), help="Service to work on.")
+        sp.add_argument("service", type=str, choices=tuple(c.BENTO_SERVICES_DATA.keys()), help="Service to work on.")
 
     @staticmethod
     def exec(args):
@@ -117,7 +116,7 @@ class Prebuilt(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=tuple(BENTO_SERVICES_DATA.keys()),
+            "service", type=str, choices=tuple(c.BENTO_SERVICES_DATA.keys()),
             help="Service to switch to pre-built mode (will use an entirely pre-built image with code).")
 
     @staticmethod
@@ -131,7 +130,7 @@ class Mode(SubCommand):
     def add_args(sp):
         sp.add_argument(
             "service", type=str, nargs="?", default="all",
-            choices=(*BENTO_SERVICES_DATA.keys(), "all"),
+            choices=(*c.BENTO_SERVICES_DATA.keys(), "all"),
             help="Displays the current mode of the service(s).")
 
     @staticmethod
@@ -145,7 +144,8 @@ class Pull(SubCommand):
     def add_args(sp):
         sp.add_argument(
             "service", type=str, nargs="?", default="all",
-            choices=(*DOCKER_COMPOSE_SERVICES, "all"), help="Service to pull image for.")
+            choices=(*c.DOCKER_COMPOSE_SERVICES, *c.MULTI_SERVICE_PREFIXES, "all",),
+            help="Service to pull image for.")
 
     @staticmethod
     def exec(args):
@@ -156,7 +156,7 @@ class Shell(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("service", type=str, choices=DOCKER_COMPOSE_SERVICES, help="Service to enter a shell for.")
+        sp.add_argument("service", type=str, choices=c.DOCKER_COMPOSE_SERVICES, help="Service to enter a shell for.")
         sp.add_argument(
             "--shell", "-s",
             default="/bin/bash", type=str, choices=("/bin/bash", "/bin/sh"),
@@ -171,7 +171,7 @@ class RunShell(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("service", type=str, choices=DOCKER_COMPOSE_SERVICES, help="Service to run a shell for.")
+        sp.add_argument("service", type=str, choices=c.DOCKER_COMPOSE_SERVICES, help="Service to run a shell for.")
         sp.add_argument(
             "--shell", "-s",
             default="/bin/bash", type=str, choices=("/bin/bash", "/bin/sh"),
@@ -187,7 +187,7 @@ class Logs(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default="all", choices=(*c.DOCKER_COMPOSE_SERVICES, "all"),
             help="Service to check logs of.")
         sp.add_argument(
             "--follow", "-f", action="store_true",

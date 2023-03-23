@@ -3,7 +3,7 @@ import pathlib
 import subprocess
 
 from termcolor import cprint
-from typing import Dict, Optional, Tuple
+from typing import Callable, Dict, Optional, Tuple
 
 from . import config as c
 from .state import MODE_LOCAL, MODE_PREBUILT, get_state, set_state_services
@@ -82,8 +82,8 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
 }
 
 
-def translate_service_aliases(service: str) -> str:
-    if service in BENTO_SERVICES_DATA_BY_KIND:
+def translate_service_aliases(service: str, include_prefixes: bool = True) -> str:
+    if service in BENTO_SERVICES_DATA_BY_KIND and (include_prefixes or service not in c.MULTI_SERVICE_PREFIXES):
         return BENTO_SERVICES_DATA_BY_KIND[service]["compose_id"]
 
     return service
@@ -93,6 +93,18 @@ def check_service_is_compose(compose_service: str) -> None:
     if compose_service not in c.DOCKER_COMPOSE_SERVICES:
         err(f"  {compose_service} not in Docker Compose services: {c.DOCKER_COMPOSE_SERVICES}")
         exit(1)
+
+
+def _handle_multi_service_prefix(service: str, action: Callable[[str], None]):
+    # E.g. with Gohan: 'gohan' is not actually a real Compose service;
+    #   instead we <action> both API and ES (i.e., all Gohan stuff)
+
+    for pf in c.MULTI_SERVICE_PREFIXES:
+        if service == pf:
+            for s in service_image_vars:
+                if s.startswith(pf):
+                    action(s)
+            return
 
 
 def _run_service_in_local_mode(compose_service: str) -> None:
@@ -277,7 +289,7 @@ def mode_service(compose_service: str) -> None:
 
 
 def pull_service(compose_service: str, existing_service_state: Optional[dict] = None) -> None:
-    compose_service = translate_service_aliases(compose_service)
+    compose_service = translate_service_aliases(compose_service, include_prefixes=False)
     service_state = existing_service_state or get_state()["services"]
 
     if compose_service == "all":
@@ -289,6 +301,10 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
             if service_state.get(s, {}).get("mode") == MODE_LOCAL:
                 pull_service(s)
 
+        return
+
+    if compose_service in c.MULTI_SERVICE_PREFIXES:
+        _handle_multi_service_prefix(compose_service, pull_service)
         return
 
     check_service_is_compose(compose_service)
