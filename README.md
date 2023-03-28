@@ -416,8 +416,9 @@ To work on the `bento_web` repository within a BentoV2 environment, run the foll
 ./bentoctl.bash work-on web
 ```
 
-This will clone the `bento_web` repository into `./repos/web` if necessary, and start it in development mode,
-which means on-the-fly Webpack building will be available.
+This will clone the `bento_web` repository into `./repos/web` if necessary, and start it in local mode,
+which means on-the-fly Webpack building will be available. All local-mode services are inherently in
+development mode, even if `MODE=prod` globally, through inheritance of Compose files.
 
 ⚠️ **Warning for local development** ⚠️
 
