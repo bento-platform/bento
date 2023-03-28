@@ -6,6 +6,7 @@ services:
     expose:
       - ${BENTOV2_KATSU_INTERNAL_PORT}
     networks:
+      - drs-net
       - katsu-net
       - katsu-db-net
     depends_on:
@@ -80,6 +81,9 @@ services:
       interval: 15s  # Faster interval for services which others may require to be healthy
 
 networks:
+  drs-net:
+    external: true
+    name: ${BENTO_DRS_NETWORK}
   katsu-net:
     external: true
     name: ${BENTO_KATSU_NETWORK}
