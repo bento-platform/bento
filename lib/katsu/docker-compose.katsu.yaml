@@ -77,7 +77,7 @@ services:
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${BENTOV2_KATSU_DB}", "-U", "${BENTOV2_KATSU_DB_USER}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      interval: 15s  # Faster interval for services which others may require to be healthy
 
 networks:
   katsu-net:
