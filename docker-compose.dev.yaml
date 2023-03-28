@@ -131,7 +131,8 @@ services:
     environment:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
-      - FLASK_DEBUG=true
+      - FLASK_DEBUG=True
+      - BENTO_VALIDATE_SSL=False
       - DEBUGGER_PORT=${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
@@ -146,7 +147,7 @@ services:
 
   drs:
     environment:
-      - FLASK_DEBUG=true
+      - FLASK_DEBUG=True
       - DEBUGGER_PORT=${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}
     extends:
       file: $PWD/lib/drs/docker-compose.drs.yaml
@@ -156,14 +157,16 @@ services:
       - "${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_DRS_DEBUGGER_INTERNAL_PORT}"
     volumes:
       # Override main drs data directory
-      - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/chord_drs/data
+      - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/bento_drs/data
+      - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp:ro
+      - ${BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR}:${BENTOV2_GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
 
   beacon:
     environment:
+      - FLASK_DEBUG=True
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
       - BENTO_BEACON_DEBUG=true
-      - FLASK_ENV=development
     extends:
       file: $PWD/lib/beacon/docker-compose.beacon.yaml
       service: beacon

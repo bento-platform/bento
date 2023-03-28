@@ -6,6 +6,8 @@ services:
     volumes:
       - ./repos/web:/web
     environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/web
     extends:
       file: docker-compose.dev.yaml
@@ -15,6 +17,10 @@ services:
     image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION_DEV}
     volumes:
       - ./repos/public:/bento-public
+    environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
+      - BENTO_GIT_REPOSITORY_DIR=/bento-public
     extends:
       file: docker-compose.dev.yaml
       service: public
@@ -24,6 +30,10 @@ services:
     volumes:
       - ./repos/gateway/src:/gateway/src:ro
       - ./repos/gateway/conf:/gateway/conf:ro
+    environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
+      - BENTO_GIT_REPOSITORY_DIR=/gateway
     extends:
       file: docker-compose.dev.yaml
       service: gateway
@@ -39,6 +49,8 @@ services:
       - ./repos/katsu:/app
       - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp:ro
     environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/app
 
   katsu-db:
@@ -57,6 +69,8 @@ services:
   aggregation:
     image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION_DEV}
     environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/aggregation
     extends:
       file: docker-compose.dev.yaml
@@ -67,6 +81,8 @@ services:
   wes:
     image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION_DEV}
     environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/wes
     extends:
       file: docker-compose.dev.yaml
@@ -77,6 +93,8 @@ services:
   drs:
     image: ${BENTOV2_DRS_IMAGE}:${BENTOV2_DRS_VERSION_DEV}
     environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/drs
     extends:
       file: docker-compose.dev.yaml
@@ -87,7 +105,10 @@ services:
   beacon:
     image: ${BENTO_BEACON_IMAGE}:${BENTO_BEACON_VERSION_DEV}
     environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/beacon
+      - DEBUGGER_PORT=${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}
     extends:
       file: docker-compose.dev.yaml
       service: beacon
@@ -101,6 +122,8 @@ services:
       - ./etc/bento_services.json:/bento_services.json:ro
     environment:
       - BENTO_SERVICES=/bento_services.json
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/service_registry
     extends:
       file: docker-compose.dev.yaml
@@ -109,6 +132,8 @@ services:
   drop-box:
     image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION_DEV}
     environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/drop-box
     volumes:
       - ./repos/drop-box:/drop-box
@@ -119,6 +144,8 @@ services:
   notification:
     image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION_DEV}
     environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/notification
     volumes:
       - ./repos/notification:/notification
@@ -129,6 +156,8 @@ services:
   event-relay:
     image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION_DEV}
     environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/app
     volumes:
       - ./repos/event-relay:/app

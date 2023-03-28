@@ -179,14 +179,17 @@ def init_self_signed_certs(force: bool):
 def init_dirs():
     data_dir_vars = {
         "root": "BENTOV2_ROOT_DATA_DIR",
-        "auth": "BENTOV2_AUTH_VOL_DIR",
+        "drs": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
+        "gohan": "BENTOV2_GOHAN_DATA_ROOT",
         "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR",
         "notification": "BENTOV2_NOTIFICATION_VOL_DIR",
         "redis": "BENTOV2_REDIS_VOL_DIR",
         "wes": "BENTOV2_WES_VOL_DIR",
 
         # Feature-specific volume dirs - only if the relevant feature is enabled.
+        #  - internal IdP
+        **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
         #  - cBioPortal
         **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_CBIOPORTAL_ENABLED else {}),
     }
@@ -208,13 +211,16 @@ def init_dirs():
 
         data_dir_path = pathlib.Path(data_dir)
         already_exists = data_dir_path.exists()
+
+        if already_exists and (data_dir_owner := data_dir_path.owner()) != c.BENTO_USERNAME:
+            err(f"error: data directory {data_dir_path} exists, but is owned by {data_dir_owner}. please fix this!")
+            exit(1)
+
         data_dir_path.mkdir(parents=True, exist_ok=True)
         task_print_done(msg="already exists." if already_exists else "done.")
 
 
-def init_docker():
-    client: docker.DockerClient = docker.from_env()
-
+def init_docker(client: docker.DockerClient):
     # Init swarm
     #
     # try:

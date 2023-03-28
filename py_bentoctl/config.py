@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import pathlib
+import pwd
 import yaml
 
 from typing import Iterable, Tuple
@@ -21,6 +22,9 @@ __all__ = [
 
     "COMPOSE",
     "USER",
+
+    "BENTO_UID",
+    "BENTO_USERNAME",
 
     "MODE",
     "DEV_MODE",
@@ -45,6 +49,9 @@ DOCKER_COMPOSE_FILE_FEATURE_AUTH = "./lib/auth/docker-compose.auth.yaml"
 DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL = "./lib/cbioportal/docker-compose.cbioportal.yaml"
 
 USER = os.getenv("USER")
+
+BENTO_UID: int = int(os.getenv("BENTO_UID", str(os.getuid())))
+BENTO_USERNAME: str = pwd.getpwuid(BENTO_UID).pw_name
 
 MODE = os.getenv("MODE")
 DEV_MODE = MODE == "dev"
@@ -116,3 +123,5 @@ with open(BENTO_SERVICES_PATH, "r") as sf:
 
 
 BENTO_ORCHESTRATION_STATE_DB_FILE = os.getenv("BENTO_ORCHESTRATION_STATE_DB", "./.bentoctl.state.db")
+
+MULTI_SERVICE_PREFIXES = ("gohan",)

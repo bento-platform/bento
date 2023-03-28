@@ -380,6 +380,8 @@ services:
     image: ${BENTOV2_GOHAN_API_IMAGE}:${BENTOV2_GOHAN_API_VERSION}
     container_name: ${BENTOV2_GOHAN_API_CONTAINER_NAME}
     environment:
+      - BENTO_UID
+
       # API
       - GOHAN_DEBUG=${BENTOV2_GOHAN_DEBUG}
       - GOHAN_SERVICE_CONTACT=${BENTOV2_GOHAN_SERVICE_CONTACT}
@@ -430,11 +432,13 @@ services:
     networks:
       - gohan-es-net
     environment:
+      - BENTO_UID
       - ELASTIC_USERNAME=${BENTOV2_GOHAN_ES_USERNAME}
       - ELASTIC_PASSWORD=${BENTOV2_GOHAN_ES_PASSWORD}
       - ${BENTOV2_GOHAN_ES_JAVA_OPTS}
       - xpack.security.enabled=true
       - discovery.type=${BENTOV2_GOHAN_ES_DISC_TYP}
+      - ingest.geoip.downloader.enabled=false
     volumes: 
       - ${BENTOV2_GOHAN_ES_DATA_DIR}:/usr/share/elasticsearch/data
     healthcheck:

@@ -1,10 +1,9 @@
-import docker
 import os
 import pathlib
 import subprocess
 
 from termcolor import cprint
-from typing import Dict, Optional, Tuple
+from typing import Callable, Dict, Optional, Tuple
 
 from . import config as c
 from .state import MODE_LOCAL, MODE_PREBUILT, get_state, set_state_services
@@ -26,6 +25,13 @@ BENTO_SERVICES_DATA_BY_KIND = {
     for k, v in c.BENTO_SERVICES_DATA.items()
     if v.get("service_kind")
 }
+
+BENTO_USER_EXCLUDED_SERVICES = (
+    "auth",
+    "gateway",
+    "katsu-db",
+    "redis",
+)
 
 
 def _get_compose_with_files(dev: bool = False, local: bool = False):
@@ -56,6 +62,7 @@ def _get_service_specific_compose(service: str):
 service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
     "aggregation": ("BENTOV2_AGGREGATION_IMAGE", "BENTOV2_AGGREGATION_VERSION", "BENTOV2_AGGREGATION_VERSION_DEV"),
     "auth": ("BENTOV2_AUTH_IMAGE", "BENTOV2_AUTH_VERSION", None),
+    "auth-db": ("BENTO_AUTH_DB_IMAGE", "BENTO_AUTH_DB_VERSION", None),
     "beacon": ("BENTO_BEACON_IMAGE", "BENTO_BEACON_VERSION", "BENTO_BEACON_VERSION_DEV"),
     "drop-box": ("BENTOV2_DROP_BOX_IMAGE", "BENTOV2_DROP_BOX_VERSION", "BENTOV2_DROP_BOX_VERSION_DEV"),
     "drs": ("BENTOV2_DRS_IMAGE", "BENTOV2_DRS_VERSION", "BENTOV2_DRS_VERSION_DEV"),
@@ -64,8 +71,10 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
     "gohan-api": ("BENTOV2_GOHAN_API_IMAGE", "BENTOV2_GOHAN_API_VERSION", "BENTOV2_GOHAN_API_VERSION_DEV"),
     "gohan-elasticsearch": ("BENTOV2_GOHAN_ES_IMAGE", "BENTOV2_GOHAN_ES_VERSION", None),
     "katsu": ("BENTOV2_KATSU_IMAGE", "BENTOV2_KATSU_VERSION", "BENTOV2_KATSU_VERSION_DEV"),
+    "katsu-db": ("BENTOV2_KATSU_DB_IMAGE", "BENTOV2_KATSU_DB_VERSION", None),
     "notification": ("BENTOV2_NOTIFICATION_IMAGE", "BENTOV2_NOTIFICATION_VERSION", "BENTOV2_NOTIFICATION_VERSION_DEV"),
     "public": ("BENTO_PUBLIC_IMAGE", "BENTO_PUBLIC_VERSION", "BENTO_PUBLIC_VERSION_DEV"),
+    "redis": ("BENTOV2_REDIS_BASE_IMAGE", "BENTOV2_REDIS_BASE_IMAGE_VERSION", None),
     "service-registry": ("BENTOV2_SERVICE_REGISTRY_IMAGE", "BENTOV2_SERVICE_REGISTRY_VERSION",
                          "BENTOV2_SERVICE_REGISTRY_VERSION_DEV"),
     "web": ("BENTOV2_WEB_IMAGE", "BENTOV2_WEB_VERSION", "BENTOV2_WEB_VERSION_DEV"),
@@ -73,33 +82,42 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
 }
 
 
-docker_client = docker.from_env()
-
-
-def translate_service_aliases(service: str):
-    if service in BENTO_SERVICES_DATA_BY_KIND:
+def translate_service_aliases(service: str, include_prefixes: bool = True) -> str:
+    if service in BENTO_SERVICES_DATA_BY_KIND and (include_prefixes or service not in c.MULTI_SERVICE_PREFIXES):
         return BENTO_SERVICES_DATA_BY_KIND[service]["compose_id"]
 
     return service
 
 
-def check_service_is_compose(compose_service: str):
+def check_service_is_compose(compose_service: str) -> None:
     if compose_service not in c.DOCKER_COMPOSE_SERVICES:
         err(f"  {compose_service} not in Docker Compose services: {c.DOCKER_COMPOSE_SERVICES}")
         exit(1)
 
 
-def _run_service_in_local_mode(compose_service: str):
+def _handle_multi_service_prefix(service: str, action: Callable[[str], None]):
+    # E.g. with Gohan: 'gohan' is not actually a real Compose service;
+    #   instead we <action> both API and ES (i.e., all Gohan stuff)
+
+    for pf in c.MULTI_SERVICE_PREFIXES:
+        if service == pf:
+            for s in service_image_vars:
+                if s.startswith(pf):
+                    action(s)
+            return
+
+
+def _run_service_in_local_mode(compose_service: str) -> None:
     info(f"Running {compose_service} in local (development) mode...")
     subprocess.check_call((*_get_compose_with_files(dev=True, local=True), "up", "-d", compose_service))
 
 
-def _run_service_in_prebuilt_mode(compose_service: str):
+def _run_service_in_prebuilt_mode(compose_service: str) -> None:
     info(f"Running {compose_service} in prebuilt ({'development' if c.DEV_MODE else 'production'}) mode...")
     subprocess.check_call((*_get_compose_with_files(dev=c.DEV_MODE, local=False), "up", "-d", compose_service))
 
 
-def run_service(compose_service: str):
+def run_service(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
     service_state = get_state()["services"]
@@ -131,7 +149,7 @@ def run_service(compose_service: str):
         _run_service_in_prebuilt_mode(compose_service)
 
 
-def stop_service(compose_service: str):
+def stop_service(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
     if compose_service == "all":
@@ -145,12 +163,12 @@ def stop_service(compose_service: str):
     subprocess.check_call((*_get_service_specific_compose(compose_service), "stop", compose_service))
 
 
-def restart_service(compose_service: str):
+def restart_service(compose_service: str) -> None:
     stop_service(compose_service)
     run_service(compose_service)
 
 
-def clean_service(compose_service: str):
+def clean_service(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
     if compose_service == "all":
@@ -165,7 +183,7 @@ def clean_service(compose_service: str):
     subprocess.check_call((*_get_service_specific_compose(compose_service), "rm", "-svf", compose_service))
 
 
-def work_on_service(compose_service: str):
+def work_on_service(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
     service_state = get_state()["services"]
 
@@ -203,14 +221,14 @@ def work_on_service(compose_service: str):
     # Clean up existing container
     clean_service(compose_service)
 
-    # Pull new version of production container if needed
+    # Pull new version of development container if needed
     pull_service(compose_service, service_state)
 
     # Start new dev container
     _run_service_in_local_mode(compose_service)
 
 
-def prod_service(compose_service: str):
+def prod_service(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
     service_state = get_state()["services"]
 
@@ -244,7 +262,7 @@ def prod_service(compose_service: str):
     _run_service_in_prebuilt_mode(compose_service)
 
 
-def mode_service(compose_service: str):
+def mode_service(compose_service: str) -> None:
     # TODO: conn dependency injection for this and other commands
 
     compose_service = translate_service_aliases(compose_service)
@@ -270,8 +288,8 @@ def mode_service(compose_service: str):
     cprint(mode, colour)
 
 
-def pull_service(compose_service: str, existing_service_state: Optional[dict] = None):
-    compose_service = translate_service_aliases(compose_service)
+def pull_service(compose_service: str, existing_service_state: Optional[dict] = None) -> None:
+    compose_service = translate_service_aliases(compose_service, include_prefixes=False)
     service_state = existing_service_state or get_state()["services"]
 
     if compose_service == "all":
@@ -283,6 +301,10 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
             if service_state.get(s, {}).get("mode") == MODE_LOCAL:
                 pull_service(s)
 
+        return
+
+    if compose_service in c.MULTI_SERVICE_PREFIXES:
+        _handle_multi_service_prefix(compose_service, pull_service)
         return
 
     check_service_is_compose(compose_service)
@@ -321,24 +343,35 @@ def pull_service(compose_service: str, existing_service_state: Optional[dict] = 
     subprocess.check_call((*_get_compose_with_files(dev=service_mode == "dev", local=False), "pull", compose_service))
 
 
-def enter_shell_for_service(compose_service: str, shell: str):
-    compose_service = translate_service_aliases(compose_service)
+def _get_shell_user(compose_service: str) -> Tuple[str, ...]:
+    if compose_service in BENTO_USER_EXCLUDED_SERVICES:
+        return ()
 
-    check_service_is_compose(compose_service)
+    if compose_service.startswith("cbioportal"):
+        return ()
 
-    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "exec", "-it", compose_service, shell))  # TODO: Detect shell
+    return "--user", str(c.BENTO_UID)
 
 
-def run_as_shell_for_service(compose_service: str, shell: str):
+def enter_shell_for_service(compose_service: str, shell: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
     check_service_is_compose(compose_service)
 
     # TODO: Detect shell
-    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "run", compose_service, shell))
+    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "exec", "-it", *_get_shell_user(compose_service), compose_service, shell))
 
 
-def logs_service(compose_service: str, follow: bool):
+def run_as_shell_for_service(compose_service: str, shell: str) -> None:
+    compose_service = translate_service_aliases(compose_service)
+
+    check_service_is_compose(compose_service)
+
+    # TODO: Detect shell
+    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "run", *_get_shell_user(compose_service), compose_service, shell))
+
+
+def logs_service(compose_service: str, follow: bool) -> None:
     compose_service = translate_service_aliases(compose_service)
     extra_args = ("-f",) if follow else ()
 

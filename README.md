@@ -428,9 +428,12 @@ To work on the `bento_web` repository within a BentoV2 environment, run the foll
 ./bentoctl.bash work-on web
 ```
 
-This will clone the `bento_web` repository into `./repos/web` if necessary, pull the dev image, 
-and start the container in development mode, with a volume mapping to the `./repos/web` directory, 
-which means on-the-fly Webpack building will be available.
+This will clone the `bento_web` repository into `./repos/web` if necessary, pull the local 
+development image, and start it in local mode. In this mode, the container has a volume mapping
+to the `./repos/web` directory, which means on-the-fly Webpack building will be available. 
+
+All local-mode services are inherently in development mode, even if `MODE=prod` globally, 
+through inheritance of Compose files.
 
 You can find the default image tag variables in `./etc/bento.env` and overwrite them in `local.env`, look for the 
 pattern `BENTOV2_[name]_VERSION`. 
@@ -441,15 +444,15 @@ image was built from PR #216 in bento_web.
 **Note: Most of the time, you will not need to worry about changing this, 
 unless changes were made to the dev image's entrypoint.**
 
-### Where are the docker images?
+### Where are the Docker images?
 
-By default, the images used are those built by github CI workflows, triggered by commit and PR events and published 
+By default, the images used are those built by GitHub CI workflows, triggered by commit and PR events and published 
 to the Bento images [registry](https://github.com/orgs/bento-platform/packages). If after changing the version tag of 
-an image the service's container can no longer be created, it is probably because the tag does not exist on github.
+an image the service's container can no longer be created, it is probably because the tag does not exist on GitHub.
 
 To remediate this, you have two options:
 - Create a PR for the branch you want to work on, in order to trigger a CI workflow that will build an image tagged 
-with the PR number (**prefered**)
+  with the PR number (**prefered**)
 - Manually build and tag a docker image on your machine (**avoid when possible**)
 
 ### Local bento_web image example
@@ -504,6 +507,18 @@ You will then have `repos/web` available for the `./bentoctl.bash work-on web` c
 
 > Note: if you get stuck on an NGINX `500 Internal Service Error`, give it another minute to spin up. If it persists, 
 > run `./bentoctl.bash shell web` to access the container, and then run `npm run watch` manually.
+
+
+### Switching `web` back to a pre-built version
+
+In the section above, we switched `web` to a local version where the code is attached to the container via a Docker
+bind mount (i.e., a filesystem path volume). To switch back to a pre-built version of `web`, run the following command:
+
+```bash
+./bentoctl.bash prebuilt web
+```
+
+This will work for any service where both a local development and pre-built image exist.
 
 
 
