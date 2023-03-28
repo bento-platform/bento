@@ -132,6 +132,7 @@ services:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
       - FLASK_DEBUG=True
+      - BENTO_VALIDATE_SSL=False
       - DEBUGGER_PORT=${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
