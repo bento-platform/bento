@@ -34,8 +34,6 @@ services:
       - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/ott
       - TT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/tt
 
-      - FLASK_ENV=production
-
       - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
     networks:
       - wes-net
