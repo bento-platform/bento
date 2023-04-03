@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import json
 import os
 import pathlib
@@ -149,7 +150,14 @@ def _get_enabled_services(compose_file: str, filter_out: Tuple[str, ...] = ()) -
                 break
 
 
-BASE_SERVICES: Tuple[str, ...] = tuple(_get_enabled_services(DOCKER_COMPOSE_FILE_BASE, ()))
+BASE_SERVICES: Tuple[str, ...] = tuple(itertools.chain.from_iterable(_get_enabled_services(cf, ()) for cf in (
+    DOCKER_COMPOSE_FILE_BASE,
+    DOCKER_COMPOSE_FILE_AUTH,
+    DOCKER_COMPOSE_FILE_BEACON,
+    DOCKER_COMPOSE_FILE_CBIOPORTAL,
+    DOCKER_COMPOSE_FILE_GOHAN,
+    DOCKER_COMPOSE_FILE_PUBLIC,
+)))
 
 # Load dev docker-compose services list if in DEV_MODE
 DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = tuple(
