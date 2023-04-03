@@ -11,12 +11,14 @@ services:
 
   public:
     extends:
-      file: docker-compose.yaml
+      file: $PWD/lib/public/docker-compose.public.yaml
       service: public
     environment:
       - NODE_ENV=development
     ports:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
+    profiles:
+      - public
 
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN

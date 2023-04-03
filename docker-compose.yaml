@@ -1,5 +1,4 @@
 services:
-# -- web services
   gateway:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION}
     container_name: ${BENTOV2_GATEWAY_CONTAINER_NAME}
@@ -145,15 +144,11 @@ services:
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
 
-  # The local auth service is enabled via feature flag and is loaded by bentoctl from lib/auth/docker-compose.auth.yaml.
-  # As such, it does not appear here.
+  # AUTH:
+  # auth and auth-db included via extra compose file: lib/auth/docker-compose.auth.yaml
 
-
-  # TODO: Remove this entry and optionally override with docker-compose.public.yaml instead
-  public:
-    extends:
-      file: $PWD/lib/public/docker-compose.public.yaml
-      service: public
+  # PUBLIC:
+  # public included via extra compose file: lib/public/docker-compose.public.yaml
 
 
   web:
@@ -443,6 +438,9 @@ services:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_ES_INTERNAL_PORT_1}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+
+  # cBioPortal
+  # `cbioportal` included via extra compose file: lib/cbioportal/docker-compose.cbioportal.yaml
 
 
 # Lots of networks! Here, we have more or less one network per service, plus a few ones for databases

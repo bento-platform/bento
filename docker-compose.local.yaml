@@ -24,6 +24,8 @@ services:
     extends:
       file: docker-compose.dev.yaml
       service: public
+    profiles:
+      - public
 
   gateway:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION_DEV}
