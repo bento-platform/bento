@@ -217,5 +217,5 @@ services:
     environment:
       "cluster.routing.allocation.disk.threshold_enabled": "false"
     extends:
-      file: docker-compose.yaml
+      file: $PWD/lib/gohan/docker-compose.gohan.yaml
       service: gohan-elasticsearch

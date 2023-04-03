@@ -1,3 +1,4 @@
+# env: BENTO_GOHAN_ENABLED
 location ~ /api/gohan {
     # Reverse proxy settings
     include /gateway/conf/proxy.conf;

@@ -1,0 +1,92 @@
+services:
+  gohan-api:
+    networks:
+      - drs-net  # Needs to send VCFs to DRS; doesn't go through auth.
+      - gohan-api-net
+      - gohan-es-net
+    mem_limit: ${BENTOV2_GOHAN_API_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_GOHAN_API_CPUS}
+    cpu_shares: 1024
+    image: ${BENTOV2_GOHAN_API_IMAGE}:${BENTOV2_GOHAN_API_VERSION}
+    container_name: ${BENTOV2_GOHAN_API_CONTAINER_NAME}
+    environment:
+      - BENTO_UID
+
+      # API
+      - GOHAN_DEBUG=${BENTOV2_GOHAN_DEBUG}
+      - GOHAN_SERVICE_CONTACT=${BENTOV2_GOHAN_SERVICE_CONTACT}
+      - GOHAN_SEMVER=${BENTOV2_GOHAN_SEMVER}
+      - GOHAN_API_INTERNAL_PORT=${BENTOV2_GOHAN_API_INTERNAL_PORT}
+      - GOHAN_API_VCF_PATH=${BENTOV2_GOHAN_API_CONTAINERIZED_VCF_PATH}
+      - GOHAN_API_GTF_PATH=${BENTOV2_GOHAN_API_CONTAINERIZED_GTF_PATH}
+      - GOHAN_API_API_DRS_BRIDGE_DIR=${BENTOV2_GOHAN_API_API_DRS_BRIDGE_DIR_CONTAINERIZED}
+      - GOHAN_API_BULK_INDEXING_CAP=${BENTOV2_GOHAN_API_BULK_INDEXING_CAP}
+      - GOHAN_API_FILE_PROC_CONC_LVL=${BENTOV2_GOHAN_API_FILE_PROC_CONC_LVL}
+      - GOHAN_API_LINE_PROC_CONC_LVL=${BENTOV2_GOHAN_API_LINE_PROC_CONC_LVL}
+
+      # Elasticsearch
+      - GOHAN_ES_URL=${BENTOV2_GOHAN_PRIVATE_ES_URL}
+      - GOHAN_ES_USERNAME=${BENTOV2_GOHAN_ES_USERNAME}
+      - GOHAN_ES_PASSWORD=${BENTOV2_GOHAN_ES_PASSWORD}
+
+      # AuthX
+      - GOHAN_AUTHZ_ENABLED=${BENTOV2_GOHAN_API_AUTHZ_ENABLED}
+      - GOHAN_PUBLIC_AUTHN_JWKS_URL=${BENTOV2_GOHAN_PUBLIC_AUTHN_JWKS_URL:-}
+      - GOHAN_PRIVATE_AUTHZ_URL=${BENTOV2_GOHAN_PRIVATE_AUTHZ_URL}
+      - GOHAN_AUTHZ_REQHEADS=${BENTOV2_GOHAN_API_AUTHZ_REQHEADS}
+
+      # DRS
+      - GOHAN_DRS_URL=${BENTOV2_GOHAN_PRIVATE_DRS_URL}
+      - GOHAN_DRS_BASIC_AUTH_USERNAME=${BENTOV2_GOHAN_DRS_BASIC_AUTH_USERNAME:-}
+      - GOHAN_DRS_BASIC_AUTH_PASSWORD=${BENTOV2_GOHAN_DRS_BASIC_AUTH_PASSWORD:-}
+      - GOHAN_DRS_API_DRS_BRIDGE_DIR=${BENTOV2_GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
+    volumes:
+      - ${BENTOV2_GOHAN_API_VCF_PATH}:${BENTOV2_GOHAN_API_CONTAINERIZED_VCF_PATH}
+      - ${BENTOV2_GOHAN_API_GTF_PATH}:${BENTOV2_GOHAN_API_CONTAINERIZED_GTF_PATH}
+      - ${BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR}:${BENTOV2_GOHAN_API_API_DRS_BRIDGE_DIR_CONTAINERIZED}
+    expose:
+      - ${BENTOV2_GOHAN_API_INTERNAL_PORT}
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_API_INTERNAL_PORT}/service-info" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+    depends_on:
+      - gohan-elasticsearch
+    profiles:
+      - gohan
+
+  gohan-elasticsearch:
+    image: ${BENTOV2_GOHAN_ES_IMAGE}:${BENTOV2_GOHAN_ES_VERSION}
+    mem_limit: ${BENTOV2_GOHAN_ES_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_GOHAN_ES_CPUS}
+    cpu_shares: 2048
+    container_name: ${BENTOV2_GOHAN_ES_CONTAINER_NAME}
+    networks:
+      - gohan-es-net
+    environment:
+      - BENTO_UID
+      - ELASTIC_USERNAME=${BENTOV2_GOHAN_ES_USERNAME}
+      - ELASTIC_PASSWORD=${BENTOV2_GOHAN_ES_PASSWORD}
+      - ${BENTOV2_GOHAN_ES_JAVA_OPTS}
+      - xpack.security.enabled=true
+      - discovery.type=${BENTOV2_GOHAN_ES_DISC_TYP}
+      - ingest.geoip.downloader.enabled=false
+    volumes:
+      - ${BENTOV2_GOHAN_ES_DATA_DIR}:/usr/share/elasticsearch/data
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_ES_INTERNAL_PORT_1}" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+    profiles:
+      - gohan
+
+networks:
+  drs-net:
+    external: true
+    name: ${BENTO_DRS_NETWORK}
+  gohan-api-net:
+    external: true
+    name: ${BENTO_GOHAN_API_NETWORK}
+  gohan-es-net:
+    external: true
+    name: ${BENTO_GOHAN_ES_NETWORK}

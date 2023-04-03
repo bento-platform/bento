@@ -15,7 +15,9 @@ __all__ = [
     "DOCKER_COMPOSE_FILE_PROD",
 
     "DOCKER_COMPOSE_FILE_AUTH",
+    "DOCKER_COMPOSE_FILE_BEACON",
     "DOCKER_COMPOSE_FILE_CBIOPORTAL",
+    "DOCKER_COMPOSE_FILE_GOHAN",
     "DOCKER_COMPOSE_FILE_PUBLIC",
 
     "DOCKER_COMPOSE_SERVICES",
@@ -37,8 +39,12 @@ __all__ = [
 
     "BENTOV2_USE_EXTERNAL_IDP",
     "BENTOV2_USE_BENTO_PUBLIC",
-    # "BENTO_FEATURE_BEACON",
+
+    "BENTO_FEATURE_AUTH",
+    "BENTO_FEATURE_BEACON",
     "BENTO_FEATURE_CBIOPORTAL",
+    "BENTO_FEATURE_GOHAN",
+    "BENTO_FEATURE_PUBLIC",
 
     "BENTO_GIT_CLONE_HTTPS",
 
@@ -56,6 +62,7 @@ DOCKER_COMPOSE_FILE_PROD = "./docker-compose.prod.yaml"
 DOCKER_COMPOSE_FILE_AUTH = "./lib/auth/docker-compose.auth.yaml"
 DOCKER_COMPOSE_FILE_BEACON = "./lib/beacon/docker-compose.beacon.yaml"
 DOCKER_COMPOSE_FILE_CBIOPORTAL = "./lib/cbioportal/docker-compose.cbioportal.yaml"
+DOCKER_COMPOSE_FILE_GOHAN = "./lib/gohan/docker-compose.gohan.yaml"
 DOCKER_COMPOSE_FILE_PUBLIC = "./lib/public/docker-compose.public.yaml"
 
 USER = os.getenv("USER")
@@ -101,6 +108,8 @@ BENTO_FEATURE_BEACON = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_BEACON_ENABLED", default=False), profile="beacon")
 BENTO_FEATURE_CBIOPORTAL = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False), profile="cbioportal")
+BENTO_FEATURE_GOHAN = BentoOptionalFeature(
+    enabled=_env_get_bool("BENTO_GOHAN_ENABLED", default=False), profile="gohan")
 BENTO_FEATURE_PUBLIC = BentoOptionalFeature(enabled=BENTOV2_USE_BENTO_PUBLIC, profile="public")
 
 if not DEV_MODE and BENTO_FEATURE_CBIOPORTAL.enabled:
