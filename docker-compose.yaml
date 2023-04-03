@@ -357,10 +357,8 @@ services:
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: 15s  # Faster interval for services which others may require to be healthy
 
-  beacon:
-    extends:
-      file: $PWD/lib/beacon/docker-compose.beacon.yaml
-      service: beacon
+  # BEACON:
+  # beacon included via extra compose file: lib/beacon/docker-compose.beacon.yaml
 
   gohan-api:
     networks:

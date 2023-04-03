@@ -116,6 +116,8 @@ services:
       service: beacon
     volumes:
       - ./repos/beacon:/beacon
+    profiles:
+      - beacon
 
   service-registry:
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION_DEV}

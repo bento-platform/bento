@@ -54,6 +54,7 @@ DOCKER_COMPOSE_FILE_LOCAL = "./docker-compose.local.yaml"
 DOCKER_COMPOSE_FILE_PROD = "./docker-compose.prod.yaml"
 
 DOCKER_COMPOSE_FILE_AUTH = "./lib/auth/docker-compose.auth.yaml"
+DOCKER_COMPOSE_FILE_BEACON = "./lib/beacon/docker-compose.beacon.yaml"
 DOCKER_COMPOSE_FILE_CBIOPORTAL = "./lib/cbioportal/docker-compose.cbioportal.yaml"
 DOCKER_COMPOSE_FILE_PUBLIC = "./lib/public/docker-compose.public.yaml"
 
@@ -94,12 +95,10 @@ class BentoOptionalFeature:
 
 BENTOV2_USE_EXTERNAL_IDP: bool = _env_get_bool("BENTOV2_USE_EXTERNAL_IDP", default=False)
 BENTOV2_USE_BENTO_PUBLIC: bool = _env_get_bool("BENTOV2_USE_BENTO_PUBLIC", default=True)
-# BENTO_BEACON_ENABLED: bool = _env_get_bool("BENTO_BEACON_ENABLED", default=False)
-# BENTO_CBIOPORTAL_ENABLED: bool = _env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False)
 
 BENTO_FEATURE_AUTH = BentoOptionalFeature(enabled=not BENTOV2_USE_EXTERNAL_IDP, profile="auth")
-# BENTO_FEATURE_BEACON = BentoOptionalFeature(
-#     enabled=_env_get_bool("BENTO_BEACON_ENABLED", default=False), profile="beacon")
+BENTO_FEATURE_BEACON = BentoOptionalFeature(
+    enabled=_env_get_bool("BENTO_BEACON_ENABLED", default=False), profile="beacon")
 BENTO_FEATURE_CBIOPORTAL = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False), profile="cbioportal")
 BENTO_FEATURE_PUBLIC = BentoOptionalFeature(enabled=BENTOV2_USE_BENTO_PUBLIC, profile="public")

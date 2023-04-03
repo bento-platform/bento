@@ -175,6 +175,8 @@ services:
     ports:
       - "${BENTO_BEACON_EXTERNAL_PORT}:${BENTO_BEACON_INTERNAL_PORT}"
       - "${BENTO_BEACON_DEBUGGER_EXTERNAL_PORT}:${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}"
+    profiles:
+      - beacon
 
   service-registry:
     environment:
