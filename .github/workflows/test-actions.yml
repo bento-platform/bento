@@ -1,0 +1,53 @@
+name: Test
+on:
+  push:
+    paths:
+      - '**.py'
+  pull_request:
+
+jobs:
+  test_dev_init:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        name: Set up Python
+        with:
+          python-version: "3.10"
+
+      - name: Install bentoctl dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check bentoctl can run
+        run: ./bentoctl.bash --help
+
+      - name: Copy dev environment file
+        run: cp ./etc/bento_dev.env local.env
+
+      - name: Edit dev environment file
+        run: |
+          sed -i.bak 's|~/bentov2/data|./data|g' local.env
+          sed -i.bak 's|BENTOV2_AUTH_ADMIN_USER=|BENTOV2_AUTH_ADMIN_USER=admin|g' local.env
+          sed -i.bak 's|BENTOV2_AUTH_ADMIN_PASSWORD=|BENTOV2_AUTH_ADMIN_PASSWORD=admin|g' local.env
+          sed -i.bak 's|BENTOV2_AUTH_TEST_USER=|BENTOV2_AUTH_TEST_USER=user|g' local.env
+          sed -i.bak 's|BENTOV2_AUTH_TEST_PASSWORD=|BENTOV2_AUTH_TEST_PASSWORD=user|g' local.env
+
+      - name: Copy bento_public configuration
+        run: cp ./etc/katsu.config.example.json ./lib/katsu/config.json
+
+      - name: Create self-signed certificates
+        run: ./bentoctl.bash init-certs
+
+      - name: Show /etc/hosts
+        run: cat /etc/hosts
+
+      - name: Add /etc/hosts entries
+        run: |
+          printf "127.0.0.1\tbentov2.local\n" | sudo tee -a /etc/hosts
+          printf "127.0.0.1\tportal.bentov2.local\n" | sudo tee -a /etc/hosts
+          printf "127.0.0.1\tbentov2auth.local\n" | sudo tee -a /etc/hosts
+          cat /etc/hosts
+
+      - name: Run init-all
+        run: ./bentoctl.bash init-all

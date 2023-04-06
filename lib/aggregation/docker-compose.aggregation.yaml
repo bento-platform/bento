@@ -1,0 +1,33 @@
+services:
+# -- base aggregation service
+  aggregation:
+    image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION}
+    container_name: ${BENTOV2_AGGREGATION_CONTAINER_NAME}
+    environment:
+      - BENTO_UID
+      - CHORD_DEBUG=False
+      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
+      - OIDC_DISCOVERY_URI=${BENTOV2_AUTH_PUBLIC_URL}/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
+      # PORT: Specified when running via ./run.py; defaults to 5000
+      # SERVICE_URL_BASE_PATH: Base URL fragment (e.g. /test/) for endpoints
+      - USE_GOHAN=true
+    networks: 
+      - aggregation-net
+      - katsu-net  # For querying projects/datasets/tables
+    expose:
+      - ${BENTOV2_AGGREGATION_INTERNAL_PORT}
+    mem_limit: ${BENTOV2_AGGREGATION_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_AGGREGATION_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_AGGREGATION_INTERNAL_PORT}/service-info" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+
+networks:
+  aggregation-net:
+    external: true
+    name: ${BENTO_AGGREGATION_NETWORK}
+  katsu-net:
+    external: true
+    name: ${BENTO_KATSU_NETWORK}

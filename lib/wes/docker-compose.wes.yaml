@@ -1,14 +1,16 @@
-version: '3.7'
-
 services:
 # -- base wes service
   wes:
     image: ${BENTOV2_WES_IMAGE}:${BENTOV2_WES_VERSION}
     container_name: ${BENTOV2_WES_CONTAINER_NAME}
     environment:
+      - BENTO_UID
+
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
+
       - CELERY_RESULT_BACKEND=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
       - CELERY_BROKER_URL=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
+
       - BENTO_EVENT_REDIS_URL=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
       - DATABASE=/wes/data/bento_wes.db
       - SERVICE_ID=
@@ -17,7 +19,7 @@ services:
       - WOM_TOOL_LOCATION=
       #/wes/womtool.jar
       # Allow-list (comma-separated) for hosts that workflow files can be downloaded
-      # from - prevents possibly insecure WDLs from being ran
+      # from - prevents possibly insecure WDLs from being run
       - WORKFLOW_HOST_ALLOW_LIST=${BENTOV2_GOHAN_API_CONTAINER_NAME}:${BENTOV2_GOHAN_API_INTERNAL_PORT},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
 
       # DRS configuration options:
@@ -28,28 +30,36 @@ services:
       - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
       - WRITE_OUTPUT_TO_DRS=True
       - DRS_DEDUPLICATE=True
-      - DRS_SKIP_TYPES=
+      - DRS_SKIP_TYPES=json
       - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/ott
       - TT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/tt
-      - FLASK_ENV=development
-      - CHORD_DEBUG=False
-      - FLASK_DEBUG=False
-      - BENTO_VALIDATE_SSL=False
 
       - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
     networks:
-      - bridge-net
+      - wes-net
+      - redis-net  # Talks to Redis for event pub/sub and job queueing
+      - drs-net
     expose:
       - ${BENTOV2_WES_INTERNAL_PORT}
     mem_limit: ${BENTOV2_WES_MEM_LIMIT}
     cpus: ${BENTOV2_WES_CPUS}
     cpu_shares: 1024
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:${BENTOV2_WES_INTERNAL_PORT}" ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_WES_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-      retries: ${BENTOV2_HEALTHCHECK_RETRIES}
     volumes:
       - ${BENTOV2_WES_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
-      - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data
+      - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data:ro  # Read only access to drop box contents via file path
+
+networks:
+  drs-net:
+    external: true
+    name: ${BENTO_DRS_NETWORK}
+  redis-net:
+    external: true
+    name: ${BENTO_REDIS_NETWORK}
+  wes-net:
+    external: true
+    name: ${BENTO_WES_NETWORK}

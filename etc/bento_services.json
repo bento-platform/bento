@@ -1,0 +1,79 @@
+{
+  "service-registry": {
+    "service_kind": "service-registry",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/bento_service_registry",
+    "data_service": false
+  },
+  "drop-box": {
+    "service_kind": "drop-box",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/bento_drop_box_service",
+    "data_service": false
+  },
+  "wes": {
+    "service_kind": "wes",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/bento_wes",
+    "data_service": false
+  },
+  "aggregation": {
+    "service_kind": "aggregation",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/bento_federation_service",
+    "data_service": false
+  },
+  "notification": {
+    "service_kind": "notification",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/bento_notification_service",
+    "data_service": false
+  },
+  "event-relay": {
+    "service_kind": "event-relay",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/bento_event_relay",
+    "data_service": false
+  },
+  "katsu": {
+    "service_kind": "metadata",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/katsu.git",
+    "data_service": true,
+    "manageable_tables": true
+  },
+  "drs": {
+    "service_kind": "drs",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/bento_drs.git",
+    "data_service": false
+  },
+  "gohan-api": {
+    "service_kind": "gohan",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/gohan.git",
+    "data_service": true,
+    "manageable_tables": true
+  },
+  "web": {
+    "service_kind": "web",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}",
+    "repository": "git@github.com:bento-platform/bento_web.git",
+    "data_service": false
+  },
+  "public": {
+    "service_kind": "public",
+    "url_template": "{BENTO_PUBLIC_URL}",
+    "repository": "git@github.com:bento-platform/bento_public.git",
+    "data_service": false
+  },
+  "beacon": {
+    "service_kind": "beacon",
+    "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/bento_beacon.git",
+    "data_service": false
+  },
+  "gateway": {
+    "repository": "git@github.com:bento-platform/bento_gateway.git"
+  }
+}

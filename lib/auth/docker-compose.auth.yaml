@@ -1,0 +1,60 @@
+services:
+  auth:
+    image: ${BENTOV2_AUTH_IMAGE}:${BENTOV2_AUTH_VERSION}
+    container_name: ${BENTOV2_AUTH_CONTAINER_NAME}
+    command: [ "--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true", "start" ]
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    expose:
+      - ${BENTOV2_AUTH_INTERNAL_PORT}
+    networks:
+      - auth-net
+      - auth-db-net
+    volumes:
+      - ${BENTOV2_AUTH_CERTS_DIR}${BENTOV2_AUTH_FULLCHAIN_RELATIVE_PATH}:/run/secrets/keycloak-cert-file:ro
+      - ${BENTOV2_AUTH_CERTS_DIR}${BENTOV2_AUTH_PRIVKEY_RELATIVE_PATH}:/run/secrets/keycloak-cert-key-file:ro
+    environment:
+      - KC_HTTP_ENABLED=true
+      - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
+      - KEYCLOAK_ADMIN=${BENTOV2_AUTH_ADMIN_USER}
+      - KEYCLOAK_ADMIN_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
+      - KC_HTTPS_CERTIFICATE_FILE=/run/secrets/keycloak-cert-file
+      - KC_HTTPS_CERTIFICATE_KEY_FILE=/run/secrets/keycloak-cert-key-file
+      - KC_HOSTNAME_STRICT=false
+      - KC_PROXY=passthrough
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://${BENTO_AUTH_DB_CONTAINER_NAME}:5432/${BENTO_AUTH_DB}
+      - KC_DB_USERNAME=${BENTO_AUTH_DB_USER}
+      - KC_DB_PASSWORD=${BENTO_AUTH_DB_PASSWORD}
+    mem_limit: ${BENTOV2_AUTH_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_AUTH_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:8443", "-k" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+
+  auth-db:
+    image: ${BENTO_AUTH_DB_IMAGE}:${BENTO_AUTH_DB_VERSION}
+    container_name: ${BENTO_AUTH_DB_CONTAINER_NAME}
+    environment:
+      - POSTGRES_USER=${BENTO_AUTH_DB_USER}
+      - POSTGRES_PASSWORD=${BENTO_AUTH_DB_PASSWORD}
+      - POSTGRES_DB=${BENTO_AUTH_DB}
+    networks:
+      - auth-db-net
+    volumes:
+      - ${BENTOV2_AUTH_VOL_DIR}:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_AUTH_DB}", "-U", "${BENTO_AUTH_DB_USER}" ]
+      timeout: 5s
+      interval: 15s  # Faster interval for auth-db, which auth requires to be healthy
+
+networks:
+  auth-net:
+    external: true
+    name: ${BENTO_AUTH_NETWORK}
+  auth-db-net:
+    external: true
+    name: ${BENTO_AUTH_DB_NETWORK}
