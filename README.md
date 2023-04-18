@@ -38,7 +38,7 @@ that make up the Bento platform.
 
 <br />
 
-## `bentoctl`: the BentoV2 command line management tool
+## `bentoctl`: the Bento deployment command line management tool
 
 This command line tool offers a series of commands and parameters that are helpful to set up the Docker environment for 
 Bento services. It is designed to facilitate fast development and have better cross-platform compatibility versus the 
