@@ -386,13 +386,12 @@ def run_as_shell_for_service(compose_service: str, shell: str) -> None:
 
 def logs_service(compose_service: str, follow: bool) -> None:
     compose_service = translate_service_aliases(compose_service)
-    profile_args = tuple(_get_profile_cli_args())
     extra_args = ("-f",) if follow else ()
 
     if compose_service == "all":
         # special: show all logs
-        os.execvp(c.COMPOSE[0], (*c.COMPOSE, "logs", *profile_args, *extra_args))
+        os.execvp(c.COMPOSE[0], (*c.COMPOSE, "logs", *extra_args))
         return
 
     check_service_is_compose(compose_service)
-    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "logs", *profile_args, *extra_args, compose_service))
+    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "logs", *extra_args, compose_service))
