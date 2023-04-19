@@ -1,8 +1,16 @@
-# BentoV2 - Docker-based Bento development and deployment tooling
+# Bento
 
-This repo is intended to be the next generation of Bento deployments.
-Originating from the blueprints in the repo `chord_singularity`, `bentoV2` aims to be much more modular than its 
-counterpart, built with Docker instead of Singularity.
+Bento is a collection of free and open source microservices used to construct data-focused platforms. 
+By adhering to existing and anticipated standardized APIs, it facilitates interactions between 
+various -omic science global communities. Its reusable and interoperable components reduce the 
+complexity and overhead of constructing data distribution portals.
+
+
+## Docker-based development and deployment tooling
+
+This repository contains configuration and a command-line utility for deploying
+the Bento platform using `docker compose`, and for developing the various services
+that make up the Bento platform.
 
 
 
@@ -30,7 +38,7 @@ counterpart, built with Docker instead of Singularity.
 
 <br />
 
-## `bentoctl`: the BentoV2 command line management tool
+## `bentoctl`: the Bento deployment command line management tool
 
 This command line tool offers a series of commands and parameters that are helpful to set up the Docker environment for 
 Bento services. It is designed to facilitate fast development and have better cross-platform compatibility versus the 
