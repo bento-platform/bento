@@ -178,8 +178,7 @@ services:
     environment:
       - BENTO_UID
       # Runtime
-      - FLASK_DEBUG=False
-      - FLASK_APP=bento_drop_box_service.app
+      - QUART_DEBUG=False
       # Storage
       # - MINIO_URL=${BENTOV2_DROP_BOX_MINIO_URL}
       # - MINIO_USERNAME=${BENTOV2_DROP_BOX_MINIO_USERNAME}

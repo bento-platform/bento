@@ -189,7 +189,7 @@ services:
   drop-box:
     environment:
       # Runtime
-      - FLASK_DEBUG=True
+      - QUART_DEBUG=True
       - BENTO_DEBUG=True
     extends:
       file: docker-compose.yaml
