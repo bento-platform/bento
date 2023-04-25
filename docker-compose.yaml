@@ -46,6 +46,8 @@ services:
       - BENTOV2_AUTH_CONTAINER_NAME
       - BENTOV2_AUTH_INTERNAL_PORT
 
+      - BENTO_AUTHZ_CONTAINER_NAME
+      - BENTO_AUTHZ_INTERNAL_PORT
       - BENTOV2_DROP_BOX_CONTAINER_NAME
       - BENTOV2_DROP_BOX_INTERNAL_PORT
       - BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME
@@ -85,6 +87,10 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
       auth-net:
+      authz-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
       beacon-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -152,6 +158,17 @@ services:
 
   # PUBLIC:
   # public included via extra compose file: lib/public/docker-compose.public.yaml
+
+
+  authz:
+    extends:
+      file: $PWD/lib/authz/docker-compose.authz.yaml
+      service: authz
+
+  authz-db:
+    extends:
+      file: $PWD/lib/authz/docker-compose.authz.yaml
+      service: authz-db
 
 
   web:
@@ -393,6 +410,9 @@ networks:
   auth-net:
     external: true
     name: ${BENTO_AUTH_NETWORK}
+  authz-net:
+    external: true
+    name: ${BENTO_AUTHZ_NETWORK}
   beacon-net:
     external: true
     name: ${BENTO_BEACON_NETWORK}
