@@ -17,11 +17,11 @@ services:
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
     volumes:
-      - ${PWD}/lib/public/translations/en.json:/runner/www/public/locales/en/translation_en.json:ro
-      - ${PWD}/lib/public/translations/fr.json:/runner/www/public/locales/fr/translation_fr.json:ro
+      - ${PWD}/lib/public/translations/en.json:/bento-public/www/public/locales/en/translation_en.json:ro
+      - ${PWD}/lib/public/translations/fr.json:/bento-public/www/public/locales/fr/translation_fr.json:ro
 
-      - ${PWD}/lib/public/about.html:/runner/www/public/about.html:ro
-      - ${PWD}/lib/public/branding.png:/runner/www/public/assets/branding.png:ro
+      - ${PWD}/lib/public/about.html:/bento-public/www/public/about.html:ro
+      - ${PWD}/lib/public/branding.png:/bento-public/www/public/assets/branding.png:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
