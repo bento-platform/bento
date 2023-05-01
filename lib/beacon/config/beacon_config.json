@@ -1,0 +1,22 @@
+{
+    "useAuth": false,
+    "useGohan": true,
+    "maxFilters": 2,
+    "smallCellCountThreshold": 5,
+    "endpointSets": [
+        "individuals",
+        "variants",
+        "datasets",
+        "cohorts"
+    ],
+    "serviceInfo": {
+        "id": "c3g.bento.beacon",
+        "name": "Bento Beacon test instance",
+        "environment": "dev",
+        "organization": {
+            "id": "c3g",
+            "name": "Canadian Centre for Computational Genomics",
+            "url": "https://computationalgenomics.ca/"
+        }
+    }
+}
