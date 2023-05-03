@@ -413,6 +413,9 @@ networks:
   authz-net:
     external: true
     name: ${BENTO_AUTHZ_NETWORK}
+  authz-db-net:
+    external: true
+    name: ${BENTO_AUTHZ_DB_NETWORK}
   beacon-net:
     external: true
     name: ${BENTO_BEACON_NETWORK}
