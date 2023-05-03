@@ -1,5 +1,4 @@
 services:
-# -- web services
   gateway:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION}
     container_name: ${BENTOV2_GATEWAY_CONTAINER_NAME}
@@ -25,9 +24,12 @@ services:
       - BENTOV2_PORTAL_DOMAIN
       - BENTOV2_CBIOPORTAL_DOMAIN
 
+      # Feature flags:
       - BENTOV2_USE_EXTERNAL_IDP
       - BENTOV2_USE_BENTO_PUBLIC
+      - BENTO_BEACON_ENABLED
       - BENTO_CBIOPORTAL_ENABLED
+      - BENTO_GOHAN_ENABLED
 
       - BENTOV2_GATEWAY_CONTAINER_NAME
 
@@ -145,15 +147,11 @@ services:
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
 
-  # The local auth service is enabled via feature flag and is loaded by bentoctl from lib/auth/docker-compose.auth.yaml.
-  # As such, it does not appear here.
+  # AUTH:
+  # auth and auth-db included via extra compose file: lib/auth/docker-compose.auth.yaml
 
-
-  # TODO: Remove this entry and optionally override with docker-compose.public.yaml instead
-  public:
-    extends:
-      file: $PWD/lib/public/docker-compose.public.yaml
-      service: public
+  # PUBLIC:
+  # public included via extra compose file: lib/public/docker-compose.public.yaml
 
 
   web:
@@ -180,8 +178,7 @@ services:
     environment:
       - BENTO_UID
       # Runtime
-      - FLASK_DEBUG=False
-      - FLASK_APP=bento_drop_box_service.app
+      - QUART_DEBUG=False
       # Storage
       # - MINIO_URL=${BENTOV2_DROP_BOX_MINIO_URL}
       # - MINIO_USERNAME=${BENTOV2_DROP_BOX_MINIO_USERNAME}
@@ -362,87 +359,14 @@ services:
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: 15s  # Faster interval for services which others may require to be healthy
 
-  beacon:
-    extends:
-      file: $PWD/lib/beacon/docker-compose.beacon.yaml
-      service: beacon
+  # BEACON:
+  # beacon included via extra compose file: lib/beacon/docker-compose.beacon.yaml
 
-  gohan-api:
-    networks:
-      - drs-net  # Needs to send VCFs to DRS; doesn't go through auth.
-      - gohan-api-net
-      - gohan-es-net
-    mem_limit: ${BENTOV2_GOHAN_API_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_GOHAN_API_CPUS}
-    cpu_shares: 1024
-    image: ${BENTOV2_GOHAN_API_IMAGE}:${BENTOV2_GOHAN_API_VERSION}
-    container_name: ${BENTOV2_GOHAN_API_CONTAINER_NAME}
-    environment:
-      - BENTO_UID
+  # GOHAN
+  # gohan-api and gohan-elasticsearch included via extra compose file: lib/gohan/docker-compose.gohan.yaml
 
-      # API
-      - GOHAN_DEBUG=${BENTOV2_GOHAN_DEBUG}
-      - GOHAN_SERVICE_CONTACT=${BENTOV2_GOHAN_SERVICE_CONTACT}
-      - GOHAN_SEMVER=${BENTOV2_GOHAN_SEMVER}
-      - GOHAN_API_INTERNAL_PORT=${BENTOV2_GOHAN_API_INTERNAL_PORT}
-      - GOHAN_API_VCF_PATH=${BENTOV2_GOHAN_API_CONTAINERIZED_VCF_PATH}
-      - GOHAN_API_GTF_PATH=${BENTOV2_GOHAN_API_CONTAINERIZED_GTF_PATH}
-      - GOHAN_API_API_DRS_BRIDGE_DIR=${BENTOV2_GOHAN_API_API_DRS_BRIDGE_DIR_CONTAINERIZED}
-      - GOHAN_API_BULK_INDEXING_CAP=${BENTOV2_GOHAN_API_BULK_INDEXING_CAP}
-      - GOHAN_API_FILE_PROC_CONC_LVL=${BENTOV2_GOHAN_API_FILE_PROC_CONC_LVL}
-      - GOHAN_API_LINE_PROC_CONC_LVL=${BENTOV2_GOHAN_API_LINE_PROC_CONC_LVL}
-
-      # Elasticsearch
-      - GOHAN_ES_URL=${BENTOV2_GOHAN_PRIVATE_ES_URL}
-      - GOHAN_ES_USERNAME=${BENTOV2_GOHAN_ES_USERNAME}
-      - GOHAN_ES_PASSWORD=${BENTOV2_GOHAN_ES_PASSWORD}
-
-      # AuthX
-      - GOHAN_AUTHZ_ENABLED=${BENTOV2_GOHAN_API_AUTHZ_ENABLED}
-      - GOHAN_PUBLIC_AUTHN_JWKS_URL=${BENTOV2_GOHAN_PUBLIC_AUTHN_JWKS_URL:-}
-      - GOHAN_PRIVATE_AUTHZ_URL=${BENTOV2_GOHAN_PRIVATE_AUTHZ_URL}
-      - GOHAN_AUTHZ_REQHEADS=${BENTOV2_GOHAN_API_AUTHZ_REQHEADS}
-
-      # DRS
-      - GOHAN_DRS_URL=${BENTOV2_GOHAN_PRIVATE_DRS_URL}
-      - GOHAN_DRS_BASIC_AUTH_USERNAME=${BENTOV2_GOHAN_DRS_BASIC_AUTH_USERNAME:-}
-      - GOHAN_DRS_BASIC_AUTH_PASSWORD=${BENTOV2_GOHAN_DRS_BASIC_AUTH_PASSWORD:-}
-      - GOHAN_DRS_API_DRS_BRIDGE_DIR=${BENTOV2_GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
-    volumes: 
-      - ${BENTOV2_GOHAN_API_VCF_PATH}:${BENTOV2_GOHAN_API_CONTAINERIZED_VCF_PATH}
-      - ${BENTOV2_GOHAN_API_GTF_PATH}:${BENTOV2_GOHAN_API_CONTAINERIZED_GTF_PATH}
-      - ${BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR}:${BENTOV2_GOHAN_API_API_DRS_BRIDGE_DIR_CONTAINERIZED}
-    expose:
-      - ${BENTOV2_GOHAN_API_INTERNAL_PORT}
-    healthcheck:
-      test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_API_INTERNAL_PORT}/service-info" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-    depends_on:
-      - gohan-elasticsearch
-
-  gohan-elasticsearch:
-    image: ${BENTOV2_GOHAN_ES_IMAGE}:${BENTOV2_GOHAN_ES_VERSION}
-    mem_limit: ${BENTOV2_GOHAN_ES_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
-    cpus: ${BENTOV2_GOHAN_ES_CPUS}
-    cpu_shares: 2048
-    container_name: ${BENTOV2_GOHAN_ES_CONTAINER_NAME}
-    networks:
-      - gohan-es-net
-    environment:
-      - BENTO_UID
-      - ELASTIC_USERNAME=${BENTOV2_GOHAN_ES_USERNAME}
-      - ELASTIC_PASSWORD=${BENTOV2_GOHAN_ES_PASSWORD}
-      - ${BENTOV2_GOHAN_ES_JAVA_OPTS}
-      - xpack.security.enabled=true
-      - discovery.type=${BENTOV2_GOHAN_ES_DISC_TYP}
-      - ingest.geoip.downloader.enabled=false
-    volumes: 
-      - ${BENTOV2_GOHAN_ES_DATA_DIR}:/usr/share/elasticsearch/data
-    healthcheck:
-      test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_ES_INTERNAL_PORT_1}" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+  # cBioPortal
+  # `cbioportal` included via extra compose file: lib/cbioportal/docker-compose.cbioportal.yaml
 
 
 # Lots of networks! Here, we have more or less one network per service, plus a few ones for databases

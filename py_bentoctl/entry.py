@@ -14,7 +14,7 @@ from . import utils as u
 
 from typing import Optional, Tuple, Type
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 class SubCommand(ABC):
@@ -50,7 +50,7 @@ class Run(SubCommand):
         if args.pull:
             s.pull_service(args.service)
 
-        if c.BENTO_CBIOPORTAL_ENABLED:
+        if c.BENTO_FEATURE_CBIOPORTAL.enabled:
             fh.init_cbioportal()
 
         s.run_service(args.service)
@@ -262,7 +262,7 @@ class InitAll(SubCommand):
         oh.init_docker(client=u.get_docker_client())
         oh.init_web("private", force=False)
         oh.init_web("public", force=False)
-        if c.BENTO_CBIOPORTAL_ENABLED:
+        if c.BENTO_FEATURE_CBIOPORTAL.enabled:
             fh.init_cbioportal()
 
 

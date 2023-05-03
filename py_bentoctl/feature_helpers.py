@@ -28,7 +28,7 @@ CBIOPORTAL_SEED_DB_HG38_PATH = CBIOPORTAL_SEED_DATA_PATH / "seed-hg38.sql.gz"
 
 
 def init_cbioportal():
-    if not c.BENTO_CBIOPORTAL_ENABLED:
+    if not c.BENTO_FEATURE_CBIOPORTAL.enabled:
         err("cBioPortal must be enabled in local.env before initialization")
         exit(1)
 

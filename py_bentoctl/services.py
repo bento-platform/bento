@@ -34,22 +34,31 @@ BENTO_USER_EXCLUDED_SERVICES = (
 )
 
 
+def _get_profile_cli_args():
+    for p in c.get_enabled_feature_profiles():
+        yield "--profile"
+        yield p
+
+
 def _get_compose_with_files(dev: bool = False, local: bool = False):
     if not dev and local:
         raise NotImplementedError("Local mode not implemented with prod")
-
-    with_auth = ("-f", c.DOCKER_COMPOSE_FILE_FEATURE_AUTH) if not c.BENTOV2_USE_EXTERNAL_IDP else ()
-    with_cbioportal = ("-f", c.DOCKER_COMPOSE_FILE_FEATURE_CBIOPORTAL) if c.BENTO_CBIOPORTAL_ENABLED else ()
 
     return (
         *c.COMPOSE,
         "-f", c.DOCKER_COMPOSE_FILE_BASE,
 
+        # Service/feature-specific compose files - profiles will take care of actual service enable/disable
+        "-f", c.DOCKER_COMPOSE_FILE_AUTH,
+        "-f", c.DOCKER_COMPOSE_FILE_BEACON,
+        "-f", c.DOCKER_COMPOSE_FILE_CBIOPORTAL,
+        "-f", c.DOCKER_COMPOSE_FILE_GOHAN,
+        "-f", c.DOCKER_COMPOSE_FILE_PUBLIC,
+
         *(("-f", c.DOCKER_COMPOSE_FILE_DEV) if dev else ("-f", c.DOCKER_COMPOSE_FILE_PROD)),
         *(("-f", c.DOCKER_COMPOSE_FILE_LOCAL) if local else ()),
 
-        *with_auth,
-        *with_cbioportal,
+        *_get_profile_cli_args(),
     )
 
 
@@ -359,7 +368,9 @@ def enter_shell_for_service(compose_service: str, shell: str) -> None:
     check_service_is_compose(compose_service)
 
     # TODO: Detect shell
-    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "exec", "-it", *_get_shell_user(compose_service), compose_service, shell))
+    os.execvp(
+        c.COMPOSE[0],
+        (*c.COMPOSE, "exec", "-it", *_get_shell_user(compose_service), compose_service, shell))
 
 
 def run_as_shell_for_service(compose_service: str, shell: str) -> None:
@@ -368,7 +379,9 @@ def run_as_shell_for_service(compose_service: str, shell: str) -> None:
     check_service_is_compose(compose_service)
 
     # TODO: Detect shell
-    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "run", *_get_shell_user(compose_service), compose_service, shell))
+    os.execvp(
+        c.COMPOSE[0],
+        (*c.COMPOSE, "run", *_get_profile_cli_args(), *_get_shell_user(compose_service), compose_service, shell))
 
 
 def logs_service(compose_service: str, follow: bool) -> None:

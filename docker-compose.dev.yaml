@@ -11,12 +11,14 @@ services:
 
   public:
     extends:
-      file: docker-compose.yaml
+      file: $PWD/lib/public/docker-compose.public.yaml
       service: public
     environment:
       - NODE_ENV=development
     ports:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
+    profiles:
+      - public
 
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
@@ -109,7 +111,6 @@ services:
   adminer:
     image: adminer:4.8.1
     container_name: ${BENTOV2_PREFIX}-katsu-adminer
-    restart: unless-stopped
     ports:
       - 8080:8080
 
@@ -173,6 +174,8 @@ services:
     ports:
       - "${BENTO_BEACON_EXTERNAL_PORT}:${BENTO_BEACON_INTERNAL_PORT}"
       - "${BENTO_BEACON_DEBUGGER_EXTERNAL_PORT}:${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}"
+    profiles:
+      - beacon
 
   service-registry:
     environment:
@@ -185,8 +188,10 @@ services:
   drop-box:
     environment:
       # Runtime
-      - FLASK_DEBUG=True
+      - QUART_DEBUG=True
       - BENTO_DEBUG=True
+    ports:
+      - "${BENTOV2_DROP_BOX_EXTERNAL_PORT}:${BENTOV2_DROP_BOX_INTERNAL_PORT}"
     extends:
       file: docker-compose.yaml
       service: drop-box
@@ -213,5 +218,5 @@ services:
     environment:
       "cluster.routing.allocation.disk.threshold_enabled": "false"
     extends:
-      file: docker-compose.yaml
+      file: $PWD/lib/gohan/docker-compose.gohan.yaml
       service: gohan-elasticsearch

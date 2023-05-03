@@ -34,6 +34,8 @@ services:
       test: [ "CMD", "curl", "https://localhost:8443", "-k" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+    profiles:
+      - auth
 
   auth-db:
     image: ${BENTO_AUTH_DB_IMAGE}:${BENTO_AUTH_DB_VERSION}
@@ -50,6 +52,8 @@ services:
       test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_AUTH_DB}", "-U", "${BENTO_AUTH_DB_USER}" ]
       timeout: 5s
       interval: 15s  # Faster interval for auth-db, which auth requires to be healthy
+    profiles:
+      - auth
 
 networks:
   auth-net:

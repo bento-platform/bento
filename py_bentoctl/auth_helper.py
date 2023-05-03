@@ -143,6 +143,7 @@ def init_auth(docker_client: docker.DockerClient):
 
         client_kc_id: Optional[str] = fetch_existing_client_id()
         if client_kc_id is None:
+            cbio_enabled = c.BENTO_FEATURE_CBIOPORTAL.enabled
             create_client_res = keycloak_req(p, bearer_token=token, method="post", json={
                 "clientId": AUTH_CLIENT_ID,
                 "enabled": True,
@@ -152,11 +153,11 @@ def init_auth(docker_client: docker.DockerClient):
                 "publicClient": False,
                 "redirectUris": [
                     f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
-                    *((f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}",) if c.BENTO_CBIOPORTAL_ENABLED else ()),
+                    *((f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}",) if cbio_enabled else ()),
                 ],
                 "webOrigins": [
                     f"{PORTAL_PUBLIC_URL}",
-                    *((f"{CBIOPORTAL_URL}",) if c.BENTO_CBIOPORTAL_ENABLED else ()),
+                    *((f"{CBIOPORTAL_URL}",) if cbio_enabled else ()),
                 ],
                 "attributes": {
                     "saml.assertion.signature": "false",

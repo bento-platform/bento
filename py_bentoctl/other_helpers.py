@@ -131,7 +131,7 @@ def init_self_signed_certs(force: bool):
             "priv_key_name": "cbioportal_privkey1.key",
             "crt": "cbioportal_fullchain1.crt",
             "dir": gateway_certs_dir,
-        }} if c.BENTO_CBIOPORTAL_ENABLED else {}),
+        }} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
     }
 
     # Init cert directories
@@ -195,7 +195,7 @@ def init_dirs():
         #  - internal IdP
         **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
         #  - cBioPortal
-        **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_CBIOPORTAL_ENABLED else {}),
+        **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
     }
 
     task_print("Creating temporary secrets directory if needed...")
