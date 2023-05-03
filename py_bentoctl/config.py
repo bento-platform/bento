@@ -82,8 +82,6 @@ def _env_get_bool(var: str, default: bool = False) -> bool:
 BENTO_OPTIONAL_FEATURES: List["BentoOptionalFeature"] = []
 BENTO_OPTIONAL_FEATURES_BY_PROFILE: Dict[str, "BentoOptionalFeature"] = {}
 
-BENTO_PROFILE_DEV = "dev"
-
 
 def get_enabled_feature_profiles() -> Generator[str, None, None]:
     for f in BENTO_OPTIONAL_FEATURES:
@@ -143,9 +141,6 @@ def _get_enabled_services(compose_file: str, filter_out: Tuple[str, ...] = ()) -
             continue
         for p in profiles:
             if (f := BENTO_OPTIONAL_FEATURES_BY_PROFILE.get(p)) is not None and f.enabled:
-                yield k
-                break
-            if p == BENTO_PROFILE_DEV:
                 yield k
                 break
 

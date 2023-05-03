@@ -35,6 +35,7 @@ services:
       - TT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/tt
 
       - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
+      - WORKFLOW_TIMEOUT=${BENTOV2_WES_WORKFLOW_TIMEOUT}
     networks:
       - wes-net
       - redis-net  # Talks to Redis for event pub/sub and job queueing
