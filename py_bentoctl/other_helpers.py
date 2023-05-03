@@ -245,7 +245,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_AUTH_NETWORK", dict(driver="bridge")),
         ("BENTO_AUTH_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_AUTHZ_NETWORK", dict(driver="bridge")),
-        ("BENTO_AUTHZ_DB_NETWORK", dict(driver="bridge")),
+        ("BENTO_AUTHZ_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_BEACON_NETWORK", dict(driver="bridge")),
         ("BENTO_CBIOPORTAL_NETWORK", dict(driver="bridge")),
         ("BENTO_CBIOPORTAL_DATABASE_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
