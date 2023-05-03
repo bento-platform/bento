@@ -179,7 +179,7 @@ def init_self_signed_certs(force: bool):
 def init_dirs():
     data_dir_vars = {
         "root": "BENTOV2_ROOT_DATA_DIR",
-        "authz": "BENTO_AUTHZ_DB_VOL_DIR",
+        "authz-db": "BENTO_AUTHZ_DB_VOL_DIR",
         "drs": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
         "gohan": "BENTOV2_GOHAN_DATA_ROOT",
