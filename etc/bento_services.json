@@ -61,6 +61,12 @@
     "repository": "git@github.com:bento-platform/bento_web.git",
     "data_service": false
   },
+  "authz": {
+    "service_kind": "authorization",
+    "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/bento_authorization_service.git",
+    "data_service": false
+  },
   "public": {
     "service_kind": "public",
     "url_template": "{BENTO_PUBLIC_URL}",
