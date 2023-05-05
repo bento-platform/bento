@@ -55,6 +55,7 @@ BENTO_USERNAME: str = pwd.getpwuid(BENTO_UID).pw_name
 
 MODE = os.getenv("MODE")
 DEV_MODE = MODE == "dev"
+LOCAL_MODE = MODE == "local"
 
 
 def _env_get_bool(var: str, default: bool = False) -> bool:
