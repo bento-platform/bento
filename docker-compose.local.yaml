@@ -66,6 +66,9 @@ services:
     container_name: ${BENTOV2_PREFIX}-katsu-adminer
     ports:
       - 8080:8080
+    extends:
+      file: docker-compose.dev.yaml
+      service: adminer
 
   aggregation:
     image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION_DEV}
