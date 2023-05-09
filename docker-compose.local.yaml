@@ -59,12 +59,9 @@ services:
       service: katsu-db
 
   adminer:
-    image: adminer:4.8.1
-    # No Docker networks required, bound to host
-    container_name: ${BENTOV2_PREFIX}-katsu-adminer
-    restart: unless-stopped
-    ports:
-      - 8080:8080
+    extends:
+      file: docker-compose.dev.yaml
+      service: adminer
 
   aggregation:
     image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION_DEV}
