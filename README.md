@@ -537,7 +537,6 @@ Go to `localhost:8080` to access the login page, fill the fields with the values
 
 ![Adminer login](docs/img/adminer_login.png)
 
-
 <br />
 
 ## Testing
