@@ -531,9 +531,11 @@ This will work for any service where both a local development and pre-built imag
 
 ### Using Adminer
 
-An [Adminer](https://www.adminer.org/) container is deployed in dev and local mode, it can be used to inspect the Katsu database during development. 
+An [Adminer](https://www.adminer.org/) container is deployed in dev and local mode, it can be used to inspect the 
+Katsu database during development.
 
-Go to `localhost:8080` to access the login page, fill the fields with the values shown bellow, use the value of `BENTOV2_KATSU_DB_PASSWORD` in the password field.
+Go to `localhost:8080` to access the login page. Fill the fields with the values shown below, using the value of
+ BENTOV2_KATSU_DB_PASSWORD for the password field.
 
 ![Adminer login](docs/img/adminer_login.png)
 
