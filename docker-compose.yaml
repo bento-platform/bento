@@ -6,6 +6,7 @@ services:
       redis:
         condition: service_healthy
     environment:
+      - BENTO_DEBUG=false
       - CHORD_DEBUG=false
       - CHORD_PERMISSIONS=true
       - CHORD_PRIVATE_MODE=${BENTOV2_PRIVATE_MODE}

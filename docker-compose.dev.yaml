@@ -21,6 +21,8 @@ services:
       - public
 
   gateway:
+    environment:
+      - BENTO_DEBUG=true
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
     # Other networks are inherited
     networks:
