@@ -150,7 +150,12 @@ services:
     cpus: ${BENTOV2_GATEWAY_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:443", "-k" ]
+      test: [
+        "CMD",
+        "curl", "-k",
+        "--resolve", "${BENTOV2_PORTAL_DOMAIN}:443:127.0.0.1",
+        "https://${BENTOV2_PORTAL_DOMAIN}"
+      ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
