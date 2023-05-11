@@ -163,7 +163,7 @@ def stop_service(compose_service: str) -> None:
 
     if compose_service == "all":
         # special: stop everything
-        subprocess.check_call((*_get_service_specific_compose(compose_service), "down"))
+        subprocess.check_call((*_get_compose_with_files(dev=c.DEV_MODE), "down"))
         return
 
     check_service_is_compose(compose_service)
