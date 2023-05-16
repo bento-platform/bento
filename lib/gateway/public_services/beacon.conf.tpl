@@ -1,5 +1,5 @@
 # env: BENTO_BEACON_ENABLED
-location /api/beacon { return 302 https://${BENTOV2_PORTAL_DOMAIN}/api/beacon/; }
+location /api/beacon { return 302 https://${BENTOV2_DOMAIN}/api/beacon/; }
 location /api/beacon/ {
     # Reverse proxy settings
     include /gateway/conf/rate_limit_beacon.conf;  # More aggressive than the proxy.conf ones

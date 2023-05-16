@@ -1,4 +1,4 @@
-location /api/authorization { return 302 https://${BENTOV2_PORTAL_DOMAIN}/api/authorization/; }
+location /api/authorization { return 302 https://${BENTOV2_DOMAIN}/api/authorization/; }
 location /api/authorization/ {
     # Reverse proxy settings
     include /gateway/conf/proxy.conf;
