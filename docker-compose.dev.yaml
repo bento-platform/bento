@@ -31,6 +31,11 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
+      authz-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
       beacon-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -84,6 +89,13 @@ services:
     extends:
       file: docker-compose.yaml
       service: gateway
+
+  authz:
+    extends:
+      file: docker-compose.yaml
+      service: authz
+    environment:
+      - BENTO_DEBUG=True
 
   katsu:
     depends_on:
