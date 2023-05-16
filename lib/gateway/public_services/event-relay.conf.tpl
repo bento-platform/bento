@@ -1,9 +1,8 @@
-location /api/event-relay { return 302 https://${BENTOV2_PORTAL_DOMAIN}/api/event-relay/; }
+location /api/event-relay { return 302 https://${BENTOV2_DOMAIN}/api/event-relay/; }
 location /api/event-relay/ {
     # Reverse proxy settings
     include /gateway/conf/proxy.conf;
     include /gateway/conf/proxy_extra.conf;
-    include /gateway/conf/proxy_private.conf;
 
     # Forward request to event-relay
     rewrite ^ $request_uri;

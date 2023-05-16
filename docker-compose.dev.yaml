@@ -51,6 +51,11 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
+      event-relay-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
       gohan-api-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -223,6 +228,7 @@ services:
 
   event-relay:
     environment:
+      - BENTO_DEBUG=true
       - NODE_ENV=development
     extends:
       file: docker-compose.yaml

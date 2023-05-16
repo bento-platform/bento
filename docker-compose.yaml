@@ -107,7 +107,10 @@ services:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
-      event-relay-net:  # No aliases needed here; container for sure does not contact the gateway
+      event-relay-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
       gohan-api-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -317,7 +320,8 @@ services:
     image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION}
     container_name: ${BENTOV2_EVENT_RELAY_CONTAINER_NAME}
     environment:
-      # Default to production NODE_ENV - shouldn't really change anything, though.
+      # Default to production BENTO_DEBUG and NODE_ENV
+      - BENTO_DEBUG=false
       - NODE_ENV=production
 
       # If true, JSON_MESSAGES will parse all messages recieved from the subscription
@@ -331,6 +335,9 @@ services:
 
       # socket.io "path" for the server created by the service.
       - SOCKET_IO_PATH=${BENTOV2_EVENT_RELAY_SOCKET_IO_PATH}
+
+      # CORS origins for connecting to the socket
+      - CORS_ORIGINS=${BENTOV2_PUBLIC_URL};${BENTOV2_PORTAL_PUBLIC_URL}
 
       # Connection string (URL or path to UNIX socket file) for the Redis instance.
       - REDIS_CONNECTION=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
@@ -346,6 +353,9 @@ services:
       # related to the Bento platform.
       # Use the standard Bento service internal port, overriding the default
       - SERVICE_LISTEN_ON=${BENTO_STD_SERVICE_INTERNAL_PORT}
+
+      # Pass in authz service URL for authorizing socket connections
+      - BENTO_AUTHZ_SERVICE_URL=${BENTO_AUTHZ_SERVICE_URL}
     depends_on:
       - redis
     networks:
