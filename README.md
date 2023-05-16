@@ -463,7 +463,7 @@ To remediate this, you have two options:
   with the PR number (**prefered**)
 - Manually build and tag a docker image on your machine (**avoid when possible**)
 
-### Local bento_web image example
+### Local `bento_web` image example
 
 **Note: this approach is a last resort for local development only. In some situations, we cannot always assume that 
 working CI artifacts are available for every service used by Bento.**
@@ -527,6 +527,29 @@ bind mount (i.e., a filesystem path volume). To switch back to a pre-built versi
 ```
 
 This will work for any service where both a local development and pre-built image exist.
+
+
+### Communicating with services (in development)
+
+When `MODE=dev`, some service containers are bound to ports on the host, so debugging can be done without
+going through the gateway.
+
+The following is a list of all host port allocations for Bento services in development mode:
+
+| Service          | Port | Debugger Port |
+|------------------|------|---------------|
+| Aggregation      | 9500 | 5684          |
+| Beacon           | 5000 | 5683          |
+| cBioPortal       | 8089 | `N/A`         |
+| Drop Box         | 6000 | Unimplemented |
+| DRS              | 7007 | 5682          |
+| Event relay      | 8750 | Unimplemented |
+| Katsu            | 8000 | 5432          |
+| Notification     | 8500 | Unimplemented |
+| Public           | 8090 | Unimplemented |
+| Redis            | 6379 | `N/A`         |
+| Service Registry | 5010 | Unimplemented |
+| WES              | 9250 | 5680          |
 
 
 
