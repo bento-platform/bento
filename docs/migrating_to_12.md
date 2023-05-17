@@ -74,4 +74,25 @@ which in Keycloak should be a UUID.
 
 ## 5. Create bot permissions in the new Bento authorization service (*if needed*)
 
-TODO
+First, open a shell in the authorization service container if you don't already have one from the step before:
+
+```bash
+./bentoctl.bash shell authz
+```
+
+Then, run the following commands for each bot client you wish to assign *ingest* permissions to:
+
+```bash
+# This grant is a temporary hack to get permissions working for v12. In the future, it should be removed.
+bento_authz create grant \
+  '{"iss": "ISSUER_HERE", "client": "BOT_CLIENT_ID_HERE"}' \
+  '{"everything": "my-project-id"}' \
+  'view:private_portal'
+
+# This grant is not used currently, but ensures future permission to ingest data into the project 
+# and clear existing data to make room for the new ingested data.
+bento_authz create grant \
+  '{"iss": "ISSUER_HERE", "client": "BOT_CLIENT_ID_HERE"}' \
+  '{"project": "my-automated-project-id"}' \
+  'view:runs' 'ingest:data' 'delete:data'
+```
