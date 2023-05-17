@@ -16,6 +16,9 @@ Then, turn off "Client authentication" and make sure the settings are as follows
 Then, enable PKCE by going to the "Advanced" tab, scrolling down to "Advanced settings", and setting the
 `Proof Key for Code Exchange Code Challenge Method` setting to `S256`. Finally, **save your changes** again.
 
+In this tab, **make sure** "Access Token Lifespan" is also set to a finite value. As a default, use something short,
+like 15 minutes.
+
 To clean up your `local.env` file, remove the entry that looks like this:
 
 ```bash
