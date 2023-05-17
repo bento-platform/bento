@@ -19,7 +19,12 @@ Then, enable PKCE by going to the "Advanced" tab, scrolling down to "Advanced se
 
 ## 2. Create a new client for any bots if needed 
 
-TODO
+In Keycloak, create separate clients for any bots. These should have "Client authentication" **ON**.
+
+For the legacy bot authentication method, "Direct access grants" will need to be **ON** as well.
+
+For a more modern bot approach, turn "Direct access grants" **OFF** and turn "Service account roles" **ON**,
+thereby enabling the "Client credentials" authentication flow.
 
 
 ## 3. Create portal access permissions in the new Bento authorization service
