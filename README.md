@@ -160,9 +160,6 @@ BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
 
 BENTOV2_AUTH_TEST_USER=user
 BENTOV2_AUTH_TEST_PASSWORD=user  # !!! obviously for dev only !!!
-
-# Set CLIENT_SECRET *after* Keycloak is up and running; then, restart it.
-CLIENT_SECRET=from-running-init-auth...
 # --------------------------------------------------------------------
 
 # Gohan
@@ -287,10 +284,6 @@ specified in the step above.
 ./bentoctl.bash run gateway
 # and
 ./bentoctl.bash init-auth
-
-# then EDIT YOUR ENVIRONMENT TO INCLUDE THE RESULTING CLIENT SECRET VIA CLIENT_SECRET=... ! after this,
-# restart the gateway:
-./bentoctl.bash restart gateway
 ```
 
 **If using an external identity provider**, only start the cluster's gateway
@@ -310,18 +303,6 @@ utilize new variables generated during the OIDC configuration.
 > the URL set in the `.env` file which points to the gateway.
 >
 > If you do not plan to use the built-in OIDC provider, you will have to handle auth configuration manually.
-
-The `CLIENT_SECRET` environment variable must be set using the value provided by Keycloak. If `bentoctl` was used, 
-this should have been printed to the console when `init-auth` was run.
-
-##### If you need to retrieve `CLIENT_SECRET` manually:
-
-Using a browser, connect to the `auth` endpoint (by default `https://bentov2auth.local`) and use the admin 
-credentials from the env file. Once within Keycloak interface, navigate to the *Configure/Clients* menu. Select 
-`local_bentov2` in the list of clients and switch to the *Credentials* tab. Copy the secret from
-there and paste it in your .env file.
-
-![Keycloak UI: get client secret](docs/img/keycloak_client_secret.png)
 
 
 ### 5. *Production only:* set up translations for Bento-Public
