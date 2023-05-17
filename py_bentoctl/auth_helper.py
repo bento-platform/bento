@@ -123,7 +123,7 @@ def init_auth(docker_client: docker.DockerClient):
             err(f"    Failed to create realm: {AUTH_REALM}; {create_realm_res.json()}")
             exit(1)
 
-    def create_web_client_if_needed(token: str) -> str:
+    def create_web_client_if_needed(token: str) -> None:
         p = f"admin/realms/{AUTH_REALM}/clients"
 
         def fetch_existing_client_id() -> Optional[str]:
@@ -150,7 +150,7 @@ def init_auth(docker_client: docker.DockerClient):
                 "protocol": "openid-connect",
                 "implicitFlowEnabled": False,  # don't support insecure old implicit flow
                 "standardFlowEnabled": True,
-                "publicClient": False,
+                "publicClient": True,  # public client - web now uses auth code + PKCE flow
                 "redirectUris": [
                     f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
                     *((f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}",) if cbio_enabled else ()),
@@ -169,7 +169,11 @@ def init_auth(docker_client: docker.DockerClient):
                     "saml.onetimeuse.condition": "false",
                     "saml.server.signature": "false",
                     "saml.server.signature.keyinfo.ext": "false",
-                    "saml_force_name_id_format": "false"
+                    "saml_force_name_id_format": "false",
+
+                    "access.token.lifespan": 900,  # default access token lifespan: 15 minutes
+                    "pkce.code.challenge.method": "S256",
+                    "use.refresh.tokens": "true",
                 }
             })
             if not create_client_res.ok:
@@ -184,8 +188,6 @@ def init_auth(docker_client: docker.DockerClient):
         if not client_secret_res.ok:
             err(f"    Failed to get client secret for {AUTH_CLIENT_ID}; {client_secret_data}")
             exit(1)
-
-        return client_secret_data["value"]
 
     def create_test_user_if_needed(token: str) -> None:
         p = f"admin/realms/{AUTH_REALM}/users"
@@ -248,8 +250,7 @@ def init_auth(docker_client: docker.DockerClient):
     success()
 
     info(f"  Creating web client: {AUTH_CLIENT_ID}")
-    client_secret = create_web_client_if_needed(access_token)
-    cprint(f"    Please set CLIENT_SECRET to {client_secret} in local.env and restart the gateway", attrs=["bold"])
+    create_web_client_if_needed(access_token)
     success()
 
     info(f"  Creating user: {AUTH_TEST_USER}")
