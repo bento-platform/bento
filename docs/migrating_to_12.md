@@ -16,6 +16,12 @@ Then, turn off "Client authentication" and make sure the settings are as follows
 Then, enable PKCE by going to the "Advanced" tab, scrolling down to "Advanced settings", and setting the
 `Proof Key for Code Exchange Code Challenge Method` setting to `S256`. Finally, **save your changes** again.
 
+To clean up your `local.env` file, remove the entry that looks like this:
+
+```bash
+CLIENT_SECRET=some-secret-here
+```
+
 
 ## 2. Create a new client for any bots (*if needed*) 
 
