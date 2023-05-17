@@ -5,7 +5,25 @@ The following is a migration guide for going from Bento v2.11 to Bento v12.
 Note the change in versioning scheme for this release; we dropped the `2.` prefix.
 
 
-## 1. Convert the Keycloak client to be `public` and enable PKCE
+## 1. Update Docker containers
+
+The following commands:
+
+* Stop the cluster
+* Pull the latest images
+* Re-initialize Docker networks
+* Start the cluster again
+
+
+```bash
+./bentoctl.bash stop
+./bentoctl.bash pull
+./bentoctl.bash init-docker
+./bentoctl.bash run
+```
+
+
+## 2. Convert the Keycloak client to be `public` and enable PKCE
 
 To do this, sign in to Keycloak as an administrator and navigate to the realm & Bento client.
 Then, turn off "Client authentication" and make sure the settings are as follows, with only
@@ -26,7 +44,7 @@ CLIENT_SECRET=some-secret-here
 ```
 
 
-## 2. Create a new client for any bots (*if needed*) 
+## 3. Create a new client for any bots (*if needed*) 
 
 In Keycloak, create separate clients for any bots. These should have "Client authentication" **ON**.
 
@@ -36,7 +54,7 @@ For a more modern bot approach, turn "Direct access grants" **OFF** and turn "Se
 thereby enabling the "Client credentials" authentication flow.
 
 
-## 3. Create superuser permissions in the new Bento authorization service
+## 4. Create superuser permissions in the new Bento authorization service
 
 First, open a shell in the authorization service container:
 
@@ -54,6 +72,6 @@ Where `iss` is the issuer (for example, `https://bentov2auth.local/realms/bentov
 which in Keycloak should be a UUID.
 
 
-## 4. Create bot permissions in the new Bento authorization service (*if needed*)
+## 5. Create bot permissions in the new Bento authorization service (*if needed*)
 
 TODO
