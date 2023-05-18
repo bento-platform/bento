@@ -129,9 +129,10 @@ services:
 
   adminer:
     image: adminer:4.8.1
-    container_name: ${BENTOV2_PREFIX}-katsu-adminer
+    container_name: ${BENTOV2_PREFIX}-adminer
     restart: unless-stopped
     networks:
+      - authz-db-net
       - katsu-db-net
       - default
     ports:
