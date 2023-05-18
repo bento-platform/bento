@@ -22,6 +22,7 @@ services:
 
       - ${PWD}/lib/public/about.html:/bento-public/www/public/about.html:ro
       - ${PWD}/lib/public/branding.png:/bento-public/www/public/assets/branding.png:ro
+    mem_limit: ${BENTO_PUBLIC_MEM_LIM}
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}

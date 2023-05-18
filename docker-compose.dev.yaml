@@ -17,19 +17,11 @@ services:
       - NODE_ENV=development
     ports:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
-    deploy:
-      resources:
-        limits:
-          memory: 3G
 
   auth-db:
     extends:
       file: $PWD/lib/auth/docker-compose.auth.yaml
       service: auth-db
-    deploy:
-      resources:
-        limits:
-          memory: 1G
     
   gateway:
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
@@ -128,10 +120,7 @@ services:
       - default
     ports:
       - 8080:8080
-    deploy:
-      resources:
-        limits:
-          memory: 2G
+    mem_limit: 1G
 
   aggregation:
     environment:

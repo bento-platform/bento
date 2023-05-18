@@ -46,6 +46,7 @@ services:
       - auth-db-net
     volumes:
       - ${BENTOV2_AUTH_VOL_DIR}:/var/lib/postgresql/data
+    mem_limit: ${BENTO_AUTH_DB_MEM_LIM}
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_AUTH_DB}", "-U", "${BENTO_AUTH_DB_USER}" ]
       timeout: 5s
