@@ -520,6 +520,7 @@ The following is a list of all host port allocations for Bento services in devel
 
 | Service          | Port | Debugger Port |
 |------------------|------|---------------|
+| Adminer          | 8080 | `N/A`         |
 | Aggregation      | 9500 | 5684          |
 | Beacon           | 5000 | 5683          |
 | cBioPortal       | 8089 | `N/A`         |
