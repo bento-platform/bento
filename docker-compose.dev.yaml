@@ -130,6 +130,10 @@ services:
   adminer:
     image: adminer:4.8.1
     container_name: ${BENTOV2_PREFIX}-katsu-adminer
+    restart: unless-stopped
+    networks:
+      - katsu-db-net
+      - default
     ports:
       - 8080:8080
 

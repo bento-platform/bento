@@ -534,6 +534,17 @@ The following is a list of all host port allocations for Bento services in devel
 | WES              | 9250 | 5680          |
 
 
+### Using Adminer
+
+An [Adminer](https://www.adminer.org/) container is deployed in dev and local mode, it can be used to inspect the
+Katsu database during development.
+
+Go to `localhost:8080` to access the login page. Fill the fields with the values shown below, using the value of
+`BENTOV2_KATSU_DB_PASSWORD` for the password field.
+
+![Adminer login](docs/img/adminer_login.png)
+
+
 
 <br />
 
