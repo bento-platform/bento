@@ -25,6 +25,7 @@ services:
       - POSTGRES_USER=${BENTO_AUTHZ_DB_USER}
       - POSTGRES_PASSWORD=${BENTO_AUTHZ_DB_PASSWORD}
       - POSTGRES_DB=${BENTO_AUTHZ_DB}
+    mem_limit: ${BENTO_AUTHZ_DB_MEM_LIM}
     networks:
       - authz-db-net
     volumes:
