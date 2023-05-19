@@ -86,7 +86,7 @@ Then, run the following commands for each bot client you wish to assign *ingest*
 # This grant is a temporary hack to get permissions working for v12. In the future, it should be removed.
 bento_authz create grant \
   '{"iss": "ISSUER_HERE", "client": "BOT_CLIENT_ID_HERE"}' \
-  '{"everything": "my-project-id"}' \
+  '{"everything": true}' \
   'view:private_portal'
 
 # This grant is not used currently, but ensures future permission to ingest data into the project 
