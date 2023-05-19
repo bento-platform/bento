@@ -71,10 +71,27 @@ bento_authz assign-all-to-user iss sub
 Where `iss` is the issuer (for example, `https://bentov2auth.local/realms/bentov2`) and `sub` is the subject ID,
 which in Keycloak should be a UUID.
 
+### *Optional second step:* Assign portal access to all users in the instance realm
+
+We added a special permission, `view:private_portal`, to Bento v12 in order to carry forward the current
+'legacy' authorization behaviour for one more major version. This permission currently behaves as a super-permission,
+allowing all actions within the private portal. **However,** in the future, this permission will do almost *nothing.*
+
+To carry forward legacy behaviour of all users in the instance realm being able to do everything, run the following
+command in the authorization service container:
+
+```bash
+# Create the grant
+bento_authz create grant \
+  '{"iss": "ISSUER_HERE", "client": "WEB_CLIENT_ID_HERE"}' \
+  '{"everything": true}' \
+  'view:private_portal'
+```
+
 
 ## 5. Create bot permissions in the new Bento authorization service (*if needed*)
 
-First, open a shell in the authorization service container if you don't already have one from the step before:
+First, open a shell in the authorization service container if you don't already have one from the step(s) before:
 
 ```bash
 ./bentoctl.bash shell authz
