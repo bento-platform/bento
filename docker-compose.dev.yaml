@@ -21,10 +21,17 @@ services:
       - public
 
   gateway:
+    environment:
+      - BENTO_DEBUG=true
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
     # Other networks are inherited
     networks:
       aggregation-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      authz-net:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
@@ -40,6 +47,11 @@ services:
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
       drs-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      event-relay-net:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
@@ -83,6 +95,13 @@ services:
       file: docker-compose.yaml
       service: gateway
 
+  authz:
+    extends:
+      file: docker-compose.yaml
+      service: authz
+    environment:
+      - BENTO_DEBUG=True
+
   katsu:
     depends_on:
       - katsu-db
@@ -110,9 +129,10 @@ services:
 
   adminer:
     image: adminer:4.8.1
-    container_name: ${BENTOV2_PREFIX}-katsu-adminer
+    container_name: ${BENTOV2_PREFIX}-adminer
     restart: unless-stopped
     networks:
+      - authz-db-net
       - katsu-db-net
       - default
     ports:
@@ -185,6 +205,8 @@ services:
     environment:
       - FLASK_DEBUG=True
       - BENTO_DEBUG=True
+    ports:
+      - "${BENTOV2_SERVICE_REGISTRY_EXTERNAL_PORT}:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}"
     extends:
       file: docker-compose.yaml
       service: service-registry
@@ -211,6 +233,7 @@ services:
 
   event-relay:
     environment:
+      - BENTO_DEBUG=true
       - NODE_ENV=development
     extends:
       file: docker-compose.yaml

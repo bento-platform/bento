@@ -6,13 +6,16 @@ services:
       redis:
         condition: service_healthy
     environment:
+      - BENTO_DEBUG=false
       - CHORD_DEBUG=false
       - CHORD_PERMISSIONS=true
       - CHORD_PRIVATE_MODE=${BENTOV2_PRIVATE_MODE}
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
       - CBIOPORTAL_URL=${BENTO_CBIOPORTAL_PUBLIC_URL}/
 
+      - BENTO_AUTHZ_SERVICE_URL=${BENTO_AUTHZ_SERVICE_URL}
       - OIDC_DISCOVERY_URI=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
+      - BENTO_OPENID_CONFIG_URL=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
       - REDIRECT_AFTER_LOGOUT_URI=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_REDIRECT_AFTER_LOGOUT_PATH}
       - CLIENT_ID=${BENTOV2_AUTH_CLIENT_ID}
       - CLIENT_SECRET
@@ -46,6 +49,8 @@ services:
       - BENTOV2_AUTH_CONTAINER_NAME
       - BENTOV2_AUTH_INTERNAL_PORT
 
+      - BENTO_AUTHZ_CONTAINER_NAME
+      - BENTO_AUTHZ_INTERNAL_PORT
       - BENTOV2_DROP_BOX_CONTAINER_NAME
       - BENTOV2_DROP_BOX_INTERNAL_PORT
       - BENTOV2_SERVICE_REGISTRY_CONTAINER_NAME
@@ -85,6 +90,10 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
       auth-net:
+      authz-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
       beacon-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -98,7 +107,10 @@ services:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
-      event-relay-net:  # No aliases needed here; container for sure does not contact the gateway
+      event-relay-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
       gohan-api-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -138,11 +150,17 @@ services:
     volumes:
       - ${BENTOV2_GATEWAY_CERTS_DIR}:${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}:ro
       - ${PWD}/lib/gateway/services:/gateway/services:ro
+      - ${PWD}/lib/gateway/public_services:/gateway/public_services:ro
     mem_limit: ${BENTOV2_GATEWAY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_GATEWAY_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:443", "-k" ]
+      test: [
+        "CMD",
+        "curl", "-k",
+        "--resolve", "${BENTOV2_PORTAL_DOMAIN}:443:127.0.0.1",
+        "https://${BENTOV2_PORTAL_DOMAIN}"
+      ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
@@ -152,6 +170,17 @@ services:
 
   # PUBLIC:
   # public included via extra compose file: lib/public/docker-compose.public.yaml
+
+
+  authz:
+    extends:
+      file: $PWD/lib/authz/docker-compose.authz.yaml
+      service: authz
+
+  authz-db:
+    extends:
+      file: $PWD/lib/authz/docker-compose.authz.yaml
+      service: authz-db
 
 
   web:
@@ -291,7 +320,8 @@ services:
     image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION}
     container_name: ${BENTOV2_EVENT_RELAY_CONTAINER_NAME}
     environment:
-      # Default to production NODE_ENV - shouldn't really change anything, though.
+      # Default to production BENTO_DEBUG and NODE_ENV
+      - BENTO_DEBUG=false
       - NODE_ENV=production
 
       # If true, JSON_MESSAGES will parse all messages recieved from the subscription
@@ -305,6 +335,9 @@ services:
 
       # socket.io "path" for the server created by the service.
       - SOCKET_IO_PATH=${BENTOV2_EVENT_RELAY_SOCKET_IO_PATH}
+
+      # CORS origins for connecting to the socket
+      - CORS_ORIGINS=${BENTOV2_PUBLIC_URL};${BENTOV2_PORTAL_PUBLIC_URL}
 
       # Connection string (URL or path to UNIX socket file) for the Redis instance.
       - REDIS_CONNECTION=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
@@ -320,6 +353,9 @@ services:
       # related to the Bento platform.
       # Use the standard Bento service internal port, overriding the default
       - SERVICE_LISTEN_ON=${BENTO_STD_SERVICE_INTERNAL_PORT}
+
+      # Pass in authz service URL for authorizing socket connections
+      - BENTO_AUTHZ_SERVICE_URL=${BENTO_AUTHZ_SERVICE_URL}
     depends_on:
       - redis
     networks:
@@ -393,6 +429,12 @@ networks:
   auth-net:
     external: true
     name: ${BENTO_AUTH_NETWORK}
+  authz-net:
+    external: true
+    name: ${BENTO_AUTHZ_NETWORK}
+  authz-db-net:
+    external: true
+    name: ${BENTO_AUTHZ_DB_NETWORK}
   beacon-net:
     external: true
     name: ${BENTO_BEACON_NETWORK}

@@ -32,6 +32,7 @@ that make up the Bento platform.
 
 ## Migration documents
 
+* [v2.11 to v12](./docs/migrating_to_12.md)
 * [v2.10 to v2.11](./docs/migrating_to_2_11.md)
 
 
@@ -159,9 +160,6 @@ BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
 
 BENTOV2_AUTH_TEST_USER=user
 BENTOV2_AUTH_TEST_PASSWORD=user  # !!! obviously for dev only !!!
-
-# Set CLIENT_SECRET *after* Keycloak is up and running; then, restart it.
-CLIENT_SECRET=from-running-init-auth...
 # --------------------------------------------------------------------
 
 # Gohan
@@ -286,10 +284,6 @@ specified in the step above.
 ./bentoctl.bash run gateway
 # and
 ./bentoctl.bash init-auth
-
-# then EDIT YOUR ENVIRONMENT TO INCLUDE THE RESULTING CLIENT SECRET VIA CLIENT_SECRET=... ! after this,
-# restart the gateway:
-./bentoctl.bash restart gateway
 ```
 
 **If using an external identity provider**, only start the cluster's gateway
@@ -309,18 +303,6 @@ utilize new variables generated during the OIDC configuration.
 > the URL set in the `.env` file which points to the gateway.
 >
 > If you do not plan to use the built-in OIDC provider, you will have to handle auth configuration manually.
-
-The `CLIENT_SECRET` environment variable must be set using the value provided by Keycloak. If `bentoctl` was used, 
-this should have been printed to the console when `init-auth` was run.
-
-##### If you need to retrieve `CLIENT_SECRET` manually:
-
-Using a browser, connect to the `auth` endpoint (by default `https://bentov2auth.local`) and use the admin 
-credentials from the env file. Once within Keycloak interface, navigate to the *Configure/Clients* menu. Select 
-`local_bentov2` in the list of clients and switch to the *Credentials* tab. Copy the secret from
-there and paste it in your .env file.
-
-![Keycloak UI: get client secret](docs/img/keycloak_client_secret.png)
 
 
 ### 5. *Production only:* set up translations for Bento-Public
@@ -463,7 +445,7 @@ To remediate this, you have two options:
   with the PR number (**prefered**)
 - Manually build and tag a docker image on your machine (**avoid when possible**)
 
-### Local bento_web image example
+### Local `bento_web` image example
 
 **Note: this approach is a last resort for local development only. In some situations, we cannot always assume that 
 working CI artifacts are available for every service used by Bento.**
@@ -529,6 +511,30 @@ bind mount (i.e., a filesystem path volume). To switch back to a pre-built versi
 This will work for any service where both a local development and pre-built image exist.
 
 
+### Communicating with services (in development)
+
+When `MODE=dev`, some service containers are bound to ports on the host, so debugging can be done without
+going through the gateway.
+
+The following is a list of all host port allocations for Bento services in development mode:
+
+| Service          | Port | Debugger Port |
+|------------------|------|---------------|
+| Adminer          | 8080 | `N/A`         |
+| Aggregation      | 9500 | 5684          |
+| Beacon           | 5000 | 5683          |
+| cBioPortal       | 8089 | `N/A`         |
+| Drop Box         | 6000 | Unimplemented |
+| DRS              | 7007 | 5682          |
+| Event relay      | 8750 | Unimplemented |
+| Katsu            | 8000 | 5432          |
+| Notification     | 8500 | Unimplemented |
+| Public           | 8090 | Unimplemented |
+| Redis            | 6379 | `N/A`         |
+| Service Registry | 5010 | Unimplemented |
+| WES              | 9250 | 5680          |
+
+
 ### Using Adminer
 
 An [Adminer](https://www.adminer.org/) container is deployed in dev and local mode, it can be used to inspect the
@@ -538,6 +544,8 @@ Go to `localhost:8080` to access the login page. Fill the fields with the values
 `BENTOV2_KATSU_DB_PASSWORD` for the password field.
 
 ![Adminer login](docs/img/adminer_login.png)
+
+
 
 <br />
 

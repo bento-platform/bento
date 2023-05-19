@@ -1,0 +1,44 @@
+services:
+  authz:
+    image: ${BENTO_AUTHZ_IMAGE}:${BENTO_AUTHZ_VERSION}
+    container_name: ${BENTO_AUTHZ_CONTAINER_NAME}
+    depends_on:
+      authz-db:
+        condition: service_healthy
+    expose:
+      - ${BENTO_AUTHZ_INTERNAL_PORT}
+    environment:
+      - BENTO_UID
+      - BENTO_DEBUG=False
+      - DATABASE_URI=postgres://${BENTO_AUTHZ_DB_USER}:${BENTO_AUTHZ_DB_PASSWORD}@${BENTO_AUTHZ_DB_CONTAINER_NAME}:5432/${BENTO_AUTHZ_DB}
+      - INTERNAL_PORT=${BENTO_AUTHZ_INTERNAL_PORT}
+      - OPENID_WELL_KNOWN_URL=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
+    mem_limit: ${BENTO_AUTHZ_MEM_LIM}
+    networks:
+      - authz-net
+      - authz-db-net
+
+  authz-db:
+    image: postgres:${BENTO_AUTHZ_DB_VERSION}
+    container_name: ${BENTO_AUTHZ_DB_CONTAINER_NAME}
+    environment:
+      - POSTGRES_USER=${BENTO_AUTHZ_DB_USER}
+      - POSTGRES_PASSWORD=${BENTO_AUTHZ_DB_PASSWORD}
+      - POSTGRES_DB=${BENTO_AUTHZ_DB}
+    mem_limit: ${BENTO_AUTHZ_DB_MEM_LIM}
+    networks:
+      - authz-db-net
+    volumes:
+      - ${BENTO_AUTHZ_DB_VOL_DIR}:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_AUTHZ_DB}", "-U", "${BENTO_AUTHZ_DB_USER}" ]
+      timeout: 5s
+      interval: 15s  # Faster interval for authz-db, which authz requires to be healthy
+
+networks:
+  authz-net:
+    external: true
+    name: ${BENTO_AUTHZ_NETWORK}
+  authz-db-net:
+    external: true
+    name: ${BENTO_AUTHZ_DB_NETWORK}
