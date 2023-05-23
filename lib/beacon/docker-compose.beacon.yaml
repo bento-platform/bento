@@ -15,7 +15,7 @@ services:
       - BENTO_BEACON_EXTERNAL_PORT
       - BENTO_BEACON_DEBUGGER_INTERNAL_PORT
       - BENTO_BEACON_DEBUGGER_EXTERNAL_PORT
-      - CONFIG_ABSOLUTE_PATH=/config/
+      - CONFIG_ABSOLUTE_PATH=/beacon/config/
       - BEACON_SMALL_CELL_COUNT_THRESHOLD=${BENTO_BEACON_SMALL_CELL_COUNT_THRESHOLD}
       - BEACON_MAX_FILTERS=${BENTO_BEACON_MAX_FILTERS}
       - ENABLE_AUTHX=${BENTO_BEACON_ENABLE_AUTHX}
@@ -24,7 +24,7 @@ services:
       - BEACON_BASE_URL=${BENTOV2_PUBLIC_URL}/api/beacon
       - BENTO_BEACON_VERSION=${BENTO_BEACON_VERSION}
     volumes:
-      - ./config:/config:ro
+      - ./lib/beacon/config:/beacon/config:ro
     networks: 
       - beacon-net
       - gohan-api-net
