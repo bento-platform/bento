@@ -397,5 +397,5 @@ def logs_service(compose_service: str, follow: bool) -> None:
 
     check_service_is_compose(compose_service)
     os.execvp(
-        c.COMPOSE[0], 
+        c.COMPOSE[0],
         (*_get_service_specific_compose(compose_service), "logs", *extra_args, compose_service))
