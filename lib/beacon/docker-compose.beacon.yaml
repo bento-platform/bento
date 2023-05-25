@@ -24,7 +24,7 @@ services:
       - BEACON_BASE_URL=${BENTOV2_PUBLIC_URL}/api/beacon
       - BENTO_BEACON_VERSION=${BENTO_BEACON_VERSION}
     volumes:
-      - ./config:/config:ro
+      - ${BENTO_BEACON_CONFIG_DIR}:/config:ro
     networks: 
       - beacon-net
       - gohan-api-net
