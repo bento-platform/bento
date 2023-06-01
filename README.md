@@ -227,6 +227,10 @@ From the project root, run
 > **NOTE:** This command will skip all certificate generation if it detects previously created files. 
 > To force an override, simply add the option `--force` / `-f`.
 
+After creating the three certificates, it is worth ensuring your browser has security exceptions for these
+certificates and domains. Navigate to each of the three domains mentioned above and add security exceptions
+to ensure cross-origin requests will occur correctly.
+
 
 ### 3. *Development only:* Hosts file configuration
 
@@ -305,7 +309,44 @@ utilize new variables generated during the OIDC configuration.
 > If you do not plan to use the built-in OIDC provider, you will have to handle auth configuration manually.
 
 
-### 5. *Production only:* set up translations for Bento-Public
+### 5. Configure permissions
+
+#### Create superuser permissions in the new Bento authorization service
+
+First, open a shell in the authorization service container:
+
+```bash
+./bentoctl.bash shell authz
+```
+
+Then, run the following command for each user ID you wish to assign superuser permissions to:
+
+```bash
+bento_authz assign-all-to-user iss sub
+```
+
+Where `iss` is the issuer (for example, `https://bentov2auth.local/realms/bentov2`) and `sub` is the user (subject) ID,
+which in Keycloak should be a UUID.
+
+#### *Optional second step:* Assign portal access to all users in the instance realm
+
+We added a special permission, `view:private_portal`, to Bento v12 in order to carry forward the current
+'legacy' authorization behaviour for one more major version. This permission currently behaves as a super-permission,
+allowing all actions within the private portal. **However,** in the future, this permission will do almost *nothing.*
+
+To carry forward legacy behaviour of all users in the instance realm being able to do everything, run the following
+command in the authorization service container:
+
+```bash
+# Create the grant
+bento_authz create grant \
+  '{"iss": "ISSUER_HERE", "client": "WEB_CLIENT_ID_HERE"}' \
+  '{"everything": true}' \
+  'view:private_portal'
+```
+
+
+### 6. *Production only:* set up translations for Bento-Public
 
 Now that Bento Public has been initialized by either `./bentoctl.bash init-all` or `./bentoctl.bash init-web public`,
 adjust the default translation set as necessary:
@@ -344,7 +385,7 @@ adjust the default translation set as necessary:
 ```
 
 
-### 6. Start the cluster
+### 7. Start the cluster
 
 ```bash
 ./bentoctl.bash run all
@@ -376,7 +417,7 @@ To remove the Docker containers, run the following:
 > (depending on data path, e.g., `./data/[auth, drs, katsu]/...` directories)
 
 
-### 7. Set up Gohan's gene catalogue (*optional*; required for gene querying support)
+### 8. Set up Gohan's gene catalogue (*optional*; required for gene querying support)
 
 Upon initial startup of a fresh instance, it may of use, depending on the use-case, to perform the following:
 

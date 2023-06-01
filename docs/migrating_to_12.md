@@ -68,7 +68,7 @@ Then, run the following command for each user ID you wish to assign superuser pe
 bento_authz assign-all-to-user iss sub
 ```
 
-Where `iss` is the issuer (for example, `https://bentov2auth.local/realms/bentov2`) and `sub` is the subject ID,
+Where `iss` is the issuer (for example, `https://bentov2auth.local/realms/bentov2`) and `sub` is the user (subject) ID,
 which in Keycloak should be a UUID.
 
 ### *Optional second step:* Assign portal access to all users in the instance realm
