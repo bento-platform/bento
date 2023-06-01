@@ -40,6 +40,17 @@ services:
       file: docker-compose.dev.yaml
       service: gateway
 
+  authz:
+    extends:
+      file: docker-compose.dev.yaml
+      service: authz
+    volumes:
+      - ./repos/authz:/authorization
+    environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
+      - BENTO_GIT_REPOSITORY_DIR=/authorization
+
   katsu:
     extends:
       file: docker-compose.dev.yaml
