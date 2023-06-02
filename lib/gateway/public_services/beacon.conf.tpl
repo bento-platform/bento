@@ -12,6 +12,9 @@ location /api/beacon/ {
     return 400;
     proxy_pass http://${BENTO_BEACON_CONTAINER_NAME}:${BENTO_BEACON_INTERNAL_PORT}$uri;
 
+    # CORS
+    include /usr/local/openresty/nginx/conf/cors.conf;
+
     # Errors
     error_log /var/log/bentov2_beacon_errors.log;
 }
