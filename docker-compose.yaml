@@ -206,16 +206,10 @@ services:
     container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
     environment:
       - BENTO_UID
-      # Runtime
-      - QUART_DEBUG=False
-      # Storage
-      # - MINIO_URL=${BENTOV2_DROP_BOX_MINIO_URL}
-      # - MINIO_USERNAME=${BENTOV2_DROP_BOX_MINIO_USERNAME}
-      # - MINIO_PASSWORD=${BENTOV2_DROP_BOX_MINIO_PASSWORD}
-      # - MINIO_BUCKET=${BENTOV2_DROP_BOX_MINIO_BUCKET}
+      - BENTO_DEBUG=False
       - SERVICE_DATA=/data
-
       - SERVICE_URL=${BENTOV2_PORTAL_PUBLIC_URL}/api/drop-box
+      - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
     networks:
       - drop-box-net
     expose:
