@@ -39,12 +39,20 @@ def _init_web_public(force: bool):
     translation_path = (public_path / "translations")
     translation_path.mkdir(parents=True, exist_ok=True)
 
-    # About html page
+    # About html page (English)
     _file_copy(
-        (root_path / "etc" / "default.about.html"),
-        (public_path / "about.html"),
+        (root_path / "etc" / "default.en_about.html"),
+        (public_path / "en_about.html"),
         force=force,
     )
+
+    # About html page (French)
+    _file_copy(
+        (root_path / "etc" / "default.fr_about.html"),
+        (public_path / "fr_about.html"),
+        force=force,
+    )
+
     # Branding image
     _file_copy(
         (root_path / "etc" / "default.public.branding.png"),
