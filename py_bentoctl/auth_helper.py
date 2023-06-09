@@ -171,6 +171,9 @@ def init_auth(docker_client: docker.DockerClient):
                     "saml.server.signature.keyinfo.ext": "false",
                     "saml_force_name_id_format": "false",
 
+                    # Allowed redirect_uri values when using the logout endpoint from Keycloak
+                    "post.logout.redirect.uris": f"{PORTAL_PUBLIC_URL}/*",
+
                     "access.token.lifespan": 900,  # default access token lifespan: 15 minutes
                     "pkce.code.challenge.method": "S256",
                     "use.refresh.tokens": "true",
