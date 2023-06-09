@@ -22,7 +22,9 @@ services:
       - ${PWD}/lib/public/translations/en.json:/bento-public/www/public/locales/en/translation_en.json:ro
       - ${PWD}/lib/public/translations/fr.json:/bento-public/www/public/locales/fr/translation_fr.json:ro
 
-      - ${PWD}/lib/public/about.html:/bento-public/www/public/about.html:ro
+      - ${PWD}/lib/public/en_about.html:/bento-public/www/public/en_about.html:ro
+      - ${PWD}/lib/public/fr_about.html:/bento-public/www/public/fr_about.html:ro
+
       - ${PWD}/lib/public/branding.png:/bento-public/www/public/assets/branding.png:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
