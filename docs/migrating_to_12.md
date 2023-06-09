@@ -31,7 +31,12 @@ Then, turn off "Client authentication" and make sure the settings are as follows
 
 <img src="img/client_setup_v12.png" width="500" height="214" alt="Client configuration for Bento Keycloak for v12" />
 
-Then, enable PKCE by going to the "Advanced" tab, scrolling down to "Advanced settings", and setting the
+Then, make sure to set a valid **post-logout redirect URI** if not already done. Use the value 
+`https://portal.bentov2.local/*`, replacing the domain with whatever your portal URL is:
+
+<img src="img/logout_uri_v12.png" width="350" height="69" alt="Logout URI configuration for Bento Keycloak for v12" />
+
+Then, **enable PKCE** by going to the "Advanced" tab, scrolling down to "Advanced settings", and setting the
 `Proof Key for Code Exchange Code Challenge Method` setting to `S256`. Finally, **save your changes** again.
 
 In this tab, **make sure** "Access Token Lifespan" is also set to a finite value. As a default, use something short,
