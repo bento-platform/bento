@@ -213,7 +213,7 @@ services:
       # - MINIO_USERNAME=${BENTOV2_DROP_BOX_MINIO_USERNAME}
       # - MINIO_PASSWORD=${BENTOV2_DROP_BOX_MINIO_PASSWORD}
       # - MINIO_BUCKET=${BENTOV2_DROP_BOX_MINIO_BUCKET}
-      - SERVICE_DATA=/data
+      - SERVICE_DATA=${BENTO_DROP_BOX_FS_BASE_PATH}
 
       - SERVICE_URL=${BENTOV2_PORTAL_PUBLIC_URL}/api/drop-box
     networks:
@@ -221,7 +221,7 @@ services:
     expose:
       - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
     volumes:
-      - ${BENTOV2_DROP_BOX_VOL_DIR}:/data
+      - ${BENTOV2_DROP_BOX_VOL_DIR}:${BENTO_DROP_BOX_FS_BASE_PATH}
     mem_limit: ${BENTOV2_DROP_BOX_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_DROP_BOX_CPUS}
     cpu_shares: 1024
