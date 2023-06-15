@@ -214,7 +214,6 @@ services:
   drop-box:
     environment:
       # Runtime
-      - QUART_DEBUG=True
       - BENTO_DEBUG=True
     ports:
       - "${BENTOV2_DROP_BOX_EXTERNAL_PORT}:${BENTOV2_DROP_BOX_INTERNAL_PORT}"
