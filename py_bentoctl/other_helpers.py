@@ -39,12 +39,20 @@ def _init_web_public(force: bool):
     translation_path = (public_path / "translations")
     translation_path.mkdir(parents=True, exist_ok=True)
 
-    # About html page
+    # About html page (English)
     _file_copy(
-        (root_path / "etc" / "default.about.html"),
-        (public_path / "about.html"),
+        (root_path / "etc" / "default.en_about.html"),
+        (public_path / "en_about.html"),
         force=force,
     )
+
+    # About html page (French)
+    _file_copy(
+        (root_path / "etc" / "default.fr_about.html"),
+        (public_path / "fr_about.html"),
+        force=force,
+    )
+
     # Branding image
     _file_copy(
         (root_path / "etc" / "default.public.branding.png"),
@@ -131,7 +139,7 @@ def init_self_signed_certs(force: bool):
             "priv_key_name": "cbioportal_privkey1.key",
             "crt": "cbioportal_fullchain1.crt",
             "dir": gateway_certs_dir,
-        }} if c.BENTO_CBIOPORTAL_ENABLED else {}),
+        }} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
     }
 
     # Init cert directories
@@ -179,6 +187,7 @@ def init_self_signed_certs(force: bool):
 def init_dirs():
     data_dir_vars = {
         "root": "BENTOV2_ROOT_DATA_DIR",
+        "authz-db": "BENTO_AUTHZ_DB_VOL_DIR",
         "drs": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
         "gohan": "BENTOV2_GOHAN_DATA_ROOT",
@@ -186,7 +195,7 @@ def init_dirs():
         "gohan-api-drs-bridge": "BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR",
         "gohan-vcfs": "BENTOV2_GOHAN_API_VCF_PATH",
         "gohan-gtfs": "BENTOV2_GOHAN_API_GTF_PATH",
-        "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR",
+        "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR" if c.DEV_MODE else "BENTOV2_KATSU_DB_DEV_VOL_DIR",
         "notification": "BENTOV2_NOTIFICATION_VOL_DIR",
         "redis": "BENTOV2_REDIS_VOL_DIR",
         "wes": "BENTOV2_WES_VOL_DIR",
@@ -195,7 +204,7 @@ def init_dirs():
         #  - internal IdP
         **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
         #  - cBioPortal
-        **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_CBIOPORTAL_ENABLED else {}),
+        **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
     }
 
     task_print("Creating temporary secrets directory if needed...")
@@ -243,6 +252,8 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_AGGREGATION_NETWORK", dict(driver="bridge")),
         ("BENTO_AUTH_NETWORK", dict(driver="bridge")),
         ("BENTO_AUTH_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_AUTHZ_NETWORK", dict(driver="bridge")),
+        ("BENTO_AUTHZ_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_BEACON_NETWORK", dict(driver="bridge")),
         ("BENTO_CBIOPORTAL_NETWORK", dict(driver="bridge")),
         ("BENTO_CBIOPORTAL_DATABASE_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web

@@ -24,6 +24,8 @@ services:
     extends:
       file: docker-compose.dev.yaml
       service: public
+    profiles:
+      - public
 
   gateway:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION_DEV}
@@ -37,6 +39,17 @@ services:
     extends:
       file: docker-compose.dev.yaml
       service: gateway
+
+  authz:
+    extends:
+      file: docker-compose.dev.yaml
+      service: authz
+    volumes:
+      - ./repos/authz:/authorization
+    environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
+      - BENTO_GIT_REPOSITORY_DIR=/authorization
 
   katsu:
     extends:
@@ -59,6 +72,9 @@ services:
       service: katsu-db
 
   adminer:
+    # No Docker networks required, bound to host
+    ports:
+      - 8080:8080
     extends:
       file: docker-compose.dev.yaml
       service: adminer
@@ -111,6 +127,8 @@ services:
       service: beacon
     volumes:
       - ./repos/beacon:/beacon
+    profiles:
+      - beacon
 
   service-registry:
     image: ${BENTOV2_SERVICE_REGISTRY_IMAGE}:${BENTOV2_SERVICE_REGISTRY_VERSION_DEV}

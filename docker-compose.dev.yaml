@@ -11,18 +11,27 @@ services:
 
   public:
     extends:
-      file: docker-compose.yaml
+      file: $PWD/lib/public/docker-compose.public.yaml
       service: public
     environment:
       - NODE_ENV=development
     ports:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
+    profiles:
+      - public
 
   gateway:
+    environment:
+      - BENTO_DEBUG=true
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
     # Other networks are inherited
     networks:
       aggregation-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      authz-net:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
@@ -38,6 +47,11 @@ services:
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
       drs-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+      event-relay-net:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
@@ -81,6 +95,13 @@ services:
       file: docker-compose.yaml
       service: gateway
 
+  authz:
+    extends:
+      file: docker-compose.yaml
+      service: authz
+    environment:
+      - BENTO_DEBUG=True
+
   katsu:
     depends_on:
       - katsu-db
@@ -108,9 +129,10 @@ services:
 
   adminer:
     image: adminer:4.8.1
-    container_name: ${BENTOV2_PREFIX}-katsu-adminer
+    container_name: ${BENTOV2_PREFIX}-adminer
     restart: unless-stopped
     networks:
+      - authz-db-net
       - katsu-db-net
       - default
     ports:
@@ -176,11 +198,15 @@ services:
     ports:
       - "${BENTO_BEACON_EXTERNAL_PORT}:${BENTO_BEACON_INTERNAL_PORT}"
       - "${BENTO_BEACON_DEBUGGER_EXTERNAL_PORT}:${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}"
+    profiles:
+      - beacon
 
   service-registry:
     environment:
       - FLASK_DEBUG=True
       - BENTO_DEBUG=True
+    ports:
+      - "${BENTOV2_SERVICE_REGISTRY_EXTERNAL_PORT}:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}"
     extends:
       file: docker-compose.yaml
       service: service-registry
@@ -188,8 +214,10 @@ services:
   drop-box:
     environment:
       # Runtime
-      - FLASK_DEBUG=True
+      - QUART_DEBUG=True
       - BENTO_DEBUG=True
+    ports:
+      - "${BENTOV2_DROP_BOX_EXTERNAL_PORT}:${BENTOV2_DROP_BOX_INTERNAL_PORT}"
     extends:
       file: docker-compose.yaml
       service: drop-box
@@ -205,6 +233,7 @@ services:
 
   event-relay:
     environment:
+      - BENTO_DEBUG=true
       - NODE_ENV=development
     extends:
       file: docker-compose.yaml
@@ -216,5 +245,5 @@ services:
     environment:
       "cluster.routing.allocation.disk.threshold_enabled": "false"
     extends:
-      file: docker-compose.yaml
+      file: $PWD/lib/gohan/docker-compose.gohan.yaml
       service: gohan-elasticsearch

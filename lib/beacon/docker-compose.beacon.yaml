@@ -21,8 +21,10 @@ services:
       - ENABLE_AUTHX=${BENTO_BEACON_ENABLE_AUTHX}
       - OIDC_ISSUER=${BENTO_BEACON_OIDC_ISSUER}
       - CLIENT_ID=${BENTOV2_AUTH_CLIENT_ID}
+      - BEACON_BASE_URL=${BENTOV2_PUBLIC_URL}/api/beacon
+      - BENTO_BEACON_VERSION=${BENTO_BEACON_VERSION}
     volumes:
-      - ./config:/config:ro
+      - ${BENTO_BEACON_CONFIG_DIR}:/config:ro
     networks: 
       - beacon-net
       - gohan-api-net
@@ -36,6 +38,8 @@ services:
       test: [ "CMD", "curl", "http://localhost:${BENTO_BEACON_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+    profiles:
+      - beacon
 
 networks:
   beacon-net:
