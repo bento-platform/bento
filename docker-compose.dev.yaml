@@ -203,8 +203,9 @@ services:
 
   service-registry:
     environment:
-      - FLASK_DEBUG=True
       - BENTO_DEBUG=True
+      - BENTO_VALIDATE_SSL=False
+      - LOG_LEVEL=debug
     ports:
       - "${BENTOV2_SERVICE_REGISTRY_EXTERNAL_PORT}:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}"
     extends:

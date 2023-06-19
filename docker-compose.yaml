@@ -236,7 +236,9 @@ services:
       - BENTO_PORTAL_PUBLIC_URL=${BENTOV2_PORTAL_PUBLIC_URL}
 
       - BENTO_DEBUG=False
-      - BENTO_VALIDATE_SSL=False
+      - BENTO_VALIDATE_SSL=True
+      - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
+      - BENTO_AUTHZ_SERVICE_URL
 
       # Timeout, in seconds (integers only), for contacting services from the JSON
       - CONTACT_TIMEOUT=10
