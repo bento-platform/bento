@@ -10,9 +10,6 @@
         "cohorts"
     ],
     "serviceInfo": {
-        "id": "c3g.bento.beacon",
-        "name": "Bento Beacon test instance",
-        "environment": "dev",
         "organization": {
             "id": "c3g",
             "name": "Canadian Centre for Computational Genomics",
