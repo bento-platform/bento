@@ -1,9 +1,8 @@
-location /api/service-registry { return 302 https://${BENTOV2_PORTAL_DOMAIN}/api/service-registry/; }
+location /api/service-registry { return 302 https://${BENTOV2_DOMAIN}/api/service-registry/; }
 location /api/service-registry/ {
     # Reverse proxy settings
     include /gateway/conf/proxy.conf;
     include /gateway/conf/proxy_extra.conf;
-    include /gateway/conf/proxy_private.conf;
 
     # Forward request to the service-registry
     rewrite ^ $request_uri;
