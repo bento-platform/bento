@@ -281,6 +281,7 @@ services:
       - REDIS_HOST=${BENTOV2_REDIS_CONTAINER_NAME}
       - REDIS_PORT=${BENTOV2_REDIS_INTERNAL_PORT}
       - INTERNAL_PORT=${BENTOV2_NOTIFICATION_INTERNAL_PORT}
+      - BENTO_AUTHZ_SERVICE_URL
     networks:
       - notification-net
       - redis-net  # For event pub/sub
