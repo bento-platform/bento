@@ -1,9 +1,8 @@
-location /api/notification { return 302 https://${BENTOV2_PORTAL_DOMAIN}/api/notification/; }
+location /api/notification { return 302 https://${BENTOV2_DOMAIN}/api/notification/; }
 location /api/notification/ {
     # Reverse proxy settings
     include /gateway/conf/proxy.conf;
     include /gateway/conf/proxy_extra.conf;
-    include /gateway/conf/proxy_private.conf;
 
     # Forward request to notification service
     rewrite ^ $request_uri;
