@@ -569,7 +569,7 @@ The following is a list of all host port allocations for Bento services in devel
 | DRS              | 7007 | 5682          |
 | Event relay      | 8750 | Unimplemented |
 | Katsu            | 8000 | 5432          |
-| Notification     | 8500 | Unimplemented |
+| Notification     | 8500 | 5681          |
 | Public           | 8090 | Unimplemented |
 | Redis            | 6379 | `N/A`         |
 | Service Registry | 5010 | Unimplemented |
