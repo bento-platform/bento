@@ -15,6 +15,8 @@ services:
 
       - BENTO_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
       - SERVICE_URL_BASE_PATH=/api/drs
+
+      - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
     networks:
       - drs-net
     expose:
