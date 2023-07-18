@@ -6,7 +6,7 @@ services:
     environment:
       - BENTO_UID
 
-      - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
+      - BENTO_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
 
       - CELERY_RESULT_BACKEND=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
       - CELERY_BROKER_URL=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
@@ -22,20 +22,15 @@ services:
       # from - prevents possibly insecure WDLs from being run
       - WORKFLOW_HOST_ALLOW_LIST=${BENTOV2_GOHAN_API_CONTAINER_NAME}:${BENTOV2_GOHAN_API_INTERNAL_PORT},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
 
-      # DRS configuration options:
-      # - Where the DRS instance to use is located. Technically, if not set this
-      #   defaults to using a different environment variable, NGINX_INTERNAL_SOCKET,
-      #   as a path to a Bento instance's internal NGINX UNIX socket and adding a
-      #   path to the actual DRS instance
+      # Service URLS
       - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
-      - WRITE_OUTPUT_TO_DRS=True
-      - DRS_DEDUPLICATE=True
-      - DRS_SKIP_TYPES=json
-      - OTT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/ott
-      - TT_ENDPOINT_NAMESPACE=${BENTOV2_PORTAL_PUBLIC_URL}/api/auth/tt
+      - BENTO_AUTHZ_SERVICE_URL
+      - SERVICE_REGISTRY_URL=http://${BENTOV2_PUBLIC_URL}/api/service-registry
 
       - INTERNAL_PORT=${BENTOV2_WES_INTERNAL_PORT}
       - WORKFLOW_TIMEOUT=${BENTOV2_WES_WORKFLOW_TIMEOUT}
+
+      - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
     networks:
       - wes-net
       - redis-net  # Talks to Redis for event pub/sub and job queueing
