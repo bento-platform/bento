@@ -13,7 +13,7 @@
   },
   "wes": {
     "service_kind": "wes",
-    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
     "repository": "git@github.com:bento-platform/bento_wes",
     "data_service": false
   },
