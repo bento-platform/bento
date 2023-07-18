@@ -4,18 +4,12 @@ services:
     container_name: ${BENTOV2_DRS_CONTAINER_NAME}
     environment:
       - BENTO_UID
-
       - FLASK_DEBUG=False
-
       - BENTO_DRS_CONTAINER_DATA_VOLUME_DIR  # Special container-only variable to specify where the volume is mounted
       - DATABASE=${BENTO_DRS_CONTAINER_DATA_VOLUME_DIR}/db/  # slightly confused naming, folder for database to go in
       - DATA=${BENTO_DRS_CONTAINER_DATA_VOLUME_DIR}/obj/  # DRS file objects, vs. the database
-
+      - SERVICE_BASE_URL=${BENTOV2_PUBLIC_URL}/api/drs
       - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
-
-      - BENTO_URL=${BENTOV2_PORTAL_PUBLIC_URL_TRAILING_SLASH}
-      - SERVICE_URL_BASE_PATH=/api/drs
-
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
     networks:
       - drs-net
