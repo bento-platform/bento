@@ -11,6 +11,7 @@ services:
       - SERVICE_BASE_URL=${BENTOV2_PUBLIC_URL}/api/drs
       - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
+      - BENTO_AUTHZ_SERVICE_URL
     networks:
       - drs-net
     expose:
