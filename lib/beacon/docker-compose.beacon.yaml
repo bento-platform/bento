@@ -24,6 +24,7 @@ services:
       - BENTO_BEACON_VERSION=${BENTO_BEACON_VERSION}
       - BENTO_PUBLIC_CLIENT_NAME
       - BENTOV2_DOMAIN
+      - BENTO_BEACON_UI_ENABLED
     volumes:
       - ${BENTO_BEACON_CONFIG_DIR}:/config:ro
     networks: 
