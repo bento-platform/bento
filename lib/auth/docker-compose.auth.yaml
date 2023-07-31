@@ -2,7 +2,6 @@ services:
   auth:
     image: ${BENTOV2_AUTH_IMAGE}:${BENTOV2_AUTH_VERSION}
     container_name: ${BENTOV2_AUTH_CONTAINER_NAME}
-    command: [ "--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true", "start" ]
     depends_on:
       auth-db:
         condition: service_healthy
