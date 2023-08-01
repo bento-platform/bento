@@ -2,7 +2,6 @@ services:
   auth:
     image: ${BENTOV2_AUTH_IMAGE}:${BENTOV2_AUTH_VERSION}
     container_name: ${BENTOV2_AUTH_CONTAINER_NAME}
-    command: [ "start" ]
     depends_on:
       auth-db:
         condition: service_healthy
@@ -15,13 +14,12 @@ services:
       - ${BENTOV2_AUTH_CERTS_DIR}${BENTOV2_AUTH_FULLCHAIN_RELATIVE_PATH}:/run/secrets/keycloak-cert-file:ro
       - ${BENTOV2_AUTH_CERTS_DIR}${BENTOV2_AUTH_PRIVKEY_RELATIVE_PATH}:/run/secrets/keycloak-cert-key-file:ro
     environment:
+      - BENTO_UID
       - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
       - KEYCLOAK_ADMIN=${BENTOV2_AUTH_ADMIN_USER}
       - KEYCLOAK_ADMIN_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
       - KC_HTTPS_CERTIFICATE_FILE=/run/secrets/keycloak-cert-file
       - KC_HTTPS_CERTIFICATE_KEY_FILE=/run/secrets/keycloak-cert-key-file
-      - KC_HOSTNAME_STRICT=false
-      - KC_PROXY=passthrough
       - KC_DB=postgres
       - KC_DB_URL=jdbc:postgresql://${BENTO_AUTH_DB_CONTAINER_NAME}:5432/${BENTO_AUTH_DB}
       - KC_DB_USERNAME=${BENTO_AUTH_DB_USER}
