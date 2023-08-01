@@ -15,7 +15,6 @@ services:
       - ${BENTOV2_AUTH_CERTS_DIR}${BENTOV2_AUTH_FULLCHAIN_RELATIVE_PATH}:/run/secrets/keycloak-cert-file:ro
       - ${BENTOV2_AUTH_CERTS_DIR}${BENTOV2_AUTH_PRIVKEY_RELATIVE_PATH}:/run/secrets/keycloak-cert-key-file:ro
     environment:
-      - KC_HTTP_ENABLED=true
       - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
       - KEYCLOAK_ADMIN=${BENTOV2_AUTH_ADMIN_USER}
       - KEYCLOAK_ADMIN_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
