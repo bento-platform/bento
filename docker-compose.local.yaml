@@ -97,6 +97,7 @@ services:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/wes
+      - CELERY_DEBUG=true
     extends:
       file: docker-compose.dev.yaml
       service: wes
