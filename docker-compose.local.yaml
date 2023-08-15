@@ -180,3 +180,15 @@ services:
     extends:
       file: docker-compose.dev.yaml
       service: event-relay
+
+  gohan-api:
+    image: ${BENTOV2_GOHAN_API_IMAGE}:${BENTOV2_GOHAN_API_VERSION_DEV}
+    environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
+      - BENTO_GIT_REPOSITORY_DIR=/app
+    volumes:
+      - ./repos/gohan-api:/app
+    extends:
+      file: docker-compose.dev.yaml
+      service: gohan-api
