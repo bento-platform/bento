@@ -186,9 +186,9 @@ services:
     environment:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
-      - BENTO_GIT_REPOSITORY_DIR=/app
+      - BENTO_GIT_REPOSITORY_DIR=/gohan-api
     volumes:
-      - ./repos/gohan-api:/app
+      - ./repos/gohan-api:/gohan-api
     extends:
       file: docker-compose.dev.yaml
       service: gohan-api
