@@ -33,6 +33,10 @@ services:
       - WORKFLOW_TIMEOUT=${BENTOV2_WES_WORKFLOW_TIMEOUT}
 
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
+
+      # Authz
+      - WES_CLIENT_ID=${BENTO_WES_CLIENT_ID}
+      - WES_CLIENT_SECRET=${BENTO_WES_CLIENT_SECRET}
     networks:
       - wes-net
       - redis-net  # Talks to Redis for event pub/sub and job queueing

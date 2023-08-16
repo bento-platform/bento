@@ -148,7 +148,7 @@ BENTOV2_ROOT_DATA_DIR=./data
 # Auth ----------------------------------------------------------------
 #  - Session secret should be set to a unique secure value.
 #    this adds security and allows sessions to exist across gateway restarts.
-#  - Empty by default, to be filled by local.env
+#     - Empty by default, to be filled by local.env
 #  - IMPORTANT: set before starting gateway
 BENTOV2_SESSION_SECRET=my-very-secret-session-secret  # !!! ADD SOMETHING MORE SECURE !!!
 
@@ -160,6 +160,10 @@ BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
 
 BENTOV2_AUTH_TEST_USER=user
 BENTOV2_AUTH_TEST_PASSWORD=user  # !!! obviously for dev only !!!
+
+#  - WES Client ID/secret; client within BENTOV2_AUTH_REALM
+BENTO_WES_CLIENT_ID=wes
+BENTO_WES_CLIENT_SECRET=
 # --------------------------------------------------------------------
 
 # Gohan
