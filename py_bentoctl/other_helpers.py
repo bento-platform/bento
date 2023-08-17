@@ -269,6 +269,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
         ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),
         ("BENTO_REDIS_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_REFERENCE_NETWORK", dict(driver="bridge")),
         ("BENTO_SERVICE_REGISTRY_NETWORK", dict(driver="bridge")),
         ("BENTO_WEB_NETWORK", dict(driver="bridge")),
         ("BENTO_WES_NETWORK", dict(driver="bridge")),
