@@ -183,6 +183,7 @@ services:
 
   gohan-api:
     image: ${BENTOV2_GOHAN_API_IMAGE}:${BENTOV2_GOHAN_API_VERSION_DEV}
+    privileged: true # required to debug golang
     environment:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
