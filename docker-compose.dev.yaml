@@ -242,6 +242,15 @@ services:
       file: docker-compose.yaml
       service: event-relay
 
+  reference:
+    environment:
+      - BENTO_DEBUG=True
+    ports:
+      - "${BENTO_REFERENCE_EXTERNAL_PORT}:${BENTO_REFERENCE_INTERNAL_PORT}"
+    extends:
+      file: $PWD/lib/reference/docker-compose.reference.yml
+      service: reference
+
   gohan-elasticsearch:
     # In dev / on Mac, sometimes this will trip up and decide there isn't enough disk space even when there is.
     # See https://stackoverflow.com/questions/48119189/elasticsearch-6-index-change-to-read-only-after-few-second

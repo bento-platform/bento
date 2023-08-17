@@ -572,6 +572,7 @@ The following is a list of all host port allocations for Bento services in devel
 | Notification     | 8500 | 5681          |
 | Public           | 8090 | Unimplemented |
 | Redis            | 6379 | `N/A`         |
+| Reference        | 9501 | Unimplemented |
 | Service Registry | 5010 | Unimplemented |
 | WES              | 9250 | 5680          |
 

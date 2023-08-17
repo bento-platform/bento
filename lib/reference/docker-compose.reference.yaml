@@ -1,0 +1,19 @@
+services:
+  reference:
+    image: ${BENTO_REFERENCE_IMAGE}:${BENTO_REFERENCE_VERSION}
+    container_name: ${BENTO_REFERENCE_CONTAINER_NAME}
+    networks:
+      - reference-net
+    expose:
+      - ${BENTO_REFERENCE_INTERNAL_PORT}
+    environment:
+      - BENTO_UID
+    healthcheck:
+      test: [ "CMD", "wget", "-q0-", "http://localhost:${BENTO_REFERENCE_INTERNAL_PORT}/service-info", "&&", "echo" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+
+networks:
+  reference-net:
+    external: true
+    name: ${BENTO_REFERENCE_NETWORK}
