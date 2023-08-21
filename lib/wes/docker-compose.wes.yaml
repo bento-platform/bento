@@ -15,7 +15,7 @@ services:
       - DATABASE=/wes/data/bento_wes.db
       - SERVICE_ID=
       - SERVICE_TEMP=/wes/tmp
-      - SERVICE_BASE_URL=${BENTOV2_PUBLIC_URL}/api/wes
+      - SERVICE_BASE_URL=${BENTOV2_PUBLIC_URL}/api/wes/
       - WOM_TOOL_LOCATION=
       #/wes/womtool.jar
       # Allow-list (comma-separated) for hosts that workflow files can be downloaded
