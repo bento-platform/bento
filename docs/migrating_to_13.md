@@ -77,7 +77,7 @@ bento_authz create grant \
 ```
 
 
-## 4. Re-ingest data
+## 5. Re-ingest data
 
 Since the concept of 'tables' has been removed from Bento v13; 
 data re-ingestion will be required for all datasets via the UI.
