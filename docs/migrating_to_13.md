@@ -77,7 +77,10 @@ bento_authz create grant \
 ```
 
 
-## 5. Re-ingest data
+## 5. Re-ingest variant data
 
 Since the concept of 'tables' has been removed from Bento v13; 
-data re-ingestion will be required for all datasets via the UI.
+data re-ingestion will be required for all variant data via the UI.
+
+It would be wise to first remove the Gohan Elasticsearch volume to
+clean up old variant data on the VM.
