@@ -19,6 +19,7 @@ __all__ = [
     "DOCKER_COMPOSE_FILE_BEACON",
     "DOCKER_COMPOSE_FILE_CBIOPORTAL",
     "DOCKER_COMPOSE_FILE_GOHAN",
+    "DOCKER_COMPOSE_FILE_MINIO",
     "DOCKER_COMPOSE_FILE_PUBLIC",
 
     "DOCKER_COMPOSE_SERVICES",
@@ -60,11 +61,17 @@ DOCKER_COMPOSE_FILE_DEV = "./docker-compose.dev.yaml"
 DOCKER_COMPOSE_FILE_LOCAL = "./docker-compose.local.yaml"
 DOCKER_COMPOSE_FILE_PROD = "./docker-compose.prod.yaml"
 
-DOCKER_COMPOSE_FILE_AUTH = "./lib/auth/docker-compose.auth.yaml"
-DOCKER_COMPOSE_FILE_BEACON = "./lib/beacon/docker-compose.beacon.yaml"
-DOCKER_COMPOSE_FILE_CBIOPORTAL = "./lib/cbioportal/docker-compose.cbioportal.yaml"
-DOCKER_COMPOSE_FILE_GOHAN = "./lib/gohan/docker-compose.gohan.yaml"
-DOCKER_COMPOSE_FILE_PUBLIC = "./lib/public/docker-compose.public.yaml"
+
+def _nested_compose(feature: str) -> str:
+    return f"./lib/{feature}/docker-compose.{feature}.yaml"
+
+
+DOCKER_COMPOSE_FILE_AUTH = _nested_compose("auth")
+DOCKER_COMPOSE_FILE_BEACON = _nested_compose("beacon")
+DOCKER_COMPOSE_FILE_CBIOPORTAL = _nested_compose("cbioportal")
+DOCKER_COMPOSE_FILE_GOHAN = _nested_compose("gohan")
+DOCKER_COMPOSE_FILE_MINIO = _nested_compose("minio")
+DOCKER_COMPOSE_FILE_PUBLIC = _nested_compose("public")
 
 USER = os.getenv("USER")
 
@@ -109,6 +116,8 @@ BENTO_FEATURE_CBIOPORTAL = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False), profile="cbioportal")
 BENTO_FEATURE_GOHAN = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_GOHAN_ENABLED", default=False), profile="gohan")
+BENTO_FEATURE_MINIO = BentoOptionalFeature(
+    enabled=_env_get_bool("BENTO_MINIO_ENABLED", default=True), profile="minio")
 BENTO_FEATURE_PUBLIC = BentoOptionalFeature(enabled=BENTOV2_USE_BENTO_PUBLIC, profile="public")
 
 if not DEV_MODE and BENTO_FEATURE_CBIOPORTAL.enabled:
@@ -151,6 +160,7 @@ BASE_SERVICES: Tuple[str, ...] = tuple(itertools.chain.from_iterable(_get_enable
     DOCKER_COMPOSE_FILE_BEACON,
     DOCKER_COMPOSE_FILE_CBIOPORTAL,
     DOCKER_COMPOSE_FILE_GOHAN,
+    DOCKER_COMPOSE_FILE_MINIO,
     DOCKER_COMPOSE_FILE_PUBLIC,
 )))
 

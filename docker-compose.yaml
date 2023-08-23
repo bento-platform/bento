@@ -108,6 +108,7 @@ services:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
+      minio-net:
       notification-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -384,6 +385,9 @@ services:
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: 15s  # Faster interval for services which others may require to be healthy
 
+  # Minio
+  # minio included via extra compose file: lib/minio/docker-compose.minio.yaml
+
   # BEACON:
   # beacon included via extra compose file: lib/beacon/docker-compose.beacon.yaml
 
@@ -451,6 +455,9 @@ networks:
   katsu-db-net:
     external: true
     name: ${BENTO_KATSU_DB_NETWORK}
+  minio-net:
+    external: true
+    name: ${BENTO_MINIO_NETWORK}
   notification-net:
     external: true
     name: ${BENTO_NOTIFICATION_NETWORK}

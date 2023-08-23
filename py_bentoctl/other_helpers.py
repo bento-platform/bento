@@ -205,6 +205,8 @@ def init_dirs():
         **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
         #  - cBioPortal
         **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
+        #  - Minio
+        **({"minio": "BENTO_MINIO_VOL_DIR"} if c.BENTO_FEATURE_MINIO.enabled else {}),
     }
 
     task_print("Creating temporary secrets directory if needed...")
@@ -265,6 +267,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_KATSU_NETWORK", dict(driver="bridge")),
         ("BENTO_KATSU_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_MINIO_NETWORK", dict(driver="bridge")),
         ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
         ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),
         ("BENTO_REDIS_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
