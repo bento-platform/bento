@@ -10,6 +10,7 @@ services:
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
       - KATSU_URL=${BENTOV2_PORTAL_PUBLIC_URL}/api/metadata
       - SERVICE_REGISTRY_URL=${BENTOV2_PORTAL_PUBLIC_URL}/api/service-registry
+      - BENTO_AUTHZ_SERVICE_URL
     networks: 
       - aggregation-net
     expose:
