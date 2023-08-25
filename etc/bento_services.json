@@ -39,8 +39,7 @@
     "service_kind": "metadata",
     "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
     "repository": "git@github.com:bento-platform/katsu.git",
-    "data_service": true,
-    "manageable_tables": true
+    "data_service": true
   },
   "drs": {
     "service_kind": "drs",
@@ -52,8 +51,7 @@
     "service_kind": "gohan",
     "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
     "repository": "git@github.com:bento-platform/gohan.git",
-    "data_service": true,
-    "manageable_tables": true
+    "data_service": true
   },
   "web": {
     "service_kind": "web",
