@@ -25,6 +25,7 @@ services:
 
       # Service URLS
       - DRS_URL=${BENTOV2_PUBLIC_URL}/api/drs
+      - GOHAN_URL=${BENTOV2_PUBLIC_URL}/api/gohan
       - KATSU_URL=${BENTOV2_PORTAL_PUBLIC_URL}/api/metadata
       - GOHAN_URL=${BENTOV2_PORTAL_PUBLIC_URL}/api/gohan
       - BENTO_AUTHZ_SERVICE_URL

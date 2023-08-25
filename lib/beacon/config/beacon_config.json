@@ -1,8 +1,5 @@
 {
-    "useAuth": false,
     "useGohan": true,
-    "maxFilters": 2,
-    "smallCellCountThreshold": 5,
     "endpointSets": [
         "individuals",
         "variants",
