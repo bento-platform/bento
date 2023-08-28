@@ -174,6 +174,10 @@ BENTOV2_GOHAN_ES_PASSWORD=devpassword567
 BENTOV2_KATSU_DB_PASSWORD=devpassword123
 BENTOV2_KATSU_APP_SECRET=some-random-phrase-here   # !!! ADD SOMETHING MORE SECURE !!!
 
+# Minio
+BENTO_MINIO_ROOT_USER=minio_root
+BENTO_MINIO_ROOT_PASSWORD=devpassword890
+
 # Development settings ------------------------------------------------
 
 # - Git configuration

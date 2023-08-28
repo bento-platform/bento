@@ -5,8 +5,8 @@ services:
     user: ${BENTO_UID}:${BENTO_GID}
     command: 'server /data --console-address ":9090"'
     environment:
-      - MINIO_ROOT_USER=${}  # TODO
-      - MINIO_ROOT_PASSWORD=${}  # TODO
+      - MINIO_ROOT_USER=${BENTO_MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${BENTO_MINIO_ROOT_PASSWORD}
     networks:
       - minio-net
     volumes:
