@@ -12,7 +12,7 @@ services:
     volumes:
       - ${BENTO_MINIO_VOL_DIR}:/data
     profiles:
-      - cbioportal
+      - minio
 
 networks:
   minio-net:
