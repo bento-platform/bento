@@ -1,3 +1,4 @@
+import itertools
 import os
 import pathlib
 import subprocess
@@ -49,11 +50,7 @@ def _get_compose_with_files(dev: bool = False, local: bool = False):
         "-f", c.DOCKER_COMPOSE_FILE_BASE,
 
         # Service/feature-specific compose files - profiles will take care of actual service enable/disable
-        "-f", c.DOCKER_COMPOSE_FILE_AUTH,
-        "-f", c.DOCKER_COMPOSE_FILE_BEACON,
-        "-f", c.DOCKER_COMPOSE_FILE_CBIOPORTAL,
-        "-f", c.DOCKER_COMPOSE_FILE_GOHAN,
-        "-f", c.DOCKER_COMPOSE_FILE_PUBLIC,
+        *itertools.chain.from_iterable(("-f", dc) for dc in c.NESTED_DOCKER_COMPOSE_FILES),
 
         *(("-f", c.DOCKER_COMPOSE_FILE_DEV) if dev else ("-f", c.DOCKER_COMPOSE_FILE_PROD)),
         *(("-f", c.DOCKER_COMPOSE_FILE_LOCAL) if local else ()),

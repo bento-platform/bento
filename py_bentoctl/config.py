@@ -22,6 +22,8 @@ __all__ = [
     "DOCKER_COMPOSE_FILE_MINIO",
     "DOCKER_COMPOSE_FILE_PUBLIC",
 
+    "NESTED_DOCKER_COMPOSE_FILES",
+
     "DOCKER_COMPOSE_SERVICES",
     "DOCKER_COMPOSE_DEV_SERVICES",
 
@@ -72,6 +74,15 @@ DOCKER_COMPOSE_FILE_CBIOPORTAL = _nested_compose("cbioportal")
 DOCKER_COMPOSE_FILE_GOHAN = _nested_compose("gohan")
 DOCKER_COMPOSE_FILE_MINIO = _nested_compose("minio")
 DOCKER_COMPOSE_FILE_PUBLIC = _nested_compose("public")
+
+NESTED_DOCKER_COMPOSE_FILES = (
+    DOCKER_COMPOSE_FILE_AUTH,
+    DOCKER_COMPOSE_FILE_BEACON,
+    DOCKER_COMPOSE_FILE_CBIOPORTAL,
+    DOCKER_COMPOSE_FILE_GOHAN,
+    DOCKER_COMPOSE_FILE_MINIO,
+    DOCKER_COMPOSE_FILE_PUBLIC,
+)
 
 USER = os.getenv("USER")
 
@@ -156,12 +167,7 @@ def _get_enabled_services(compose_file: str, filter_out: Tuple[str, ...] = ()) -
 
 BASE_SERVICES: Tuple[str, ...] = tuple(itertools.chain.from_iterable(_get_enabled_services(cf, ()) for cf in (
     DOCKER_COMPOSE_FILE_BASE,
-    DOCKER_COMPOSE_FILE_AUTH,
-    DOCKER_COMPOSE_FILE_BEACON,
-    DOCKER_COMPOSE_FILE_CBIOPORTAL,
-    DOCKER_COMPOSE_FILE_GOHAN,
-    DOCKER_COMPOSE_FILE_MINIO,
-    DOCKER_COMPOSE_FILE_PUBLIC,
+    *NESTED_DOCKER_COMPOSE_FILES,
 )))
 
 # Load dev docker-compose services list if in DEV_MODE
