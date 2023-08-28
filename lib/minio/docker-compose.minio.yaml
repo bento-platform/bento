@@ -1,6 +1,6 @@
 services:
   minio:
-    image: ${BENTO_MINIO_BASE_IMAGE}:${BENTO_MINIO_BASE_IMAGE_VERSION}
+    image: ${BENTO_MINIO_IMAGE}:${BENTO_MINIO_IMAGE_VERSION}
     container_name: ${BENTO_MINIO_CONTAINER_NAME}
     user: ${BENTO_UID}:${BENTO_GID}
     command: 'server /data --console-address ":9090"'
