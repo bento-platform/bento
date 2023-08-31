@@ -36,6 +36,7 @@ services:
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
 
       # Authz
+      - BENTO_OPENID_CONFIG_URL
       - WES_CLIENT_ID=${BENTO_WES_CLIENT_ID}
       - WES_CLIENT_SECRET=${BENTO_WES_CLIENT_SECRET}
     networks:
