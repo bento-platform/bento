@@ -9,7 +9,7 @@ import urllib3
 from termcolor import cprint
 from urllib3.exceptions import InsecureRequestWarning
 
-from typing import Optional
+from typing import List, Optional
 
 from . import config as c
 from .utils import info, warn, err
@@ -102,8 +102,8 @@ def create_keycloak_client_or_exit(
     public_client: bool,
     standard_flow_enabled: bool,
     service_accounts_enabled: bool,
-    redirect_uris: list[str],
-    web_origins: list[str],
+    redirect_uris: List[str],
+    web_origins: List[str],
     access_token_lifespan: int,
     use_refresh_tokens: bool,
 ) -> None:
