@@ -36,6 +36,7 @@ lib/service-registry/bento_service_registry
 lib/web/bento_web
 
 lib/katsu/config.json
+lib/beacon/config/beacon_config.json
 
 # bento_web
 lib/web/*
