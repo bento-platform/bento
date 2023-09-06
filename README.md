@@ -354,6 +354,10 @@ bento_authz create grant \
   'view:private_portal'
 ```
 
+Where `WEB_CLIENT_ID_HERE` is the OAuth2 client the web portal uses, i.e., the 
+value in the `BENTOV2_AUTH_CLIENT_ID` environment variable. On local instances, 
+this is set to `local_bentov2` by default.
+
 
 ### 6. *Production only:* set up translations for Bento-Public
 

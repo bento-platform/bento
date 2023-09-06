@@ -97,6 +97,7 @@ services:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/wes
+      - CELERY_DEBUG=true
     extends:
       file: docker-compose.dev.yaml
       service: wes
@@ -179,3 +180,17 @@ services:
     extends:
       file: docker-compose.dev.yaml
       service: event-relay
+
+  gohan-api:
+    image: ${BENTOV2_GOHAN_API_IMAGE}:${BENTOV2_GOHAN_API_VERSION_DEV}
+    privileged: true # required to debug golang
+    environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
+      - BENTO_GIT_REPOSITORY_DIR=/gohan-api
+    volumes:
+      - ./repos/gohan-api:/gohan-api
+      - ./repos/gohan-api/src/api/workflows:/app/workflows
+    extends:
+      file: docker-compose.dev.yaml
+      service: gohan-api
