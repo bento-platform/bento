@@ -2,9 +2,6 @@ services:
   gateway:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION}
     container_name: ${BENTOV2_GATEWAY_CONTAINER_NAME}
-    depends_on:
-      redis:
-        condition: service_healthy
     environment:
       - BENTO_DEBUG=false
 
@@ -56,8 +53,6 @@ services:
       - BENTOV2_AGGREGATION_INTERNAL_PORT
       - BENTOV2_EVENT_RELAY_CONTAINER_NAME
       - BENTOV2_EVENT_RELAY_INTERNAL_PORT
-      - BENTOV2_REDIS_CONTAINER_NAME
-      - BENTOV2_REDIS_INTERNAL_PORT
       - BENTOV2_WES_CONTAINER_NAME
       - BENTOV2_WES_INTERNAL_PORT
       - BENTOV2_WEB_CONTAINER_NAME
@@ -116,7 +111,6 @@ services:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
-      redis-net:  # No aliases needed here; container for sure does not contact the gateway
       service-registry-net:
         aliases:
           - ${BENTOV2_DOMAIN}
