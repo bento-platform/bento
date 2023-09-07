@@ -32,6 +32,7 @@ that make up the Bento platform.
 
 ## Migration documents
 
+* [v12 to v13](./docs/migrating_to_13.md)
 * [v2.11 to v12](./docs/migrating_to_12.md)
 * [v2.10 to v2.11](./docs/migrating_to_2_11.md)
 
@@ -148,7 +149,7 @@ BENTOV2_ROOT_DATA_DIR=./data
 # Auth ----------------------------------------------------------------
 #  - Session secret should be set to a unique secure value.
 #    this adds security and allows sessions to exist across gateway restarts.
-#  - Empty by default, to be filled by local.env
+#     - Empty by default, to be filled by local.env
 #  - IMPORTANT: set before starting gateway
 BENTOV2_SESSION_SECRET=my-very-secret-session-secret  # !!! ADD SOMETHING MORE SECURE !!!
 
@@ -160,6 +161,10 @@ BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
 
 BENTOV2_AUTH_TEST_USER=user
 BENTOV2_AUTH_TEST_PASSWORD=user  # !!! obviously for dev only !!!
+
+#  - WES Client ID/secret; client within BENTOV2_AUTH_REALM
+BENTO_WES_CLIENT_ID=wes
+BENTO_WES_CLIENT_SECRET=
 # --------------------------------------------------------------------
 
 # Gohan
@@ -344,6 +349,10 @@ bento_authz create grant \
   '{"everything": true}' \
   'view:private_portal'
 ```
+
+Where `WEB_CLIENT_ID_HERE` is the OAuth2 client the web portal uses, i.e., the 
+value in the `BENTOV2_AUTH_CLIENT_ID` environment variable. On local instances, 
+this is set to `local_bentov2` by default.
 
 
 ### 6. *Production only:* set up translations for Bento-Public
@@ -569,7 +578,7 @@ The following is a list of all host port allocations for Bento services in devel
 | DRS              | 7007 | 5682          |
 | Event relay      | 8750 | Unimplemented |
 | Katsu            | 8000 | 5432          |
-| Notification     | 8500 | Unimplemented |
+| Notification     | 8500 | 5681          |
 | Public           | 8090 | Unimplemented |
 | Redis            | 6379 | `N/A`         |
 | Service Registry | 5010 | Unimplemented |

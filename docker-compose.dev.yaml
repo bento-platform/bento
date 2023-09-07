@@ -227,6 +227,9 @@ services:
       # Runtime
       - FLASK_DEBUG=True
       - BENTO_DEBUG=True
+    ports:
+      - "${BENTOV2_NOTIFICATION_EXTERNAL_PORT}:${BENTOV2_NOTIFICATION_INTERNAL_PORT}"
+      - "${BENTO_NOTIFICATION_DEBUGGER_EXTERNAL_PORT}:${BENTO_NOTIFICATION_DEBUGGER_INTERNAL_PORT}"
     extends:
       file: docker-compose.yaml
       service: notification
@@ -247,3 +250,8 @@ services:
     extends:
       file: $PWD/lib/gohan/docker-compose.gohan.yaml
       service: gohan-elasticsearch
+
+  gohan-api:
+    extends:
+      file: $PWD/lib/gohan/docker-compose.gohan.yaml
+      service: gohan-api
