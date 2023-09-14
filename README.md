@@ -318,9 +318,10 @@ utilize new variables generated during the OIDC configuration.
 
 #### Create superuser permissions in the new Bento authorization service
 
-First, open a shell in the authorization service container:
+First, run the authorization service and then open a shell into the container:
 
 ```bash
+./bentoctl.bash run authz
 ./bentoctl.bash shell authz
 ```
 
