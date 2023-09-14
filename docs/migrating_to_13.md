@@ -72,7 +72,7 @@ to ingest data into all projects/endpoints/etc. in the node:
 ```bash
 ./bentoctl.bash shell authz  # enter into an authz container session to create the grant
 
-# This grant is a temporary hack to get permissions working for v12. In the future, it should be removed.
+# This grant is a temporary hack to get permissions working for v12/v13. In the future, it should be removed.
 bento_authz create grant \
   '{"iss": "ISSUER_HERE", "client": "wes"}' \
   '{"everything": true}' \

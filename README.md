@@ -316,7 +316,7 @@ utilize new variables generated during the OIDC configuration.
 
 ### 5. Configure permissions
 
-#### Create superuser permissions in the new Bento authorization service
+#### a. Create superuser permissions in the new Bento authorization service
 
 First, run the authorization service and then open a shell into the container:
 
@@ -334,9 +334,27 @@ bento_authz assign-all-to-user iss sub
 Where `iss` is the issuer (for example, `https://bentov2auth.local/realms/bentov2`) and `sub` is the user (subject) ID,
 which in Keycloak should be a UUID.
 
-#### *Optional second step:* Assign portal access to all users in the instance realm
+#### b. Create grants for the Workflow Execution Service (WES) OAuth2 client
 
-We added a special permission, `view:private_portal`, to Bento v12 in order to carry forward the current
+Run the following commands to set up authorization for the WES client:
+
+```bash
+# This grant is a temporary hack to get permissions working for v12/v13. In the future, it should be removed.
+bento_authz create grant \
+  '{"iss": "ISSUER_HERE", "client": "wes"}' \
+  '{"everything": true}' \
+  'view:private_portal'
+
+# This grant gives permission to access and ingest data into all projects
+bento_authz create grant \
+  '{"iss": "ISSUER_HERE", "client": "wes"}' \
+  '{"everything": true}' \
+  'query:data' 'ingest:data'
+```
+
+#### c. *Optional step:* Assign portal access to all users in the instance realm
+
+We added a special permission, `view:private_portal`, to Bento v12/v13 in order to carry forward the current
 'legacy' authorization behaviour for one more major version. This permission currently behaves as a super-permission,
 allowing all actions within the private portal. **However,** in the future, this permission will do almost *nothing.*
 
