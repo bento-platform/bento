@@ -2,6 +2,9 @@ import os
 import pathlib
 import shutil
 import sys
+import json
+import subprocess
+from typing import Optional
 
 import docker
 import docker.errors
@@ -10,7 +13,7 @@ from termcolor import cprint
 
 from . import config as c
 from .openssl import create_cert, create_private_key
-from .utils import task_print, task_print_done, warn, err
+from .utils import info, task_print, task_print_done, warn, err
 
 __all__ = [
     "init_web",
@@ -287,6 +290,72 @@ def init_docker(client: docker.DockerClient):
             client.networks.create(net_name, **net_kwargs)
             task_print_done(f"network created (name: {net_name}).")
 
+
+def _convert_phenopacket(phenopacket: dict, idx: Optional[int] = None):
+    """
+    Runs the equivalent of 'cat some_file.json | pxf convert -f json -e phenopacket'
+    Phenopacket-tools docs: http://phenopackets.org/phenopacket-tools/stable/cli.html#commands
+    """    
+    import humps
+
+    # Phenopacket-tools expects camel-case keys
+    # camelized_phenopacket = humps.camelize(phenopacket)
+
+    # Store stdout in pipe
+    pheno_pipe = subprocess.Popen(("echo", json.dumps(phenopacket)), stdout=subprocess.PIPE)
+
+    # Pipe pheno_pipe.stdout as stdin of convert command
+    conversion_process = subprocess.run((
+        "java", "-jar", c.PHENOTOOL_PATH,
+        "convert", "-f", "json", "-e", "phenopacket"
+    ), text=True, capture_output=True, stdin=pheno_pipe.stdout)
+
+    if conversion_process.returncode != 0:
+        # Conversion encountered an error
+        raise ValueError(
+            conversion_process.stderr +
+            f"\nOn phenopacket element {idx} of array document."
+            if idx is not None else "",
+        )
+    
+    converted = json.loads(conversion_process.stdout)
+    return converted
+
+
+def convert_phenopacket_file(source: str, target: str):
+    if c.PHENOTOOL_PATH == "":
+        # Abort if phenotool path is not available
+        err("A Phenopacket-tools jar path is required to use this command.")
+
+    # Read source file
+    source_path = pathlib.Path.cwd() / source
+    with open(source_path, 'r') as source_file:
+        pheno_v1 = json.load(source_file)
+
+    try:
+        if isinstance(pheno_v1, list):
+            # Phenopacket-tools can only handle single JSON objects
+            info(f"Converting Phenopackets V1 array document: {source}")
+            converted = [_convert_phenopacket(phenopacket, idx)
+                        for idx, phenopacket in enumerate(pheno_v1)]
+        else:
+            info(f"Converting Phenopacket V1 object document: {source}")
+            converted = _convert_phenopacket(pheno_v1)
+    except ValueError as e:
+        # Display error and abort
+        err(e)
+        return
+
+    if target:
+        target_path = pathlib.Path.cwd() / target
+    else:
+        target_file_name = source_path.name.split(".json")[0] + "_pheno_v2.json"
+        target_path = source_path.parent / target_file_name
+
+    with open(target_path, 'w') as output_file:
+        json.dump(converted, output_file)
+    
+    task_print_done(f"Phenopacket V2 conversion done: {source} -> {target_path}")
 
 # def init_secrets(force: bool):
 #     client = docker.from_env()

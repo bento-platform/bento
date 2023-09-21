@@ -265,6 +265,18 @@ class InitAll(SubCommand):
         if c.BENTO_FEATURE_CBIOPORTAL.enabled:
             fh.init_cbioportal()
 
+class ConvertPhenopacket(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument("source", type=str, help="Source Phenopackets V1 JSON document to convert")
+        sp.add_argument("target", nargs="?", default=None, type=str,
+                        help="Optional target file path where to place the converted Phenopackets")
+
+    @staticmethod
+    def exec(args):
+        oh.convert_phenopacket_file(args.source, args.target)
+
 
 def main(args: Optional[list[str]] = None) -> int:
     args = args or sys.argv[1:]
@@ -323,6 +335,7 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=("sh",))
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
     _add_subparser("logs", "Check logs for a service.", Logs)
+    _add_subparser("convert-pheno", "Convert a Phenopacket V1 JSON document to V2", ConvertPhenopacket, aliases=("conv",))
 
     p_args = parser.parse_args(args)
 

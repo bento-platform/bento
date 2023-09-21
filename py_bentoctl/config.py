@@ -171,3 +171,5 @@ with open(BENTO_SERVICES_PATH, "r") as sf:
 BENTO_ORCHESTRATION_STATE_DB_FILE = os.getenv("BENTO_ORCHESTRATION_STATE_DB", "./.bentoctl.state.db")
 
 MULTI_SERVICE_PREFIXES = ("gohan",)
+
+PHENOTOOL_PATH = os.getenv("PHENOTOOL_JAR_PATH", "")
