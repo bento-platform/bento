@@ -308,8 +308,8 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
 
     # Service commands
-    _add_subparser("run", "Run Bento services.", Run, aliases=("start",))
-    _add_subparser("stop", "Stop Bento services.", Stop)
+    _add_subparser("run", "Run Bento services.", Run, aliases=("start", "up"))
+    _add_subparser("stop", "Stop Bento services.", Stop, aliases=("down",))
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
     _add_subparser(
