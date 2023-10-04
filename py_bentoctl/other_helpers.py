@@ -84,7 +84,7 @@ def _file_copy(src_path: pathlib.Path, dst_path: pathlib.Path, force: bool = Fal
         cprint("destination exists, overwriting... ", "yellow", file=sys.stderr, end="")
 
     shutil.copyfile(src_path, dst_path)
-    cprint("done.", "green")
+    task_print_done()
 
 
 def _init_web_private(force: bool):

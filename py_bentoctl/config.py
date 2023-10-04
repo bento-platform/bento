@@ -74,6 +74,8 @@ BENTO_USERNAME: str = pwd.getpwuid(BENTO_UID).pw_name
 MODE = os.getenv("MODE")
 DEV_MODE = MODE == "dev"
 
+SERVICE_LITERAL_ALL: str = "all"
+
 
 def _env_get_bool(var: str, default: bool = False) -> bool:
     return os.getenv(var, str(default).lower()).lower().strip() in ("1", "true")
@@ -160,12 +162,19 @@ DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = tuple(
 
 # Final amalgamation of services for Bento taking into account dev/prod mode + profiles
 DOCKER_COMPOSE_SERVICES: Tuple[str, ...] = BASE_SERVICES + DOCKER_COMPOSE_DEV_SERVICES
+# For use by CLI service arguments: adds in an `all` option, meaning all services:
+DOCKER_COMPOSE_SERVICES_PLUS_ALL: Tuple[str, ...] = (*DOCKER_COMPOSE_SERVICES, SERVICE_LITERAL_ALL)
 
 
 BENTO_SERVICES_PATH = os.getenv("BENTO_SERVICES", pathlib.Path(__file__).parent.parent / "etc" / "bento_services.json")
 
 with open(BENTO_SERVICES_PATH, "r") as sf:
     BENTO_SERVICES_DATA = json.load(sf)
+
+
+BENTO_SERVICES_COMPOSE_IDS: Tuple[str, ...] = tuple(BENTO_SERVICES_DATA.keys())
+# For use by CLI service arguments: adds in an `all` option, meaning all services:
+BENTO_SERVICES_COMPOSE_IDS_PLUS_ALL: Tuple[str, ...] = (*BENTO_SERVICES_COMPOSE_IDS, SERVICE_LITERAL_ALL)
 
 
 BENTO_ORCHESTRATION_STATE_DB_FILE = os.getenv("BENTO_ORCHESTRATION_STATE_DB", "./.bentoctl.state.db")
