@@ -14,5 +14,5 @@ pyflakes==3.1.0
 PyYAML==6.0.1
 requests==2.31.0
 termcolor==2.2.0
-urllib3==1.26.13
+urllib3==1.26.17
 websocket-client==1.4.2
