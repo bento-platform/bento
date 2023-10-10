@@ -295,15 +295,15 @@ def init_docker(client: docker.DockerClient):
 
 def stash_extra_properties(phenopacket: dict):
     stash = {}
-    
+
     # Subject extra properties
     subject: dict = phenopacket["subject"]
     subject_extra = subject.pop("extra_properties")
     if subject_extra:
         stash["subject"] = subject_extra
-    
+
     # TODO: stash rest of extra_properties
-    
+
     return stash
 
 
@@ -375,10 +375,10 @@ def _convert_phenopacket(phenopacket: dict, idx: Optional[int] = None):
 
     # Load converted output
     converted = json.loads(stdout)
-    
+
     # Apply stashed extra_properties
     apply_extra_properties(converted, stashed_extra_properties)
-    
+
     # Create a phenopacket ID if none
     if "id" not in converted:
         converted["id"] = str(uuid.uuid4())
@@ -421,7 +421,7 @@ def convert_phenopacket_file(source: str, target: str):
 
     with open(target_path, 'w') as output_file:
         json.dump(converted, output_file)
-    
+
     task_print_done(f"Phenopacket V2 conversion done: {source} -> {target_path}")
 
     return converted
