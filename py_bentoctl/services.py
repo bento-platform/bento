@@ -383,7 +383,7 @@ def run_as_shell_for_service(compose_service: str, shell: str) -> None:
     # TODO: Detect shell
     os.execvp(
         c.COMPOSE[0],
-        (*c.COMPOSE, "run", *_get_profile_cli_args(), *_get_shell_user(compose_service), compose_service, shell))
+        (*c.COMPOSE, "run", *_get_shell_user(compose_service), compose_service, shell))
 
 
 def logs_service(compose_service: str, follow: bool) -> None:

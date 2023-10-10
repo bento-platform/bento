@@ -14,7 +14,7 @@ from . import utils as u
 
 from typing import Optional, Tuple, Type
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 
 class SubCommand(ABC):
@@ -41,7 +41,7 @@ class Run(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*c.DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
             help="Service to run, or 'all' to run everything.")
         sp.add_argument("--pull", "-p", action="store_true", help="Try to pull the corresponding service image first.")
 
@@ -61,7 +61,7 @@ class Stop(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*c.DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
             help="Service to stop, or 'all' to stop everything.")
 
     @staticmethod
@@ -74,7 +74,7 @@ class Restart(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*c.DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
             help="Service to restart, or 'all' to restart everything.")
         sp.add_argument(
             "--pull", "-p", action="store_true",
@@ -92,7 +92,7 @@ class Clean(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*c.DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
             help="Service to clean, or 'all' to clean everything.")
 
     @staticmethod
@@ -116,7 +116,7 @@ class Prebuilt(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=tuple(c.BENTO_SERVICES_DATA.keys()),
+            "service", type=str, choices=c.BENTO_SERVICES_COMPOSE_IDS_PLUS_ALL,
             help="Service to switch to pre-built mode (will use an entirely pre-built image with code).")
 
     @staticmethod
@@ -129,8 +129,8 @@ class Mode(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all",
-            choices=(*c.BENTO_SERVICES_DATA.keys(), "all"),
+            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL,
+            choices=c.BENTO_SERVICES_COMPOSE_IDS_PLUS_ALL,
             help="Displays the current mode of the service(s).")
 
     @staticmethod
@@ -143,8 +143,8 @@ class Pull(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all",
-            choices=(*c.DOCKER_COMPOSE_SERVICES, *c.MULTI_SERVICE_PREFIXES, "all",),
+            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL,
+            choices=(*c.DOCKER_COMPOSE_SERVICES, *c.MULTI_SERVICE_PREFIXES, c.SERVICE_LITERAL_ALL),
             help="Service to pull image for.")
 
     @staticmethod
@@ -187,7 +187,7 @@ class Logs(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=(*c.DOCKER_COMPOSE_SERVICES, "all"),
+            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
             help="Service to check logs of.")
         sp.add_argument(
             "--follow", "-f", action="store_true",
@@ -323,8 +323,8 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
 
     # Service commands
-    _add_subparser("run", "Run Bento services.", Run, aliases=("start",))
-    _add_subparser("stop", "Stop Bento services.", Stop)
+    _add_subparser("run", "Run Bento services.", Run, aliases=("start", "up"))
+    _add_subparser("stop", "Stop Bento services.", Stop, aliases=("down",))
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
     _add_subparser(
