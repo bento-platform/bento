@@ -275,6 +275,9 @@ class ConvertPhenopacket(SubCommand):
 
     @staticmethod
     def exec(args):
+        # import asyncio
+        # TODO: re-convert to async
+        # asyncio.run(oh.convert_phenopacket_file(args.source, args.target))
         oh.convert_phenopacket_file(args.source, args.target)
 
 

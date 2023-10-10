@@ -5,6 +5,8 @@ import sys
 import json
 import subprocess
 from typing import Optional
+import uuid
+from datetime import datetime, timezone
 
 import docker
 import docker.errors
@@ -291,38 +293,102 @@ def init_docker(client: docker.DockerClient):
             task_print_done(f"network created (name: {net_name}).")
 
 
+def stash_extra_properties(phenopacket: dict):
+    stash = {}
+    
+    # Subject extra properties
+    subject: dict = phenopacket["subject"]
+    subject_extra = subject.pop("extra_properties")
+    if subject_extra:
+        stash["subject"] = subject_extra
+    
+    # TODO: stash rest of extra_properties
+    
+    return stash
+
+
+def apply_extra_properties(phenopacket: dict, stash: dict):
+    if stash["subject"]:
+        phenopacket["subject"]["extra_properties"] = stash["subject"]
+    return phenopacket
+
+
+def format_phenov1(phenopacket: dict):
+    # SUBJECT
+    subject: dict = phenopacket["subject"]
+
+    # subject.date_of_birth ISO8601 formating
+    dob = subject["date_of_birth"]
+    iso_dob = datetime.fromisoformat(dob).astimezone(timezone.utc).isoformat()
+    phenopacket["subject"]["date_of_birth"] = iso_dob
+
+    # subject.age
+    age = subject.pop("age")
+    if age:
+        subject["age_at_collection"] = age
+
+    phenopacket["subject"] = subject
+
+    # BIOSAMPLES
+    biosamples = phenopacket["biosamples"]
+    for sample in biosamples:
+        sample["age_of_individual_at_collection"] = sample.pop("individual_age_at_collection")
+
+    # DISEASES
+    diseases = phenopacket["diseases"]
+    for disease in diseases:
+        disease["age_of_onset"] = disease.pop("onset")
+
+    phenopacket["subject"] = subject
+    phenopacket["biosamples"] = biosamples
+    phenopacket["diseases"] = diseases
+    return phenopacket
+
+
 def _convert_phenopacket(phenopacket: dict, idx: Optional[int] = None):
     """
     Runs the equivalent of 'cat some_file.json | pxf convert -f json -e phenopacket'
     Phenopacket-tools docs: http://phenopackets.org/phenopacket-tools/stable/cli.html#commands
-    """    
-    import humps
+    """
+    # import humps
 
     # Phenopacket-tools expects camel-case keys
     # camelized_phenopacket = humps.camelize(phenopacket)
 
-    # Store stdout in pipe
-    pheno_pipe = subprocess.Popen(("echo", json.dumps(phenopacket)), stdout=subprocess.PIPE)
+    # Stash extra_properties before conversion
+    stashed_extra_properties = stash_extra_properties(phenopacket)
 
-    # Pipe pheno_pipe.stdout as stdin of convert command
-    conversion_process = subprocess.run((
-        "java", "-jar", c.PHENOTOOL_PATH,
-        "convert", "-f", "json", "-e", "phenopacket"
-    ), text=True, capture_output=True, stdin=pheno_pipe.stdout)
+    formated_pheno = format_phenov1(phenopacket)
 
+    pxf_cmd = ("java", "-jar", c.PHENOTOOL_PATH, "convert", "-f", "json", "-e", "phenopacket")
+    # Pipe pheno_pipe.stdout as stdin of async convert command
+    conversion_process = subprocess.Popen(pxf_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+
+    stdout, stderr = conversion_process.communicate(input=json.dumps(formated_pheno))
     if conversion_process.returncode != 0:
         # Conversion encountered an error
         raise ValueError(
-            conversion_process.stderr +
+            stderr +
             f"\nOn phenopacket element {idx} of array document."
             if idx is not None else "",
         )
+
+    # Load converted output
+    converted = json.loads(stdout)
     
-    converted = json.loads(conversion_process.stdout)
+    # Apply stashed extra_properties
+    apply_extra_properties(converted, stashed_extra_properties)
+    
+    # Create a phenopacket ID if none
+    if "id" not in converted:
+        converted["id"] = str(uuid.uuid4())
+
     return converted
 
 
 def convert_phenopacket_file(source: str, target: str):
+    from tqdm import tqdm
+
     if c.PHENOTOOL_PATH == "":
         # Abort if phenotool path is not available
         err("A Phenopacket-tools jar path is required to use this command.")
@@ -335,16 +401,17 @@ def convert_phenopacket_file(source: str, target: str):
     try:
         if isinstance(pheno_v1, list):
             # Phenopacket-tools can only handle single JSON objects
-            info(f"Converting Phenopackets V1 array document: {source}")
-            converted = [_convert_phenopacket(phenopacket, idx)
-                        for idx, phenopacket in enumerate(pheno_v1)]
+            info(f"Converting Phenopackets V1 array document to V2: {source}")
+            converted = [
+                _convert_phenopacket(phenopacket, idx)
+                for idx, phenopacket in tqdm(enumerate(pheno_v1), total=len(pheno_v1))
+            ]
         else:
             info(f"Converting Phenopacket V1 object document: {source}")
             converted = _convert_phenopacket(pheno_v1)
     except ValueError as e:
         # Display error and abort
         err(e)
-        return
 
     if target:
         target_path = pathlib.Path.cwd() / target
@@ -356,6 +423,8 @@ def convert_phenopacket_file(source: str, target: str):
         json.dump(converted, output_file)
     
     task_print_done(f"Phenopacket V2 conversion done: {source} -> {target_path}")
+
+    return converted
 
 # def init_secrets(force: bool):
 #     client = docker.from_env()
