@@ -293,14 +293,28 @@ def init_docker(client: docker.DockerClient):
             task_print_done(f"network created (name: {net_name}).")
 
 
-def stash_extra_properties(phenopacket: dict):
-    stash = {}
+def stash_element_extra_properties(phenopacket: dict, element_name: str, stash: dict):
+    element = phenopacket.get(element_name, {})
+    if type(element) is list:
+        for idx, item in enumerate(element):
+            item_id = item.get("id", idx)
+            if extra_properties:= item.pop("extra_properties"):
+                stash[element_name][item_id] = extra_properties
 
-    # Subject extra properties
-    subject: dict = phenopacket["subject"]
-    subject_extra = subject.pop("extra_properties")
-    if subject_extra:
-        stash["subject"] = subject_extra
+    elif extra_properties:= element.pop("extra_properties"):
+        stash[element_name] = extra_properties
+
+
+def stash_phenopacket_extra_properties(phenopacket: dict):
+    stash = {
+        "subject": {},
+        "biosamples": {},
+        "diseases": {},
+    }
+
+    stash_element_extra_properties(phenopacket, "subject", stash)
+    stash_element_extra_properties(phenopacket, "biosamples", stash)
+    stash_element_extra_properties(phenopacket, "diseases", stash)
 
     # TODO: stash rest of extra_properties
 
@@ -308,8 +322,13 @@ def stash_extra_properties(phenopacket: dict):
 
 
 def apply_extra_properties(phenopacket: dict, stash: dict):
-    if stash["subject"]:
-        phenopacket["subject"]["extra_properties"] = stash["subject"]
+    if subject_stash:= stash["subject"]:
+        phenopacket["subject"]["extra_properties"] = subject_stash
+    if biosamples_stash:= stash["biosamples"]:
+        for sample in phenopacket.get("biosamples", []):
+            sample_id = sample["id"]
+            if sample_id in biosamples_stash:
+                sample["extra_properties"] = biosamples_stash[sample_id]
     return phenopacket
 
 
@@ -318,26 +337,29 @@ def format_phenov1(phenopacket: dict):
     subject: dict = phenopacket["subject"]
 
     # subject.date_of_birth ISO8601 formating
-    dob = subject["date_of_birth"]
-    iso_dob = datetime.fromisoformat(dob).astimezone(timezone.utc).isoformat()
-    phenopacket["subject"]["date_of_birth"] = iso_dob
+    # dob = subject["date_of_birth"]
+    if dob := subject.get("date_of_birth", False):
+        iso_dob = datetime.fromisoformat(dob).astimezone(timezone.utc).isoformat()
+        phenopacket["subject"]["date_of_birth"] = iso_dob
 
     # subject.age
-    age = subject.pop("age")
+    age = subject.pop("age", False)
     if age:
         subject["age_at_collection"] = age
 
     phenopacket["subject"] = subject
 
     # BIOSAMPLES
-    biosamples = phenopacket["biosamples"]
+    biosamples = phenopacket.get("biosamples", [])
     for sample in biosamples:
-        sample["age_of_individual_at_collection"] = sample.pop("individual_age_at_collection")
+        if age_at_collection:= sample.pop("individual_age_at_collection", False):
+            sample["age_of_individual_at_collection"] = age_at_collection
 
     # DISEASES
-    diseases = phenopacket["diseases"]
+    diseases = phenopacket.get("diseases", [])
     for disease in diseases:
-        disease["age_of_onset"] = disease.pop("onset")
+        if onset:= disease.pop("onset", False):
+            disease["age_of_onset"] = onset
 
     phenopacket["subject"] = subject
     phenopacket["biosamples"] = biosamples
@@ -356,7 +378,7 @@ def _convert_phenopacket(phenopacket: dict, idx: Optional[int] = None):
     # camelized_phenopacket = humps.camelize(phenopacket)
 
     # Stash extra_properties before conversion
-    stashed_extra_properties = stash_extra_properties(phenopacket)
+    stashed_extra_properties = stash_phenopacket_extra_properties(phenopacket)
 
     formated_pheno = format_phenov1(phenopacket)
 
