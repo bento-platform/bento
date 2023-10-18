@@ -297,38 +297,43 @@ def stash_element_extra_properties(phenopacket: dict, element_name: str, stash: 
     element = phenopacket.get(element_name, {})
     if type(element) is list:
         for idx, item in enumerate(element):
+            # Align with item index if no "id" in the element item
             item_id = item.get("id", idx)
-            if extra_properties:= item.pop("extra_properties"):
+            if extra_properties:= item.pop("extra_properties", False):
                 stash[element_name][item_id] = extra_properties
 
-    elif extra_properties:= element.pop("extra_properties"):
+    elif extra_properties:= element.pop("extra_properties", False):
         stash[element_name] = extra_properties
 
+def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: dict):
+    if element_name not in stash:
+        # Exit if no stash to apply
+        return
+
+    element_stash = stash.get(element_name, {})
+    element = phenopacket.get(element_name, {})
+    if type(element) is list:
+        for idx, item in enumerate(element):
+            if "id" in item and item["id"] in element_stash:
+                item["extra_properties"] = element_stash[item["id"]]
+            elif idx in element_stash:
+                item["extra_properties"] = element_stash[idx]
+
+    else:
+        element["extra_properties"] = element_stash
+
+EXTRA_PROPERTIES_ELEMENTS = ["subject", "biosamples", "diseases"]
 
 def stash_phenopacket_extra_properties(phenopacket: dict):
-    stash = {
-        "subject": {},
-        "biosamples": {},
-        "diseases": {},
-    }
-
-    stash_element_extra_properties(phenopacket, "subject", stash)
-    stash_element_extra_properties(phenopacket, "biosamples", stash)
-    stash_element_extra_properties(phenopacket, "diseases", stash)
-
-    # TODO: stash rest of extra_properties
-
+    stash = {}
+    for element_name in EXTRA_PROPERTIES_ELEMENTS:
+        stash[element_name] = {}
+        stash_element_extra_properties(phenopacket, element_name, stash)
     return stash
 
-
 def apply_extra_properties(phenopacket: dict, stash: dict):
-    if subject_stash:= stash["subject"]:
-        phenopacket["subject"]["extra_properties"] = subject_stash
-    if biosamples_stash:= stash["biosamples"]:
-        for sample in phenopacket.get("biosamples", []):
-            sample_id = sample["id"]
-            if sample_id in biosamples_stash:
-                sample["extra_properties"] = biosamples_stash[sample_id]
+    for element_name in EXTRA_PROPERTIES_ELEMENTS:
+        apply_element_extra_properties(phenopacket, element_name, stash)
     return phenopacket
 
 
