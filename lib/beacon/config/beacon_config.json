@@ -1,8 +1,5 @@
 {
-    "useAuth": false,
     "useGohan": true,
-    "maxFilters": 2,
-    "smallCellCountThreshold": 5,
     "endpointSets": [
         "individuals",
         "variants",
@@ -13,7 +10,9 @@
         "organization": {
             "id": "c3g",
             "name": "Canadian Centre for Computational Genomics",
-            "url": "https://computationalgenomics.ca/"
+            "welcomeUrl": "https://computationalgenomics.ca/",
+            "logoUrl": "https://computationalgenomics.ca/wp-content/uploads/2021/12/c3g_source_logo_small.png",
+            "contactUrl": "https://computationalgenomics.ca/contact-us/"
         }
     }
 }

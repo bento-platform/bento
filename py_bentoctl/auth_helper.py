@@ -9,7 +9,7 @@ import urllib3
 from termcolor import cprint
 from urllib3.exceptions import InsecureRequestWarning
 
-from typing import Optional
+from typing import List, Optional
 
 from . import config as c
 from .utils import info, warn, err
@@ -34,6 +34,11 @@ AUTH_ADMIN_PASSWORD = os.getenv("BENTOV2_AUTH_ADMIN_PASSWORD")
 AUTH_TEST_USER = os.getenv("BENTOV2_AUTH_TEST_USER")
 AUTH_TEST_PASSWORD = os.getenv("BENTOV2_AUTH_TEST_PASSWORD")
 AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
+
+WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
+WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT"))
+
+KC_CLIENTS_ENDPOINT = f"admin/realms/{AUTH_REALM}/clients"
 
 
 def check_auth_admin_user():
@@ -73,6 +78,76 @@ def keycloak_req(
             **kwargs)
 
     raise NotImplementedError
+
+
+def fetch_existing_client_id(token: str, client_id: str) -> Optional[str]:
+    existing_clients_res = keycloak_req(KC_CLIENTS_ENDPOINT, bearer_token=token)
+    existing_clients = existing_clients_res.json()
+
+    if not existing_clients_res.ok:
+        err(f"    Failed to fetch existing clients: {existing_clients}")
+        exit(1)
+
+    for client in existing_clients:
+        if client["clientId"] == client_id:
+            warn(f"    Found existing client: {client_id}; using that.")
+            return client["id"]
+
+    return None
+
+
+def create_keycloak_client_or_exit(
+    token: str,
+    client_id: str,
+    public_client: bool,
+    standard_flow_enabled: bool,
+    service_accounts_enabled: bool,
+    redirect_uris: List[str],
+    web_origins: List[str],
+    access_token_lifespan: int,
+    use_refresh_tokens: bool,
+) -> None:
+    res = keycloak_req(KC_CLIENTS_ENDPOINT, bearer_token=token, method="post", json={
+        "clientId": client_id,
+        "enabled": True,
+        "protocol": "openid-connect",
+        "implicitFlowEnabled": False,  # don't support insecure old implicit flow
+        "directAccessGrantsEnabled": False,  # don't support insecure old resource owner password flow
+        "standardFlowEnabled": standard_flow_enabled,
+        "serviceAccountsEnabled": service_accounts_enabled,
+        "publicClient": public_client,  # if public client - uses auth code + PKCE flow rather than client secret
+        "redirectUris": redirect_uris,
+        "webOrigins": web_origins,
+        "attributes": {
+            "saml.assertion.signature": "false",
+            "saml.authnstatement": "false",
+            "saml.client.signature": "false",
+            "saml.encrypt": "false",
+            "saml.force.post.binding": "false",
+            "saml.multivalued.roles": "false",
+            "saml.onetimeuse.condition": "false",
+            "saml.server.signature": "false",
+            "saml.server.signature.keyinfo.ext": "false",
+            "saml_force_name_id_format": "false",
+
+            **({
+                # Allowed redirect_uri values when using the logout endpoint from Keycloak
+                "post.logout.redirect.uris": f"{PORTAL_PUBLIC_URL}/*",
+            } if standard_flow_enabled else {}),
+
+            "access.token.lifespan": access_token_lifespan,  # default access token lifespan: 15 minutes
+            "pkce.code.challenge.method": "S256",
+            "use.refresh.tokens": str(use_refresh_tokens).lower(),
+
+            **({
+                "client_credentials.use_refresh_token": "false",
+            } if service_accounts_enabled else {}),
+        }
+    })
+
+    if not res.ok:
+        err(f"    Failed to create client: {client_id}; {res.json()}")
+        exit(1)
 
 
 def init_auth(docker_client: docker.DockerClient):
@@ -124,73 +199,64 @@ def init_auth(docker_client: docker.DockerClient):
             exit(1)
 
     def create_web_client_if_needed(token: str) -> None:
-        p = f"admin/realms/{AUTH_REALM}/clients"
+        web_client_kc_id: Optional[str] = fetch_existing_client_id(token, AUTH_CLIENT_ID)
+        if web_client_kc_id is not None:
+            return
 
-        def fetch_existing_client_id() -> Optional[str]:
-            existing_clients_res = keycloak_req(p, bearer_token=token)
-            existing_clients = existing_clients_res.json()
+        cbio_enabled = c.BENTO_FEATURE_CBIOPORTAL.enabled
 
-            if not existing_clients_res.ok:
-                err(f"    Failed to fetch existing clients: {existing_clients}")
-                exit(1)
+        # Create the Bento public/web client
+        create_keycloak_client_or_exit(
+            token,
+            AUTH_CLIENT_ID,
+            public_client=True,
+            standard_flow_enabled=True,
+            service_accounts_enabled=False,
+            redirect_uris=[
+                f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
+                *((f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}",) if cbio_enabled else ()),
+            ],
+            web_origins=[
+                f"{PORTAL_PUBLIC_URL}",
+                *((f"{CBIOPORTAL_URL}",) if cbio_enabled else ()),
+            ],
+            access_token_lifespan=900,  # default access token lifespan: 15 minutes
+            use_refresh_tokens=True,
+        )
 
-            for client in existing_clients:
-                if client["clientId"] == AUTH_CLIENT_ID:
-                    warn(f"    Found existing client: {AUTH_CLIENT_ID}; using that.")
-                    return client["id"]
+    def create_wes_client_if_needed(token: str) -> None:
+        wes_client_kc_id: Optional[str] = fetch_existing_client_id(token, WES_CLIENT_ID)
 
-            return None
+        if wes_client_kc_id is None:
+            # Create the Bento WES client
+            create_keycloak_client_or_exit(
+                token,
+                WES_CLIENT_ID,
+                standard_flow_enabled=False,
+                service_accounts_enabled=True,
+                public_client=False,  # Use client secret for this one
+                redirect_uris=[],  # Not used with a standard/web flow - just client credentials
+                web_origins=[],  # "
+                access_token_lifespan=WES_WORKFLOW_TIMEOUT,  # WES workflow lifespan
+                use_refresh_tokens=False,  # No refreshing these allowed!
+            )
+            wes_client_kc_id = fetch_existing_client_id(token, WES_CLIENT_ID)
 
-        client_kc_id: Optional[str] = fetch_existing_client_id()
-        if client_kc_id is None:
-            cbio_enabled = c.BENTO_FEATURE_CBIOPORTAL.enabled
-            create_client_res = keycloak_req(p, bearer_token=token, method="post", json={
-                "clientId": AUTH_CLIENT_ID,
-                "enabled": True,
-                "protocol": "openid-connect",
-                "implicitFlowEnabled": False,  # don't support insecure old implicit flow
-                "standardFlowEnabled": True,
-                "publicClient": True,  # public client - web now uses auth code + PKCE flow
-                "redirectUris": [
-                    f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
-                    *((f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}",) if cbio_enabled else ()),
-                ],
-                "webOrigins": [
-                    f"{PORTAL_PUBLIC_URL}",
-                    *((f"{CBIOPORTAL_URL}",) if cbio_enabled else ()),
-                ],
-                "attributes": {
-                    "saml.assertion.signature": "false",
-                    "saml.authnstatement": "false",
-                    "saml.client.signature": "false",
-                    "saml.encrypt": "false",
-                    "saml.force.post.binding": "false",
-                    "saml.multivalued.roles": "false",
-                    "saml.onetimeuse.condition": "false",
-                    "saml.server.signature": "false",
-                    "saml.server.signature.keyinfo.ext": "false",
-                    "saml_force_name_id_format": "false",
+        # Fetch and print secret
 
-                    # Allowed redirect_uri values when using the logout endpoint from Keycloak
-                    "post.logout.redirect.uris": f"{PORTAL_PUBLIC_URL}/*",
+        client_secret_res = keycloak_req(
+            f"{KC_CLIENTS_ENDPOINT}/{wes_client_kc_id}/client-secret", bearer_token=token)
 
-                    "access.token.lifespan": 900,  # default access token lifespan: 15 minutes
-                    "pkce.code.challenge.method": "S256",
-                    "use.refresh.tokens": "true",
-                }
-            })
-            if not create_client_res.ok:
-                err(f"    Failed to create client: {AUTH_CLIENT_ID}; {create_client_res.json()}")
-                exit(1)
-
-            client_kc_id = fetch_existing_client_id()
-
-        # Fetch and return secret
-        client_secret_res = keycloak_req(f"{p}/{client_kc_id}/client-secret", bearer_token=token)
         client_secret_data = client_secret_res.json()
         if not client_secret_res.ok:
-            err(f"    Failed to get client secret for {AUTH_CLIENT_ID}; {client_secret_data}")
+            err(f"    Failed to get client secret for {WES_CLIENT_ID}; {client_secret_data}")
             exit(1)
+
+        client_secret = client_secret_data["value"]
+        cprint(
+            f"    Please set BENTO_WES_CLIENT_SECRET to {client_secret} in local.env and restart WES",
+            attrs=["bold"],
+        )
 
     def create_test_user_if_needed(token: str) -> None:
         p = f"admin/realms/{AUTH_REALM}/users"
@@ -254,6 +320,10 @@ def init_auth(docker_client: docker.DockerClient):
 
     info(f"  Creating web client: {AUTH_CLIENT_ID}")
     create_web_client_if_needed(access_token)
+    success()
+
+    info(f"  Creating WES client: {WES_CLIENT_ID}")
+    create_wes_client_if_needed(access_token)
     success()
 
     info(f"  Creating user: {AUTH_TEST_USER}")

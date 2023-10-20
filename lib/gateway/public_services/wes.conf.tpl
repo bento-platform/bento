@@ -1,9 +1,8 @@
-location /api/wes { return 302 https://${BENTOV2_PORTAL_DOMAIN}/api/wes/; }
+location /api/wes { return 302 https://${BENTOV2_DOMAIN}/api/wes/; }
 location /api/wes/ {
     # Reverse proxy settings
     include /gateway/conf/proxy.conf;
     include /gateway/conf/proxy_extra.conf;
-    include /gateway/conf/proxy_private.conf;
 
     # Forward request to WES
     rewrite ^ $request_uri;

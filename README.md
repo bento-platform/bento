@@ -32,6 +32,7 @@ that make up the Bento platform.
 
 ## Migration documents
 
+* [v12 to v13](./docs/migrating_to_13.md)
 * [v2.11 to v12](./docs/migrating_to_12.md)
 * [v2.10 to v2.11](./docs/migrating_to_2_11.md)
 
@@ -148,7 +149,7 @@ BENTOV2_ROOT_DATA_DIR=./data
 # Auth ----------------------------------------------------------------
 #  - Session secret should be set to a unique secure value.
 #    this adds security and allows sessions to exist across gateway restarts.
-#  - Empty by default, to be filled by local.env
+#     - Empty by default, to be filled by local.env
 #  - IMPORTANT: set before starting gateway
 BENTOV2_SESSION_SECRET=my-very-secret-session-secret  # !!! ADD SOMETHING MORE SECURE !!!
 
@@ -160,6 +161,10 @@ BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
 
 BENTOV2_AUTH_TEST_USER=user
 BENTOV2_AUTH_TEST_PASSWORD=user  # !!! obviously for dev only !!!
+
+#  - WES Client ID/secret; client within BENTOV2_AUTH_REALM
+BENTO_WES_CLIENT_ID=wes
+BENTO_WES_CLIENT_SECRET=
 # --------------------------------------------------------------------
 
 # Gohan
@@ -311,11 +316,12 @@ utilize new variables generated during the OIDC configuration.
 
 ### 5. Configure permissions
 
-#### Create superuser permissions in the new Bento authorization service
+#### a. Create superuser permissions in the new Bento authorization service
 
-First, open a shell in the authorization service container:
+First, run the authorization service and then open a shell into the container:
 
 ```bash
+./bentoctl.bash run authz
 ./bentoctl.bash shell authz
 ```
 
@@ -328,9 +334,27 @@ bento_authz assign-all-to-user iss sub
 Where `iss` is the issuer (for example, `https://bentov2auth.local/realms/bentov2`) and `sub` is the user (subject) ID,
 which in Keycloak should be a UUID.
 
-#### *Optional second step:* Assign portal access to all users in the instance realm
+#### b. Create grants for the Workflow Execution Service (WES) OAuth2 client
 
-We added a special permission, `view:private_portal`, to Bento v12 in order to carry forward the current
+Run the following commands to set up authorization for the WES client:
+
+```bash
+# This grant is a temporary hack to get permissions working for v12/v13. In the future, it should be removed.
+bento_authz create grant \
+  '{"iss": "ISSUER_HERE", "client": "wes"}' \
+  '{"everything": true}' \
+  'view:private_portal'
+
+# This grant gives permission to access and ingest data into all projects
+bento_authz create grant \
+  '{"iss": "ISSUER_HERE", "client": "wes"}' \
+  '{"everything": true}' \
+  'query:data' 'ingest:data'
+```
+
+#### c. *Optional step:* Assign portal access to all users in the instance realm
+
+We added a special permission, `view:private_portal`, to Bento v12/v13 in order to carry forward the current
 'legacy' authorization behaviour for one more major version. This permission currently behaves as a super-permission,
 allowing all actions within the private portal. **However,** in the future, this permission will do almost *nothing.*
 
@@ -344,6 +368,10 @@ bento_authz create grant \
   '{"everything": true}' \
   'view:private_portal'
 ```
+
+Where `WEB_CLIENT_ID_HERE` is the OAuth2 client the web portal uses, i.e., the 
+value in the `BENTOV2_AUTH_CLIENT_ID` environment variable. On local instances, 
+this is set to `local_bentov2` by default.
 
 
 ### 6. *Production only:* set up translations for Bento-Public

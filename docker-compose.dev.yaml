@@ -259,3 +259,8 @@ services:
     extends:
       file: $PWD/lib/gohan/docker-compose.gohan.yaml
       service: gohan-elasticsearch
+
+  gohan-api:
+    extends:
+      file: $PWD/lib/gohan/docker-compose.gohan.yaml
+      service: gohan-api

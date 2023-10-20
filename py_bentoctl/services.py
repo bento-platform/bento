@@ -167,7 +167,7 @@ def stop_service(compose_service: str) -> None:
 
     if compose_service == "all":
         # special: stop everything
-        subprocess.check_call((*_get_compose_with_files(dev=c.DEV_MODE), "down"))
+        subprocess.check_call((*_get_compose_with_files(dev=c.DEV_MODE), "down", "--remove-orphans"))
         return
 
     check_service_is_compose(compose_service)
@@ -385,7 +385,7 @@ def run_as_shell_for_service(compose_service: str, shell: str) -> None:
     # TODO: Detect shell
     os.execvp(
         c.COMPOSE[0],
-        (*c.COMPOSE, "run", *_get_profile_cli_args(), *_get_shell_user(compose_service), compose_service, shell))
+        (*c.COMPOSE, "run", *_get_shell_user(compose_service), compose_service, shell))
 
 
 def logs_service(compose_service: str, follow: bool) -> None:
