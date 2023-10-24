@@ -15,7 +15,6 @@ services:
     environment:
       - BENTO_UID
       - CHORD_URL=${BENTOV2_PORTAL_PUBLIC_URL}
-      - CHORD_PERMISSIONS=False  # Keep off since we have the proxy handling everything for now
       - CHORD_DEBUG=False
       - CHORD_METADATA_SUB_PATH
       - INTERNAL_PORT=${BENTOV2_KATSU_INTERNAL_PORT}
@@ -29,6 +28,9 @@ services:
       - BENTOV2_PORTAL_DOMAIN
         # Allow access by container name or localhost for healthchecks:
       - KATSU_ALLOWED_HOSTS=${BENTOV2_KATSU_CONTAINER_NAME},localhost
+        # Authz
+      - BENTO_AUTHZ_ENABLED=True
+      - BENTO_AUTHZ_SERVICE_URL
     # configs:
     #   - source: chord-metadata-settings
     #     target: /katsu/metadata/settings.py
