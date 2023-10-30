@@ -23,12 +23,15 @@ services:
       - BENTOV2_DOMAIN
       - BENTOV2_PUBLIC_URL
       - BENTO_BEACON_UI_ENABLED
+      - BENTO_AUTHZ_SERVICE_URL
+      - DRS_URL=${BENTOV2_PUBLIC_URL}/api/drs
     volumes:
       - ${BENTO_BEACON_CONFIG_DIR}:/config:ro
     networks: 
       - beacon-net
       - gohan-api-net
       - katsu-net
+      - drs-net
     expose:
       - ${BENTO_BEACON_INTERNAL_PORT}
     mem_limit: ${BENTO_BEACON_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
@@ -51,3 +54,6 @@ networks:
   katsu-net:
     external: true
     name: ${BENTO_KATSU_NETWORK}
+  drs-net:
+    external: true
+    name: ${BENTO_DRS_NETWORK}
