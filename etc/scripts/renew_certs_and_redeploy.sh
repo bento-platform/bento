@@ -1,7 +1,8 @@
-#!/bin/bash
+#! /usr/bin/env bash
 
 # Assuming local.env has BENTO_PROJECT_DIR and BENTO_USER_GROUP set
-source ../../local.env
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $SCRIPT_DIR && source ../../local.env
 
 if [[ -z $BENTO_PROJECT_DIR ]]; then
     echo "Please set the BENTO_PROJECT_DIR variable in local.env"
@@ -16,17 +17,17 @@ fi
 cd $BENTO_PROJECT_DIR  && source env/bin/activate ;
 
 # Gateway is always renewed
-SERVICES=(gateway)
+SERVICES=('gateway')
 
 # Auth needs cert renewal when internal only
 if [[ $BENTOV2_USE_EXTERNAL_IDP -eq 0 ]]; then
     echo "Uses internal IDP, will attemps auth certs renewal."
     # Append auth to list of services to renew
-    SERVICES+=(auth)
+    SERVICES+=('auth')
 fi
 
-# auth
-for SERVICE_NAME in $SERVICES
+# Clean and renew service certs
+for SERVICE_NAME in "${SERVICES[@]}"
 do
 
   ./bentoctl.bash clean "$SERVICE_NAME"
@@ -35,11 +36,14 @@ do
   LOCAL_LE=$LOCAL_CERTS/letsencrypt
 
 
-  sudo docker run -it --rm --name certbot -v "$LOCAL_LE:/etc/letsencrypt" -v "$LOCAL_LE/lib:/var/lib/letsencrypt" -p 80:80 -p 443:443 certbot/certbot renew --dry-run
-  sudo docker run -it --rm --name certbot -v "$LOCAL_LE:/etc/letsencrypt" -v "$LOCAL_LE/lib:/var/lib/letsencrypt" -p 80:80 -p 443:443 certbot/certbot renew --force-renewal
-
+  docker run -it --rm --name certbot -v "$LOCAL_LE:/etc/letsencrypt" -v "$LOCAL_LE/lib:/var/lib/letsencrypt" -p 80:80 -p 443:443 certbot/certbot renew --dry-run
+  docker run -it --rm --name certbot -v "$LOCAL_LE:/etc/letsencrypt" -v "$LOCAL_LE/lib:/var/lib/letsencrypt" -p 80:80 -p 443:443 certbot/certbot renew --force-renewal
+  
   sudo chown -R $BENTO_USER_GROUP:$BENTO_USER_GROUP $LOCAL_CERTS
+done
 
+# Redeploy services with updated certs
+for SERVICE_NAME in "${SERVICES[@]}"
+do
   ./bentoctl.bash run "$SERVICE_NAME"
-
 done
