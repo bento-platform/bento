@@ -1,22 +1,18 @@
 #! /usr/bin/env bash
 
-# Assuming local.env has BENTO_PROJECT_DIR and BENTO_USER_GROUP set
+# Set absolute script dir, allows to find absolute project dir & env files
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-cd $SCRIPT_DIR && source ../../local.env
 
-if [[ -z $BENTO_PROJECT_DIR ]]; then
-    echo "Please set the BENTO_PROJECT_DIR variable in local.env"
-    exit 1
-fi
+# Removing "/etc/scripts" suffix gives project dir
+BENTO_PROJECT_DIR="${SCRIPT_DIR%%/etc/scripts}"
 
-if [[ -z $BENTO_USER_GROUP ]]; then
-    echo "Please set the BENTO_USER_GROUP variable in local.env"
-    exit 1
-fi
+# CD to project dir and source env config
+cd $BENTO_PROJECT_DIR && source etc/default_config.env && source local.env;
 
-cd $BENTO_PROJECT_DIR  && source env/bin/activate ;
+# Activate python venv
+source env/bin/activate
 
-# Gateway is always renewed
+# Init services array, gateway is always renewed
 SERVICES=('gateway')
 
 # Auth needs cert renewal when internal only
@@ -39,7 +35,7 @@ do
   docker run -it --rm --name certbot -v "$LOCAL_LE:/etc/letsencrypt" -v "$LOCAL_LE/lib:/var/lib/letsencrypt" -p 80:80 -p 443:443 certbot/certbot renew --dry-run
   docker run -it --rm --name certbot -v "$LOCAL_LE:/etc/letsencrypt" -v "$LOCAL_LE/lib:/var/lib/letsencrypt" -p 80:80 -p 443:443 certbot/certbot renew --force-renewal
   
-  sudo chown -R $BENTO_USER_GROUP:$BENTO_USER_GROUP $LOCAL_CERTS
+  sudo chown -R $BENTO_UID:$BENTO_UID $LOCAL_CERTS
 done
 
 # Redeploy services with updated certs
