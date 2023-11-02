@@ -621,6 +621,8 @@ An [Elasticvue](https://github.com/cars10/elasticvue) container is also deployed
 
 Go to `localhost:8081` to access the Elasticvue interface. Fill the username field with `elastic` and the password field with the value of `BENTOV2_GOHAN_ES_PASSWORD`. The Uri field must use the IP of the gohan-es container on port 9200 (e.g. http://192.168.48.2:9200), it can be found with this command: `docker inspect bentov2-gohan-elasticsearch | grep -i ipaddress`
 
+Note: the CORS instructions have already been taken care of in the `docker-compose.dev.yaml` file.
+
 ![Elasticvue login](docs/img/elasticview_login.png)
 
 <br />
