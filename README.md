@@ -595,6 +595,7 @@ The following is a list of all host port allocations for Bento services in devel
 | cBioPortal       | 8089 | `N/A`         |
 | Drop Box         | 6000 | Unimplemented |
 | DRS              | 7007 | 5682          |
+| Elasticvue       | 8081 | `N/A`         |
 | Event relay      | 8750 | Unimplemented |
 | Katsu            | 8000 | 5432          |
 | Notification     | 8500 | 5681          |
@@ -615,6 +616,19 @@ Go to `localhost:8080` to access the login page. Fill the fields with the values
 ![Adminer login](docs/img/adminer_login.png)
 
 
+### Using Elasticvue
+
+An [Elasticvue](https://github.com/cars10/elasticvue) container is also deployed in dev and local mode, 
+allowing users to inspect the Gohan Elasticsearch node in a GUI.
+
+Go to `localhost:8081` to access the Elasticvue interface. Fill the username field with `elastic` and the password 
+field with the value of `BENTOV2_GOHAN_ES_PASSWORD`. The Uri field must use the IP of the gohan-es container on 
+port 9200 (e.g. http://192.168.48.2:9200), it can be found with this command:
+`docker inspect bentov2-gohan-elasticsearch | grep -i ipaddress`
+
+Note: the CORS instructions have already been taken care of in the `docker-compose.dev.yaml` file.
+
+![Elasticvue login](docs/img/elasticview_login.png)
 
 <br />
 
