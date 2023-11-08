@@ -6,12 +6,14 @@ services:
       - public-net  # Bento Public, not a public network!
       - katsu-net  # Needs to talk to Katsu for public endpoint  TODO: Should use public URL instead!
       - wes-net  # Needs to talk to WES for public endpoint  TODO: Should use public URL instead!
+      - gohan-api-net  # Needs to talk to Gohan for public endpoint  TODO: Should use public URL instead!
     environment:
       - BENTO_UID
       - BENTO_PUBLIC_SERVICE_ID
       - BENTO_PUBLIC_CLIENT_NAME
       - BENTO_PUBLIC_KATSU_URL
       - BENTO_PUBLIC_WES_URL
+      - BENTO_PUBLIC_GOHAN_URL
       - BENTO_PUBLIC_PORTAL_URL
       - BENTO_PUBLIC_TRANSLATED
       - BENTO_BEACON_UI_ENABLED
@@ -44,3 +46,6 @@ networks:
   wes-net:
     external: true
     name: ${BENTO_WES_NETWORK}
+  gohan-api-net:
+    external: true
+    name: ${BENTO_GOHAN_API_NETWORK}
