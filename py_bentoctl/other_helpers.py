@@ -336,6 +336,18 @@ def apply_extra_properties(phenopacket: dict, stash: dict):
         apply_element_extra_properties(phenopacket, element_name, stash)
     return phenopacket
 
+def format_biosample_variants(biosample: dict):
+    if "variants" not in biosample:
+        return biosample
+
+    formated_variants = []
+    for variant in biosample.get("variants", []):
+        if (allele:= variant.pop("allele", None)) and (allele_type:= variant.pop("allele_type", None)):
+            formated_variants.append({
+                allele_type: allele
+            })
+    biosample["variants"] = formated_variants
+    return biosample
 
 def format_phenov1(phenopacket: dict):
     # SUBJECT
@@ -357,6 +369,7 @@ def format_phenov1(phenopacket: dict):
     # BIOSAMPLES
     biosamples = phenopacket.get("biosamples", [])
     for sample in biosamples:
+        sample = format_biosample_variants(sample)
         if age_at_collection:= sample.pop("individual_age_at_collection", False):
             sample["age_of_individual_at_collection"] = age_at_collection
 
@@ -372,18 +385,39 @@ def format_phenov1(phenopacket: dict):
     return phenopacket
 
 
+def remove_null_none_empty(object: dict):
+    clean_obj = {}
+    for k, v in object.items():
+        if(isinstance(v, dict)):
+            clean_v = remove_null_none_empty(v)
+            if(len(clean_v.keys())>0):
+                clean_obj[k] = clean_v
+        
+        elif(isinstance(v, list)):
+            clean_list = []
+            for item in v:
+                if(isinstance(item, dict)):
+                    clean_item = remove_null_none_empty(item)
+                    if(len(clean_item.keys())>0):
+                        clean_list.append(clean_item)
+                elif(item is not None and item != ''):
+                    clean_list.append(item)
+            clean_obj[k] = clean_list
+        elif(v is not None and v != ''):
+            clean_obj[k] = v
+    return clean_obj
+
+
 def _convert_phenopacket(phenopacket: dict, idx: Optional[int] = None):
     """
     Runs the equivalent of 'cat some_file.json | pxf convert -f json -e phenopacket'
     Phenopacket-tools docs: http://phenopackets.org/phenopacket-tools/stable/cli.html#commands
     """
-    # import humps
-
-    # Phenopacket-tools expects camel-case keys
-    # camelized_phenopacket = humps.camelize(phenopacket)
-
     # Stash extra_properties before conversion
     stashed_extra_properties = stash_phenopacket_extra_properties(phenopacket)
+
+    if "genes" in phenopacket:
+        genes = phenopacket["genes"]
 
     formated_pheno = format_phenov1(phenopacket)
 
@@ -405,6 +439,9 @@ def _convert_phenopacket(phenopacket: dict, idx: Optional[int] = None):
 
     # Apply stashed extra_properties
     apply_extra_properties(converted, stashed_extra_properties)
+
+    # remove empty/none keys
+    converted = remove_null_none_empty(converted)
 
     # Create a phenopacket ID if none
     if "id" not in converted:
