@@ -27,7 +27,7 @@ services:
       - DJANGO_SETTINGS_MODULE=chord_metadata_service.metadata.settings
       - BENTOV2_PORTAL_DOMAIN
         # Allow access by container name or localhost for healthchecks:
-      - KATSU_ALLOWED_HOSTS=${BENTOV2_KATSU_CONTAINER_NAME},localhost
+      - KATSU_ALLOWED_HOSTS=${BENTOV2_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME},localhost
         # Authz
       - BENTO_AUTHZ_ENABLED=True
       - BENTO_AUTHZ_SERVICE_URL
