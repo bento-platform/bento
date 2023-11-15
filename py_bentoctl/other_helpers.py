@@ -299,11 +299,12 @@ def stash_element_extra_properties(phenopacket: dict, element_name: str, stash: 
         for idx, item in enumerate(element):
             # Align with item index if no "id" in the element item
             item_id = item.get("id", idx)
-            if extra_properties:= item.pop("extra_properties", False):
+            if extra_properties := item.pop("extra_properties", False):
                 stash[element_name][item_id] = extra_properties
 
-    elif extra_properties:= element.pop("extra_properties", False):
+    elif extra_properties := element.pop("extra_properties", False):
         stash[element_name] = extra_properties
+
 
 def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: dict):
     if element_name not in stash:
@@ -322,7 +323,9 @@ def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: 
     else:
         element["extra_properties"] = element_stash
 
+
 EXTRA_PROPERTIES_ELEMENTS = ["subject", "biosamples", "diseases"]
+
 
 def stash_phenopacket_extra_properties(phenopacket: dict):
     stash = {}
@@ -331,10 +334,12 @@ def stash_phenopacket_extra_properties(phenopacket: dict):
         stash_element_extra_properties(phenopacket, element_name, stash)
     return stash
 
+
 def apply_extra_properties(phenopacket: dict, stash: dict):
     for element_name in EXTRA_PROPERTIES_ELEMENTS:
         apply_element_extra_properties(phenopacket, element_name, stash)
     return phenopacket
+
 
 def format_biosample_variants(biosample: dict):
     if "variants" not in biosample:
@@ -342,12 +347,13 @@ def format_biosample_variants(biosample: dict):
 
     formated_variants = []
     for variant in biosample.get("variants", []):
-        if (allele:= variant.pop("allele", None)) and (allele_type:= variant.pop("allele_type", None)):
+        if (allele := variant.pop("allele", None)) and (allele_type := variant.pop("allele_type", None)):
             formated_variants.append({
                 allele_type: allele
             })
     biosample["variants"] = formated_variants
     return biosample
+
 
 def format_phenov1(phenopacket: dict):
     # SUBJECT
@@ -370,13 +376,13 @@ def format_phenov1(phenopacket: dict):
     biosamples = phenopacket.get("biosamples", [])
     for sample in biosamples:
         sample = format_biosample_variants(sample)
-        if age_at_collection:= sample.pop("individual_age_at_collection", False):
+        if age_at_collection := sample.pop("individual_age_at_collection", False):
             sample["age_of_individual_at_collection"] = age_at_collection
 
     # DISEASES
     diseases = phenopacket.get("diseases", [])
     for disease in diseases:
-        if onset:= disease.pop("onset", False):
+        if onset := disease.pop("onset", False):
             disease["age_of_onset"] = onset
 
     phenopacket["subject"] = subject
@@ -388,22 +394,22 @@ def format_phenov1(phenopacket: dict):
 def remove_null_none_empty(object: dict):
     clean_obj = {}
     for k, v in object.items():
-        if(isinstance(v, dict)):
+        if (isinstance(v, dict)):
             clean_v = remove_null_none_empty(v)
-            if(len(clean_v.keys())>0):
+            if (len(clean_v.keys()) > 0):
                 clean_obj[k] = clean_v
-        
-        elif(isinstance(v, list)):
+
+        elif (isinstance(v, list)):
             clean_list = []
             for item in v:
-                if(isinstance(item, dict)):
+                if (isinstance(item, dict)):
                     clean_item = remove_null_none_empty(item)
-                    if(len(clean_item.keys())>0):
+                    if (len(clean_item.keys()) > 0):
                         clean_list.append(clean_item)
-                elif(item is not None and item != ''):
+                elif (item is not None and item != ''):
                     clean_list.append(item)
             clean_obj[k] = clean_list
-        elif(v is not None and v != ''):
+        elif (v is not None and v != ''):
             clean_obj[k] = v
     return clean_obj
 
@@ -415,9 +421,6 @@ def _convert_phenopacket(phenopacket: dict, idx: Optional[int] = None):
     """
     # Stash extra_properties before conversion
     stashed_extra_properties = stash_phenopacket_extra_properties(phenopacket)
-
-    if "genes" in phenopacket:
-        genes = phenopacket["genes"]
 
     formated_pheno = format_phenov1(phenopacket)
 
