@@ -648,7 +648,7 @@ You can then convert a file with:
 bentoctl convert-pheno <source> <target>
 ```
 
-If the `target` argument is not provided, bentoctl will append "_pheno_v2" to the source file's name and save it in its 
+If the `target` argument is not provided, `bentoctl` will append "_pheno_v2" to the source file's name and save it in its 
 parent directory.
 
 

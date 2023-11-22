@@ -4,14 +4,12 @@ import shutil
 import sys
 import json
 import subprocess
-from typing import Optional
 import uuid
-from datetime import datetime, timezone
-
 import docker
 import docker.errors
 
 from termcolor import cprint
+from datetime import datetime, timezone
 
 from . import config as c
 from .openssl import create_cert, create_private_key
@@ -299,10 +297,10 @@ def stash_element_extra_properties(phenopacket: dict, element_name: str, stash: 
         for idx, item in enumerate(element):
             # Align with item index if no "id" in the element item
             item_id = item.get("id", idx)
-            if extra_properties := item.pop("extra_properties", False):
+            if extra_properties := item.pop("extra_properties", None):
                 stash[element_name][item_id] = extra_properties
 
-    elif extra_properties := element.pop("extra_properties", False):
+    elif extra_properties := element.pop("extra_properties", None):
         stash[element_name] = extra_properties
 
 
@@ -355,20 +353,36 @@ def format_biosample_variants(biosample: dict):
     return biosample
 
 
+SUBJECT_MCODE_FIELDS = ["comorbid_condition", "ecog_performance_status", "karnofsky", "race", "ethnicity"]
+
+
+def format_subject_mcode(subject: dict):
+    extra_properties = subject.get("extra_properties", {})
+    for mcode_field in SUBJECT_MCODE_FIELDS:
+        if value := subject.pop(mcode_field, None):
+            extra_properties[mcode_field] = value
+    if extra_properties:
+        subject["extra_properties"] = extra_properties
+    return subject
+
+
 def format_phenov1(phenopacket: dict):
     # SUBJECT
     subject: dict = phenopacket["subject"]
 
     # subject.date_of_birth ISO8601 formating
     # dob = subject["date_of_birth"]
-    if dob := subject.get("date_of_birth", False):
+    if dob := subject.get("date_of_birth", None):
         iso_dob = datetime.fromisoformat(dob).astimezone(timezone.utc).isoformat()
         phenopacket["subject"]["date_of_birth"] = iso_dob
 
     # subject.age
-    age = subject.pop("age", False)
+    age = subject.pop("age", None)
     if age:
         subject["age_at_collection"] = age
+
+    # subject MCode fields are moved to extra_properties
+    subject = format_subject_mcode(subject)
 
     phenopacket["subject"] = subject
 
@@ -376,13 +390,13 @@ def format_phenov1(phenopacket: dict):
     biosamples = phenopacket.get("biosamples", [])
     for sample in biosamples:
         sample = format_biosample_variants(sample)
-        if age_at_collection := sample.pop("individual_age_at_collection", False):
+        if age_at_collection := sample.pop("individual_age_at_collection", None):
             sample["age_of_individual_at_collection"] = age_at_collection
 
     # DISEASES
     diseases = phenopacket.get("diseases", [])
     for disease in diseases:
-        if onset := disease.pop("onset", False):
+        if onset := disease.pop("onset", None):
             disease["age_of_onset"] = onset
 
     phenopacket["subject"] = subject
@@ -394,35 +408,37 @@ def format_phenov1(phenopacket: dict):
 def remove_null_none_empty(object: dict):
     clean_obj = {}
     for k, v in object.items():
-        if (isinstance(v, dict)):
+        if isinstance(v, dict):
             clean_v = remove_null_none_empty(v)
-            if (len(clean_v.keys()) > 0):
+            if len(clean_v.keys()) > 0:
                 clean_obj[k] = clean_v
 
-        elif (isinstance(v, list)):
+        elif isinstance(v, list):
             clean_list = []
             for item in v:
-                if (isinstance(item, dict)):
+                if isinstance(item, dict):
                     clean_item = remove_null_none_empty(item)
-                    if (len(clean_item.keys()) > 0):
+                    if len(clean_item.keys()) > 0:
                         clean_list.append(clean_item)
-                elif (item is not None and item != ''):
+                elif item is not None and item != '':
                     clean_list.append(item)
             clean_obj[k] = clean_list
-        elif (v is not None and v != ''):
+        elif v is not None and v != '':
             clean_obj[k] = v
     return clean_obj
 
 
-def _convert_phenopacket(phenopacket: dict, idx: Optional[int] = None):
+def _convert_phenopacket(phenopacket: dict, idx: int | None = None):
     """
     Runs the equivalent of 'cat some_file.json | pxf convert -f json -e phenopacket'
     Phenopacket-tools docs: http://phenopackets.org/phenopacket-tools/stable/cli.html#commands
     """
-    # Stash extra_properties before conversion
-    stashed_extra_properties = stash_phenopacket_extra_properties(phenopacket)
 
+    # Preprocessing
     formated_pheno = format_phenov1(phenopacket)
+
+    # Stash extra_properties before conversion
+    stashed_extra_properties = stash_phenopacket_extra_properties(formated_pheno)
 
     pxf_cmd = ("java", "-jar", c.PHENOTOOL_PATH, "convert", "-f", "json", "-e", "phenopacket")
     # Pipe pheno_pipe.stdout as stdin of async convert command
