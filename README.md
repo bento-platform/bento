@@ -32,6 +32,7 @@ that make up the Bento platform.
 
 ## Migration documents
 
+* [v14 to v15](./docs/migrating_to_15.md)
 * [v13 to v14](./docs/migrating_to_14.md)
 * [v12 to v13](./docs/migrating_to_13.md)
 * [v2.11 to v12](./docs/migrating_to_12.md)
@@ -630,6 +631,27 @@ port 9200 (e.g. http://192.168.48.2:9200), it can be found with this command:
 Note: the CORS instructions have already been taken care of in the `docker-compose.dev.yaml` file.
 
 ![Elasticvue login](docs/img/elasticview_login.png)
+
+
+### Converting Phenopackets
+
+Phenopackets JSON documents can be converted from [V1](https://phenopacket-schema.readthedocs.io/en/1.0.0/toplevel.html) 
+to [V2](https://phenopacket-schema.readthedocs.io/en/2.0.0/toplevel.html) using `bentoctl` and 
+[Phenopacket-tools](https://github.com/phenopackets/phenopacket-tools) as its backend.
+
+For the `bentoctl convert-pheno` command to work, you need to:
+1. [Download](http://phenopackets.org/phenopacket-tools/stable/tutorial.html#download-phenopacket-tools) a Phenopacket-tools release.
+2. Unzip its content and place the .jar file somwhere safe.
+3. Specify the .jar path in `local.env` with the `PHENOTOOL_JAR_PATH` variable
+
+You can then convert a file with:
+```shell
+bentoctl convert-pheno <source> <target>
+```
+
+If the `target` argument is not provided, `bentoctl` will append "_pheno_v2" to the source file's name and save it in its 
+parent directory.
+
 
 <br />
 
