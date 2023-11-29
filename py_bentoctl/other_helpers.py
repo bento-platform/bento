@@ -322,7 +322,7 @@ def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: 
         element["extra_properties"] = element_stash
 
 
-EXTRA_PROPERTIES_ELEMENTS = ["subject", "biosamples", "diseases"]
+EXTRA_PROPERTIES_ELEMENTS = ["subject", "biosamples", "diseases", "phenotypic_features"]
 
 
 def stash_phenopacket_extra_properties(phenopacket: dict):
@@ -448,7 +448,7 @@ def _convert_phenopacket(phenopacket: dict, idx: int | None = None):
     if conversion_process.returncode != 0:
         # Conversion encountered an error
         raise ValueError(
-            stderr +
+            (stderr if stderr else "") +
             f"\nOn phenopacket element {idx} of array document."
             if idx is not None else "",
         )
