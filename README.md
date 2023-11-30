@@ -32,6 +32,8 @@ that make up the Bento platform.
 
 ## Migration documents
 
+* [v14 to v15](./docs/migrating_to_15.md)
+* [v13 to v14](./docs/migrating_to_14.md)
 * [v12 to v13](./docs/migrating_to_13.md)
 * [v2.11 to v12](./docs/migrating_to_12.md)
 * [v2.10 to v2.11](./docs/migrating_to_2_11.md)
@@ -595,6 +597,7 @@ The following is a list of all host port allocations for Bento services in devel
 | cBioPortal       | 8089 | `N/A`         |
 | Drop Box         | 6000 | Unimplemented |
 | DRS              | 7007 | 5682          |
+| Elasticvue       | 8081 | `N/A`         |
 | Event relay      | 8750 | Unimplemented |
 | Katsu            | 8000 | 5432          |
 | Notification     | 8500 | 5681          |
@@ -615,6 +618,40 @@ Go to `localhost:8080` to access the login page. Fill the fields with the values
 
 ![Adminer login](docs/img/adminer_login.png)
 
+
+### Using Elasticvue
+
+An [Elasticvue](https://github.com/cars10/elasticvue) container is also deployed in dev and local mode, 
+allowing users to inspect the Gohan Elasticsearch node in a GUI.
+
+Go to `localhost:8081` to access the Elasticvue interface. Fill the username field with `elastic` and the password 
+field with the value of `BENTOV2_GOHAN_ES_PASSWORD`. The Uri field must use the IP of the gohan-es container on 
+port 9200 (e.g. http://192.168.48.2:9200), it can be found with this command:
+`docker inspect bentov2-gohan-elasticsearch | grep -i ipaddress`
+
+Note: the CORS instructions have already been taken care of in the `docker-compose.dev.yaml` file.
+
+![Elasticvue login](docs/img/elasticview_login.png)
+
+
+### Converting Phenopackets
+
+Phenopackets JSON documents can be converted from [V1](https://phenopacket-schema.readthedocs.io/en/1.0.0/toplevel.html) 
+to [V2](https://phenopacket-schema.readthedocs.io/en/2.0.0/toplevel.html) using `bentoctl` and 
+[Phenopacket-tools](https://github.com/phenopackets/phenopacket-tools) as its backend.
+
+For the `bentoctl convert-pheno` command to work, you need to:
+1. [Download](http://phenopackets.org/phenopacket-tools/stable/tutorial.html#download-phenopacket-tools) a Phenopacket-tools release.
+2. Unzip its content and place the .jar file somwhere safe.
+3. Specify the .jar path in `local.env` with the `PHENOTOOL_JAR_PATH` variable
+
+You can then convert a file with:
+```shell
+bentoctl convert-pheno <source> <target>
+```
+
+If the `target` argument is not provided, `bentoctl` will append "_pheno_v2" to the source file's name and save it in its 
+parent directory.
 
 
 <br />

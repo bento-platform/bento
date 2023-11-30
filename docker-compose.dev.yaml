@@ -138,6 +138,16 @@ services:
     ports:
       - 8080:8080
 
+  elasticvue:
+    image: cars10/elasticvue:0.44.0
+    container_name: ${BENTOV2_PREFIX}-elasticvue
+    restart: unless-stopped
+    networks:
+      - gohan-es-net
+      - default
+    ports:
+      - 8081:8080
+
   aggregation:
     environment:
       - BENTO_DEBUG=True
@@ -256,6 +266,9 @@ services:
     # See https://stackoverflow.com/questions/48119189/elasticsearch-6-index-change-to-read-only-after-few-second
     environment:
       "cluster.routing.allocation.disk.threshold_enabled": "false"
+      "http.cors.enabled": "true"
+      "http.cors.allow-origin": "http://localhost:8081"
+      "http.cors.allow-headers": X-Requested-With,Content-Type,Content-Length,Authorization
     extends:
       file: $PWD/lib/gohan/docker-compose.gohan.yaml
       service: gohan-elasticsearch
