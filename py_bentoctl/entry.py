@@ -14,7 +14,7 @@ from . import utils as u
 
 from typing import Optional, Tuple, Type
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 
 class SubCommand(ABC):
