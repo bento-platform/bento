@@ -255,11 +255,19 @@ services:
   reference:
     environment:
       - BENTO_DEBUG=True
+      - LOG_LEVEL=debug
     ports:
       - "${BENTO_REFERENCE_EXTERNAL_PORT}:${BENTO_REFERENCE_INTERNAL_PORT}"
     extends:
-      file: $PWD/lib/reference/docker-compose.reference.yml
+      file: $PWD/lib/reference/docker-compose.reference.yaml
       service: reference
+
+  reference-db:
+    extends:
+      file: $PWD/lib/reference/docker-compose.reference.yaml
+      service: reference-db
+    ports:
+      - "${BENTO_REFERENCE_DB_EXTERNAL_PORT}:5432"
 
   gohan-elasticsearch:
     # In dev / on Mac, sometimes this will trip up and decide there isn't enough disk space even when there is.

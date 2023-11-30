@@ -53,6 +53,8 @@ services:
       - BENTOV2_AGGREGATION_INTERNAL_PORT
       - BENTOV2_EVENT_RELAY_CONTAINER_NAME
       - BENTOV2_EVENT_RELAY_INTERNAL_PORT
+      - BENTO_REFERENCE_CONTAINER_NAME
+      - BENTO_REFERENCE_INTERNAL_PORT
       - BENTOV2_WES_CONTAINER_NAME
       - BENTOV2_WES_INTERNAL_PORT
       - BENTOV2_WEB_CONTAINER_NAME
@@ -108,6 +110,10 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
       public-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+      reference-net:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
@@ -176,7 +182,6 @@ services:
     extends:
       file: $PWD/lib/katsu/docker-compose.katsu.yaml
       service: katsu
-
 
   katsu-db:
     extends:
@@ -355,6 +360,17 @@ services:
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
 
+  reference:
+    extends:
+      file: $PWD/lib/reference/docker-compose.reference.yaml
+      service: reference
+
+  reference-db:
+    extends:
+      file: $PWD/lib/reference/docker-compose.reference.yaml
+      service: reference-db
+
+
   wes:
     extends:
       file: $PWD/lib/wes/docker-compose.wes.yaml
@@ -454,6 +470,12 @@ networks:
   redis-net:
     external: true
     name: ${BENTO_REDIS_NETWORK}
+  reference-net:
+    external: true
+    name: ${BENTO_REFERENCE_NETWORK}
+  reference-db-net:
+    external: true
+    name: ${BENTO_REFERENCE_DB_NETWORK}
   service-registry-net:
     external: true
     name: ${BENTO_SERVICE_REGISTRY_NETWORK}

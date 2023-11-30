@@ -182,6 +182,18 @@ services:
       file: docker-compose.dev.yaml
       service: event-relay
 
+  reference:
+    image: ${BENTO_REFERENCE_IMAGE}:${BENTO_REFERENCE_VERSION_DEV}
+    environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
+      - BENTO_GIT_REPOSITORY_DIR=/reference
+    volumes:
+      - ./repos/reference:/reference
+    extends:
+      file: docker-compose.dev.yaml
+      service: reference
+
   gohan-api:
     image: ${BENTOV2_GOHAN_API_IMAGE}:${BENTOV2_GOHAN_API_VERSION_DEV}
     privileged: true # required to debug golang

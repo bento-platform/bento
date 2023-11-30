@@ -29,6 +29,11 @@
     "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
     "repository": "git@github.com:bento-platform/bento_event_relay"
   },
+  "reference": {
+    "service_kind": "reference",
+    "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/bento_reference_service.git"
+  },
   "katsu": {
     "service_kind": "metadata",
     "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",

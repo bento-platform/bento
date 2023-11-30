@@ -599,11 +599,13 @@ The following is a list of all host port allocations for Bento services in devel
 | DRS              | 7007 | 5682          |
 | Elasticvue       | 8081 | `N/A`         |
 | Event relay      | 8750 | Unimplemented |
-| Katsu            | 8000 | 5432          |
+| Katsu            | 8000 | 5678          |
+| Katsu DB         | 5432 | `N/A`         |
 | Notification     | 8500 | 5681          |
 | Public           | 8090 | Unimplemented |
 | Redis            | 6379 | `N/A`         |
-| Reference        | 9501 | Unimplemented |
+| Reference        | 9510 | 9501          |
+| Reference DB     | 9512 | `N/A`         |
 | Service Registry | 5010 | Unimplemented |
 | WES              | 9250 | 5680          |
 

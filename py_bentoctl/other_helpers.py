@@ -201,7 +201,7 @@ def init_dirs():
         "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR" if c.DEV_MODE else "BENTOV2_KATSU_DB_DEV_VOL_DIR",
         "notification": "BENTOV2_NOTIFICATION_VOL_DIR",
         "redis": "BENTOV2_REDIS_VOL_DIR",
-        "reference": "BENTO_REFERENCE_VOL_DIR",
+        "reference-db": "BENTO_REFERENCE_DB_VOL_DIR",
         "wes": "BENTOV2_WES_VOL_DIR",
 
         # Feature-specific volume dirs - only if the relevant feature is enabled.
@@ -273,6 +273,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),
         ("BENTO_REDIS_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_REFERENCE_NETWORK", dict(driver="bridge")),
+        ("BENTO_REFERENCE_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_SERVICE_REGISTRY_NETWORK", dict(driver="bridge")),
         ("BENTO_WEB_NETWORK", dict(driver="bridge")),
         ("BENTO_WES_NETWORK", dict(driver="bridge")),
@@ -287,7 +288,7 @@ def init_docker(client: docker.DockerClient):
 
         try:
             client.networks.get(net_name)
-            task_print_done(f"exists already (name: {net_name}).")
+            task_print_done(f"exists already (name: {net_name}).", color="blue")
         except docker.errors.NotFound:
             client.networks.create(net_name, **net_kwargs)
             task_print_done(f"network created (name: {net_name}).")
