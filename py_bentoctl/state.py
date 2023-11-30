@@ -50,13 +50,9 @@ def get_state(conn: Optional[sqlite3.Connection] = None):
                 services_state = json.loads(services_r[0])
                 altered_state: bool = False
 
-                keys_to_del = set()
-                for k in services_state:
-                    if k not in services_initial_state:
-                        keys_to_del.add(k)
-
-                for k in keys_to_del:
-                    # Service was removed from bento_services.json if it ends up in this set
+                for k in set(k for k in services_state.keys() if k not in services_initial_state):
+                    # Service was removed from bento_services.json if it ends up in this set - need to iterate once
+                    # through it to prevent 'dict changed while iterating'-type errors
                     del services_state[k]
                     altered_state = True
 
