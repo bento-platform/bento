@@ -50,12 +50,17 @@ def get_state(conn: Optional[sqlite3.Connection] = None):
                 services_state = json.loads(services_r[0])
                 altered_state: bool = False
 
-                for k, v in services_state.items():
-                    if k not in services_initial_state:  # Service was removed from bento_services.json
-                        del services_state[k]
-                        altered_state = True
-                        continue
+                keys_to_del = set()
+                for k in services_state:
+                    if k not in services_initial_state:
+                        keys_to_del.add(k)
 
+                for k in keys_to_del:
+                    # Service was removed from bento_services.json if it ends up in this set
+                    del services_state[k]
+                    altered_state = True
+
+                for k, v in services_state.items():
                     # Migration from alpha build of bentoV2 2.11: port over dev/prod --> local/prebuilt
                     if v["mode"] == "prod":
                         services_state[k]["mode"] = MODE_PREBUILT
