@@ -13,3 +13,23 @@ location /api/drs/ {
     # Errors
     error_log /var/log/bentov2_drs_errors.log;
 }
+location /api/drs/ingest {
+    # Reverse proxy settings
+    include /gateway/conf/proxy.conf;
+
+    # !!! Allow large ingest bodies !!!
+    client_body_timeout     660s;
+    proxy_read_timeout      660s;
+    proxy_send_timeout      660s;
+    send_timeout            660s;
+    client_max_body_size    0;
+
+    # Forward request to DRS
+    rewrite ^ $request_uri;
+    rewrite ^/api/drs/(.*) /$1 break;
+    return 400;
+    proxy_pass http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}$uri;
+
+    # Errors
+    error_log /var/log/bentov2_drs_errors.log;
+}
