@@ -408,9 +408,9 @@ def format_phenov1(phenopacket: dict):
     return phenopacket
 
 
-def remove_null_none_empty(object: dict):
+def remove_null_none_empty(obj: dict):
     clean_obj = {}
-    for k, v in object.items():
+    for k, v in obj.items():
         if isinstance(v, dict):
             clean_v = remove_null_none_empty(v)
             if len(clean_v.keys()) > 0:
