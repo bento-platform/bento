@@ -32,6 +32,7 @@ that make up the Bento platform.
 
 ## Migration documents
 
+* [v14 to v15](./docs/migrating_to_15.md)
 * [v13 to v14](./docs/migrating_to_14.md)
 * [v12 to v13](./docs/migrating_to_13.md)
 * [v2.11 to v12](./docs/migrating_to_12.md)
@@ -648,7 +649,7 @@ You can then convert a file with:
 bentoctl convert-pheno <source> <target>
 ```
 
-If the `target` argument is not provided, bentoctl will append "_pheno_v2" to the source file's name and save it in its 
+If the `target` argument is not provided, `bentoctl` will append "_pheno_v2" to the source file's name and save it in its 
 parent directory.
 
 
@@ -672,34 +673,4 @@ This will run a set of both unit `(TODO)` and integration tests. See the `Makefi
 
 ## Troubleshooting
 
-### Accessing service logs
-
-The logs for each individual service can be accessed by running
-
-```
-./bentoctl.bash logs <service>
-```
-
-for example:
-
-```
-./bentoctl.bash logs katsu
-```
-
-If you want to follow the logs live, append the `-f` option. If no service is specified, logs
-from all running Docker containers will be shown.
-
-### Restarting all services
-
-To restart all services
-
-```
-./bentoctl.bash stop all
-./bentoctl.bash run all
-```
-
-One can also start services individually, e.g.:
-
-```
-./bentoctl.bash run drs
-```
+[Troubleshooting guide.](./docs/trouble_shooting.md)
