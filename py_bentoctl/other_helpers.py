@@ -497,7 +497,8 @@ def convert_phenopacket_file(source: str, target: str):
             converted = _convert_phenopacket(pheno_v1)
     except ValueError as e:
         # Display error and abort
-        err(e)
+        err(str(e))
+        exit(1)
 
     if target:
         target_path = pathlib.Path.cwd() / target
