@@ -1,9 +1,8 @@
-location /api/metadata { return 302 https://${BENTOV2_PORTAL_DOMAIN}/api/metadata/; }
+location /api/metadata { return 302 https://${BENTOV2_DOMAIN}/api/metadata/; }
 location /api/metadata/ {
     # Reverse proxy settings
     include /gateway/conf/proxy.conf;
     include /gateway/conf/proxy_extra.conf;
-    include /gateway/conf/proxy_private.conf;
 
     # Forward request to Katsu
     rewrite ^ $request_uri;
