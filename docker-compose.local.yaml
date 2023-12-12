@@ -5,6 +5,7 @@ services:
     image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION_DEV}
     volumes:
       - ./repos/web:/web
+      - ./packs:/packs
     environment:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
@@ -17,6 +18,7 @@ services:
     image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION_DEV}
     volumes:
       - ./repos/public:/bento-public
+      - ./packs:/packs
     environment:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
