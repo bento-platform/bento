@@ -610,6 +610,48 @@ The following is a list of all host port allocations for Bento services in devel
 | WES              | 9250 | 5680          |
 
 
+### Local NPM package development
+
+The [bento_web](https://github.com/bento-platform/bento_web) and 
+[bento_public](https://github.com/bento-platform/bento_public) projects use Bento specific packages for 
+[charts](https://github.com/bento-platform/bento_charts/) and 
+[auth](https://github.com/bento-platform/bento_auth_js).
+
+In production, these packages are installed from the NPM registry.
+When developing simultanuously on a given web app and package, 
+it is helpful to be able to use the locally built package without 
+having to publish unfinished dev packages to NPM.
+
+For this use case:
+
+
+```shell
+# cd to the package's code directory
+cd ../bento_charts # assumes bento_charts is in parent dir
+
+# Build and pack the package as a .tgz file
+npm run buildpack
+
+# Go back to Bento's dir
+cd ../bento
+
+# Copy the packaged file to the Bento packs dir
+cp ../bento_charts/packs/*.tgz ./packs
+
+# Start a web app in dev mode
+bentoctl dev web
+
+# Open a shell in the container (or open the dev container with Code)
+bentoctl shell web
+
+# Install the package using the mounted pack file on /packs
+npm install /packs/bento-charts-2.5.0.tgz
+```
+
+If subsequent modifications are made to the package's code, you will need to create a new pack file 
+and install it again in the app with `npm install`.
+
+
 ### Using Adminer
 
 An [Adminer](https://www.adminer.org/) container is deployed in dev and local mode, it can be used to inspect the
@@ -669,7 +711,6 @@ make run-tests
 ```
 
 This will run a set of both unit `(TODO)` and integration tests. See the `Makefile` for more details
-
 
 
 <br />
