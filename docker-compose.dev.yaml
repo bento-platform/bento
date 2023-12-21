@@ -255,6 +255,7 @@ services:
   reference:
     environment:
       - BENTO_DEBUG=True
+      - BENTO_VALIDATE_SSL=False
       - LOG_LEVEL=debug
     ports:
       - "${BENTO_REFERENCE_EXTERNAL_PORT}:${BENTO_REFERENCE_INTERNAL_PORT}"
