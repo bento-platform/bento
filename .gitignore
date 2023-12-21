@@ -35,7 +35,7 @@ lib/*/chord_services.json
 lib/service-registry/bento_service_registry
 lib/web/bento_web
 
-lib/katsu/config.json
+lib/katsu/config/config.json
 
 # bento_web
 lib/web/*

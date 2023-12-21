@@ -34,7 +34,7 @@ jobs:
           sed -i.bak 's|BENTOV2_AUTH_TEST_PASSWORD=|BENTOV2_AUTH_TEST_PASSWORD=user|g' local.env
 
       - name: Copy bento_public configuration
-        run: cp ./etc/katsu.config.example.json ./lib/katsu/config.json
+        run: cp ./etc/katsu.config.example.json ./lib/katsu/config/config.json
 
       - name: Create self-signed certificates
         run: ./bentoctl.bash init-certs

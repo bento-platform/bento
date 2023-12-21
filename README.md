@@ -214,7 +214,7 @@ Bento's clinical/phenotypic metadata service:
 ```bash
 # public service configuration file. Required if BENTOV2_USE_BENTO_PUBLIC flag is set to `1`
 # See Katsu documentation for more information about the specifications
-cp ./etc/katsu.config.example.json ./lib/katsu/config.json
+cp ./etc/katsu.config.example.json ./lib/katsu/config/config.json
 ```
 
 
