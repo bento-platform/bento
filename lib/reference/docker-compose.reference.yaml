@@ -1,0 +1,41 @@
+services:
+  reference:
+    image: ${BENTO_REFERENCE_IMAGE}:${BENTO_REFERENCE_VERSION}
+    container_name: ${BENTO_REFERENCE_CONTAINER_NAME}
+    networks:
+      - reference-net
+      - reference-db-net
+    expose:
+      - ${BENTO_REFERENCE_INTERNAL_PORT}
+    environment:
+      - BENTO_UID
+      - BENTO_DEBUG=False
+      - DATABASE_URI=postgres://${BENTO_REFERENCE_DB_USER}:${BENTO_REFERENCE_DB_PASSWORD}@${BENTO_REFERENCE_DB_CONTAINER_NAME}:5432/${BENTO_REFERENCE_DB_NAME}
+      - INTERNAL_PORT=${BENTO_REFERENCE_INTERNAL_PORT}
+      - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/reference/
+      - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
+      - BENTO_AUTHZ_SERVICE_URL
+    healthcheck:
+      test: [ "CMD", "wget", "-q0-", "http://localhost:${BENTO_REFERENCE_INTERNAL_PORT}/service-info", "&&", "echo" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+
+  reference-db:
+    image: ${BENTO_REFERENCE_DB_IMAGE}:${BENTO_REFERENCE_DB_VERSION}
+    container_name: ${BENTO_REFERENCE_DB_CONTAINER_NAME}
+    networks:
+      - reference-db-net
+    environment:
+      - POSTGRES_USER=${BENTO_REFERENCE_DB_USER}
+      - POSTGRES_PASSWORD=${BENTO_REFERENCE_DB_PASSWORD}
+      - POSTGRES_DB=${BENTO_REFERENCE_DB_NAME}
+    volumes:
+      - ${BENTO_REFERENCE_DB_VOL_DIR}:/var/lib/postgresql/data
+
+networks:
+  reference-net:
+    external: true
+    name: ${BENTO_REFERENCE_NETWORK}
+  reference-db-net:
+    external: true
+    name: ${BENTO_REFERENCE_DB_NETWORK}

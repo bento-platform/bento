@@ -18,8 +18,8 @@ def task_print(msg: str) -> None:
     print(msg, end=" ", file=sys.stderr)
 
 
-def task_print_done(msg: str = "done.") -> None:
-    cprint(msg, "green", file=sys.stderr)
+def task_print_done(msg: str = "done.", color: str = "green") -> None:
+    cprint(msg, color, file=sys.stderr)
 
 
 def info(msg: str) -> None:
