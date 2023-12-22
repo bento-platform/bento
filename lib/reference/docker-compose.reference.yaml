@@ -38,5 +38,4 @@ networks:
     name: ${BENTO_REFERENCE_NETWORK}
   reference-db-net:
     external: true
-    internal: true
     name: ${BENTO_REFERENCE_DB_NETWORK}
