@@ -30,7 +30,12 @@ that make up the Bento platform.
 
 <br />
 
-## Migration documents
+## Documentation
+
+* [Guide to genomic reference material in Bento](./docs/reference_material.md)
+* [Troubleshooting guide](./docs/trouble_shooting.md)
+
+### Migration documents
 
 * [v14 to v15](./docs/migrating_to_15.md)
 * [v13 to v14](./docs/migrating_to_14.md)
