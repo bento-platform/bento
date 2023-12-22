@@ -13,9 +13,10 @@ location /api/drs/ {
     # Errors
     error_log /var/log/bentov2_drs_errors.log;
 }
-location /ga4gh/drs/v1/objects/ {
+location /ga4gh/drs/v1/ {
     # Special: GA4GH DRS URIs cannot translate into URLs with sub-paths, so DRS needs to handle these URLs without the
-    # /api/drs prefix.
+    # /api/drs prefix; something like /ga4gh/drs/v1/objects/<object-id>
+    # This is also a standard location for the DRS service info endpoint: /ga4gh/drs/v1/service-info
 
     # Reverse proxy settings
     include /gateway/conf/proxy.conf;
