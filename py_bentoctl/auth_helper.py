@@ -21,6 +21,7 @@ urllib3.disable_warnings(InsecureRequestWarning)
 USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 
+PUBLIC_URL = os.getenv("BENTOV2_PUBLIC_URL")
 PORTAL_PUBLIC_URL = os.getenv("BENTOV2_PORTAL_PUBLIC_URL")
 CBIOPORTAL_URL = os.getenv("BENTO_CBIOPORTAL_PUBLIC_URL")
 
@@ -132,7 +133,7 @@ def create_keycloak_client_or_exit(
 
             **({
                 # Allowed redirect_uri values when using the logout endpoint from Keycloak
-                "post.logout.redirect.uris": f"{PORTAL_PUBLIC_URL}/*",
+                "post.logout.redirect.uris": redirect_uris,
             } if standard_flow_enabled else {}),
 
             "access.token.lifespan": access_token_lifespan,  # default access token lifespan: 15 minutes
@@ -213,10 +214,12 @@ def init_auth(docker_client: docker.DockerClient):
             standard_flow_enabled=True,
             service_accounts_enabled=False,
             redirect_uris=[
+                f"{PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
                 f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
                 *((f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}",) if cbio_enabled else ()),
             ],
             web_origins=[
+                f"{PUBLIC_URL}",
                 f"{PORTAL_PUBLIC_URL}",
                 *((f"{CBIOPORTAL_URL}",) if cbio_enabled else ()),
             ],
