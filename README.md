@@ -15,7 +15,7 @@ that make up the Bento platform.
 
 
 <div style="text-align:center">
-  <img src="https://github.com/bento-platform/bentoV2/blob/qa/v2.4/diagram.png?raw=true" alt="diagram" style="align:middle;"/>
+  <img src="https://github.com/bento-platform/bentoV2/blob/main/diagram.png?raw=true" alt="diagram" style="align:middle;"/>
 </div>
 
 
