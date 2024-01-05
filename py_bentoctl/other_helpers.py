@@ -205,6 +205,7 @@ def init_dirs():
         "redis": "BENTOV2_REDIS_VOL_DIR",
         "reference-db": "BENTO_REFERENCE_DB_VOL_DIR",
         "wes": "BENTOV2_WES_VOL_DIR",
+        "wes-tmp": "BENTOV2_WES_VOL_TMP_DIR",
 
         # Feature-specific volume dirs - only if the relevant feature is enabled.
         #  - internal IdP

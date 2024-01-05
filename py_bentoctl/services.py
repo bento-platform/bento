@@ -29,7 +29,7 @@ BENTO_SERVICES_DATA_BY_KIND = {
 
 BENTO_USER_EXCLUDED_SERVICES = (
     "auth",
-    "authz-db"
+    "authz-db",
     "gateway",
     "katsu-db",
     "redis",
