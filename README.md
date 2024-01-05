@@ -33,7 +33,7 @@ that make up the Bento platform.
 ## Documentation
 
 * [Guide to genomic reference material in Bento](./docs/reference_material.md)
-* [Troubleshooting guide](./docs/trouble_shooting.md)
+* [Troubleshooting guide](./docs/troubleshooting.md)
 
 ### Migration documents
 
@@ -722,4 +722,4 @@ This will run a set of both unit `(TODO)` and integration tests. See the `Makefi
 
 ## Troubleshooting
 
-[Troubleshooting guide.](./docs/trouble_shooting.md)
+[Troubleshooting guide.](./docs/troubleshooting.md)

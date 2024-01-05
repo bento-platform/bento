@@ -1,9 +1,11 @@
-#   Troubleshooting Bento
+# Troubleshooting Bento
 
 Common issues can arise when developing on Bento, or when deploying it to a server. 
 This document lists known pitfalls that can be encountered and their solutions.
 
+
 ## Basics
+
 Useful commands used to diagnose and fix issues.
 
 ### Accessing service logs
@@ -51,9 +53,11 @@ One can also start and stop services individually, e.g.:
 
 
 ## Docker
+
 Issues related to Docker.
 
 ### Mounted files
+
 ***How to notice:*** A service is experiencing issues and logs reveal it is trying to load a directory as a file.
 
 Confirguration files for some services are provided to the container as file mounts, 
