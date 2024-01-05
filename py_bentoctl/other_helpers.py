@@ -212,6 +212,9 @@ def init_dirs():
         **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
     }
 
+    # Some of these don't use the Bento user inside their containers, so ignore if need be
+    ignore_permissions_for = {"authz-db", "katsu-db", "redis", "reference-db"}
+
     task_print("Creating temporary secrets directory if needed...")
     secrets_dir = pathlib.Path.cwd() / "tmp" / "secrets"
     secrets_dir_exists = secrets_dir.exists()
@@ -230,7 +233,8 @@ def init_dirs():
         data_dir_path = pathlib.Path(data_dir)
         already_exists = data_dir_path.exists()
 
-        if already_exists and (data_dir_owner := data_dir_path.owner()) != c.BENTO_USERNAME:
+        if already_exists and dir_for not in ignore_permissions_for and \
+                (data_dir_owner := data_dir_path.owner()) != c.BENTO_USERNAME:
             err(f"error: data directory {data_dir_path} exists, but is owned by {data_dir_owner} instead of "
                 f"{c.BENTO_USERNAME}. please fix this!")
             exit(1)
