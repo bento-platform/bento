@@ -30,7 +30,7 @@ that make up the Bento platform.
 
 * [`bentoctl`: the Bento deployment command line management tool](./docs/bentoctl.md)
 * [Installation](./docs/installation.md)
-* [Development]()
+* [Development](./docs/development.md)
 * [Troubleshooting guide](./docs/troubleshooting.md)
 
 ### Data ingestion and usage
