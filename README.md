@@ -107,6 +107,9 @@ For an overview of `bentoctl`'s features, type the following from the root of th
 
 ## Installation
 
+Before running any installation steps, make sure you've set up `bentoctl` and have activated its 
+virtual environment.
+
 ### 1. Provision configuration files
 
 #### Instance-specific environment variable file: `local.env`
