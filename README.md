@@ -36,10 +36,12 @@ that make up the Bento platform.
 ### Data ingestion and usage
 
 * [Guide to genomic reference material in Bento](./docs/reference_material.md)
+* [Converting Phenopackets from V1 to V2 using `bentoctl`](./docs/phenopackets_v1_to_v2.md) 
 
 ### Migration documents
 
 * [v14 to v15](./docs/migrating_to_15.md)
+  * [Converting Phenopackets from V1 to V2 using `bentoctl`](./docs/phenopackets_v1_to_v2.md) 
 * [v13 to v14](./docs/migrating_to_14.md)
 * [v12 to v13](./docs/migrating_to_13.md)
 * [v2.11 to v12](./docs/migrating_to_12.md)
