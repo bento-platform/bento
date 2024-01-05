@@ -191,7 +191,8 @@ def init_dirs():
     data_dir_vars = {
         "root": "BENTOV2_ROOT_DATA_DIR",
         "authz-db": "BENTO_AUTHZ_DB_VOL_DIR",
-        "drs": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
+        "drs-data": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
+        "drs-tmp": "BENTO_DRS_TMP_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
         "gohan": "BENTOV2_GOHAN_DATA_ROOT",
         "gohan-elasticsearch": "BENTOV2_GOHAN_ES_DATA_DIR",
@@ -223,14 +224,15 @@ def init_dirs():
 
         data_dir = os.getenv(dir_var)
         if data_dir is None:
-            err(f"error: {dir_for} data directory ({dir_var}) is not set")
+            err(f"error: {dir_for} data directory environment variable '{dir_var}' is not set")
             exit(1)
 
         data_dir_path = pathlib.Path(data_dir)
         already_exists = data_dir_path.exists()
 
         if already_exists and (data_dir_owner := data_dir_path.owner()) != c.BENTO_USERNAME:
-            err(f"error: data directory {data_dir_path} exists, but is owned by {data_dir_owner}. please fix this!")
+            err(f"error: data directory {data_dir_path} exists, but is owned by {data_dir_owner} instead of "
+                f"{c.BENTO_USERNAME}. please fix this!")
             exit(1)
 
         data_dir_path.mkdir(parents=True, exist_ok=True)
