@@ -214,7 +214,7 @@ def init_dirs():
     }
 
     # Some of these don't use the Bento user inside their containers, so ignore if need be
-    ignore_permissions_for = set(BENTO_USER_EXCLUDED_SERVICES)
+    ignore_permissions_for = set(*BENTO_USER_EXCLUDED_SERVICES)
 
     task_print("Creating temporary secrets directory if needed...")
     secrets_dir = pathlib.Path.cwd() / "tmp" / "secrets"
