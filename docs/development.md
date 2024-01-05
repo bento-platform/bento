@@ -1,5 +1,8 @@
 # Development
 
+Before running any installation steps, make sure you've 
+[set up `bentoctl` and have activated its virtual environment](./bentoctl.md).
+
 ## Accessing containers with `bentoctl`
 
 To start a shell session within a particular container, use the following command (here, `web` is used as an example):

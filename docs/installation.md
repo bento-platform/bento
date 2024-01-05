@@ -2,7 +2,7 @@
 
 ## 1. Set up `bentoctl`
 
-See the following guide: [`bentoctl`: the Bento deployment command line management tool](./docs/bentoctl.md)
+See the following guide: [`bentoctl`: the Bento deployment command line management tool](./bentoctl.md)
 
 Before running any installation steps, make sure you've set up `bentoctl` and have activated its 
 virtual environment.
