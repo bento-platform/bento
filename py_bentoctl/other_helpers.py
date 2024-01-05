@@ -12,6 +12,7 @@ from termcolor import cprint
 from datetime import datetime, timezone
 
 from . import config as c
+from .services import BENTO_USER_EXCLUDED_SERVICES
 from .openssl import create_cert, create_private_key
 from .utils import info, task_print, task_print_done, warn, err
 
@@ -213,7 +214,7 @@ def init_dirs():
     }
 
     # Some of these don't use the Bento user inside their containers, so ignore if need be
-    ignore_permissions_for = {"authz-db", "katsu-db", "redis", "reference-db"}
+    ignore_permissions_for = {**BENTO_USER_EXCLUDED_SERVICES}
 
     task_print("Creating temporary secrets directory if needed...")
     secrets_dir = pathlib.Path.cwd() / "tmp" / "secrets"

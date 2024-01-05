@@ -10,6 +10,7 @@ from .state import MODE_LOCAL, MODE_PREBUILT, get_state, set_state_services
 from .utils import info, err
 
 __all__ = [
+    "BENTO_USER_EXCLUDED_SERVICES",
     "run_service",
     "stop_service",
     "restart_service",
