@@ -1,6 +1,8 @@
 # Bento
 
-Bento is a collection of free and open source microservices used to construct data-focused platforms. 
+Bento is a collection of free and open source microservices used to construct data-focused platforms, developed by the
+[Canadian Centre for Computational Genomics](https://computationalgenomics.ca/) in Montréal.
+
 By adhering to existing and anticipated standardized APIs, it facilitates interactions between 
 various -omic science global communities. Its reusable and interoperable components reduce the 
 complexity and overhead of constructing data distribution portals.
