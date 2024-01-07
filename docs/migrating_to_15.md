@@ -22,10 +22,11 @@ Before updating, perform the following steps:
 ```
 
 
-## 3. Create new Docker networks for the reference service and database
+## 3. Create new Docker volume directories and networks
 
 ```bash
-./bentoctl.bash init-docker
+./bentoctl.bash init-docker  # new networks for reference and reference-db
+./bentoctl.bash init-dirs  # new volume directory for DRS temporary files
 ```
 
 
