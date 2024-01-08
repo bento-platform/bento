@@ -12,6 +12,7 @@ from termcolor import cprint
 from datetime import datetime, timezone
 
 from . import config as c
+from .services import BENTO_USER_EXCLUDED_SERVICES
 from .openssl import create_cert, create_private_key
 from .utils import info, task_print, task_print_done, warn, err
 
@@ -191,7 +192,8 @@ def init_dirs():
     data_dir_vars = {
         "root": "BENTOV2_ROOT_DATA_DIR",
         "authz-db": "BENTO_AUTHZ_DB_VOL_DIR",
-        "drs": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
+        "drs-data": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
+        "drs-tmp": "BENTO_DRS_TMP_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
         "gohan": "BENTOV2_GOHAN_DATA_ROOT",
         "gohan-elasticsearch": "BENTOV2_GOHAN_ES_DATA_DIR",
@@ -203,6 +205,7 @@ def init_dirs():
         "redis": "BENTOV2_REDIS_VOL_DIR",
         "reference-db": "BENTO_REFERENCE_DB_VOL_DIR",
         "wes": "BENTOV2_WES_VOL_DIR",
+        "wes-tmp": "BENTOV2_WES_VOL_TMP_DIR",
 
         # Feature-specific volume dirs - only if the relevant feature is enabled.
         #  - internal IdP
@@ -210,6 +213,9 @@ def init_dirs():
         #  - cBioPortal
         **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
     }
+
+    # Some of these don't use the Bento user inside their containers, so ignore if need be
+    ignore_permissions_for = set(BENTO_USER_EXCLUDED_SERVICES)
 
     task_print("Creating temporary secrets directory if needed...")
     secrets_dir = pathlib.Path.cwd() / "tmp" / "secrets"
@@ -223,14 +229,16 @@ def init_dirs():
 
         data_dir = os.getenv(dir_var)
         if data_dir is None:
-            err(f"error: {dir_for} data directory ({dir_var}) is not set")
+            err(f"error: {dir_for} data directory environment variable '{dir_var}' is not set")
             exit(1)
 
         data_dir_path = pathlib.Path(data_dir)
         already_exists = data_dir_path.exists()
 
-        if already_exists and (data_dir_owner := data_dir_path.owner()) != c.BENTO_USERNAME:
-            err(f"error: data directory {data_dir_path} exists, but is owned by {data_dir_owner}. please fix this!")
+        if already_exists and dir_for not in ignore_permissions_for and \
+                (data_dir_owner := data_dir_path.owner()) != c.BENTO_USERNAME:
+            err(f"error: data directory {data_dir_path} exists, but is owned by {data_dir_owner} instead of "
+                f"{c.BENTO_USERNAME}. please fix this!")
             exit(1)
 
         data_dir_path.mkdir(parents=True, exist_ok=True)
