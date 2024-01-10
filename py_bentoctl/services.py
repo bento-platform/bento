@@ -10,6 +10,7 @@ from .state import MODE_LOCAL, MODE_PREBUILT, get_state, set_state_services
 from .utils import info, err
 
 __all__ = [
+    "BENTO_USER_EXCLUDED_SERVICES",
     "run_service",
     "stop_service",
     "restart_service",
@@ -28,9 +29,11 @@ BENTO_SERVICES_DATA_BY_KIND = {
 
 BENTO_USER_EXCLUDED_SERVICES = (
     "auth",
+    "authz-db",
     "gateway",
     "katsu-db",
     "redis",
+    "reference-db",
 )
 
 
@@ -86,6 +89,8 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
     "notification": ("BENTOV2_NOTIFICATION_IMAGE", "BENTOV2_NOTIFICATION_VERSION", "BENTOV2_NOTIFICATION_VERSION_DEV"),
     "public": ("BENTO_PUBLIC_IMAGE", "BENTO_PUBLIC_VERSION", "BENTO_PUBLIC_VERSION_DEV"),
     "redis": ("BENTOV2_REDIS_BASE_IMAGE", "BENTOV2_REDIS_BASE_IMAGE_VERSION", None),
+    "reference": ("BENTO_REFERENCE_IMAGE", "BENTO_REFERENCE_VERSION", "BENTO_REFERENCE_VERSION_DEV"),
+    "reference-db": ("BENTO_REFERENCE_DB_BASE_IMAGE", "BENTO_REFERENCE_DB_BASE_IMAGE_VERSION", None),
     "service-registry": ("BENTOV2_SERVICE_REGISTRY_IMAGE", "BENTOV2_SERVICE_REGISTRY_VERSION",
                          "BENTOV2_SERVICE_REGISTRY_VERSION_DEV"),
     "web": ("BENTOV2_WEB_IMAGE", "BENTOV2_WEB_VERSION", "BENTOV2_WEB_VERSION_DEV"),

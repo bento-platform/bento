@@ -65,6 +65,7 @@ DOCKER_COMPOSE_FILE_BEACON = "./lib/beacon/docker-compose.beacon.yaml"
 DOCKER_COMPOSE_FILE_CBIOPORTAL = "./lib/cbioportal/docker-compose.cbioportal.yaml"
 DOCKER_COMPOSE_FILE_GOHAN = "./lib/gohan/docker-compose.gohan.yaml"
 DOCKER_COMPOSE_FILE_PUBLIC = "./lib/public/docker-compose.public.yaml"
+DOCKER_COMPOSE_FILE_REFERENCE = "./lib/reference/docker-compose.reference.yaml"
 
 USER = os.getenv("USER")
 
@@ -154,6 +155,7 @@ BASE_SERVICES: Tuple[str, ...] = tuple(itertools.chain.from_iterable(_get_enable
     DOCKER_COMPOSE_FILE_CBIOPORTAL,
     DOCKER_COMPOSE_FILE_GOHAN,
     DOCKER_COMPOSE_FILE_PUBLIC,
+    DOCKER_COMPOSE_FILE_REFERENCE,
 )))
 
 # Load dev docker-compose services list if in DEV_MODE
@@ -180,3 +182,5 @@ BENTO_SERVICES_COMPOSE_IDS_PLUS_ALL: Tuple[str, ...] = (*BENTO_SERVICES_COMPOSE_
 BENTO_ORCHESTRATION_STATE_DB_FILE = os.getenv("BENTO_ORCHESTRATION_STATE_DB", "./.bentoctl.state.db")
 
 MULTI_SERVICE_PREFIXES = ("gohan",)
+
+PHENOTOOL_PATH = os.getenv("PHENOTOOL_JAR_PATH", "")

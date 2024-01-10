@@ -138,6 +138,16 @@ services:
     ports:
       - 8080:8080
 
+  elasticvue:
+    image: cars10/elasticvue:0.44.0
+    container_name: ${BENTOV2_PREFIX}-elasticvue
+    restart: unless-stopped
+    networks:
+      - gohan-es-net
+      - default
+    ports:
+      - 8081:8080
+
   aggregation:
     environment:
       - BENTO_DEBUG=True
@@ -242,11 +252,32 @@ services:
       file: docker-compose.yaml
       service: event-relay
 
+  reference:
+    environment:
+      - BENTO_DEBUG=True
+      - BENTO_VALIDATE_SSL=False
+      - LOG_LEVEL=debug
+    ports:
+      - "${BENTO_REFERENCE_EXTERNAL_PORT}:${BENTO_REFERENCE_INTERNAL_PORT}"
+    extends:
+      file: $PWD/lib/reference/docker-compose.reference.yaml
+      service: reference
+
+  reference-db:
+    extends:
+      file: $PWD/lib/reference/docker-compose.reference.yaml
+      service: reference-db
+    ports:
+      - "${BENTO_REFERENCE_DB_EXTERNAL_PORT}:5432"
+
   gohan-elasticsearch:
     # In dev / on Mac, sometimes this will trip up and decide there isn't enough disk space even when there is.
     # See https://stackoverflow.com/questions/48119189/elasticsearch-6-index-change-to-read-only-after-few-second
     environment:
       "cluster.routing.allocation.disk.threshold_enabled": "false"
+      "http.cors.enabled": "true"
+      "http.cors.allow-origin": "http://localhost:8081"
+      "http.cors.allow-headers": X-Requested-With,Content-Type,Content-Length,Authorization
     extends:
       file: $PWD/lib/gohan/docker-compose.gohan.yaml
       service: gohan-elasticsearch

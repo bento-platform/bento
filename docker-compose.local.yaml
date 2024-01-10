@@ -5,6 +5,7 @@ services:
     image: ${BENTOV2_WEB_IMAGE}:${BENTOV2_WEB_VERSION_DEV}
     volumes:
       - ./repos/web:/web
+      - ./packs:/packs
     environment:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
@@ -17,6 +18,7 @@ services:
     image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION_DEV}
     volumes:
       - ./repos/public:/bento-public
+      - ./packs:/packs
     environment:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
@@ -181,6 +183,18 @@ services:
     extends:
       file: docker-compose.dev.yaml
       service: event-relay
+
+  reference:
+    image: ${BENTO_REFERENCE_IMAGE}:${BENTO_REFERENCE_VERSION_DEV}
+    environment:
+      - BENTO_GIT_NAME
+      - BENTO_GIT_EMAIL
+      - BENTO_GIT_REPOSITORY_DIR=/reference
+    volumes:
+      - ./repos/reference:/reference
+    extends:
+      file: docker-compose.dev.yaml
+      service: reference
 
   gohan-api:
     image: ${BENTOV2_GOHAN_API_IMAGE}:${BENTOV2_GOHAN_API_VERSION_DEV}

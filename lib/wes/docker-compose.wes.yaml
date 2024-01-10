@@ -21,7 +21,7 @@ services:
       #/wes/womtool.jar
       # Allow-list (comma-separated) for hosts that workflow files can be downloaded
       # from - prevents possibly insecure WDLs from being run
-      - WORKFLOW_HOST_ALLOW_LIST=${BENTOV2_GOHAN_API_CONTAINER_NAME}:${BENTOV2_GOHAN_API_INTERNAL_PORT},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
+      - WORKFLOW_HOST_ALLOW_LIST=${BENTOV2_GOHAN_API_CONTAINER_NAME}:${BENTOV2_GOHAN_API_INTERNAL_PORT},${BENTOV2_DOMAIN},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
 
       # Service URLS
       - DRS_URL=${BENTOV2_PUBLIC_URL}/api/drs
@@ -42,7 +42,6 @@ services:
     networks:
       - wes-net
       - redis-net  # Talks to Redis for event pub/sub and job queueing
-      - drs-net
     expose:
       - ${BENTOV2_WES_INTERNAL_PORT}
     mem_limit: ${BENTOV2_WES_MEM_LIMIT}
@@ -58,9 +57,6 @@ services:
       - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data:ro  # Read only access to drop box contents via file path
 
 networks:
-  drs-net:
-    external: true
-    name: ${BENTO_DRS_NETWORK}
   redis-net:
     external: true
     name: ${BENTO_REDIS_NETWORK}
