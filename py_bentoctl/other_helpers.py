@@ -316,12 +316,17 @@ def stash_element_extra_properties(phenopacket: dict, element_name: str, stash: 
 
 
 def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: dict):
-    if element_name not in stash:
+    element_stash = stash.get(element_name)
+    if not element_stash:
         # Exit if no stash to apply
         return
 
-    element_stash = stash.get(element_name, {})
-    element = phenopacket.get(element_name, {})
+    element = phenopacket.get(element_name)
+
+    if element_stash and not element:
+        error_msg = f"Stash exists for element_name {element_name} but key is not in phenopacket {phenopacket['id']}"
+        raise ValueError(error_msg)
+
     if type(element) is list:
         for idx, item in enumerate(element):
             if "id" in item and item["id"] in element_stash:
@@ -444,6 +449,10 @@ def _convert_phenopacket(phenopacket: dict, idx: int | None = None):
     Runs the equivalent of 'cat some_file.json | pxf convert -f json -e phenopacket'
     Phenopacket-tools docs: http://phenopackets.org/phenopacket-tools/stable/cli.html#commands
     """
+    import humps
+
+    # Put all keys in snake_case for concistency
+    phenopacket = humps.decamelize(phenopacket)
 
     # Preprocessing
     formated_pheno = format_phenov1(phenopacket)
@@ -467,8 +476,14 @@ def _convert_phenopacket(phenopacket: dict, idx: int | None = None):
     # Load converted output
     converted = json.loads(stdout)
 
+    # Post conversion decamelize, phenotool may put keys in camelCase, which can break extra_properties
+    converted = humps.decamelize(converted)
+
     # Apply stashed extra_properties
     apply_extra_properties(converted, stashed_extra_properties)
+
+    # Katsu only accepts "2.0"
+    converted["meta_data"]["phenopacket_schema_version"] = "2.0"
 
     # remove empty/none keys
     converted = remove_null_none_empty(converted)

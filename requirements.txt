@@ -11,6 +11,7 @@ packaging==23.2
 pycodestyle==2.11.1
 pycparser==2.21
 pyflakes==3.1.0
+pyhumps==3.8.0
 PyYAML==6.0.1
 requests==2.31.0
 termcolor==2.3.0
