@@ -301,14 +301,16 @@ def init_docker(client: docker.DockerClient):
             client.networks.create(net_name, **net_kwargs)
             task_print_done(f"network created (name: {net_name}).")
 
+
 EXTRA_PROPERTIES_KEY = "extra_properties"
 EXTRA_PROPERTIES_ELEMENTS = [
     "subject",
     "biosamples",
     "diseases",
     "phenotypic_features",
-    EXTRA_PROPERTIES_KEY, # phenopacket.extra_properties
+    EXTRA_PROPERTIES_KEY,  # phenopacket.extra_properties
 ]
+
 
 def stash_element_extra_properties(phenopacket: dict, element_name: str, stash: dict):
     element = phenopacket.get(element_name, {})
@@ -333,7 +335,7 @@ def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: 
     if not element_stash:
         # Exit if no stash to apply
         return
-    
+
     if element_name == EXTRA_PROPERTIES_KEY:
         # Early exit for non-nested phenopacket.extra_properties
         phenopacket[EXTRA_PROPERTIES_KEY] = element_stash
