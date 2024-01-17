@@ -301,18 +301,31 @@ def init_docker(client: docker.DockerClient):
             client.networks.create(net_name, **net_kwargs)
             task_print_done(f"network created (name: {net_name}).")
 
+EXTRA_PROPERTIES_KEY = "extra_properties"
+EXTRA_PROPERTIES_ELEMENTS = [
+    "subject",
+    "biosamples",
+    "diseases",
+    "phenotypic_features",
+    EXTRA_PROPERTIES_KEY, # phenopacket.extra_properties
+]
 
 def stash_element_extra_properties(phenopacket: dict, element_name: str, stash: dict):
     element = phenopacket.get(element_name, {})
     if type(element) is list:
+        # Stash with indexes if phenopacket[element_name] is a list
         for idx, item in enumerate(element):
             # Align with item index if no "id" in the element item
             item_id = item.get("id", idx)
-            if extra_properties := item.pop("extra_properties", None):
+            if extra_properties := item.pop(EXTRA_PROPERTIES_KEY, None):
                 stash[element_name][item_id] = extra_properties
 
-    elif extra_properties := element.pop("extra_properties", None):
+    elif extra_properties := element.pop(EXTRA_PROPERTIES_KEY, None):
+        # Stash object if phenopacket[element_name] is not empty
         stash[element_name] = extra_properties
+    elif element_name == EXTRA_PROPERTIES_KEY and element:
+        # Stash object if phenopacket.extra_properties
+        stash[element_name] = phenopacket.pop(EXTRA_PROPERTIES_KEY)
 
 
 def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: dict):
@@ -320,7 +333,13 @@ def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: 
     if not element_stash:
         # Exit if no stash to apply
         return
+    
+    if element_name == EXTRA_PROPERTIES_KEY:
+        # Early exit for non-nested phenopacket.extra_properties
+        phenopacket[EXTRA_PROPERTIES_KEY] = element_stash
+        return
 
+    # Continue for phenopacket[element_name].extra_properties
     element = phenopacket.get(element_name)
 
     if element_stash and not element:
@@ -330,15 +349,12 @@ def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: 
     if type(element) is list:
         for idx, item in enumerate(element):
             if "id" in item and item["id"] in element_stash:
-                item["extra_properties"] = element_stash[item["id"]]
+                item[EXTRA_PROPERTIES_KEY] = element_stash[item["id"]]
             elif idx in element_stash:
-                item["extra_properties"] = element_stash[idx]
+                item[EXTRA_PROPERTIES_KEY] = element_stash[idx]
 
     else:
-        element["extra_properties"] = element_stash
-
-
-EXTRA_PROPERTIES_ELEMENTS = ["subject", "biosamples", "diseases", "phenotypic_features"]
+        element[EXTRA_PROPERTIES_KEY] = element_stash
 
 
 def stash_phenopacket_extra_properties(phenopacket: dict):
