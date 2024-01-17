@@ -23,12 +23,14 @@ cp ./etc/bento_dev.env local.env
 cp ./etc/bento_deploy.env local.env
 ```
 
-Then, modify the values as seen; depending on if you're using the instance for development or deployment.
+Then, modify the values as needed; depending on if you're using the instance for development or deployment.
 
 
 #### Development example
 
 The below is an example of a completed development configuration:
+
+For an example 
 
 ```bash
 # in local.env:
@@ -36,6 +38,8 @@ The below is an example of a completed development configuration:
 MODE=dev
 
 # Gateway/domains -----------------------------------------------------
+#  - Switch to disable TLS - defaults to 0 (i.e., use TLS):
+BENTO_GATEWAY_NO_TLS='false'
 BENTOV2_DOMAIN=bentov2.local
 BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
 BENTOV2_AUTH_DOMAIN=bentov2auth.local
