@@ -147,7 +147,7 @@ def create_keycloak_client_or_exit(
     })
 
     if not res.ok:
-        err(f"    Failed to create client: {client_id}; {res.json()}")
+        err(f"    Failed to create client: {client_id}; {res.status_code} {res.json()}")
         exit(1)
 
 
@@ -166,7 +166,7 @@ def init_auth(docker_client: docker.DockerClient):
             ))
 
         if not res.ok:
-            err(f"  Failed to sign in as {AUTH_ADMIN_USER}; {res.json()}")
+            err(f"  Failed to sign in as {AUTH_ADMIN_USER}; {res.status_code} {res.json()}")
             exit(1)
 
         return res.json()
@@ -196,7 +196,7 @@ def init_auth(docker_client: docker.DockerClient):
             })
 
         if not create_realm_res.ok:
-            err(f"    Failed to create realm: {AUTH_REALM}; {create_realm_res.json()}")
+            err(f"    Failed to create realm: {AUTH_REALM}; {create_realm_res.status_code} {create_realm_res.json()}")
             exit(1)
 
     def create_web_client_if_needed(token: str) -> None:
@@ -252,7 +252,8 @@ def init_auth(docker_client: docker.DockerClient):
 
         client_secret_data = client_secret_res.json()
         if not client_secret_res.ok:
-            err(f"    Failed to get client secret for {WES_CLIENT_ID}; {client_secret_data}")
+            err(f"    Failed to get client secret for {WES_CLIENT_ID}; {client_secret_res.status_code} "
+                f"{client_secret_data}")
             exit(1)
 
         client_secret = client_secret_data["value"]
@@ -292,7 +293,7 @@ def init_auth(docker_client: docker.DockerClient):
                 ],
             })
         if not create_user_res.ok:
-            err(f"    Failed to create user: {AUTH_TEST_USER}; {create_user_res.json()}")
+            err(f"    Failed to create user: {AUTH_TEST_USER}; {create_user_res.status_code} {create_user_res.json()}")
             exit(1)
 
     def success():
