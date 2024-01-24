@@ -274,7 +274,7 @@ def init_auth(docker_client: docker.DockerClient):
 
         for u in existing_users:
             if u["username"] == AUTH_TEST_USER:
-                warn(f"    Found existing user: {AUTH_TEST_USER}; using that.")
+                warn(f"    Found existing user: {AUTH_TEST_USER} (ID={u['id']}); using that.")
                 return
 
         create_user_res = keycloak_req(
@@ -292,8 +292,12 @@ def init_auth(docker_client: docker.DockerClient):
                     }
                 ],
             })
-        if not create_user_res.ok:
-            err(f"    Failed to create user: {AUTH_TEST_USER}; {create_user_res.status_code} {create_user_res.json()}")
+
+        create_user_res_data = create_user_res.json()
+        if create_user_res.ok:
+            cprint(f"    Created user: {AUTH_TEST_USER} (ID={create_user_res_data['id']}).", "green")
+        else:
+            err(f"    Failed to create user: {AUTH_TEST_USER}; {create_user_res.status_code} {create_user_res_data}")
             exit(1)
 
     def success():
