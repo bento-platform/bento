@@ -133,7 +133,7 @@ def create_keycloak_client_or_exit(
 
             **({
                 # Allowed redirect_uri values when using the logout endpoint from Keycloak
-                "post.logout.redirect.uris": redirect_uris,
+                "post.logout.redirect.uris": "##".join(redirect_uris),
             } if standard_flow_enabled else {}),
 
             "access.token.lifespan": access_token_lifespan,  # default access token lifespan: 15 minutes
