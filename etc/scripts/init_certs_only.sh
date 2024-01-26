@@ -11,13 +11,13 @@ cd $BENTO_PROJECT_DIR && source etc/default_config.env && source local.env;
 
 domains () {
   if [ $1 = 'gateway' ]; then
-    echo "-d $BENTOV2_DOMAIN -d $BENTOV2_PORTAL_DOMAIN"
+    echo -d $BENTOV2_DOMAIN -d $BENTOV2_PORTAL_DOMAIN
   fi
   if [ $1 = 'auth' ]; then
-    echo "-d $BENTOV2_AUTH_DOMAIN"
+    echo -d $BENTOV2_AUTH_DOMAIN
   fi
   if [ $1 = 'cbioportal' ]; then
-    echo "-d $BENTOV2_CBIOPORTAL_DOMAIN"
+    echo -d $BENTOV2_CBIOPORTAL_DOMAIN
   fi
 }
 
@@ -51,13 +51,13 @@ do
   docker run -it --rm --name certbot \
     -v "$LOCAL_LE:/etc/letsencrypt" -v "$LOCAL_LE/lib:/var/lib/letsencrypt" \
     -p 80:80 -p 443:443 \
-    certbot/certbot certonly "$DOMAIN_FLAGS" --dry-run
+    certbot/certbot certonly $DOMAIN_FLAGS --dry-run
 
   # Real deal
   docker run -it --rm --name certbot \
     -v "$LOCAL_LE:/etc/letsencrypt" -v "$LOCAL_LE/lib:/var/lib/letsencrypt" \
     -p 80:80 -p 443:443 \
-    certbot/certbot certonly "$DOMAIN_FLAGS"
+    certbot/certbot certonly $DOMAIN_FLAGS
   
-  # sudo chown -R $BENTO_UID:$BENTO_UID $LOCAL_CERTS
+  sudo chown -R $BENTO_UID:$BENTO_UID $LOCAL_CERTS
 done
