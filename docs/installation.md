@@ -67,6 +67,8 @@ BENTOV2_SESSION_SECRET=my-very-secret-session-secret  # !!! ADD SOMETHING MORE S
 
 #  - Set auth DB password if using a local IDP
 BENTO_AUTH_DB_PASSWORD=some-secure-password
+#  - Always set authz DB password
+BENTO_AUTHZ_DB_PASSWORD=some-other-secure-password
 
 BENTOV2_AUTH_ADMIN_USER=admin
 BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
@@ -92,6 +94,12 @@ BENTOV2_KATSU_APP_SECRET=some-random-phrase-here   # !!! ADD SOMETHING MORE SECU
 BENTO_GIT_NAME=David  # Change this to your name
 BENTO_GIT_EMAIL=do-not-reply@example.org  # Change this to your GitHub account email
 ```
+
+You should at least fill to the following settings in dev mode (it may differ for a production setup), which are not set in the example file:
+* BENTOV2_SESSION_SECRET
+* BENTO_AUTH_DB_PASSWORD
+* BENTO_AUTHZ_DB_PASSWORD
+* BENTO_WES_CLIENT_SECRET
 
 If the internal OIDC identity provider (IdP) is being used (by default, Keycloak), variables specifying default 
 credentials should also be provided. The *admin* credentials are used to connect to the Keycloak UI for authentication 
@@ -247,7 +255,7 @@ which in Keycloak should be a UUID.
 
 ### b. Create grants for the Workflow Execution Service (WES) OAuth2 client
 
-Run the following commands to set up authorization for the WES client:
+Run the following commands to set up authorization for the WES client. Don't forget to replace `ISSUER_HERE` by the issuer URL!
 
 ```bash
 # This grant is a temporary hack to get permissions working for v12/v13. In the future, it should be removed.
