@@ -15,17 +15,15 @@ services:
       - ${BENTOV2_AUTH_CERTS_DIR}${BENTOV2_AUTH_PRIVKEY_RELATIVE_PATH}:/run/secrets/keycloak-cert-key-file:ro
     environment:
       - BENTO_UID
-      - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
       - KEYCLOAK_ADMIN=${BENTOV2_AUTH_ADMIN_USER}
       - KEYCLOAK_ADMIN_PASSWORD=${BENTOV2_AUTH_ADMIN_PASSWORD}
       - KC_DB=postgres
       - KC_DB_URL=jdbc:postgresql://${BENTO_AUTH_DB_CONTAINER_NAME}:5432/${BENTO_AUTH_DB}
       - KC_DB_USERNAME=${BENTO_AUTH_DB_USER}
       - KC_DB_PASSWORD=${BENTO_AUTH_DB_PASSWORD}
+      - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
       # the below environment variables are set up in etc/bento_post_config.bash based on the value of the
       # BENTO_GATEWAY_USE_TLS environment variable.
-      - KC_PROXY
-      - KC_HOSTNAME_STRICT
       - KC_HOSTNAME_STRICT_HTTPS
       - KC_HTTP_ENABLED
       - KC_HTTPS_CERTIFICATE_FILE
