@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ "$BENTO_GATEWAY_USE_TLS" != 'true' && "$BENTO_GATEWAY_USE_TLS" != '1' ]]; do
+if [[ "$BENTO_GATEWAY_USE_TLS" != 'true' && "$BENTO_GATEWAY_USE_TLS" != '1' ]]; then
   KC_PROXY='none'
   KC_HOSTNAME_STRICT='true'
   KC_HOSTNAME_STRICT_HTTPS='true'
