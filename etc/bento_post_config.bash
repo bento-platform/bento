@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-echo "BENTO_GATEWAY_USE_TLS = $BENTO_GATEWAY_USE_TLS"
-
 if [[ "$BENTO_GATEWAY_USE_TLS" == 'true' || "$BENTO_GATEWAY_USE_TLS" == '1' ]]; then
   KC_PROXY='none'
   KC_HOSTNAME_STRICT='true'
