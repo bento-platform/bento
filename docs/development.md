@@ -193,7 +193,7 @@ Katsu database during development.
 Go to `localhost:8080` to access the login page. Fill the fields with the values shown below, using the value of
 `BENTOV2_KATSU_DB_PASSWORD` for the password field.
 
-![Adminer login](docs/img/adminer_login.png)
+![Adminer login](img/adminer_login.png)
 
 
 ## Using Elasticvue
@@ -208,7 +208,7 @@ port 9200 (e.g. http://192.168.48.2:9200), it can be found with this command:
 
 Note: the CORS instructions have already been taken care of in the `docker-compose.dev.yaml` file.
 
-![Elasticvue login](docs/img/elasticview_login.png)
+![Elasticvue login](img/elasticview_login.png)
 
 
 ## Converting Phenopackets
