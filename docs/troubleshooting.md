@@ -79,7 +79,7 @@ How to notice: Services are experiencing errors because they are unable to read 
 This is often a permission being denied because the host paths of volumes are owned by `root`, verify with: 
 
 ```shell
-ls -la ${BENTOV2_ROOT_DATA_DIR} # For data volumes
+ls -la data/ # For data volumes
 ls -la lib/ # For configuration volumes
 ```
 
