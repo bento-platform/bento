@@ -79,7 +79,8 @@ How to notice: Services are experiencing errors because they are unable to read 
 This is often a permission being denied because the host paths of volumes are owned by `root`, verify with: 
 
 ```shell
-ls -la data/ # For data volumes
+ls -la ${BENTO_SLOW_DATA_DIR} # For "slow" data volumes
+ls -la ${BENTO_FAST_DATA_DIR} # For "fast" data volumes
 ls -la lib/ # For configuration volumes
 ```
 
