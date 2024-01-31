@@ -30,8 +30,6 @@ Then, modify the values as needed; depending on if you're using the instance for
 
 The below is an example of a completed development configuration:
 
-For an example 
-
 ```bash
 # in local.env:
 
