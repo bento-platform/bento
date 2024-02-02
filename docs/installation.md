@@ -252,7 +252,8 @@ which in Keycloak should be a UUID.
 
 ### b. Create grants for the Workflow Execution Service (WES) OAuth2 client
 
-Run the following commands to set up authorization for the WES client. Don't forget to replace `ISSUER_HERE` by the issuer URL!
+Run the following commands to set up authorization for the WES client. Don't forget to replace `ISSUER_HERE` by the 
+issuer URL!
 
 ```bash
 # This grant is a temporary hack to get permissions working for v12/v13. In the future, it should be removed.
