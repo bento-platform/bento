@@ -91,11 +91,12 @@ BENTO_GIT_NAME=David  # Change this to your name
 BENTO_GIT_EMAIL=do-not-reply@example.org  # Change this to your GitHub account email
 ```
 
-You should at least fill to the following settings in dev mode (it may differ for a production setup), which are not set in the example file:
-* BENTOV2_SESSION_SECRET
-* BENTO_AUTH_DB_PASSWORD
-* BENTO_AUTHZ_DB_PASSWORD
-* BENTO_WES_CLIENT_SECRET
+You should at least fill to the following settings in dev mode (it may differ for a production setup), which are not set 
+in the example file:
+* `BENTOV2_SESSION_SECRET`
+* `BENTO_AUTH_DB_PASSWORD`
+* `BENTO_AUTHZ_DB_PASSWORD`
+* `BENTO_WES_CLIENT_SECRET`
 
 If the internal OIDC identity provider (IdP) is being used (by default, Keycloak), variables specifying default 
 credentials should also be provided. The *admin* credentials are used to connect to the Keycloak UI for authentication 
