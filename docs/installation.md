@@ -23,7 +23,7 @@ cp ./etc/bento_dev.env local.env
 cp ./etc/bento_deploy.env local.env
 ```
 
-Then, modify the values as seen; depending on if you're using the instance for development or deployment.
+Then, modify the values as needed; depending on if you're using the instance for development or deployment.
 
 
 #### Development example
@@ -46,9 +46,14 @@ BENTOV2_CBIOPORTAL_DOMAIN=cbioportal.${BENTOV2_DOMAIN}
 # Feature switches ----------------------------------------------------
 BENTOV2_USE_EXTERNAL_IDP=0
 BENTOV2_USE_BENTO_PUBLIC=1
-BENTOV2_PRIVATE_MODE=false
 
-BENTO_CBIOPORTAL_ENABLED=false
+#  - Switch to enable TLS - defaults to true (i.e., use TLS):
+BENTO_GATEWAY_USE_TLS='true'
+
+BENTO_BEACON_ENABLED='true'
+BENTO_BEACON_UI_ENABLED='true'
+BENTO_CBIOPORTAL_ENABLED='false'
+BENTO_GOHAN_ENABLED='true'
 # ---------------------------------------------------------------------
 
 # set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
