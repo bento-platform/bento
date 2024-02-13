@@ -35,6 +35,7 @@ that make up the Bento platform.
 * [Installation](./docs/installation.md)
 * [Development](./docs/development.md)
 * [Troubleshooting guide](./docs/troubleshooting.md)
+* [Deployment](./docs/deployment.md)
 
 ### Data ingestion and usage
 
