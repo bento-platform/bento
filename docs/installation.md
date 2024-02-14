@@ -56,8 +56,11 @@ BENTO_CBIOPORTAL_ENABLED='false'
 BENTO_GOHAN_ENABLED='true'
 # ---------------------------------------------------------------------
 
-# set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
-BENTOV2_ROOT_DATA_DIR=./data
+# Set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
+# Data directories are split to better use SSD and HDD resources in prod.
+# In dev/local it is more convenient to use a single directory
+BENTO_FAST_DATA_DIR=./data 
+BENTO_SLOW_DATA_DIR=./data
 
 # Auth ----------------------------------------------------------------
 #  - Session secret should be set to a unique secure value.
