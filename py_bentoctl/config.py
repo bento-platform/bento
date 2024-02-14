@@ -104,6 +104,7 @@ class BentoOptionalFeature:
 
 BENTOV2_USE_EXTERNAL_IDP: bool = _env_get_bool("BENTOV2_USE_EXTERNAL_IDP", default=False)
 BENTOV2_USE_BENTO_PUBLIC: bool = _env_get_bool("BENTOV2_USE_BENTO_PUBLIC", default=True)
+BENTO_DOMAIN_REDIRECT: str = os.getenv("BENTO_DOMAIN_REDIRECT", default=None)
 
 BENTO_FEATURE_AUTH = BentoOptionalFeature(enabled=not BENTOV2_USE_EXTERNAL_IDP, profile="auth")
 BENTO_FEATURE_BEACON = BentoOptionalFeature(
@@ -113,6 +114,7 @@ BENTO_FEATURE_CBIOPORTAL = BentoOptionalFeature(
 BENTO_FEATURE_GOHAN = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_GOHAN_ENABLED", default=False), profile="gohan")
 BENTO_FEATURE_PUBLIC = BentoOptionalFeature(enabled=BENTOV2_USE_BENTO_PUBLIC, profile="public")
+BENTO_FEATURE_REDIRECT = BentoOptionalFeature(enabled=BENTO_DOMAIN_REDIRECT, profile="redirect")
 
 if not DEV_MODE and BENTO_FEATURE_CBIOPORTAL.enabled:
     import sys

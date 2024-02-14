@@ -144,6 +144,13 @@ def init_self_signed_certs(force: bool):
             "crt": "cbioportal_fullchain1.crt",
             "dir": gateway_certs_dir,
         }} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
+
+        **({"redirect": {
+            "var": "BENTO_DOMAIN_REDIRECT",
+            "priv_key_name": "redirect_privkey1.key",
+            "crt": "redirect_fullchain1.crt",
+            "dir": gateway_certs_dir,
+        }} if c.BENTO_FEATURE_REDIRECT.enabled else {}),
     }
 
     # Init cert directories
