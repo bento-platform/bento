@@ -11,12 +11,14 @@ BENTOV2_AUTH_DOMAIN=auth.${BENTOV2_DOMAIN}
 BENTOV2_CBIOPORTAL_DOMAIN=cbioportal.${BENTOV2_DOMAIN}
 ```
 
-For a real deployment, make sure that your `local.env` file uses valid domain names for which SSL certificates can be obtained.
+For a real deployment, make sure that your `local.env` file uses valid domain names for which SSL certificates 
+can be obtained.
 
 ## Certificates paths
 
 In production mode, Bento must use valid SSL certificates instead of self-signed ones.
-Before requesting certificates, make sure that you override the following environment variables in your `local.env` file.
+Before requesting certificates, make sure that you override the following environment 
+variables in your `local.env` file.
 
 ```bash
 BENTOV2_AUTH_FULLCHAIN_RELATIVE_PATH=/live/$BENTOV2_AUTH_DOMAIN/fullchain.pem
@@ -61,7 +63,8 @@ Note that this script will shutdown auth and gateway during the certificate rene
 ## Permanently redirect a domain
 
 If a Bento instance must use a new domain, the gateway can redirect requests from the old domain to the new one. 
-This is advised to prevent dead links, see [301](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301) response status reference.
+This is advised to prevent dead links, see [301](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301) 
+response status reference.
 
 For this to work, you **must** update the old domain's DNS record to point to the new instance's IP, 
 otherwise you won't be able to obtain the certificates.
