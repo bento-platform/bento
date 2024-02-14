@@ -30,14 +30,19 @@ Before updating, perform the following steps:
 ```
 
 
-## 4. Restart Bento
+## 4. Set new environment variables
+
+In `local.env`, set a secure value for `BENTO_REFERENCE_DB_PASSWORD`.
+
+
+## 5. Restart Bento
 
 ```bash
 ./bentoctl.bash start
 ```
 
 
-## 5. Add permissions
+## 6. Add permissions
 
 Add permissions as needed for reference service content management:
 
