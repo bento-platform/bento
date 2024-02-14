@@ -144,6 +144,13 @@ def init_self_signed_certs(force: bool):
             "crt": "cbioportal_fullchain1.crt",
             "dir": gateway_certs_dir,
         }} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
+
+        **({"redirect": {
+            "var": "BENTO_DOMAIN_REDIRECT",
+            "priv_key_name": "redirect_privkey1.key",
+            "crt": "redirect_fullchain1.crt",
+            "dir": gateway_certs_dir,
+        }} if c.BENTO_FEATURE_REDIRECT.enabled else {}),
     }
 
     # Init cert directories
@@ -302,38 +309,61 @@ def init_docker(client: docker.DockerClient):
             task_print_done(f"network created (name: {net_name}).")
 
 
+EXTRA_PROPERTIES_KEY = "extra_properties"
+EXTRA_PROPERTIES_ELEMENTS = [
+    "subject",
+    "biosamples",
+    "diseases",
+    "phenotypic_features",
+    EXTRA_PROPERTIES_KEY,  # phenopacket.extra_properties
+]
+
+
 def stash_element_extra_properties(phenopacket: dict, element_name: str, stash: dict):
     element = phenopacket.get(element_name, {})
     if type(element) is list:
+        # Stash with indexes if phenopacket[element_name] is a list
         for idx, item in enumerate(element):
             # Align with item index if no "id" in the element item
             item_id = item.get("id", idx)
-            if extra_properties := item.pop("extra_properties", None):
+            if extra_properties := item.pop(EXTRA_PROPERTIES_KEY, None):
                 stash[element_name][item_id] = extra_properties
 
-    elif extra_properties := element.pop("extra_properties", None):
+    elif extra_properties := element.pop(EXTRA_PROPERTIES_KEY, None):
+        # Stash object if phenopacket[element_name] is not empty
         stash[element_name] = extra_properties
+    elif element_name == EXTRA_PROPERTIES_KEY and element:
+        # Stash object if phenopacket.extra_properties
+        stash[element_name] = phenopacket.pop(EXTRA_PROPERTIES_KEY)
 
 
 def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: dict):
-    if element_name not in stash:
+    element_stash = stash.get(element_name)
+    if not element_stash:
         # Exit if no stash to apply
         return
 
-    element_stash = stash.get(element_name, {})
-    element = phenopacket.get(element_name, {})
+    if element_name == EXTRA_PROPERTIES_KEY:
+        # Early exit for non-nested phenopacket.extra_properties
+        phenopacket[EXTRA_PROPERTIES_KEY] = element_stash
+        return
+
+    # Continue for phenopacket[element_name].extra_properties
+    element = phenopacket.get(element_name)
+
+    if element_stash and not element:
+        error_msg = f"Stash exists for element_name {element_name} but key is not in phenopacket {phenopacket['id']}"
+        raise ValueError(error_msg)
+
     if type(element) is list:
         for idx, item in enumerate(element):
             if "id" in item and item["id"] in element_stash:
-                item["extra_properties"] = element_stash[item["id"]]
+                item[EXTRA_PROPERTIES_KEY] = element_stash[item["id"]]
             elif idx in element_stash:
-                item["extra_properties"] = element_stash[idx]
+                item[EXTRA_PROPERTIES_KEY] = element_stash[idx]
 
     else:
-        element["extra_properties"] = element_stash
-
-
-EXTRA_PROPERTIES_ELEMENTS = ["subject", "biosamples", "diseases", "phenotypic_features"]
+        element[EXTRA_PROPERTIES_KEY] = element_stash
 
 
 def stash_phenopacket_extra_properties(phenopacket: dict):
@@ -444,6 +474,10 @@ def _convert_phenopacket(phenopacket: dict, idx: int | None = None):
     Runs the equivalent of 'cat some_file.json | pxf convert -f json -e phenopacket'
     Phenopacket-tools docs: http://phenopackets.org/phenopacket-tools/stable/cli.html#commands
     """
+    import humps
+
+    # Put all keys in snake_case for concistency
+    phenopacket = humps.decamelize(phenopacket)
 
     # Preprocessing
     formated_pheno = format_phenov1(phenopacket)
@@ -467,8 +501,14 @@ def _convert_phenopacket(phenopacket: dict, idx: int | None = None):
     # Load converted output
     converted = json.loads(stdout)
 
+    # Post conversion decamelize, phenotool may put keys in camelCase, which can break extra_properties
+    converted = humps.decamelize(converted)
+
     # Apply stashed extra_properties
     apply_extra_properties(converted, stashed_extra_properties)
+
+    # Katsu only accepts "2.0"
+    converted["meta_data"]["phenopacket_schema_version"] = "2.0"
 
     # remove empty/none keys
     converted = remove_null_none_empty(converted)
