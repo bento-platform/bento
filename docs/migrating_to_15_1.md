@@ -14,7 +14,7 @@ source env/bin/activate
 Then, install the latest requirements / module versions:
 
 ```bash
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 
