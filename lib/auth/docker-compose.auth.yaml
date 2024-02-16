@@ -7,6 +7,7 @@ services:
         condition: service_healthy
     expose:
       - ${BENTOV2_AUTH_INTERNAL_PORT}
+      - ${BENTOV2_AUTH_INTERNAL_PORT_PLAIN_HTTP}
     networks:
       - auth-net
       - auth-db-net
