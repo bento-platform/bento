@@ -28,6 +28,7 @@ services:
       - KC_HTTP_ENABLED
       - KC_HTTPS_CERTIFICATE_FILE
       - KC_HTTPS_CERTIFICATE_KEY_FILE
+      - KC_PROXY
     mem_limit: ${BENTOV2_AUTH_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_AUTH_CPUS}
     cpu_shares: 512
