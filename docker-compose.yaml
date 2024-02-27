@@ -1,3 +1,12 @@
+include:
+  - path: $PWD/lib/aggregation/docker-compose.aggregation.yaml
+  - path: $PWD/lib/authz/docker-compose.authz.yaml
+  - path: $PWD/lib/drs/docker-compose.drs.yaml
+  - path: $PWD/lib/katsu/docker-compose.katsu.yaml
+  - path: $PWD/lib/reference/docker-compose.reference.yaml
+  - path: $PWD/lib/web/docker-compose.web.yaml
+  - path: $PWD/lib/wes/docker-compose.wes.yaml
+
 services:
   gateway:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION}
@@ -160,39 +169,10 @@ services:
 
 
   # AUTH:
-  # auth and auth-db included via extra compose file: lib/auth/docker-compose.auth.yaml
+  # auth and auth-db included via extra, optional compose file: lib/auth/docker-compose.auth.yaml
 
   # PUBLIC:
-  # public included via extra compose file: lib/public/docker-compose.public.yaml
-
-
-  authz:
-    extends:
-      file: $PWD/lib/authz/docker-compose.authz.yaml
-      service: authz
-
-  authz-db:
-    extends:
-      file: $PWD/lib/authz/docker-compose.authz.yaml
-      service: authz-db
-
-
-  web:
-    extends:
-      file: $PWD/lib/web/docker-compose.web.yaml
-      service: web
-
-
-  katsu:
-    extends:
-      file: $PWD/lib/katsu/docker-compose.katsu.yaml
-      service: katsu
-
-  katsu-db:
-    extends:
-      file: $PWD/lib/katsu/docker-compose.katsu.yaml
-      service: katsu-db
-
+  # public included via extra, optional  compose file: lib/public/docker-compose.public.yaml
 
   drop-box:
     image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
@@ -266,14 +246,6 @@ services:
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
 
-  drs:
-    networks:
-      - drs-net
-    extends:
-      file: $PWD/lib/drs/docker-compose.drs.yaml
-      service: drs
-
-
   notification:
     image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION}
     container_name: ${BENTOV2_NOTIFICATION_CONTAINER_NAME}
@@ -301,12 +273,6 @@ services:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_NOTIFICATION_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
-
-
-  aggregation:
-    extends:
-      file: $PWD/lib/aggregation/docker-compose.aggregation.yaml
-      service: aggregation
 
 
   event-relay:
@@ -365,23 +331,6 @@ services:
       interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
 
 
-  reference:
-    extends:
-      file: $PWD/lib/reference/docker-compose.reference.yaml
-      service: reference
-
-  reference-db:
-    extends:
-      file: $PWD/lib/reference/docker-compose.reference.yaml
-      service: reference-db
-
-
-  wes:
-    extends:
-      file: $PWD/lib/wes/docker-compose.wes.yaml
-      service: wes
-
-
   redis:
     image: ${BENTOV2_REDIS_BASE_IMAGE}:${BENTOV2_REDIS_BASE_IMAGE_VERSION}
     container_name: ${BENTOV2_REDIS_CONTAINER_NAME}
@@ -400,13 +349,13 @@ services:
       interval: 15s  # Faster interval for services which others may require to be healthy
 
   # BEACON:
-  # beacon included via extra compose file: lib/beacon/docker-compose.beacon.yaml
+  # beacon included via extra, optional compose file: lib/beacon/docker-compose.beacon.yaml
 
   # GOHAN
-  # gohan-api and gohan-elasticsearch included via extra compose file: lib/gohan/docker-compose.gohan.yaml
+  # gohan-api and gohan-elasticsearch included via extra, optional compose file: lib/gohan/docker-compose.gohan.yaml
 
   # cBioPortal
-  # `cbioportal` included via extra compose file: lib/cbioportal/docker-compose.cbioportal.yaml
+  # `cbioportal` included via extra, optional compose file: lib/cbioportal/docker-compose.cbioportal.yaml
 
 
 # Lots of networks! Here, we have more or less one network per service, plus a few ones for databases
