@@ -1,0 +1,66 @@
+include:
+  - path: lib/redis/docker-compose.redis.yaml
+
+services:
+  event-relay:
+    image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION}
+    container_name: ${BENTOV2_EVENT_RELAY_CONTAINER_NAME}
+    environment:
+      # Default to production BENTO_DEBUG and NODE_ENV
+      - BENTO_DEBUG=false
+      - NODE_ENV=production
+
+      # If true, JSON_MESSAGES will parse all messages recieved from the subscription
+      # and de-serialize them before passing them to the socket.io connection.
+      # e.g. If the message {"test": true} is passed with JSON_MESSAGES on, the
+      # corresponding socket.io message will be:
+      # {"message": {"test": true}, "channel": "chord.something"}
+      # Otherwise, the message will be:
+      # {"message": "{\"test\": true}", "channel": "chord.something"}
+      - JSON_MESSAGES=true
+
+      # socket.io "path" for the server created by the service.
+      - SOCKET_IO_PATH=${BENTOV2_EVENT_RELAY_SOCKET_IO_PATH}
+
+      # CORS origins for connecting to the socket
+      - CORS_ORIGINS=${BENTOV2_PUBLIC_URL};${BENTOV2_PORTAL_PUBLIC_URL}
+
+      # Connection string (URL or path to UNIX socket file) for the Redis instance.
+      - REDIS_CONNECTION=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
+
+      # Subscription pattern the Redis PubSub connection. The default is configured
+      # to be chord.* for the Bento platform, but it can be set to anything.
+      # See https://redis.io/topics/pubsub and specifically the pattern-matching.
+      - REDIS_SUBSCRIBE_PATTERN=bento.*
+
+      # Where the service will listen for requests. Can be a UNIX socket path or a
+      # port number (e.g. 8080, which is the default value if nothing is set.)
+      # Will also check the SERVICE_SOCKET environment variable for legacy reasons
+      # related to the Bento platform.
+      # Use the standard Bento service internal port, overriding the default
+      - SERVICE_LISTEN_ON=${BENTO_STD_SERVICE_INTERNAL_PORT}
+
+      # Pass in authz service URL for authorizing socket connections
+      - BENTO_AUTHZ_SERVICE_URL=${BENTO_AUTHZ_SERVICE_URL}
+    depends_on:
+      - redis
+    networks:
+      - event-relay-net
+      - redis-net  # For event pub/sub
+    expose:
+      - ${BENTOV2_EVENT_RELAY_INTERNAL_PORT}
+    mem_limit: ${BENTOV2_EVENT_RELAY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_EVENT_RELAY_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_EVENT_RELAY_INTERNAL_PORT}/service-info" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+
+networks:
+  event-relay-net:
+    external: true
+    name: ${BENTO_EVENT_RELAY_NETWORK}
+  redis-net:
+    external: true
+    name: ${BENTO_REDIS_NETWORK}

@@ -5,9 +5,12 @@ import json
 import os
 import pathlib
 import pwd
+import subprocess
 import yaml
 
 from typing import Dict, Generator, List, Optional, Tuple
+
+from .utils import err
 
 __all__ = [
     "DOCKER_COMPOSE_FILE_BASE",
@@ -127,13 +130,25 @@ BENTO_GIT_CLONE_HTTPS: bool = os.getenv("BENTO_GIT_CLONE_HTTPS", "0").lower().st
 COMPOSE: Tuple[str, ...] = ("docker", "compose")
 
 
-def _get_enabled_services(compose_file: str, filter_out: Tuple[str, ...] = ()) -> Generator[str, None, None]:
+def _get_enabled_services(
+    compose_files: Tuple[str, ...],
+    filter_out: Tuple[str, ...] = (),
+) -> Generator[str, None, None]:
     # Loop through compose file and find enabled services - either no profiles specified,
     # or the profile of an enabled feature.
 
-    # Load base docker-compose services list
-    with open(compose_file) as dcf:
-        compose_data = yaml.load(dcf, yaml.Loader)
+    # Generate merged Docker Compose YAML using docker compose config command
+    r = subprocess.run(
+        (*COMPOSE, *itertools.chain.from_iterable(("-f", cf) for cf in compose_files), "config"),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
+
+    if r.returncode != 0:
+        err(f"Parsing compose file(s) {compose_files} failed with error:\n\t{r.stderr.decode('utf-8').strip()}")
+        exit(1)
+
+    # Load the compose data
+    compose_data = yaml.load(r.stdout, yaml.Loader)
 
     for k, v in compose_data["services"].items():
         if k in filter_out:
@@ -150,7 +165,7 @@ def _get_enabled_services(compose_file: str, filter_out: Tuple[str, ...] = ()) -
                 break
 
 
-BASE_SERVICES: Tuple[str, ...] = tuple(itertools.chain.from_iterable(_get_enabled_services(cf, ()) for cf in (
+BASE_SERVICES: Tuple[str, ...] = tuple(itertools.chain.from_iterable(_get_enabled_services((cf,), ()) for cf in (
     DOCKER_COMPOSE_FILE_BASE,
     DOCKER_COMPOSE_FILE_AUTH,
     DOCKER_COMPOSE_FILE_BEACON,
@@ -162,7 +177,7 @@ BASE_SERVICES: Tuple[str, ...] = tuple(itertools.chain.from_iterable(_get_enable
 
 # Load dev docker-compose services list if in DEV_MODE
 DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = tuple(
-    _get_enabled_services(DOCKER_COMPOSE_FILE_DEV, BASE_SERVICES)) if DEV_MODE else ()
+    _get_enabled_services((DOCKER_COMPOSE_FILE_BASE, DOCKER_COMPOSE_FILE_DEV), BASE_SERVICES)) if DEV_MODE else ()
 
 # Final amalgamation of services for Bento taking into account dev/prod mode + profiles
 DOCKER_COMPOSE_SERVICES: Tuple[str, ...] = BASE_SERVICES + DOCKER_COMPOSE_DEV_SERVICES
