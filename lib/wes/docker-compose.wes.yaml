@@ -13,8 +13,9 @@ services:
       - CELERY_DEBUG=false
 
       - BENTO_EVENT_REDIS_URL=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
-      - DATABASE=/wes/data/bento_wes.db
       - SERVICE_ID=
+      - SERVICE_DATA=/wes/data
+      - DATABASE=/wes/data/bento_wes.db
       - SERVICE_TEMP=/wes/tmp
       - SERVICE_BASE_URL=${BENTOV2_PUBLIC_URL}/api/wes/
       - WOM_TOOL_LOCATION=/womtool.jar
