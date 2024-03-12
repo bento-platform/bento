@@ -407,5 +407,5 @@ def logs_service(compose_service: str, follow: bool) -> None:
         (*_get_service_specific_compose(compose_service), "logs", *extra_args, compose_service))
 
 
-def compose_config() -> None:
-    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "config"))
+def compose_config(services_flag: bool) -> None:
+    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "config", *(("--services",) if services_flag else ())))

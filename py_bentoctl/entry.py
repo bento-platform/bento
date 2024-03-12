@@ -201,8 +201,12 @@ class Logs(SubCommand):
 class ComposeConfig(SubCommand):
 
     @staticmethod
+    def add_args(sp):
+        sp.add_argument("--services", action="store_true", help="List services seen by Compose.")
+
+    @staticmethod
     def exec(args):
-        s.compose_config()
+        s.compose_config(args.services)
 
 
 # Other helpers
