@@ -19,6 +19,7 @@ __all__ = [
     "enter_shell_for_service",
     "run_as_shell_for_service",
     "logs_service",
+    "compose_config",
 ]
 
 BENTO_SERVICES_DATA_BY_KIND = {
@@ -404,3 +405,7 @@ def logs_service(compose_service: str, follow: bool) -> None:
     os.execvp(
         c.COMPOSE[0],
         (*_get_service_specific_compose(compose_service), "logs", *extra_args, compose_service))
+
+
+def compose_config() -> None:
+    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "config"))
