@@ -18,12 +18,6 @@ __all__ = [
     "DOCKER_COMPOSE_FILE_LOCAL",
     "DOCKER_COMPOSE_FILE_PROD",
 
-    "DOCKER_COMPOSE_FILE_AUTH",
-    "DOCKER_COMPOSE_FILE_BEACON",
-    "DOCKER_COMPOSE_FILE_CBIOPORTAL",
-    "DOCKER_COMPOSE_FILE_GOHAN",
-    "DOCKER_COMPOSE_FILE_PUBLIC",
-
     "DOCKER_COMPOSE_SERVICES",
     "DOCKER_COMPOSE_DEV_SERVICES",
 
@@ -62,13 +56,6 @@ DOCKER_COMPOSE_FILE_BASE = "./docker-compose.yaml"
 DOCKER_COMPOSE_FILE_DEV = "./docker-compose.dev.yaml"
 DOCKER_COMPOSE_FILE_LOCAL = "./docker-compose.local.yaml"
 DOCKER_COMPOSE_FILE_PROD = "./docker-compose.prod.yaml"
-
-DOCKER_COMPOSE_FILE_AUTH = "./lib/auth/docker-compose.auth.yaml"
-DOCKER_COMPOSE_FILE_BEACON = "./lib/beacon/docker-compose.beacon.yaml"
-DOCKER_COMPOSE_FILE_CBIOPORTAL = "./lib/cbioportal/docker-compose.cbioportal.yaml"
-DOCKER_COMPOSE_FILE_GOHAN = "./lib/gohan/docker-compose.gohan.yaml"
-DOCKER_COMPOSE_FILE_PUBLIC = "./lib/public/docker-compose.public.yaml"
-DOCKER_COMPOSE_FILE_REFERENCE = "./lib/reference/docker-compose.reference.yaml"
 
 USER = os.getenv("USER")
 
@@ -171,15 +158,7 @@ def _get_enabled_services(
                 break  # escape profile loop, we found one which enables this service
 
 
-BASE_SERVICES: Tuple[str, ...] = tuple(itertools.chain.from_iterable(_get_enabled_services((cf,), ()) for cf in (
-    DOCKER_COMPOSE_FILE_BASE,
-    DOCKER_COMPOSE_FILE_AUTH,
-    DOCKER_COMPOSE_FILE_BEACON,
-    DOCKER_COMPOSE_FILE_CBIOPORTAL,
-    DOCKER_COMPOSE_FILE_GOHAN,
-    DOCKER_COMPOSE_FILE_PUBLIC,
-    DOCKER_COMPOSE_FILE_REFERENCE,
-)))
+BASE_SERVICES: Tuple[str, ...] = tuple(_get_enabled_services((DOCKER_COMPOSE_FILE_BASE,), ()))
 
 # Load dev docker-compose services list if in DEV_MODE
 DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = tuple(
