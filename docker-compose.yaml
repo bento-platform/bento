@@ -1,6 +1,7 @@
 include:
   - path: lib/aggregation/docker-compose.aggregation.yaml
   - path: lib/authz/docker-compose.authz.yaml
+  - path: lib/drop-box/docker-compose.drop-box.yaml
   - path: lib/drs/docker-compose.drs.yaml
   - path: lib/katsu/docker-compose.katsu.yaml
   - path: lib/reference/docker-compose.reference.yaml
