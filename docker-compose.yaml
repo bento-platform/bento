@@ -1,15 +1,20 @@
 include:
   - path:
       - lib/aggregation/docker-compose.aggregation.yaml
+      - lib/auth/docker-compose.auth.yaml  # Optional feature; controlled by a compose profile
       - lib/authz/docker-compose.authz.yaml
+      - lib/beacon/docker-compose.beacon.yaml  # Optional feature; controlled by a compose profile
+      - lib/cbioportal/docker-compose.cbioportal.yaml  # Optional feature; controlled by a compose profile
       - lib/drop-box/docker-compose.drop-box.yaml
       - lib/drs/docker-compose.drs.yaml
+      - lib/gohan/docker-compose.gohan.yaml  # Optional feature; controlled by a compose profile
       - lib/katsu/docker-compose.katsu.yaml
+      - lib/public/docker-compose.public.yaml  # Optional feature; controlled by a compose profile
       - lib/reference/docker-compose.reference.yaml
       - lib/service-registry/docker-compose.service-registry.yaml
       - lib/web/docker-compose.web.yaml
       - lib/wes/docker-compose.wes.yaml
-    project_directory: ../..
+    project_directory: ../..  # Paths in the lib/* compose files must be relative to the Bento base directory
 
 services:
   gateway:
