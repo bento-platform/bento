@@ -117,7 +117,7 @@ BENTO_FEATURE_CBIOPORTAL = BentoOptionalFeature(
 BENTO_FEATURE_GOHAN = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_GOHAN_ENABLED", default=False), profile="gohan")
 BENTO_FEATURE_PUBLIC = BentoOptionalFeature(enabled=BENTOV2_USE_BENTO_PUBLIC, profile="public")
-BENTO_FEATURE_REDIRECT = BentoOptionalFeature(enabled=BENTO_DOMAIN_REDIRECT, profile="redirect")
+BENTO_FEATURE_REDIRECT = BentoOptionalFeature(enabled=bool(BENTO_DOMAIN_REDIRECT), profile="redirect")
 
 if not DEV_MODE and BENTO_FEATURE_CBIOPORTAL.enabled:
     import sys
@@ -137,9 +137,15 @@ def _get_enabled_services(
     # Loop through compose file and find enabled services - either no profiles specified,
     # or the profile of an enabled feature.
 
+    enabled_profiles = tuple(get_enabled_feature_profiles())
+
     # Generate merged Docker Compose YAML using docker compose config command
     r = subprocess.run(
-        (*COMPOSE, *itertools.chain.from_iterable(("-f", cf) for cf in compose_files), "config"),
+        (
+            *COMPOSE,
+            *itertools.chain.from_iterable(("-f", cf) for cf in compose_files),
+            *itertools.chain.from_iterable(("--profile", p) for p in enabled_profiles),
+            "config"),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE)
 
@@ -160,9 +166,9 @@ def _get_enabled_services(
             yield k
             continue
         for p in profiles:
-            if (f := BENTO_OPTIONAL_FEATURES_BY_PROFILE.get(p)) is not None and f.enabled:
+            if p in enabled_profiles:
                 yield k
-                break
+                break  # escape profile loop, we found one which enables this service
 
 
 BASE_SERVICES: Tuple[str, ...] = tuple(itertools.chain.from_iterable(_get_enabled_services((cf,), ()) for cf in (
