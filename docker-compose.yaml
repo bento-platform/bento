@@ -1,11 +1,11 @@
 include:
-  - path: $PWD/lib/aggregation/docker-compose.aggregation.yaml
-  - path: $PWD/lib/authz/docker-compose.authz.yaml
-  - path: $PWD/lib/drs/docker-compose.drs.yaml
-  - path: $PWD/lib/katsu/docker-compose.katsu.yaml
-  - path: $PWD/lib/reference/docker-compose.reference.yaml
-  - path: $PWD/lib/web/docker-compose.web.yaml
-  - path: $PWD/lib/wes/docker-compose.wes.yaml
+  - path: lib/aggregation/docker-compose.aggregation.yaml
+  - path: lib/authz/docker-compose.authz.yaml
+  - path: lib/drs/docker-compose.drs.yaml
+  - path: lib/katsu/docker-compose.katsu.yaml
+  - path: lib/reference/docker-compose.reference.yaml
+  - path: lib/web/docker-compose.web.yaml
+  - path: lib/wes/docker-compose.wes.yaml
 
 services:
   gateway:
