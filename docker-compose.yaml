@@ -1,5 +1,8 @@
 include:
-  - path:
+  - path:  # By including all compose files in a single include.path[], they will get merged together.
+      # ===== Gateway/ingress; in production, **ONLY THIS** should bind host ports =====
+      - lib/gateway/docker-compose.gateway.yaml
+      # ===== Services =================================================================
       - lib/aggregation/docker-compose.aggregation.yaml
       - lib/auth/docker-compose.auth.yaml  # Optional feature; controlled by a compose profile
       - lib/authz/docker-compose.authz.yaml
@@ -8,7 +11,6 @@ include:
       - lib/drop-box/docker-compose.drop-box.yaml
       - lib/drs/docker-compose.drs.yaml
       - lib/event-relay/docker-compose.event-relay.yaml
-      - lib/gateway/docker-compose.gateway.yaml  # Gateway/ingress; in production **only this** should bind host ports.
       - lib/gohan/docker-compose.gohan.yaml  # Optional feature; controlled by a compose profile
       - lib/katsu/docker-compose.katsu.yaml
       - lib/notification/docker-compose.notification.yaml
