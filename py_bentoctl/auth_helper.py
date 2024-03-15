@@ -36,6 +36,8 @@ AUTH_TEST_USER = os.getenv("BENTOV2_AUTH_TEST_USER")
 AUTH_TEST_PASSWORD = os.getenv("BENTOV2_AUTH_TEST_PASSWORD")
 AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
 
+CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
+
 WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
 WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT"))
 
@@ -151,6 +153,10 @@ def create_keycloak_client_or_exit(
         exit(1)
 
 
+def get_keycloak_client_secret(client_id: str, token: str):
+    return keycloak_req(f"{KC_CLIENTS_ENDPOINT}/{client_id}/client-secret", bearer_token=token)
+
+
 def init_auth(docker_client: docker.DockerClient):
     check_auth_admin_user()
 
@@ -204,8 +210,6 @@ def init_auth(docker_client: docker.DockerClient):
         if web_client_kc_id is not None:
             return
 
-        cbio_enabled = c.BENTO_FEATURE_CBIOPORTAL.enabled
-
         # Create the Bento public/web client
         create_keycloak_client_or_exit(
             token,
@@ -216,15 +220,45 @@ def init_auth(docker_client: docker.DockerClient):
             redirect_uris=[
                 f"{PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
                 f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
-                *((f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}",) if cbio_enabled else ()),
             ],
-            web_origins=[
-                f"{PUBLIC_URL}",
-                f"{PORTAL_PUBLIC_URL}",
-                *((f"{CBIOPORTAL_URL}",) if cbio_enabled else ()),
-            ],
+            web_origins=[PUBLIC_URL, PORTAL_PUBLIC_URL],
             access_token_lifespan=900,  # default access token lifespan: 15 minutes
             use_refresh_tokens=True,
+        )
+
+    def create_cbioportal_client_if_needed(token: str) -> None:
+        cbio_client_kc_id: Optional[str] = fetch_existing_client_id(token, CBIOPORTAL_CLIENT_ID)
+
+        if cbio_client_kc_id is None:
+            # Create the cBioportal client
+            create_keycloak_client_or_exit(
+                token,
+                CBIOPORTAL_CLIENT_ID,
+                standard_flow_enabled=True,
+                service_accounts_enabled=False,
+                public_client=False,
+                redirect_uris=[f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}"],
+                web_origins=[CBIOPORTAL_URL],
+                access_token_lifespan=900,  # 15 minutes
+                use_refresh_tokens=True,
+            )
+            cbio_client_kc_id = fetch_existing_client_id(token, CBIOPORTAL_CLIENT_ID)
+
+        # Fetch and print secret
+
+        client_secret_res = get_keycloak_client_secret(cbio_client_kc_id, token)
+
+        client_secret_data = client_secret_res.json()
+        if not client_secret_res.ok:
+            err(f"    Failed to get client secret for {CBIOPORTAL_CLIENT_ID}; {client_secret_res.status_code} "
+                f"{client_secret_data}")
+            exit(1)
+
+        client_secret = client_secret_data["value"]
+        cprint(
+            f"    Please set BENTO_CBIOPORTAL_CLIENT_SECRET to {client_secret} in local.env and restart the "
+            f"gateway",
+            attrs=["bold"],
         )
 
     def create_wes_client_if_needed(token: str) -> None:
@@ -247,8 +281,7 @@ def init_auth(docker_client: docker.DockerClient):
 
         # Fetch and print secret
 
-        client_secret_res = keycloak_req(
-            f"{KC_CLIENTS_ENDPOINT}/{wes_client_kc_id}/client-secret", bearer_token=token)
+        client_secret_res = get_keycloak_client_secret(wes_client_kc_id, token)
 
         client_secret_data = client_secret_res.json()
         if not client_secret_res.ok:
@@ -329,6 +362,11 @@ def init_auth(docker_client: docker.DockerClient):
     info(f"  Creating web client: {AUTH_CLIENT_ID}")
     create_web_client_if_needed(access_token)
     success()
+
+    if c.BENTO_FEATURE_CBIOPORTAL.enabled:
+        info(f"  Creating cBioPortal client: {CBIOPORTAL_CLIENT_ID}")
+        create_cbioportal_client_if_needed(access_token)
+        success()
 
     info(f"  Creating WES client: {WES_CLIENT_ID}")
     create_wes_client_if_needed(access_token)
