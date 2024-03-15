@@ -77,64 +77,22 @@ services:
       - BENTO_CBIOPORTAL_CONTAINER_NAME
       - BENTO_CBIOPORTAL_INTERNAL_PORT
     networks:
-      aggregation-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      auth-net:
-      authz-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      beacon-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      cbioportal-net:  # No aliases needed here; container for sure does not contact the gateway
-      drop-box-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      drs-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      event-relay-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      gohan-api-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      katsu-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      notification-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      public-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      reference-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      service-registry-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      web-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
-      wes-net:
-        aliases:
-          - ${BENTOV2_DOMAIN}
-          - ${BENTOV2_PORTAL_DOMAIN}
+      - aggregation-net
+      - auth-net
+      - authz-net
+      - beacon-net
+      - cbioportal-net
+      - drop-box-net
+      - drs-net
+      - event-relay-net
+      - gohan-api-net
+      - katsu-net
+      - notification-net
+      - public-net
+      - reference-net
+      - service-registry-net
+      - web-net
+      - wes-net
     ports:
       - "80:80"
       - "443:443"
