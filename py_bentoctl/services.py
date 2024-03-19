@@ -3,7 +3,7 @@ import pathlib
 import subprocess
 
 from termcolor import cprint
-from typing import Callable, Dict, Optional, Tuple
+from typing import Callable, Dict, Literal, Optional, Tuple
 
 from . import config as c
 from .state import MODE_LOCAL, MODE_PREBUILT, get_state, set_state_services
@@ -19,6 +19,7 @@ __all__ = [
     "enter_shell_for_service",
     "run_as_shell_for_service",
     "logs_service",
+    "compose_config",
 ]
 
 BENTO_SERVICES_DATA_BY_KIND = {
@@ -51,12 +52,8 @@ def _get_compose_with_files(dev: bool = False, local: bool = False):
         *c.COMPOSE,
         "-f", c.DOCKER_COMPOSE_FILE_BASE,
 
-        # Service/feature-specific compose files - profiles will take care of actual service enable/disable
-        "-f", c.DOCKER_COMPOSE_FILE_AUTH,
-        "-f", c.DOCKER_COMPOSE_FILE_BEACON,
-        "-f", c.DOCKER_COMPOSE_FILE_CBIOPORTAL,
-        "-f", c.DOCKER_COMPOSE_FILE_GOHAN,
-        "-f", c.DOCKER_COMPOSE_FILE_PUBLIC,
+        # Service/feature-specific compose files are not listed here
+        #  - includes + profiles will take care of incorporation + actual service enable/disable
 
         *(("-f", c.DOCKER_COMPOSE_FILE_DEV) if dev else ("-f", c.DOCKER_COMPOSE_FILE_PROD)),
         *(("-f", c.DOCKER_COMPOSE_FILE_LOCAL) if local else ()),
@@ -294,7 +291,7 @@ def mode_service(compose_service: str) -> None:
         exit(1)
 
     mode = service_state[compose_service]["mode"]
-    colour = "green" if mode == MODE_PREBUILT else "blue"
+    colour: Literal["green", "blue"] = "green" if mode == MODE_PREBUILT else "blue"
     if mode == MODE_PREBUILT and not c.DEV_MODE:
         mode += "\t(prod)"
     else:
@@ -404,3 +401,7 @@ def logs_service(compose_service: str, follow: bool) -> None:
     os.execvp(
         c.COMPOSE[0],
         (*_get_service_specific_compose(compose_service), "logs", *extra_args, compose_service))
+
+
+def compose_config(services_flag: bool) -> None:
+    os.execvp(c.COMPOSE[0], (*c.COMPOSE, "config", *(("--services",) if services_flag else ())))

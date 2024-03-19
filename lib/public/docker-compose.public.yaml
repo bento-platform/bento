@@ -40,9 +40,9 @@ services:
       - public
 
 networks:
-  katsu-db-net:
+  katsu-net:
     external: true
-    name: ${BENTO_KATSU_DB_NETWORK}
+    name: ${BENTO_KATSU_NETWORK}
   public-net:
     external: true
     name: ${BENTO_PUBLIC_NETWORK}
