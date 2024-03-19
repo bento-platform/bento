@@ -65,12 +65,12 @@ services:
       - BENTO_UID
       - ELASTIC_USERNAME=${BENTOV2_GOHAN_ES_USERNAME}
       - ELASTIC_PASSWORD=${BENTOV2_GOHAN_ES_PASSWORD}
-      - ${BENTOV2_GOHAN_ES_JAVA_OPTS}
       - xpack.security.enabled=true
       - discovery.type=${BENTOV2_GOHAN_ES_DISC_TYP}
       - ingest.geoip.downloader.enabled=false
     volumes:
       - ${BENTOV2_GOHAN_ES_DATA_DIR}:/usr/share/elasticsearch/data
+      - ${BENTO_GOHAN_ES_JVM_OPTIONS_DIR}:/usr/share/elasticsearch/config/jvm.options.d
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_GOHAN_ES_INTERNAL_PORT_1}" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
