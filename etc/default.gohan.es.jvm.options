@@ -1,2 +1,9 @@
+#########################################################
+## FOR DEVELOPMENT ONLY
+## Xms and Xmx MUST have the same value
+## Use no more than 50% of BENTOV2_GOHAN_ES_MEM_LIM
+## Default options assume 'BENTOV2_GOHAN_ES_MEM_LIM=4G'
+#########################################################
+
 -Xms2g
 -Xmx2g
