@@ -176,6 +176,7 @@ Set `Xms` and `Xmx` to no more than 50% of the `BENTOV2_GOHAN_ES_MEM_LIM` value.
 For more details, check the official Elasticsearch doc on 
 [heap size](https://www.elastic.co/guide/en/elasticsearch/reference/current/advanced-configuration.html#set-jvm-heap-size).
 
+
 ## 3. *Development only:* create self-signed TLS certificates 
 
 First, set up your local Bento and Keycloak hostnames (something like `bentov2.local`, `portal.bentov2.local`, and 
