@@ -142,13 +142,13 @@ cp ./etc/katsu.config.example.json ./lib/katsu/config.json
 
 #### Production
 
-When deploying a Bento node that needs to serve variants data, it is recommended to alot larger portions of your 
+When deploying a Bento node that needs to serve variants data, it is recommended to allot larger portions of your 
 compute resources to both `bentov2-gohan-api` and `bentov2-gohan-elasticsearch`.
 Since variants are stored in memory in Elasticsearch, set the `BENTOV2_GOHAN_ES_MEM_LIM` variable to an 
 appropriate value.
 
 
-Aloting additional CPUs with `BENTOV2_GOHAN_API_CPUS` and `BENTOV2_GOHAN_ES_CPUS` will result in shorter ingestion
+Alloting additional CPUs with `BENTOV2_GOHAN_API_CPUS` and `BENTOV2_GOHAN_ES_CPUS` will result in shorter ingestion
 times. Consider this option if you need to ingest a large number of VCFs.
 
 Go through the official Elasticsearch 
