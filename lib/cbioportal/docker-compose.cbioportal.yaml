@@ -1,7 +1,6 @@
 services:
   cbioportal:
     image: ${BENTO_CBIOPORTAL_IMAGE}:${BENTO_CBIOPORTAL_IMAGE_VERSION}
-    platform: linux/amd64  # No arm64 build
     container_name: ${BENTO_CBIOPORTAL_CONTAINER_NAME}
     environment:
       SHOW_DEBUG_INFO: "true"
@@ -51,7 +50,6 @@ services:
 
   cbioportal-session:
     image: ${BENTO_CBIOPORTAL_SESSION_IMAGE}:${BENTO_CBIOPORTAL_SESSION_IMAGE_VERSION}
-    platform: linux/amd64  # No arm64 build
     container_name: ${BENTO_CBIOPORTAL_SESSION_CONTAINER_NAME}
     environment:
       SERVER_PORT: ${BENTO_CBIOPORTAL_SESSION_SERVER_PORT}
