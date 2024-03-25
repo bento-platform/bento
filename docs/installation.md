@@ -126,7 +126,8 @@ BENTOV2_AUTH_REALM=bentov2
 BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
 ```
 
-### `bento_public` configuration
+
+### Bento Public configuration
 
 Then, copy the `bento_public` configuration file to its correct location for use by Katsu, 
 Bento's clinical/phenotypic metadata service:
@@ -138,7 +139,7 @@ cp ./etc/katsu.config.example.json ./lib/katsu/config.json
 ```
 
 
-### `gohan` configuration
+### Gohan configuration
 
 #### Production
 
