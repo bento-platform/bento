@@ -226,6 +226,7 @@ def init_auth(docker_client: docker.DockerClient):
             use_refresh_tokens=True,
         )
 
+    # noinspection PyUnusedLocal
     def create_cbioportal_client_if_needed(token: str) -> None:
         cbio_client_kc_id: Optional[str] = fetch_existing_client_id(token, CBIOPORTAL_CLIENT_ID)
 
@@ -363,10 +364,13 @@ def init_auth(docker_client: docker.DockerClient):
     create_web_client_if_needed(access_token)
     success()
 
-    if c.BENTO_FEATURE_CBIOPORTAL.enabled:
-        info(f"  Creating cBioPortal client: {CBIOPORTAL_CLIENT_ID}")
-        create_cbioportal_client_if_needed(access_token)
-        success()
+    # TODO: if cBioPortal ever needs auth implemented, re-enable this and set up Bento Gateway to handle cBioPortal
+    #  client authorization.
+    #   - David L, 2024-03-25
+    # if c.BENTO_FEATURE_CBIOPORTAL.enabled:
+    #     info(f"  Creating cBioPortal client: {CBIOPORTAL_CLIENT_ID}")
+    #     create_cbioportal_client_if_needed(access_token)
+    #     success()
 
     info(f"  Creating WES client: {WES_CLIENT_ID}")
     create_wes_client_if_needed(access_token)
