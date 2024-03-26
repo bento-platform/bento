@@ -106,11 +106,6 @@ BENTO_FEATURE_GOHAN = BentoOptionalFeature(
 BENTO_FEATURE_PUBLIC = BentoOptionalFeature(enabled=BENTOV2_USE_BENTO_PUBLIC, profile="public")
 BENTO_FEATURE_REDIRECT = BentoOptionalFeature(enabled=bool(BENTO_DOMAIN_REDIRECT), profile="redirect")
 
-if not DEV_MODE and BENTO_FEATURE_CBIOPORTAL.enabled:
-    import sys
-    print("cBioPortal for production deployments is not finished.", file=sys.stderr)
-    exit(1)
-
 
 BENTO_GIT_CLONE_HTTPS: bool = os.getenv("BENTO_GIT_CLONE_HTTPS", "0").lower().strip() in ("1", "true")
 
