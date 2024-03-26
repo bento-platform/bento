@@ -17,7 +17,7 @@ CBIOPORTAL_SCHEMA_SQL_URL = (
     f"/db-scripts/src/main/resources/cgds.sql"
 )
 CBIOPORTAL_SEED_DB_HG19_URL = (
-    "https://github.com/cBioPortal/datahub/raw/ef7e21214a84f31393e3dd197ca6b78a1fc42698/seedDB/"
+    "https://github.com/cBioPortal/datahub/raw/ef7e21214a84f31393e3dd197ca6b78a1fc42698/seedDB/seedDB_hg19_archive/"
     "seed-cbioportal_hg19_v2.12.14.sql.gz")
 CBIOPORTAL_SEED_DB_HG38_URL = (
     "https://github.com/cBioPortal/datahub/raw/ef7e21214a84f31393e3dd197ca6b78a1fc42698/seedDB/"
