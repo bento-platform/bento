@@ -8,8 +8,6 @@ services:
       - cbioportal-net
       - cbioportal-db-net
       - cbioportal-session-net
-    ports:
-      - "${BENTO_CBIOPORTAL_EXTERNAL_PORT}:${BENTO_CBIOPORTAL_INTERNAL_PORT}"
     volumes:
       - ${BENTO_CBIOPORTAL_STUDY_DIR}:/study/
       - ./lib/cbioportal/config/portal.properties:/cbioportal/portal.properties:ro

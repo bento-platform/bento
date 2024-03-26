@@ -228,3 +228,7 @@ services:
       "http.cors.enabled": "true"
       "http.cors.allow-origin": "http://localhost:8081"
       "http.cors.allow-headers": X-Requested-With,Content-Type,Content-Length,Authorization
+
+  cbioportal:
+    ports:
+      - "${BENTO_CBIOPORTAL_EXTERNAL_PORT}:${BENTO_CBIOPORTAL_INTERNAL_PORT}"
