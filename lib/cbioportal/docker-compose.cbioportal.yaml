@@ -10,7 +10,7 @@ services:
       - cbioportal-session-net
     volumes:
       - ${BENTO_CBIOPORTAL_STUDY_DIR}:/study/
-      - ./lib/cbioportal/config/portal.properties:/cbioportal/portal.properties:ro
+      - ${PWD}/lib/cbioportal/config/portal.properties:/cbioportal/portal.properties:ro
     depends_on:
       - cbioportal-db
       - cbioportal-session
@@ -39,9 +39,9 @@ services:
     networks:
       - cbioportal-db-net
     volumes:
-      - ./lib/cbioportal/seed_data/cgds.sql:/docker-entrypoint-initdb.d/cgds.sql:ro
-      - ./lib/cbioportal/seed_data/seed-hg19.sql.gz:/docker-entrypoint-initdb.d/seed-hg19.sql.gz:ro
-      # - ./lib/cbioportal/seed_data/seed-hg38.sql.gz:/docker-entrypoint-initdb.d/seed-hg38.sql.gz:ro
+      - ${PWD}/lib/cbioportal/seed_data/cgds.sql:/docker-entrypoint-initdb.d/cgds.sql:ro
+      # - ./lib/cbioportal/seed_data/seed-hg19.sql.gz:/docker-entrypoint-initdb.d/seed-hg19.sql.gz:ro
+      - ${PWD}/lib/cbioportal/seed_data/seed-hg38.sql.gz:/docker-entrypoint-initdb.d/seed-hg38.sql.gz:ro
       - ${BENTO_CBIOPORTAL_DATABASE_DATA_DIR}:/var/lib/mysql
     profiles:
       - cbioportal
