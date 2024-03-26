@@ -106,7 +106,6 @@ BENTO_FEATURE_GOHAN = BentoOptionalFeature(
 BENTO_FEATURE_PUBLIC = BentoOptionalFeature(enabled=BENTOV2_USE_BENTO_PUBLIC, profile="public")
 BENTO_FEATURE_REDIRECT = BentoOptionalFeature(enabled=bool(BENTO_DOMAIN_REDIRECT), profile="redirect")
 
-
 BENTO_GIT_CLONE_HTTPS: bool = os.getenv("BENTO_GIT_CLONE_HTTPS", "0").lower().strip() in ("1", "true")
 
 COMPOSE: Tuple[str, ...] = ("docker", "compose")
