@@ -16,10 +16,12 @@ CBIOPORTAL_SCHEMA_SQL_URL = (
     f"https://raw.githubusercontent.com/cBioPortal/cbioportal/v{CBIOPORTAL_VERSION}"
     f"/db-scripts/src/main/resources/cgds.sql"
 )
-CBIOPORTAL_SEED_DB_HG19_URL = \
-    "https://github.com/cBioPortal/datahub/raw/master/seedDB/seed-cbioportal_hg19_v2.12.14.sql.gz"
-CBIOPORTAL_SEED_DB_HG38_URL = \
-    "https://github.com/cBioPortal/datahub/raw/master/seedDB/seed-cbioportal_hg19_hg38_v2.13.1.sql.gz"
+CBIOPORTAL_SEED_DB_HG19_URL = (
+    "https://github.com/cBioPortal/datahub/raw/ef7e21214a84f31393e3dd197ca6b78a1fc42698/seedDB/"
+    "seed-cbioportal_hg19_v2.12.14.sql.gz")
+CBIOPORTAL_SEED_DB_HG38_URL = (
+    "https://github.com/cBioPortal/datahub/raw/ef7e21214a84f31393e3dd197ca6b78a1fc42698/seedDB/"
+    "seed-cbioportal_hg19_hg38_v2.13.1.sql.gz")
 
 CBIOPORTAL_SEED_DATA_PATH = pathlib.Path(__file__).parent.parent / "lib" / "cbioportal" / "seed_data"
 CBIOPORTAL_SCHEMA_PATH = CBIOPORTAL_SEED_DATA_PATH / "cgds.sql"
