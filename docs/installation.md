@@ -126,7 +126,8 @@ BENTOV2_AUTH_REALM=bentov2
 BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
 ```
 
-### `bento_public` configuration
+
+### Bento Public configuration
 
 Then, copy the `bento_public` configuration file to its correct location for use by Katsu, 
 Bento's clinical/phenotypic metadata service:
@@ -136,6 +137,45 @@ Bento's clinical/phenotypic metadata service:
 # See Katsu documentation for more information about the specifications
 cp ./etc/katsu.config.example.json ./lib/katsu/config.json
 ```
+
+
+### Gohan configuration
+
+#### Production
+
+When deploying a Bento node that needs to serve variants data, it is recommended to allot larger portions of your 
+compute resources to both `bentov2-gohan-api` and `bentov2-gohan-elasticsearch`.
+Since variants are stored in memory in Elasticsearch, set the `BENTOV2_GOHAN_ES_MEM_LIM` variable to an 
+appropriate value.
+
+
+Alloting additional CPUs with `BENTOV2_GOHAN_API_CPUS` and `BENTOV2_GOHAN_ES_CPUS` will result in shorter ingestion
+times. Consider this option if you need to ingest a large number of VCFs.
+
+Go through the official Elasticsearch 
+[checklist](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-prod-prerequisites) 
+for production deployments on Docker.
+
+The following configurations **MUST** be applied to the host machine deploying the Elasticsearch container:
+* [Set `vm.max_map_count`](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_set_vm_max_map_count_to_at_least_262144)
+* [Disable swapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#swappiness)
+
+
+#### Elasticsearch JVM options
+
+In **production**, using the default JVM options provided by Elasticsearch is **recommended**.
+
+In **development**, modifying the JVM heap size could be needed if Elasticsearch's memory limit 
+is low and you are trying to ingest VCFs.
+The heap size can be modified by providing a config file to the `bentov2_gohan-elasticsearch` container:
+
+```bash
+cp ./etc/default.gohan.es.jvm.options ./lib/gohan/es_jvm_options/jvm.options
+```
+
+Set `Xms` and `Xmx` to no more than 50% of the `BENTOV2_GOHAN_ES_MEM_LIM` value.
+For more details, check the official Elasticsearch doc on 
+[heap size](https://www.elastic.co/guide/en/elasticsearch/reference/current/advanced-configuration.html#set-jvm-heap-size).
 
 
 ## 3. *Development only:* create self-signed TLS certificates 

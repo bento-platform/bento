@@ -44,6 +44,7 @@ that make up the Bento platform.
 
 ### Migration documents
 
+* [v15.1 to v15.2](./docs/migrating_to_15_2.md)
 * [v15 to v15.1](./docs/migrating_to_15_1.md)
 * [v14 to v15](./docs/migrating_to_15.md)
   * [Converting Phenopackets from V1 to V2 using `bentoctl`](./docs/phenopackets_v1_to_v2.md) 
