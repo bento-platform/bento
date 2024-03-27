@@ -72,7 +72,7 @@ git checkout [...]
 # Tag 1 => BENTOV2_WEB_IMAGE:BENTOV2_WEB_VERSION
 # Tag 2 => BENTOV2_WEB_IMAGE:BENTOV2_WEB_VERSION_DEV
 docker build -f dev.Dockerfile . \
-  -t ghcr.io/bento-platform/bento_web:localonly
+  -t ghcr.io/bento-platform/bento_web:localonly \
   -t ghcr.io/bento-platform/bento_web:localonly-dev
 
 # Back to root
