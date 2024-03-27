@@ -47,6 +47,10 @@ lib/public/*
 !lib/public/.gitkeep
 !lib/public/docker-compose.public.yaml
 
+# gohan_elasticsearch
+lib/gohan/es_jvm_options/*
+!lib/gohan/es_jvm_options/.gitkeep
+
 # temp test stuff
 etc/tests/*/__pycache__
 etc/tests/*/*/__pycache__
