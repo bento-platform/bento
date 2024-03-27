@@ -1,0 +1,22 @@
+services:
+  redis:
+    image: ${BENTOV2_REDIS_BASE_IMAGE}:${BENTOV2_REDIS_BASE_IMAGE_VERSION}
+    container_name: ${BENTOV2_REDIS_CONTAINER_NAME}
+    networks:
+      - redis-net
+    expose:
+      - ${BENTOV2_REDIS_INTERNAL_PORT}
+    volumes:
+      - ${BENTOV2_REDIS_VOL_DIR}:/data
+    mem_limit: ${BENTOV2_REDIS_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_REDIS_CPUS}
+    cpu_shares: 512
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: 15s  # Faster interval for services which others may require to be healthy
+
+networks:
+  redis-net:
+    external: true
+    name: ${BENTO_REDIS_NETWORK}

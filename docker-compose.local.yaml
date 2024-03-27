@@ -1,4 +1,4 @@
-# extends docker-compose.dev.yaml; adds in repository volumes + git configuration
+# merges with docker-compose.yaml and docker-compose.dev.yaml; adds in repository volumes + git configuration
 
 services:
   web:
@@ -10,9 +10,6 @@ services:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/web
-    extends:
-      file: docker-compose.dev.yaml
-      service: web
 
   public:
     image: ${BENTO_PUBLIC_IMAGE}:${BENTO_PUBLIC_VERSION_DEV}
@@ -23,9 +20,6 @@ services:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/bento-public
-    extends:
-      file: docker-compose.dev.yaml
-      service: public
     profiles:
       - public
 
@@ -38,14 +32,8 @@ services:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/gateway
-    extends:
-      file: docker-compose.dev.yaml
-      service: gateway
 
   authz:
-    extends:
-      file: docker-compose.dev.yaml
-      service: authz
     image: ${BENTO_AUTHZ_IMAGE}:${BENTO_AUTHZ_VERSION_DEV}
     volumes:
       - ./repos/authz:/authorization
@@ -55,9 +43,6 @@ services:
       - BENTO_GIT_REPOSITORY_DIR=/authorization
 
   katsu:
-    extends:
-      file: docker-compose.dev.yaml
-      service: katsu
     image: ${BENTOV2_KATSU_IMAGE}:${BENTOV2_KATSU_VERSION_DEV}
     depends_on:
       - katsu-db
@@ -69,18 +54,10 @@ services:
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/app
 
-  katsu-db:
-    extends:
-      file: docker-compose.dev.yaml
-      service: katsu-db
-
   adminer:
     # No Docker networks required, bound to host
     ports:
       - 8080:8080
-    extends:
-      file: docker-compose.dev.yaml
-      service: adminer
 
   aggregation:
     image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION_DEV}
@@ -88,9 +65,6 @@ services:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/aggregation
-    extends:
-      file: docker-compose.dev.yaml
-      service: aggregation
     volumes:
       - ./repos/aggregation:/aggregation
 
@@ -101,9 +75,6 @@ services:
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/wes
       - CELERY_DEBUG=true
-    extends:
-      file: docker-compose.dev.yaml
-      service: wes
     volumes:
       - ./repos/wes:/wes
 
@@ -113,9 +84,6 @@ services:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/drs
-    extends:
-      file: docker-compose.dev.yaml
-      service: drs
     volumes:
       - ./repos/drs:/drs
 
@@ -126,9 +94,6 @@ services:
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/beacon
       - DEBUGGER_PORT=${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}
-    extends:
-      file: docker-compose.dev.yaml
-      service: beacon
     volumes:
       - ./repos/beacon:/beacon
     profiles:
@@ -144,9 +109,6 @@ services:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/service_registry
-    extends:
-      file: docker-compose.dev.yaml
-      service: service-registry
 
   drop-box:
     image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION_DEV}
@@ -156,9 +118,6 @@ services:
       - BENTO_GIT_REPOSITORY_DIR=/drop-box
     volumes:
       - ./repos/drop-box:/drop-box
-    extends:
-      file: docker-compose.dev.yaml
-      service: drop-box
 
   notification:
     image: ${BENTOV2_NOTIFICATION_IMAGE}:${BENTOV2_NOTIFICATION_VERSION_DEV}
@@ -168,9 +127,6 @@ services:
       - BENTO_GIT_REPOSITORY_DIR=/notification
     volumes:
       - ./repos/notification:/notification
-    extends:
-      file: docker-compose.dev.yaml
-      service: notification
 
   event-relay:
     image: ${BENTOV2_EVENT_RELAY_IMAGE}:${BENTOV2_EVENT_RELAY_VERSION_DEV}
@@ -180,9 +136,6 @@ services:
       - BENTO_GIT_REPOSITORY_DIR=/app
     volumes:
       - ./repos/event-relay:/app
-    extends:
-      file: docker-compose.dev.yaml
-      service: event-relay
 
   reference:
     image: ${BENTO_REFERENCE_IMAGE}:${BENTO_REFERENCE_VERSION_DEV}
@@ -192,9 +145,6 @@ services:
       - BENTO_GIT_REPOSITORY_DIR=/reference
     volumes:
       - ./repos/reference:/reference
-    extends:
-      file: docker-compose.dev.yaml
-      service: reference
 
   gohan-api:
     image: ${BENTOV2_GOHAN_API_IMAGE}:${BENTOV2_GOHAN_API_VERSION_DEV}
@@ -206,6 +156,3 @@ services:
     volumes:
       - ./repos/gohan-api:/gohan-api
       - ./repos/gohan-api/src/api/workflows:/app/workflows
-    extends:
-      file: docker-compose.dev.yaml
-      service: gohan-api
