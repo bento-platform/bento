@@ -44,6 +44,7 @@ BENTOV2_CBIOPORTAL_DOMAIN=cbioportal.${BENTOV2_DOMAIN}
 # ---------------------------------------------------------------------
 
 # Feature switches ----------------------------------------------------
+
 BENTOV2_USE_EXTERNAL_IDP=0
 BENTOV2_USE_BENTO_PUBLIC=1
 
@@ -54,6 +55,10 @@ BENTO_BEACON_ENABLED='true'
 BENTO_BEACON_UI_ENABLED='true'
 BENTO_CBIOPORTAL_ENABLED='false'
 BENTO_GOHAN_ENABLED='true'
+
+#  - Switch to enable French translation in Bento Public
+BENTO_PUBLIC_TRANSLATED='true'
+
 # ---------------------------------------------------------------------
 
 # Set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
