@@ -200,7 +200,7 @@ def init_dirs():
         "root_fast": "BENTO_FAST_DATA_DIR",
         "root_slow": "BENTO_SLOW_DATA_DIR",
         "authz-db": "BENTO_AUTHZ_DB_VOL_DIR",
-        "drs-data": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
+        "drs-data": "BENTO_DRS_DATA_VOL_DIR",
         "drs-tmp": "BENTO_DRS_TMP_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
         "gohan": "BENTOV2_GOHAN_DATA_ROOT",
