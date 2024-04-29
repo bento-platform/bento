@@ -21,6 +21,7 @@ __all__ = [
     "init_docker",
     "init_dirs",
     "init_self_signed_certs",
+    "init_config",
 ]
 
 
@@ -619,6 +620,28 @@ def convert_phenopacket_file(source: str, target: str):
 #         else:
 #             err("failed.")
 
+
+def init_config(service: str, force: bool = False):
+    if service == "katsu":
+        _init_katsu(force)
+    elif service == "beacon":
+        _init_beacon(force)
+
+
+def _init_beacon(force: bool):
+    root_path = pathlib.Path.cwd()
+    beacon_template_path = (root_path / "etc" / "templates" / "beacon" / "beacon_config.example.json")
+    beacon_dest_path = (root_path / "lib" / "beacon" / "config" / "beacon_config.json")
+
+    _file_copy(beacon_template_path, beacon_dest_path, force)
+
+
+def _init_katsu(force: bool):
+    root_path = pathlib.Path.cwd()
+    katsu_config_template_path = (root_path / "etc" / "katsu.config.example.json")
+    katsu_config_dest_path = (root_path / "lib" / "katsu" / "config.json")
+
+    _file_copy(katsu_config_template_path, katsu_config_dest_path, force)
 
 def clean_logs():
     # TODO

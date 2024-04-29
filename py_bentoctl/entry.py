@@ -277,6 +277,21 @@ class InitAll(SubCommand):
             fh.init_cbioportal()
 
 
+class InitConfig(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, choices=["katsu", "beacon"], help="Prepares services for deployment.")
+        sp.add_argument(
+            "--force", "-f", action="store_true",
+            help="Overwrites any existing config.")
+
+    @staticmethod
+    def exec(args):
+        oh.init_config(args.service, args.force)
+
+
 class ConvertPhenopacket(SubCommand):
 
     @staticmethod
@@ -330,6 +345,7 @@ def main(args: Optional[list[str]] = None) -> int:
         "init-all",
         "Initialize certs, directories, Docker networks, secrets, and web portals. DOES NOT initialize Keycloak.",
         InitAll)
+    _add_subparser("init-config", "Initialize configuration files for specific services.", InitConfig)
 
     # Feature-specific initialization commands
     _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
