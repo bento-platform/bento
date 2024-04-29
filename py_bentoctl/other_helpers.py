@@ -643,6 +643,7 @@ def _init_katsu(force: bool):
 
     _file_copy(katsu_config_template_path, katsu_config_dest_path, force)
 
+
 def clean_logs():
     # TODO
     pass
