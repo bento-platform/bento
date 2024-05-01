@@ -39,6 +39,7 @@ lib/katsu/config.json
 
 # ignored instance specific beacon config
 lib/beacon/config/beacon_config.json
+lib/beacon/config/beacon_cohort.json
 
 # bento_web
 lib/web/*
