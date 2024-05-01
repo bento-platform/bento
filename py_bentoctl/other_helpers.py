@@ -630,10 +630,17 @@ def init_config(service: str, force: bool = False):
 
 def _init_beacon(force: bool):
     root_path = pathlib.Path.cwd()
-    beacon_template_path = (root_path / "etc" / "templates" / "beacon" / "beacon_config.example.json")
-    beacon_dest_path = (root_path / "lib" / "beacon" / "config" / "beacon_config.json")
+    template_dir = (root_path / "etc" / "templates" / "beacon")
+    dest_dir = (root_path / "lib" / "beacon" / "config")
 
-    _file_copy(beacon_template_path, beacon_dest_path, force)
+    config_template_path = (template_dir / "beacon_config.example.json")
+    config_dest_path = (dest_dir / "beacon_config.json")
+
+    cohort_template_path = (template_dir / "beacon_cohort.example.json")
+    cohort_dest_path = (dest_dir / "beacon_cohort.json")
+
+    _file_copy(config_template_path, config_dest_path, force)
+    _file_copy(cohort_template_path, cohort_dest_path, force)
 
 
 def _init_katsu(force: bool):
