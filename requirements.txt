@@ -15,6 +15,6 @@ pyhumps==3.8.0
 PyYAML==6.0.1
 requests==2.31.0
 termcolor==2.4.0
-tqdm==4.66.2
+tqdm==4.66.4
 urllib3==2.2.1
-websocket-client==1.7.0
+websocket-client==1.8.0
