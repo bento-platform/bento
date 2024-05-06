@@ -146,15 +146,18 @@ Bento's clinical/phenotypic metadata service:
 ./bentoctl.bash init-config katsu
 ```
 
+
 ### Beacon configuration
 
-If using beacon, first copy the configuration file:
+If using Beacon, first copy the configuration file:
 
 ```bash
 ./bentoctl.bash init-config beacon
 ```
 
-Then update any config values as needed at `lib/beacon/config/beacon_config.json` and `lib/beacon/config/beacon_cohort.json`
+Then update any config values as needed at `lib/beacon/config/beacon_config.json` 
+and `lib/beacon/config/beacon_cohort.json`.
+
 
 ### Gohan configuration
 
