@@ -623,12 +623,12 @@ def convert_phenopacket_file(source: str, target: str):
 
 def init_config(service: str, force: bool = False):
     if service == "katsu":
-        _init_katsu(force)
+        _init_katsu_config(force)
     elif service == "beacon":
-        _init_beacon(force)
+        _init_beacon_config(force)
 
 
-def _init_beacon(force: bool):
+def _init_beacon_config(force: bool):
     root_path = pathlib.Path.cwd()
     template_dir = (root_path / "etc" / "templates" / "beacon")
     dest_dir = (root_path / "lib" / "beacon" / "config")
@@ -643,7 +643,7 @@ def _init_beacon(force: bool):
     _file_copy(cohort_template_path, cohort_dest_path, force)
 
 
-def _init_katsu(force: bool):
+def _init_katsu_config(force: bool):
     root_path = pathlib.Path.cwd()
     katsu_config_template_path = (root_path / "etc" / "katsu.config.example.json")
     katsu_config_dest_path = (root_path / "lib" / "katsu" / "config.json")
