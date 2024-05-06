@@ -633,6 +633,7 @@ def _init_beacon_config(force: bool):
     template_dir = (root_path / "etc" / "templates" / "beacon")
     dest_dir = (root_path / "lib" / "beacon" / "config")
     dest_dir.mkdir(parents=True, exist_ok=True)
+    dest_dir.chmod(0o755)
 
     config_template_path = (template_dir / "beacon_config.example.json")
     config_dest_path = (dest_dir / "beacon_config.json")
