@@ -143,8 +143,20 @@ Bento's clinical/phenotypic metadata service:
 ```bash
 # public service configuration file. Required if BENTOV2_USE_BENTO_PUBLIC flag is set to `1`
 # See Katsu documentation for more information about the specifications
-cp ./etc/katsu.config.example.json ./lib/katsu/config.json
+./bentoctl.bash init-config katsu
 ```
+
+
+### Beacon configuration
+
+If using Beacon, first copy the configuration file:
+
+```bash
+./bentoctl.bash init-config beacon
+```
+
+Then update any config values as needed at `lib/beacon/config/beacon_config.json` 
+and `lib/beacon/config/beacon_cohort.json`.
 
 
 ### Gohan configuration
