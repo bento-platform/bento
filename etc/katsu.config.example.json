@@ -76,6 +76,10 @@
                     "chart_type": "pie"
                 },
                 {
+                    "field": "experiment_study_type",
+                    "chart_type": "pie"
+                },
+                {
                     "field": "experiment_results_file_type",
                     "chart_type": "pie"
                 }
@@ -114,6 +118,7 @@
             "section_title": "Experiments",
             "fields": [
                 "experiment_type",
+                "experiment_study_type",
                 "experiment_results_file_type"
             ]
         }
@@ -289,11 +294,21 @@
                 "enum": null
             }
         },
+        "experiment_study_type": {
+            "mapping": "experiment/study_type",
+            "mapping_for_search_filter": "individual/biosamples/experiment/study_type",
+            "title": "Study Types",
+            "description": "Study type of the experiment (e.g. Genomics, Transcriptomics, etc.)",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
         "experiment_results_file_type": {
             "mapping": "experiment/experiment_results/file_format",
             "mapping_for_search_filter": "individual/biosamples/experiment/experiment_results/file_format",
             "title": "Results File Types",
-            "description": "Format of experiment results files",
+            "description": "File type of experiment results files",
             "datatype": "string",
             "config": {
                 "enum": null
