@@ -69,6 +69,19 @@
             ]
         },
         {
+            "section_title": "Interpretations",
+            "charts": [
+                {
+                    "field": "interpretation_status",
+                    "chart_type": "pie"
+                },
+                {
+                    "field": "acmg_pathogenicity_classification",
+                    "chart_type": "pie"
+                }
+            ]
+        },
+        {
             "section_title": "Experiments",
             "charts": [
                 {
@@ -112,6 +125,13 @@
             "fields": [
                 "medical_procedures",
                 "medical_treatments"
+            ]
+        },
+        {
+            "section_title": "Interpretations",
+            "fields": [
+                "interpretation_status",
+                "acmg_pathogenicity_classification"
             ]
         },
         {
@@ -269,6 +289,24 @@
             "group_by": "treatment/agent/label",
             "title": "Medical Treatments",
             "description": "Treatment with an agent such as a drug",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "interpretation_status": {
+            "mapping": "individual/phenopackets/interpretations/diagnosis/genomic_interpretations/interpretation_status",
+            "title": "Genomic Interpretations",
+            "description": "Interpretation for an individual variant or gene (CANDIDATE, CONTRIBUTORY, etc)",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "acmg_pathogenicity_classification": {
+            "mapping": "individual/phenopackets/interpretations/diagnosis/genomic_interpretations/variant_interpretation/acmg_pathogenicity_classification",
+            "title": "Variant Pathogenicity Classification",
+            "description": "ACMG Pathogenicity category for a particular variant (BENIGN, PATHOGENIC, etc)",
             "datatype": "string",
             "config": {
                 "enum": null
