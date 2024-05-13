@@ -305,7 +305,7 @@
         },
         "acmg_pathogenicity_classification": {
             "mapping": "individual/phenopackets/interpretations/diagnosis/genomic_interpretations/variant_interpretation/acmg_pathogenicity_classification",
-            "title": "Variant Pathogenicity Classification",
+            "title": "Variant Pathogenicity",
             "description": "ACMG Pathogenicity category for a particular variant (BENIGN, PATHOGENIC, etc)",
             "datatype": "string",
             "config": {
