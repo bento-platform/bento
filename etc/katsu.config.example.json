@@ -1,30 +1,146 @@
 {
     "overview": [
         {
-            "section_title": "Demographics",
+            "section_title": "General",
             "charts": [
-                {"field": "age", "chart_type": "bar"},
-                {"field": "sex", "chart_type": "pie"},
-                {"field": "date_of_consent", "chart_type": "bar"},
-                {"field": "mobility", "chart_type": "bar"},
-                {"field": "lab_test_result_value", "chart_type": "bar"}
+                {
+                    "field": "age",
+                    "chart_type": "bar"
+                },
+                {
+                    "field": "sex",
+                    "chart_type": "pie"
+                },
+                {
+                    "field": "date_of_consent",
+                    "chart_type": "bar"
+                },
+                {
+                    "field": "covid_severity",
+                    "chart_type": "pie"
+                },
+                {
+                    "field": "mobility",
+                    "chart_type": "bar"
+                },
+                {
+                    "field": "smoking_status",
+                    "chart_type": "bar"
+                },
+
+                {
+                    "field": "phenotypic_features",
+                    "chart_type": "pie"
+                },
+                {
+                    "field": "tissues",
+                    "chart_type": "pie"
+                },
+                {
+                    "field": "diseases",
+                    "chart_type": "pie"
+                }
+            ]
+        },
+        {
+            "section_title": "Measurements",
+            "charts": [
+                {
+                    "field": "lab_test_result_value",
+                    "chart_type": "bar"
+                },
+                {
+                    "field": "bmi",
+                    "chart_type": "bar"
+                }
+            ]
+        },
+        {
+            "section_title": "Medical Actions",
+            "charts": [
+                {
+                    "field": "medical_procedures",
+                    "chart_type": "pie"
+                },
+                {
+                    "field": "medical_treatments",
+                    "chart_type": "pie"
+                }
+            ]
+        },
+        {
+            "section_title": "Interpretations",
+            "charts": [
+                {
+                    "field": "interpretation_status",
+                    "chart_type": "pie"
+                },
+                {
+                    "field": "acmg_pathogenicity_classification",
+                    "chart_type": "pie"
+                }
             ]
         },
         {
             "section_title": "Experiments",
             "charts": [
-                {"field": "experiment_type", "chart_type": "pie"}
+                {
+                    "field": "experiment_type",
+                    "chart_type": "pie"
+                },
+                {
+                    "field": "experiment_study_type",
+                    "chart_type": "pie"
+                },
+                {
+                    "field": "experiment_results_file_type",
+                    "chart_type": "pie"
+                }
             ]
         }
     ],
     "search": [
         {
-            "section_title": "Demographics",
-            "fields": ["age", "sex", "date_of_consent", "lab_test_result_value"]
+            "section_title": "General",
+            "fields": [
+                "age",
+                "sex",
+                "date_of_consent",
+                "mobility",
+                "covid_severity",
+                "phenotypic_features",
+                "diseases",
+                "tissues"
+            ]
+        },
+        {
+            "section_title": "Measurements",
+            "fields": [
+                "lab_test_result_value",
+                "bmi"
+            ]
+        },
+        {
+            "section_title": "Medical Actions",
+            "fields": [
+                "medical_procedures",
+                "medical_treatments"
+            ]
+        },
+        {
+            "section_title": "Interpretations",
+            "fields": [
+                "interpretation_status",
+                "acmg_pathogenicity_classification"
+            ]
         },
         {
             "section_title": "Experiments",
-            "fields": ["experiment_type"]
+            "fields": [
+                "experiment_type",
+                "experiment_study_type",
+                "experiment_results_file_type"
+            ]
         }
     ],
     "fields": {
@@ -51,35 +167,13 @@
                 "enum": null
             }
         },
-        "experiment_type": {
-            "mapping": "experiment/experiment_type",
-            "mapping_for_search_filter": "individual/biosamples/experiment/experiment_type",
-            "title": "Experiment Types",
-            "description": "Types of experiments performed on a sample",
-            "datatype": "string",
-            "config": {
-                "enum": ["DNA Methylation", "mRNA-Seq", "smRNA-Seq", "RNA-Seq", "WES", "Other"]
-            }
-        },
         "date_of_consent": {
             "mapping": "individual/extra_properties/date_of_consent",
             "title": "Verbal consent date",
-            "description": "Date of initial verbal consent(participant, legal representative or tutor), yyyy-mm-dd",
+            "description": "Date of initial verbal consent (participant, legal representative or tutor), yyyy-mm-dd",
             "datatype": "date",
             "config": {
                 "bin_by": "month"
-            }
-        },
-        "type_partic": {
-            "mapping": "individual/extra_properties/type_partic",
-            "title": "Participant type",
-            "description": "Has the patient been hospitalized or is the patient seen on as an outpatient?",
-            "datatype": "string",
-            "config": {
-                "enum": [
-                    "Hospitalized",
-                    "Outpatient"
-                ]
             }
         },
         "mobility": {
@@ -97,15 +191,165 @@
                 ]
             }
         },
+        "smoking_status": {
+            "mapping": "individual/extra_properties/smoking_status",
+            "title": "Smoking status",
+            "description": "Smoking Status",
+            "datatype": "string",
+            "config": {
+                "enum": [
+                    "Non-smoker",
+                    "Smoker",
+                    "Former smoker",
+                    "Passive smoker",
+                    "Not specified"
+                ]
+            }
+        },
+        "covid_severity": {
+            "mapping": "individual/extra_properties/covid_severity",
+            "title": "Covid severity",
+            "description": "Covid severity",
+            "datatype": "string",
+            "config": {
+                "enum": [
+                    "Uninfected",
+                    "Mild",
+                    "Moderate",
+                    "Severe",
+                    "Dead"
+                ]
+            }
+        },
         "lab_test_result_value": {
             "mapping": "individual/extra_properties/lab_test_result_value",
             "title": "Lab Test Result",
-            "description": "This acts as a placeholder for numeric values",
+            "description": "Numeric measures from a laboratory test",
             "datatype": "number",
             "config": {
-                "bins": [200, 300, 500, 1000, 1500, 2000],
+                "bins": [
+                    200,
+                    300,
+                    500,
+                    1000,
+                    1500,
+                    2000
+                ],
                 "minimum": 0,
                 "units": "mg/L"
+            }
+        },
+        "phenotypic_features": {
+            "mapping": "individual/phenopackets/phenotypic_features/pftype/label",
+            "title": "Phenotypic Features",
+            "description": "Individual phenotypic features, observed as either present or absent",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "diseases": {
+            "mapping": "individual/phenopackets/diseases/term/label",
+            "title": "Diseases",
+            "description": "Diseases observed as either present or absent",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "bmi": {
+            "mapping": "individual/phenopackets/measurements",
+            "group_by": "assay/id",
+            "group_by_value": "NCIT:C16358",
+            "value_mapping": "value/quantity/value",
+            "title": "BMI",
+            "description": "Body Mass Index",
+            "datatype": "number",
+            "config": {
+                "bins": [
+                    18.5,
+                    30
+                ],
+                "minimum": 0,
+                "units": "kg/m^2"
+            }
+        },
+        "medical_procedures": {
+            "mapping": "individual/phenopackets/medical_actions",
+            "group_by": "procedure/code/label",
+            "title": "Medical Procedures",
+            "description": "A clinical procedure performed on a subject",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "medical_treatments": {
+            "mapping": "individual/phenopackets/medical_actions",
+            "group_by": "treatment/agent/label",
+            "title": "Medical Treatments",
+            "description": "Treatment with an agent such as a drug",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "interpretation_status": {
+            "mapping": "individual/phenopackets/interpretations/diagnosis/genomic_interpretations/interpretation_status",
+            "title": "Genomic Interpretations",
+            "description": "Interpretation for an individual variant or gene (CANDIDATE, CONTRIBUTORY, etc)",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "acmg_pathogenicity_classification": {
+            "mapping": "individual/phenopackets/interpretations/diagnosis/genomic_interpretations/variant_interpretation/acmg_pathogenicity_classification",
+            "title": "Variant Pathogenicity",
+            "description": "ACMG Pathogenicity category for a particular variant (BENIGN, PATHOGENIC, etc)",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "tissues": {
+            "mapping": "biosample/sampled_tissue/label",
+            "mapping_for_search_filter": "individual/biosamples/sampled_tissue/label",
+            "title": "Sampled Tissues",
+            "description": "Tissue from which the biosample was extracted",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "experiment_type": {
+            "mapping": "experiment/experiment_type",
+            "mapping_for_search_filter": "individual/biosamples/experiment/experiment_type",
+            "title": "Experiment Types",
+            "description": "Types of experiments performed on a sample",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "experiment_study_type": {
+            "mapping": "experiment/study_type",
+            "mapping_for_search_filter": "individual/biosamples/experiment/study_type",
+            "title": "Study Types",
+            "description": "Study type of the experiment (e.g. Genomics, Transcriptomics, etc.)",
+            "datatype": "string",
+            "config": {
+                "enum": null
+            }
+        },
+        "experiment_results_file_type": {
+            "mapping": "experiment/experiment_results/file_format",
+            "mapping_for_search_filter": "individual/biosamples/experiment/experiment_results/file_format",
+            "title": "Results File Types",
+            "description": "File type of experiment results files",
+            "datatype": "string",
+            "config": {
+                "enum": null
             }
         }
     },
