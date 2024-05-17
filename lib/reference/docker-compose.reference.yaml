@@ -22,6 +22,12 @@ services:
 
   reference-db:
     image: ${BENTO_REFERENCE_DB_IMAGE}:${BENTO_REFERENCE_DB_VERSION}
+    # tuning inspired by https://pgtune.leopard.in.ua/
+    command: >
+      -c shared_buffers=256MB
+      -c wal_buffers=8MB
+      -c min_wal_size=512MB
+      -c max_wal_size=2GB
     container_name: ${BENTO_REFERENCE_DB_CONTAINER_NAME}
     networks:
       - reference-db-net
