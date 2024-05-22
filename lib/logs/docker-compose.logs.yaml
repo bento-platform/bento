@@ -1,0 +1,52 @@
+services: 
+  grafana:
+    container_name: bentov2-grafana
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy
+          orgId: 1
+          url: http://loki:3100
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: true
+        EOF
+        /run.sh
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - loki
+  loki:
+    container_name: bentov2-loki
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - loki
+  promtail:
+    container_name: bentov2-promtail
+    image: grafana/promtail:2.9.2
+    volumes:
+      - "/var/log:/var/log"
+      - "/var/lib/docker/containers:/var/lib/docker/containers"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./lib/logs/promtail-config.yaml:/etc/promtail/config.yaml"
+    command: "-config.file=/etc/promtail/config.yaml"  
+    networks:
+      - loki
+networks:
+   loki:
