@@ -432,7 +432,7 @@ To remove the Docker containers, run the following:
 To enable gene querying support, follow these steps to set up Gohan's gene catalogue:
 
 1. **Access the Services Portal**:
-   - Navigate to `https://portal.bentov2.local/services`.
+   - Navigate to the `Services` tab on the portal.
 
 2. **Initiate Gohan Request**:
    - Click the `Make Request` button for Gohan.
