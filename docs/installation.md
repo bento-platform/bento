@@ -427,19 +427,22 @@ To remove the Docker containers, run the following:
 > (depending on data path, e.g., `./data/[auth, drs, katsu]/...` directories)
 
 
-## 9. Set up Gohan's gene catalogue (*optional*; required for gene querying support)
+## 9. Set Up Gohan's Gene Catalogue (Optional but Required for Gene Querying Support)
 
-Upon initial startup of a fresh instance, it may of use, depending on the use-case, to perform the following:
+To enable gene querying support, follow these steps to set up Gohan's gene catalogue:
 
-```
-# navigate to:
-https://portal.bentov2.local/api/gohan/genes/ingestion/run
-# to trigger Gohan to download the default GenCode .gtk files from the internet and process them
+1. **Access the Services Portal**:
+   - Navigate to the `Services` tab on the portal.
 
-# - followed up by
-https://portal.bentov2.local/api/gohan/genes/ingestion/requests
-# to keep up with the process
+2. **Initiate Gohan Request**:
+   - Click the `Make Request` button for Gohan.
 
-# the end results can be found at
-https://portal.bentov2.local/api/gohan/genes/overview
-```
+3. **Edit and Trigger Ingestion Endpoint**:
+   - Modify the endpoint to `genes/ingestion/run`.
+   - Click `Get` to initiate Gohan's download and processing of the default GenCode `.gtk` files from the internet.
+
+4. **Monitor the Ingestion Process**:
+   - Use the endpoint `genes/ingestion/requests` to track the progress of the ingestion process.
+
+5. **Access the Gene Catalogue**:
+   - Once the ingestion process is complete, the gene catalogue will be available at `genes/overview`.
