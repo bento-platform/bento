@@ -28,3 +28,12 @@ scrape_configs:
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
         target_label: 'container'
+  - job_name: nginx
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: nginx
+        host: nginx01
+        agent: promtail
+        __path__: /var/log/access.log

@@ -5,6 +5,9 @@ services:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SERVER_ROOT_URL=https://bentov2.local:443/api/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ALLOW_EMBEDDING=true
     entrypoint:
       - sh
       - -euc
@@ -28,7 +31,8 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - loki
+      - monitoring-net
+
   loki:
     container_name: bentov2-loki
     image: grafana/loki:2.9.2
@@ -36,9 +40,11 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     networks:
-      - loki
+      - monitoring-net
+
   promtail:
     container_name: bentov2-promtail
+    restart: unless-stopped
     image: grafana/promtail:2.9.2
     volumes:
       - "/var/log:/var/log"
@@ -47,6 +53,21 @@ services:
       - "./lib/logs/promtail-config.yaml:/etc/promtail/config.yaml"
     command: "-config.file=/etc/promtail/config.yaml"  
     networks:
-      - loki
+      - monitoring-net
+  
+  prometheus:
+    container_name: bentov2-prometheus
+    image: prom/prometheus:latest
+    ports:
+      - 9090:9090
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+    volumes:
+      - ./lib/logs/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+    networks:
+      - monitoring-net
+
 networks:
-   loki:
+   monitoring-net:
+    external: true
+    name: ${BENTO_MONITORING_NETWORK}

@@ -286,6 +286,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_KATSU_NETWORK", dict(driver="bridge")),
         ("BENTO_KATSU_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_MONITORING_NETWORK", dict(driver="bridge")),
         ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
         ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),
         ("BENTO_REDIS_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
