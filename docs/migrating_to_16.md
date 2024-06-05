@@ -11,14 +11,15 @@ Key points:
    * If needed, the default service specific volume directories defined in [bento.env](../etc/bento.env) can be overriden in your 
      `local.env`.
 * The WES schema has been updated, so the run database must be cleared.
-* The reference service has been updated, so a SQL migration must be run.
+* The reference service has been updated, so an SQL migration must be run.
 
 
 ## 1. Run reference service pre-migration step
 
 ```bash
 ./bentoctl.bash shell reference-db
-PGPASSWORD="${POSTGRES_PASSWORD}" psql --user "${POSTGRES_USER}" reference
+PGPASSWORD="${POSTGRES_PASSWORD}"
+psql --user "${POSTGRES_USER}" reference
 ```
 
 Then, begin a transaction:
