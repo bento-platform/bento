@@ -16,6 +16,8 @@ services:
     volumes:
       - ./repos/public:/bento-public
       - ./packs:/packs
+      - ${PWD}/lib/public/en_about.html:/bento-public/src/public/en_about.html
+      - ${PWD}/lib/public/fr_about.html:/bento-public/src/public/fr_about.html
     environment:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
