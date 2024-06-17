@@ -327,11 +327,11 @@ bento_authz create grant \
   '{"everything": true}' \
   'view:private_portal'
 
-# This grant gives permission to access and ingest data into all projects
+# This grant gives permission to access and ingest data into all projects and the reference genome service
 bento_authz create grant \
   '{"iss": "ISSUER_HERE", "client": "wes"}' \
   '{"everything": true}' \
-  'query:data' 'ingest:data'
+  'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material'
 ```
 
 ### c. *Optional step:* Assign portal access to all users in the instance realm
