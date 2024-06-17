@@ -331,7 +331,7 @@ bento_authz create grant \
 bento_authz create grant \
   '{"iss": "ISSUER_HERE", "client": "wes"}' \
   '{"everything": true}' \
-  'query:data' 'ingest:data'
+  'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material'
 ```
 
 ### c. *Optional step:* Assign portal access to all users in the instance realm
