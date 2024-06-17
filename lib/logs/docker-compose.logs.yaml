@@ -26,15 +26,6 @@ services:
           isDefault: true
           version: 1
           editable: true
-        - name: Promethus 
-          type: prometheus
-          access: proxy
-          orgId: 1
-          url: http://prometheus:9090
-          basicAuth: false
-          isDefault: false
-          version: 1
-          editable: true
         EOF
         /run.sh
     user:
@@ -69,18 +60,6 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "${PWD}/lib/logs/promtail-config.yaml:/etc/promtail/config.yaml"
     command: "-config.file=/etc/promtail/config.yaml"  
-    networks:
-      - monitoring-net
-  
-  prometheus:
-    container_name: ${BENTOV2_PROMETHEUS_CONTAINER_NAME}
-    image: ${BENTOV2_PROMETHEUS_BASE_IMAGE}:${BENTOV2_PROMETHEUS_BASE_IMAGE_VERSION}
-    ports:
-      - 9090:9090
-    command:
-      - --config.file=/etc/prometheus/prometheus.yaml
-    volumes:
-      - ${PWD}/lib/logs/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
     networks:
       - monitoring-net
 
