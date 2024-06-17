@@ -1,6 +1,7 @@
 services: 
   grafana:
-    container_name: bentov2-grafana
+    image: ${BENTOV2_GRAFANA_BASE_IMAGE}:${BENTOV2_GRAFANA_BASE_IMAGE_VERSION}
+    container_name: ${BENTOV2_GRAFANA_CONTAINER_NAME}
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
@@ -25,45 +26,61 @@ services:
           isDefault: true
           version: 1
           editable: true
+        - name: Promethus 
+          type: prometheus
+          access: proxy
+          orgId: 1
+          url: http://prometheus:9090
+          basicAuth: false
+          isDefault: false
+          version: 1
+          editable: true
         EOF
         /run.sh
-    image: grafana/grafana:latest
+    user:
+      ${BENTO_UID}
+    volumes:
+      - ${BENTOV2_GRAFANA_PROD_LIB_DIR}:/var/lib/grafana
     ports:
       - "3000:3000"
     networks:
       - monitoring-net
 
   loki:
-    container_name: bentov2-loki
-    image: grafana/loki:2.9.2
+    container_name: ${BENTOV2_LOKI_CONTAINER_NAME}
+    image: ${BENTOV2_LOKI_BASE_IMAGE}:${BENTOV2_LOKI_BASE_IMAGE_VERSION}
+    volumes:
+      - ${BENTOV2_LOKI_PROD_TEMP_DIR}:/tmp/loki
+      - ${PWD}/lib/logs/loki-config.yaml:/etc/loki/loki-config.yaml
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/loki-config.yaml
+    user:
+      ${BENTO_UID}
     networks:
       - monitoring-net
 
   promtail:
-    container_name: bentov2-promtail
-    restart: unless-stopped
-    image: grafana/promtail:2.9.2
+    container_name: ${BENTOV2_PROMTAIL_CONTAINER_NAME}
+    image: ${BENTOV2_PROMTAIL_BASE_IMAGE}:${BENTOV2_PROMTAIL_BASE_IMAGE_VERSION}
     volumes:
       - "/var/log:/var/log"
       - "/var/lib/docker/containers:/var/lib/docker/containers"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./lib/logs/promtail-config.yaml:/etc/promtail/config.yaml"
+      - "${PWD}/lib/logs/promtail-config.yaml:/etc/promtail/config.yaml"
     command: "-config.file=/etc/promtail/config.yaml"  
     networks:
       - monitoring-net
   
   prometheus:
-    container_name: bentov2-prometheus
-    image: prom/prometheus:latest
+    container_name: ${BENTOV2_PROMETHEUS_CONTAINER_NAME}
+    image: ${BENTOV2_PROMETHEUS_BASE_IMAGE}:${BENTOV2_PROMETHEUS_BASE_IMAGE_VERSION}
     ports:
       - 9090:9090
     command:
       - --config.file=/etc/prometheus/prometheus.yaml
     volumes:
-      - ./lib/logs/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+      - ${PWD}/lib/logs/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
     networks:
       - monitoring-net
 
