@@ -327,7 +327,7 @@ bento_authz create grant \
   '{"everything": true}' \
   'view:private_portal'
 
-# This grant gives permission to access and ingest data into all projects
+# This grant gives permission to access and ingest data into all projects and the reference genome service
 bento_authz create grant \
   '{"iss": "ISSUER_HERE", "client": "wes"}' \
   '{"everything": true}' \
