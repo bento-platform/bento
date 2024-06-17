@@ -19,8 +19,8 @@ services:
       - ${PWD}/lib/public/en_about.html:/bento-public/src/public/en_about.html
       - ${PWD}/lib/public/fr_about.html:/bento-public/src/public/fr_about.html
       - ${PWD}/lib/public/branding.png:/bento-public/src/public/assets/branding.png
-      - ${PWD}/lib/public/translations/en.json:/bento-public/src/public/locales/en/translation.json
-      - ${PWD}/lib/public/translations/fr.json:/bento-public/src/public/locales/fr/translation.json
+      - ${PWD}/lib/public/translations/en.json:/bento-public/src/public/locales/en/translation_en.json
+      - ${PWD}/lib/public/translations/fr.json:/bento-public/src/public/locales/fr/translation_fr.json
     environment:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
