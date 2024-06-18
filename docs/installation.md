@@ -44,6 +44,7 @@ BENTOV2_CBIOPORTAL_DOMAIN=cbioportal.${BENTOV2_DOMAIN}
 # ---------------------------------------------------------------------
 
 # Feature switches ----------------------------------------------------
+
 BENTOV2_USE_EXTERNAL_IDP=0
 BENTOV2_USE_BENTO_PUBLIC=1
 
@@ -54,10 +55,17 @@ BENTO_BEACON_ENABLED='true'
 BENTO_BEACON_UI_ENABLED='true'
 BENTO_CBIOPORTAL_ENABLED='false'
 BENTO_GOHAN_ENABLED='true'
+
+#  - Switch to enable French translation in Bento Public
+BENTO_PUBLIC_TRANSLATED='true'
+
 # ---------------------------------------------------------------------
 
-# set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
-BENTOV2_ROOT_DATA_DIR=./data
+# Set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
+# Data directories are split to better use SSD and HDD resources in prod.
+# In dev/local it is more convenient to use a single directory
+BENTO_FAST_DATA_DIR=./data 
+BENTO_SLOW_DATA_DIR=./data
 
 # Auth ----------------------------------------------------------------
 #  - Session secret should be set to a unique secure value.
@@ -135,8 +143,20 @@ Bento's clinical/phenotypic metadata service:
 ```bash
 # public service configuration file. Required if BENTOV2_USE_BENTO_PUBLIC flag is set to `1`
 # See Katsu documentation for more information about the specifications
-cp ./etc/katsu.config.example.json ./lib/katsu/config.json
+./bentoctl.bash init-config katsu
 ```
+
+
+### Beacon configuration
+
+If using Beacon, first copy the configuration file:
+
+```bash
+./bentoctl.bash init-config beacon
+```
+
+Then update any config values as needed at `lib/beacon/config/beacon_config.json` 
+and `lib/beacon/config/beacon_cohort.json`.
 
 
 ### Gohan configuration
@@ -307,11 +327,11 @@ bento_authz create grant \
   '{"everything": true}' \
   'view:private_portal'
 
-# This grant gives permission to access and ingest data into all projects
+# This grant gives permission to access and ingest data into all projects and the reference genome service
 bento_authz create grant \
   '{"iss": "ISSUER_HERE", "client": "wes"}' \
   '{"everything": true}' \
-  'query:data' 'ingest:data'
+  'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material'
 ```
 
 ### c. *Optional step:* Assign portal access to all users in the instance realm
@@ -407,19 +427,22 @@ To remove the Docker containers, run the following:
 > (depending on data path, e.g., `./data/[auth, drs, katsu]/...` directories)
 
 
-## 9. Set up Gohan's gene catalogue (*optional*; required for gene querying support)
+## 9. Set Up Gohan's Gene Catalogue (Optional but Required for Gene Querying Support)
 
-Upon initial startup of a fresh instance, it may of use, depending on the use-case, to perform the following:
+To enable gene querying support, follow these steps to set up Gohan's gene catalogue:
 
-```
-# navigate to:
-https://portal.bentov2.local/api/gohan/genes/ingestion/run
-# to trigger Gohan to download the default GenCode .gtk files from the internet and process them
+1. **Access the Services Portal**:
+   - Navigate to the `Services` tab on the portal.
 
-# - followed up by
-https://portal.bentov2.local/api/gohan/genes/ingestion/requests
-# to keep up with the process
+2. **Initiate Gohan Request**:
+   - Click the `Make Request` button for Gohan.
 
-# the end results can be found at
-https://portal.bentov2.local/api/gohan/genes/overview
-```
+3. **Edit and Trigger Ingestion Endpoint**:
+   - Modify the endpoint to `genes/ingestion/run`.
+   - Click `Get` to initiate Gohan's download and processing of the default GenCode `.gtk` files from the internet.
+
+4. **Monitor the Ingestion Process**:
+   - Use the endpoint `genes/ingestion/requests` to track the progress of the ingestion process.
+
+5. **Access the Gene Catalogue**:
+   - Once the ingestion process is complete, the gene catalogue will be available at `genes/overview`.

@@ -17,7 +17,7 @@ SERVICES=('gateway')
 
 # Auth needs cert renewal when internal only
 if [[ $BENTOV2_USE_EXTERNAL_IDP -eq 0 ]]; then
-    echo "Uses internal IDP, will attemps auth certs renewal."
+    echo "Uses internal IDP, will attempt auth certs renewal."
     # Append auth to list of services to renew
     SERVICES+=('auth')
 fi

@@ -14,6 +14,7 @@ services:
       - INTERNAL_PORT=${BENTO_AUTHZ_INTERNAL_PORT}
       - OPENID_CONFIG_URL=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
+      - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/authorization
     mem_limit: ${BENTO_AUTHZ_MEM_LIM}
     networks:
       - authz-net

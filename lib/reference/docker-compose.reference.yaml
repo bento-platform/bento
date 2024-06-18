@@ -12,9 +12,12 @@ services:
       - BENTO_DEBUG=False
       - DATABASE_URI=postgres://${BENTO_REFERENCE_DB_USER}:${BENTO_REFERENCE_DB_PASSWORD}@${BENTO_REFERENCE_DB_CONTAINER_NAME}:5432/${BENTO_REFERENCE_DB_NAME}
       - INTERNAL_PORT=${BENTO_REFERENCE_INTERNAL_PORT}
-      - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/reference/
+      - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/reference
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
       - BENTO_AUTHZ_SERVICE_URL
+      - FILE_INGEST_TMP_DIR=/reference/tmp
+    volumes:
+      - ${BENTO_REFERENCE_TMP_VOL_DIR}:/reference/tmp
     healthcheck:
       test: [ "CMD", "wget", "-q0-", "http://localhost:${BENTO_REFERENCE_INTERNAL_PORT}/service-info", "&&", "echo" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
@@ -22,6 +25,12 @@ services:
 
   reference-db:
     image: ${BENTO_REFERENCE_DB_IMAGE}:${BENTO_REFERENCE_DB_VERSION}
+    # tuning inspired by https://pgtune.leopard.in.ua/
+    command: >
+      -c shared_buffers=256MB
+      -c wal_buffers=8MB
+      -c min_wal_size=512MB
+      -c max_wal_size=2GB
     container_name: ${BENTO_REFERENCE_DB_CONTAINER_NAME}
     networks:
       - reference-db-net

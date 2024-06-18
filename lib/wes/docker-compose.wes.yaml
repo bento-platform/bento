@@ -13,12 +13,12 @@ services:
       - CELERY_DEBUG=false
 
       - BENTO_EVENT_REDIS_URL=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
-      - DATABASE=/wes/data/bento_wes.db
       - SERVICE_ID=
+      - SERVICE_DATA=/wes/data
+      - DATABASE=/wes/data/bento_wes.db
       - SERVICE_TEMP=/wes/tmp
       - SERVICE_BASE_URL=${BENTOV2_PUBLIC_URL}/api/wes/
-      - WOM_TOOL_LOCATION=
-      #/wes/womtool.jar
+      - WOM_TOOL_LOCATION=/womtool.jar
       # Allow-list (comma-separated) for hosts that workflow files can be downloaded
       # from - prevents possibly insecure WDLs from being run
       - WORKFLOW_HOST_ALLOW_LIST=${BENTOV2_GOHAN_API_CONTAINER_NAME}:${BENTOV2_GOHAN_API_INTERNAL_PORT},${BENTOV2_DOMAIN},${BENTOV2_PORTAL_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}
@@ -54,7 +54,10 @@ services:
     volumes:
       - ${BENTOV2_WES_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
-      - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data:ro  # Read only access to drop box contents via file path
+      # Read only access to drop box contents via file path:
+      - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data:ro
+      # Read-only access to DRS objects via file path:
+      - ${BENTO_DRS_DATA_VOL_DIR}:${BENTO_DRS_CONTAINER_DATA_VOLUME_DIR}:ro
 
 networks:
   redis-net:

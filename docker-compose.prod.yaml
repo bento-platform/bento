@@ -1,8 +1,5 @@
 services:
   web:
-    extends:
-      file: docker-compose.yaml
-      service: web
     environment:
       - NODE_ENV=production
     volumes:
