@@ -28,3 +28,6 @@ schema_config:
 storage_config:
   filesystem:
     directory: /tmp/loki/chunks
+
+limits_config:
+  reject_old_samples: false

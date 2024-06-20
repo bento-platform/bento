@@ -4,11 +4,13 @@ services:
     container_name: ${BENTOV2_GRAFANA_CONTAINER_NAME}
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SERVER_ROOT_URL=https://bentov2.local:443/api/grafana
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       - GF_SECURITY_ALLOW_EMBEDDING=true
+      #- GF_AUTH_JWT_ENABLED=true
+      #- GF_AUTH_JWT_HEADER_NAME=X-JWT-Assertion
+      #- GF_AUTH_JWT_USERNAME_CLAIM=sub
+      #- GF_AUTH_JWT_EMAIL_CLAIM=sub
     entrypoint:
       - sh
       - -euc
@@ -55,7 +57,6 @@ services:
     container_name: ${BENTOV2_PROMTAIL_CONTAINER_NAME}
     image: ${BENTOV2_PROMTAIL_BASE_IMAGE}:${BENTOV2_PROMTAIL_BASE_IMAGE_VERSION}
     volumes:
-      - "/var/log:/var/log"
       - "/var/lib/docker/containers:/var/lib/docker/containers"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "${PWD}/lib/logs/promtail-config.yaml:/etc/promtail/config.yaml"
