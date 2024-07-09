@@ -3,7 +3,7 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 cryptography==42.0.5
 debugpy==1.8.1
-docker==7.0.0
+docker==7.1.0
 flake8==7.0.0
 idna==3.7
 mccabe==0.7.0
