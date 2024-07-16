@@ -3,9 +3,9 @@ location /api/grafana/ {
     # Reverse proxy settings
     include /gateway/conf/proxy.conf;
     include /gateway/conf/proxy_extra.conf;
-    include /gateway/conf/proxy_private.conf;
 
-
+    proxy_pass_request_headers on;
+    
     proxy_pass http://bentov2-grafana:3000;
 
     error_log /var/log/bentov2_grafana_errors.log;

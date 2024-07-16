@@ -232,3 +232,12 @@ services:
   cbioportal:
     ports:
       - "${BENTO_CBIOPORTAL_EXTERNAL_PORT}:${BENTO_CBIOPORTAL_INTERNAL_PORT}"
+
+  grafana:
+    environment:
+      # temporary workaround, cannot extract from url on self signed certificates
+      - GF_AUTH_JWT_JWK_SET_FILE=/etc/grafana/provisioning/jwks.json
+    depends_on:
+      - auth
+      - gateway
+    

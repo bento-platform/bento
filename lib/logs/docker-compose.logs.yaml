@@ -4,13 +4,16 @@ services:
     container_name: ${BENTOV2_GRAFANA_CONTAINER_NAME}
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-      - GF_SERVER_ROOT_URL=https://bentov2.local:443/api/grafana
+      - GF_SERVER_ROOT_URL=https://portal.bentov2.local:443/api/grafana
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       - GF_SECURITY_ALLOW_EMBEDDING=true
-      #- GF_AUTH_JWT_ENABLED=true
-      #- GF_AUTH_JWT_HEADER_NAME=X-JWT-Assertion
-      #- GF_AUTH_JWT_USERNAME_CLAIM=sub
-      #- GF_AUTH_JWT_EMAIL_CLAIM=sub
+      - GF_AUTH_JWT_ENABLED=true
+      - GF_AUTH_JWT_ENABLE_LOGIN_TOKEN=true
+      - GF_AUTH_JWT_HEADER_NAME=X-Forwarded-Access-Token
+      - GF_AUTH_JWT_USERNAME_CLAIM=sub
+      - GF_AUTH_JWT_CACHE_TTL=60m
+      - GF_AUTH_JWT_AUTO_SIGN_UP=true
+      - GF_LOG_LEVEL=debug
     entrypoint:
       - sh
       - -euc
@@ -29,6 +32,7 @@ services:
           version: 1
           editable: true
         EOF
+        curl -k https://bentov2-auth:8443/realms/bentov2/protocol/openid-connect/certs -o /etc/grafana/provisioning/jwks.json
         /run.sh
     user:
       ${BENTO_UID}
@@ -38,6 +42,7 @@ services:
       - "3000:3000"
     networks:
       - monitoring-net
+      - auth-net
 
   loki:
     container_name: ${BENTOV2_LOKI_CONTAINER_NAME}
@@ -65,6 +70,9 @@ services:
       - monitoring-net
 
 networks:
+   auth-net:
+    external: true
+    name: ${BENTO_AUTH_NETWORK}
    monitoring-net:
     external: true
     name: ${BENTO_MONITORING_NETWORK}
