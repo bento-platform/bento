@@ -9,7 +9,7 @@ services:
       - GF_SECURITY_ALLOW_EMBEDDING=true
       - GF_AUTH_JWT_ENABLED=true
       - GF_AUTH_JWT_ENABLE_LOGIN_TOKEN=true
-      - GF_AUTH_JWT_HEADER_NAME=X-Forwarded-Access-Token
+      - GF_AUTH_JWT_HEADER_NAME=authorization
       - GF_AUTH_JWT_USERNAME_CLAIM=sub
       - GF_AUTH_JWT_CACHE_TTL=60m
       - GF_AUTH_JWT_AUTO_SIGN_UP=true
@@ -32,12 +32,17 @@ services:
           version: 1
           editable: true
         EOF
-        curl -k https://bentov2-auth:8443/realms/bentov2/protocol/openid-connect/certs -o /etc/grafana/provisioning/jwks.json
+        touch /etc/grafana/provisioning/jwks.json
+        curl -k https://bentov2-auth:8443/realms/bentov2/protocol/openid-connect/certs -o /etc/grafana/provisioning/jwks.json 
         /run.sh
     user:
-      ${BENTO_UID}
+      ${BENTO_UID} #entrypoint is sooo messyyy!!!!
     volumes:
       - ${BENTOV2_GRAFANA_PROD_LIB_DIR}:/var/lib/grafana
+    healthcheck:
+      test: [ "CMD", "curl", "https://localhost:3000", "-k" ]
+      timeout: 5s
+      interval: 15s
     ports:
       - "3000:3000"
     networks:
