@@ -15,6 +15,10 @@ Key points:
 * The reference service now supports GFF3 (gene feature annotation) files, and the private portal has moved to using 
   this service to provide gene information for searching and track visualization. **All annotations required should be 
   ingested/attached to the reference genome.**
+* Docker requirements for deployment have changed.
+    * Docker >= 24.0.4
+    * Docker Compose >= 2.20.0 (plugin)
+    * Update the versions on the host machine accordingly
 
 
 ## 1. Run reference service pre-migration step
