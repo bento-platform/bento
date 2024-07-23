@@ -5,21 +5,18 @@ import json
 import os
 import pathlib
 import pwd
+import subprocess
 import yaml
 
 from typing import Dict, Generator, List, Optional, Tuple
+
+from .utils import err
 
 __all__ = [
     "DOCKER_COMPOSE_FILE_BASE",
     "DOCKER_COMPOSE_FILE_DEV",
     "DOCKER_COMPOSE_FILE_LOCAL",
     "DOCKER_COMPOSE_FILE_PROD",
-
-    "DOCKER_COMPOSE_FILE_AUTH",
-    "DOCKER_COMPOSE_FILE_BEACON",
-    "DOCKER_COMPOSE_FILE_CBIOPORTAL",
-    "DOCKER_COMPOSE_FILE_GOHAN",
-    "DOCKER_COMPOSE_FILE_PUBLIC",
 
     "DOCKER_COMPOSE_SERVICES",
     "DOCKER_COMPOSE_DEV_SERVICES",
@@ -59,13 +56,6 @@ DOCKER_COMPOSE_FILE_BASE = "./docker-compose.yaml"
 DOCKER_COMPOSE_FILE_DEV = "./docker-compose.dev.yaml"
 DOCKER_COMPOSE_FILE_LOCAL = "./docker-compose.local.yaml"
 DOCKER_COMPOSE_FILE_PROD = "./docker-compose.prod.yaml"
-
-DOCKER_COMPOSE_FILE_AUTH = "./lib/auth/docker-compose.auth.yaml"
-DOCKER_COMPOSE_FILE_BEACON = "./lib/beacon/docker-compose.beacon.yaml"
-DOCKER_COMPOSE_FILE_CBIOPORTAL = "./lib/cbioportal/docker-compose.cbioportal.yaml"
-DOCKER_COMPOSE_FILE_GOHAN = "./lib/gohan/docker-compose.gohan.yaml"
-DOCKER_COMPOSE_FILE_PUBLIC = "./lib/public/docker-compose.public.yaml"
-DOCKER_COMPOSE_FILE_REFERENCE = "./lib/reference/docker-compose.reference.yaml"
 
 USER = os.getenv("USER")
 
@@ -114,26 +104,38 @@ BENTO_FEATURE_CBIOPORTAL = BentoOptionalFeature(
 BENTO_FEATURE_GOHAN = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_GOHAN_ENABLED", default=False), profile="gohan")
 BENTO_FEATURE_PUBLIC = BentoOptionalFeature(enabled=BENTOV2_USE_BENTO_PUBLIC, profile="public")
-BENTO_FEATURE_REDIRECT = BentoOptionalFeature(enabled=BENTO_DOMAIN_REDIRECT, profile="redirect")
-
-if not DEV_MODE and BENTO_FEATURE_CBIOPORTAL.enabled:
-    import sys
-    print("cBioPortal for production deployments is not finished.", file=sys.stderr)
-    exit(1)
-
+BENTO_FEATURE_REDIRECT = BentoOptionalFeature(enabled=bool(BENTO_DOMAIN_REDIRECT), profile="redirect")
 
 BENTO_GIT_CLONE_HTTPS: bool = os.getenv("BENTO_GIT_CLONE_HTTPS", "0").lower().strip() in ("1", "true")
 
 COMPOSE: Tuple[str, ...] = ("docker", "compose")
 
 
-def _get_enabled_services(compose_file: str, filter_out: Tuple[str, ...] = ()) -> Generator[str, None, None]:
+def _get_enabled_services(
+    compose_files: Tuple[str, ...],
+    filter_out: Tuple[str, ...] = (),
+) -> Generator[str, None, None]:
     # Loop through compose file and find enabled services - either no profiles specified,
     # or the profile of an enabled feature.
 
-    # Load base docker-compose services list
-    with open(compose_file) as dcf:
-        compose_data = yaml.load(dcf, yaml.Loader)
+    enabled_profiles = tuple(get_enabled_feature_profiles())
+
+    # Generate merged Docker Compose YAML using docker compose config command
+    r = subprocess.run(
+        (
+            *COMPOSE,
+            *itertools.chain.from_iterable(("-f", cf) for cf in compose_files),
+            *itertools.chain.from_iterable(("--profile", p) for p in enabled_profiles),
+            "config"),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
+
+    if r.returncode != 0:
+        err(f"Parsing compose file(s) {compose_files} failed with error:\n\t{r.stderr.decode('utf-8').strip()}")
+        exit(1)
+
+    # Load the compose data
+    compose_data = yaml.load(r.stdout, yaml.Loader)
 
     for k, v in compose_data["services"].items():
         if k in filter_out:
@@ -145,24 +147,16 @@ def _get_enabled_services(compose_file: str, filter_out: Tuple[str, ...] = ()) -
             yield k
             continue
         for p in profiles:
-            if (f := BENTO_OPTIONAL_FEATURES_BY_PROFILE.get(p)) is not None and f.enabled:
+            if p in enabled_profiles:
                 yield k
-                break
+                break  # escape profile loop, we found one which enables this service
 
 
-BASE_SERVICES: Tuple[str, ...] = tuple(itertools.chain.from_iterable(_get_enabled_services(cf, ()) for cf in (
-    DOCKER_COMPOSE_FILE_BASE,
-    DOCKER_COMPOSE_FILE_AUTH,
-    DOCKER_COMPOSE_FILE_BEACON,
-    DOCKER_COMPOSE_FILE_CBIOPORTAL,
-    DOCKER_COMPOSE_FILE_GOHAN,
-    DOCKER_COMPOSE_FILE_PUBLIC,
-    DOCKER_COMPOSE_FILE_REFERENCE,
-)))
+BASE_SERVICES: Tuple[str, ...] = tuple(_get_enabled_services((DOCKER_COMPOSE_FILE_BASE,), ()))
 
 # Load dev docker-compose services list if in DEV_MODE
 DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = tuple(
-    _get_enabled_services(DOCKER_COMPOSE_FILE_DEV, BASE_SERVICES)) if DEV_MODE else ()
+    _get_enabled_services((DOCKER_COMPOSE_FILE_BASE, DOCKER_COMPOSE_FILE_DEV), BASE_SERVICES)) if DEV_MODE else ()
 
 # Final amalgamation of services for Bento taking into account dev/prod mode + profiles
 DOCKER_COMPOSE_SERVICES: Tuple[str, ...] = BASE_SERVICES + DOCKER_COMPOSE_DEV_SERVICES

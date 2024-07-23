@@ -21,6 +21,7 @@ __all__ = [
     "init_docker",
     "init_dirs",
     "init_self_signed_certs",
+    "init_config",
 ]
 
 
@@ -197,9 +198,10 @@ def init_self_signed_certs(force: bool):
 
 def init_dirs():
     data_dir_vars = {
-        "root": "BENTOV2_ROOT_DATA_DIR",
+        "root_fast": "BENTO_FAST_DATA_DIR",
+        "root_slow": "BENTO_SLOW_DATA_DIR",
         "authz-db": "BENTO_AUTHZ_DB_VOL_DIR",
-        "drs-data": "BENTOV2_DRS_DEV_VOL_DIR" if c.DEV_MODE else "BENTOV2_DRS_PROD_VOL_DIR",
+        "drs-data": "BENTO_DRS_DATA_VOL_DIR",
         "drs-tmp": "BENTO_DRS_TMP_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
         "gohan": "BENTOV2_GOHAN_DATA_ROOT",
@@ -210,6 +212,7 @@ def init_dirs():
         "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR" if c.DEV_MODE else "BENTOV2_KATSU_DB_DEV_VOL_DIR",
         "notification": "BENTOV2_NOTIFICATION_VOL_DIR",
         "redis": "BENTOV2_REDIS_VOL_DIR",
+        "reference": "BENTO_REFERENCE_TMP_VOL_DIR",
         "reference-db": "BENTO_REFERENCE_DB_VOL_DIR",
         "wes": "BENTOV2_WES_VOL_DIR",
         "wes-tmp": "BENTOV2_WES_VOL_TMP_DIR",
@@ -617,6 +620,36 @@ def convert_phenopacket_file(source: str, target: str):
 #             task_print_done()
 #         else:
 #             err("failed.")
+
+
+def init_config(service: str, force: bool = False):
+    if service == "katsu":
+        _init_katsu_config(force)
+    elif service == "beacon":
+        _init_beacon_config(force)
+
+
+def _init_beacon_config(force: bool):
+    root_path = pathlib.Path.cwd()
+    template_dir = (root_path / "etc" / "templates" / "beacon")
+    dest_dir = (root_path / "lib" / "beacon" / "config")
+
+    config_template_path = (template_dir / "beacon_config.example.json")
+    config_dest_path = (dest_dir / "beacon_config.json")
+
+    cohort_template_path = (template_dir / "beacon_cohort.example.json")
+    cohort_dest_path = (dest_dir / "beacon_cohort.json")
+
+    _file_copy(config_template_path, config_dest_path, force)
+    _file_copy(cohort_template_path, cohort_dest_path, force)
+
+
+def _init_katsu_config(force: bool):
+    root_path = pathlib.Path.cwd()
+    katsu_config_template_path = (root_path / "etc" / "katsu.config.example.json")
+    katsu_config_dest_path = (root_path / "lib" / "katsu" / "config.json")
+
+    _file_copy(katsu_config_template_path, katsu_config_dest_path, force)
 
 
 def clean_logs():

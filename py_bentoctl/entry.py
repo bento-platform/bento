@@ -14,7 +14,7 @@ from . import utils as u
 
 from typing import Optional, Tuple, Type
 
-__version__ = "0.5.1"
+__version__ = "0.6.0"
 
 
 class SubCommand(ABC):
@@ -198,6 +198,17 @@ class Logs(SubCommand):
         s.logs_service(args.service, args.follow)
 
 
+class ComposeConfig(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument("--services", action="store_true", help="List services seen by Compose.")
+
+    @staticmethod
+    def exec(args):
+        s.compose_config(args.services)
+
+
 # Other helpers
 
 class InitDirs(SubCommand):
@@ -266,6 +277,21 @@ class InitAll(SubCommand):
             fh.init_cbioportal()
 
 
+class InitConfig(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, choices=["katsu", "beacon"], help="Prepares services for deployment.")
+        sp.add_argument(
+            "--force", "-f", action="store_true",
+            help="Overwrites any existing config.")
+
+    @staticmethod
+    def exec(args):
+        oh.init_config(args.service, args.force)
+
+
 class ConvertPhenopacket(SubCommand):
 
     @staticmethod
@@ -319,9 +345,14 @@ def main(args: Optional[list[str]] = None) -> int:
         "init-all",
         "Initialize certs, directories, Docker networks, secrets, and web portals. DOES NOT initialize Keycloak.",
         InitAll)
+    _add_subparser("init-config", "Initialize configuration files for specific services.", InitConfig)
 
     # Feature-specific initialization commands
     _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
+
+    # Other commands
+    _add_subparser("convert-pheno",
+                   "Convert a Phenopacket V1 JSON document to V2", ConvertPhenopacket, aliases=("conv",))
 
     # Service commands
     _add_subparser("run", "Run Bento services.", Run, aliases=("start", "up"))
@@ -339,8 +370,7 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=("sh",))
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
     _add_subparser("logs", "Check logs for a service.", Logs)
-    _add_subparser("convert-pheno",
-                   "Convert a Phenopacket V1 JSON document to V2", ConvertPhenopacket, aliases=("conv",))
+    _add_subparser("compose-config", "Generate Compose config YAML.", ComposeConfig)
 
     p_args = parser.parse_args(args)
 

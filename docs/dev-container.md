@@ -60,20 +60,18 @@ The port configuration for the debugger is passed using the file `launch.json`
 located in the `.vscode/` folder of the workspace.
 ```json
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python: Attach Debugger",
-            "type": "python",
-            "request": "attach",
-            "port": 5678,
-            "host": "0.0.0.0"
-        },
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Attach Debugger",
+      "type": "debugpy",
+      "request": "attach",
+      "listen": {
+          "host": "0.0.0.0",
+          "port": 5678
+      }
+    }
+  ]
 }
 ```
 

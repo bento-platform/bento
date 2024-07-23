@@ -19,6 +19,9 @@ services:
       - BENTO_BEACON_UI_ENABLED
       - BEACON_URL=${BENTOV2_PUBLIC_URL}/api/beacon
       - INTERNAL_PORT=${BENTO_PUBLIC_INTERNAL_PORT}
+      - BENTO_PUBLIC_URL=${BENTOV2_PUBLIC_URL}
+      - OPENID_CONFIG_URL=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
+      - CLIENT_ID=${BENTOV2_AUTH_CLIENT_ID}
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
     volumes:
@@ -37,9 +40,9 @@ services:
       - public
 
 networks:
-  katsu-db-net:
+  katsu-net:
     external: true
-    name: ${BENTO_KATSU_DB_NETWORK}
+    name: ${BENTO_KATSU_NETWORK}
   public-net:
     external: true
     name: ${BENTO_PUBLIC_NETWORK}

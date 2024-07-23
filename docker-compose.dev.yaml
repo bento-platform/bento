@@ -1,18 +1,12 @@
-# extends main docker-compose.yml and various service-specific compose files;
+# merges with main docker-compose.yml and various service-specific compose files;
 # adds in development/debug environment variables, debugpy ports
 
 services:
   web:
-    extends:
-      file: docker-compose.yaml
-      service: web
     environment:
       - NODE_ENV=development
 
   public:
-    extends:
-      file: $PWD/lib/public/docker-compose.public.yaml
-      service: public
     environment:
       - NODE_ENV=development
     ports:
@@ -76,6 +70,11 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
+      reference-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
       service-registry-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -91,23 +90,12 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
-    extends:
-      file: docker-compose.yaml
-      service: gateway
 
   authz:
-    extends:
-      file: docker-compose.yaml
-      service: authz
     environment:
       - BENTO_DEBUG=True
 
   katsu:
-    depends_on:
-      - katsu-db
-    extends:
-      file: $PWD/lib/katsu/docker-compose.katsu.yaml
-      service: katsu
     volumes:
       - ${BENTOV2_KATSU_DEV_WES_VOL_TMP_DIR}:/wes/tmp:ro
     environment:
@@ -119,9 +107,6 @@ services:
       - "${BENTOV2_KATSU_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_KATSU_DEBUGGER_INTERNAL_PORT}"
 
   katsu-db:
-    extends:
-      file: $PWD/lib/katsu/docker-compose.katsu.yaml
-      service: katsu-db
     ports:
       - "${BENTOV2_KATSU_DB_EXTERNAL_PORT}:${BENTOV2_KATSU_DB_INTERNAL_PORT}"
     volumes:
@@ -155,9 +140,6 @@ services:
       - LOG_LEVEL=debug
       - PORT=${BENTOV2_AGGREGATION_INTERNAL_PORT}
       - DEBUGGER_PORT=${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}
-    extends:
-      file: $PWD/lib/aggregation/docker-compose.aggregation.yaml
-      service: aggregation
     ports:
       - "${BENTOV2_AGGREGATION_EXTERNAL_PORT}:${BENTOV2_AGGREGATION_INTERNAL_PORT}"
       - "${BENTOV2_AGGREGATION_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_AGGREGATION_DEBUGGER_INTERNAL_PORT}"
@@ -169,9 +151,6 @@ services:
       - FLASK_DEBUG=True
       - BENTO_VALIDATE_SSL=False
       - DEBUGGER_PORT=${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}
-    extends:
-      file: $PWD/lib/wes/docker-compose.wes.yaml
-      service: wes
     volumes:
       - ${BENTOV2_WES_DEV_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_DEV_VOL_TMP_DIR}:/wes/tmp
@@ -184,17 +163,9 @@ services:
     environment:
       - FLASK_DEBUG=True
       - DEBUGGER_PORT=${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}
-    extends:
-      file: $PWD/lib/drs/docker-compose.drs.yaml
-      service: drs
     ports:
       - "${BENTOV2_DRS_EXTERNAL_PORT}:5000"
       - "${BENTOV2_DRS_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_DRS_DEBUGGER_INTERNAL_PORT}"
-    volumes:
-      # Override main drs data directory
-      - ${BENTOV2_DRS_DEV_VOL_DIR}:/drs/bento_drs/data
-      - ${BENTOV2_DRS_DEV_WES_VOL_DIR}:/wes/tmp:ro
-      - ${BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR}:${BENTOV2_GOHAN_DRS_API_DRS_BRIDGE_DIR_CONTAINERIZED}
 
   beacon:
     environment:
@@ -202,9 +173,6 @@ services:
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
       - BENTO_BEACON_DEBUG=true
-    extends:
-      file: $PWD/lib/beacon/docker-compose.beacon.yaml
-      service: beacon
     ports:
       - "${BENTO_BEACON_EXTERNAL_PORT}:${BENTO_BEACON_INTERNAL_PORT}"
       - "${BENTO_BEACON_DEBUGGER_EXTERNAL_PORT}:${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}"
@@ -218,9 +186,6 @@ services:
       - LOG_LEVEL=debug
     ports:
       - "${BENTOV2_SERVICE_REGISTRY_EXTERNAL_PORT}:${BENTOV2_SERVICE_REGISTRY_INTERNAL_PORT}"
-    extends:
-      file: docker-compose.yaml
-      service: service-registry
 
   drop-box:
     environment:
@@ -228,9 +193,6 @@ services:
       - BENTO_DEBUG=True
     ports:
       - "${BENTOV2_DROP_BOX_EXTERNAL_PORT}:${BENTOV2_DROP_BOX_INTERNAL_PORT}"
-    extends:
-      file: docker-compose.yaml
-      service: drop-box
 
   notification:
     environment:
@@ -240,17 +202,11 @@ services:
     ports:
       - "${BENTOV2_NOTIFICATION_EXTERNAL_PORT}:${BENTOV2_NOTIFICATION_INTERNAL_PORT}"
       - "${BENTO_NOTIFICATION_DEBUGGER_EXTERNAL_PORT}:${BENTO_NOTIFICATION_DEBUGGER_INTERNAL_PORT}"
-    extends:
-      file: docker-compose.yaml
-      service: notification
 
   event-relay:
     environment:
       - BENTO_DEBUG=true
       - NODE_ENV=development
-    extends:
-      file: docker-compose.yaml
-      service: event-relay
 
   reference:
     environment:
@@ -259,14 +215,8 @@ services:
       - LOG_LEVEL=debug
     ports:
       - "${BENTO_REFERENCE_EXTERNAL_PORT}:${BENTO_REFERENCE_INTERNAL_PORT}"
-    extends:
-      file: $PWD/lib/reference/docker-compose.reference.yaml
-      service: reference
 
   reference-db:
-    extends:
-      file: $PWD/lib/reference/docker-compose.reference.yaml
-      service: reference-db
     ports:
       - "${BENTO_REFERENCE_DB_EXTERNAL_PORT}:5432"
 
@@ -278,11 +228,7 @@ services:
       "http.cors.enabled": "true"
       "http.cors.allow-origin": "http://localhost:8081"
       "http.cors.allow-headers": X-Requested-With,Content-Type,Content-Length,Authorization
-    extends:
-      file: $PWD/lib/gohan/docker-compose.gohan.yaml
-      service: gohan-elasticsearch
 
-  gohan-api:
-    extends:
-      file: $PWD/lib/gohan/docker-compose.gohan.yaml
-      service: gohan-api
+  cbioportal:
+    ports:
+      - "${BENTO_CBIOPORTAL_EXTERNAL_PORT}:${BENTO_CBIOPORTAL_INTERNAL_PORT}"

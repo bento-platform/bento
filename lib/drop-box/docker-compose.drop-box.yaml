@@ -1,0 +1,30 @@
+services:
+  drop-box:
+    image: ${BENTOV2_DROP_BOX_IMAGE}:${BENTOV2_DROP_BOX_VERSION}
+    container_name: ${BENTOV2_DROP_BOX_CONTAINER_NAME}
+    environment:
+      - BENTO_UID
+      - BENTO_DEBUG=False
+      - SERVICE_DATA=${BENTO_DROP_BOX_FS_BASE_PATH}
+      - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/drop-box
+      - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
+      - BENTO_AUTHZ_SERVICE_URL
+      - OPENID_CONFIG_URL=${BENTO_OPENID_CONFIG_URL}
+    networks:
+      - drop-box-net
+    expose:
+      - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
+    volumes:
+      - ${BENTOV2_DROP_BOX_VOL_DIR}:${BENTO_DROP_BOX_FS_BASE_PATH}
+    mem_limit: ${BENTOV2_DROP_BOX_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
+    cpus: ${BENTOV2_DROP_BOX_CPUS}
+    cpu_shares: 1024
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}/service-info" ]
+      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+
+networks:
+  drop-box-net:
+    external: true
+    name: ${BENTO_DROP_BOX_NETWORK}

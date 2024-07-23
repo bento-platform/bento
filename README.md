@@ -22,8 +22,8 @@ that make up the Bento platform.
 
 
 ## Requirements
-- Docker >= 19.03.8
-- Docker Compose >= 2.14.0, <2.24 (plugin form: you should have the `docker compose` command available, without a dash)
+- Docker >= 24.0.4
+- Docker Compose >= 2.20.0 (plugin form: you should have the `docker compose` command available, without a dash)
 - Python >= 3.9 (for `bentoctl`); the services require Python 3.10 but this is included in their Docker images. 
 
 
@@ -44,6 +44,7 @@ that make up the Bento platform.
 
 ### Migration documents
 
+* [v15.2 to v16](./docs/migrating_to_16.md)
 * [v15.1 to v15.2](./docs/migrating_to_15_2.md)
 * [v15 to v15.1](./docs/migrating_to_15_1.md)
 * [v14 to v15](./docs/migrating_to_15.md)
