@@ -427,9 +427,24 @@ To remove the Docker containers, run the following:
 > (depending on data path, e.g., `./data/[auth, drs, katsu]/...` directories)
 
 
-## 9. Set Up Gohan's Gene Catalogue (Optional but Required for Gene Querying Support)
+## 9. Ingest reference material
 
-To enable gene querying support, follow these steps to set up Gohan's gene catalogue:
+To support genomic data and gene querying, a reference genome (FASTA) and GFF3 gene catalog must be ingested.
+Follow these steps:
+
+1. Download your reference genome and GFF3 gene catalog files from RefSeq or a similar database.
+2. Upload these files to your Bento instance's drop box.
+3. Have a Phenopackets JSON-style ontology term (from the 
+   [`NCBITaxon` ontology](https://github.com/obophenotype/ncbitaxon)) ready, e.g.:
+   ```json
+   {"id": "NCBITaxon:9606", "label": "Homo sapiens"}
+   ```
+4. Navigate to `/data/manager/ingestion` in the Bento private portal and ingest the reference FASTA and GFF3 into the
+   reference service. This will take some time.
+
+### Set Up Gohan's Gene Catalogue (*Legacy instructions*)
+
+To enable gene querying support in versions of Bento before v16, follow these steps to set up Gohan's gene catalogue:
 
 1. **Access the Services Portal**:
    - Navigate to the `Services` tab on the portal.

@@ -12,6 +12,9 @@ Key points:
      `local.env`.
 * The WES schema has been updated, so the run database must be cleared.
 * The reference service has been updated, so an SQL migration must be run.
+* The reference service now supports GFF3 (gene feature annotation) files, and the private portal has moved to using 
+  this service to provide gene information for searching and track visualization. **All annotations required should be 
+  ingested/attached to the reference genome.**
 
 
 ## 1. Run reference service pre-migration step
@@ -97,3 +100,11 @@ the corresponding locations as specified in `etc/bento.env`.
 ```bash
 ./bentoctl.bash start
 ```
+
+
+## 8. If needed, ingest gene features
+
+Use the ingestion workflows now provided by the reference service to either ingest a reference genome FASTA with a 
+corresponding GFF3 file, or ingest a GFF3 file to attach to an existing reference genome.
+
+**Do this if the instance was previously using the Gohan gene catalog.**
