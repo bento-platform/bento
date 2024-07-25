@@ -4,7 +4,8 @@ services:
     container_name: ${BENTOV2_GRAFANA_CONTAINER_NAME}
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-      - GF_SERVER_ROOT_URL=https://portal.bentov2.local:443/api/grafana
+      - GF_SERVER_ROOT_URL=https://${BENTOV2_PORTAL_DOMAIN}:443/api/grafana
+      - GF_AUTH_JWT_JWK_SET_URL=https://${BENTOV2_AUTH_CONTAINER_NAME}:8443/realms/bentov2/protocol/openid-connect/certs
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       - GF_SECURITY_ALLOW_EMBEDDING=true
       - GF_AUTH_JWT_ENABLED=true
@@ -32,19 +33,19 @@ services:
           version: 1
           editable: true
         EOF
-        touch /etc/grafana/provisioning/jwks.json
-        curl -k https://bentov2-auth:8443/realms/bentov2/protocol/openid-connect/certs -o /etc/grafana/provisioning/jwks.json 
         /run.sh
     user:
-      ${BENTO_UID} #entrypoint is sooo messyyy!!!!
+      ${BENTO_UID}
     volumes:
       - ${BENTOV2_GRAFANA_PROD_LIB_DIR}:/var/lib/grafana
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:3000", "-k" ]
+      test: [ "CMD", "curl", "-k", "https://localhost:3000"]
       timeout: 5s
       interval: 15s
     ports:
       - "3000:3000"
+    profiles:
+      - monitoring
     networks:
       - monitoring-net
       - auth-net
@@ -62,6 +63,8 @@ services:
       ${BENTO_UID}
     networks:
       - monitoring-net
+    profiles:
+      - monitoring
 
   promtail:
     container_name: ${BENTOV2_PROMTAIL_CONTAINER_NAME}
@@ -73,6 +76,8 @@ services:
     command: "-config.file=/etc/promtail/config.yaml"  
     networks:
       - monitoring-net
+    profiles:
+      - monitoring
 
 networks:
    auth-net:
