@@ -65,6 +65,11 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
+      monitoring-net:
+          aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
       public-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -233,5 +238,10 @@ services:
   cbioportal:
     ports:
       - "${BENTO_CBIOPORTAL_EXTERNAL_PORT}:${BENTO_CBIOPORTAL_INTERNAL_PORT}"
+
+  grafana:
+    environment:
+    # Workaround for self signed certificates in dev
+      - GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE=true
 
     
