@@ -42,7 +42,7 @@ WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
 WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT"))
 
 GRAFANA_CLIENT_ID = os.getenv("BENTO_GRAFANA_CLIENT_ID")
-GRAFANA_PRIVATE_URL=os.getenv("BENTOV2_PRIVATE_GRAFANA_URL")
+GRAFANA_PRIVATE_URL = os.getenv("BENTOV2_PRIVATE_GRAFANA_URL")
 
 KC_CLIENTS_ENDPOINT = f"admin/realms/{AUTH_REALM}/clients"
 
@@ -242,10 +242,10 @@ def init_auth(docker_client: docker.DockerClient):
                 public_client=False,  # Use client secret for this one
                 redirect_uris=[
                     f"{GRAFANA_PRIVATE_URL}/*"
-                ], 
-                web_origins=[GRAFANA_PRIVATE_URL], 
+                ],
+                web_origins=[GRAFANA_PRIVATE_URL],
                 access_token_lifespan=900,  # default access token lifespan: 15 minutes
-                use_refresh_tokens=False, 
+                use_refresh_tokens=False,
             )
             grafana_client_kc_id = fetch_existing_client_id(token, GRAFANA_CLIENT_ID)
 
