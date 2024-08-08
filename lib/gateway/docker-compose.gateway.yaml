@@ -87,6 +87,7 @@ services:
       - event-relay-net
       - gohan-api-net
       - katsu-net
+      - monitoring-net
       - notification-net
       - public-net
       - reference-net
@@ -104,6 +105,7 @@ services:
       - ${BENTOV2_GATEWAY_CERTS_DIR}:${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}:ro
       - ${PWD}/lib/gateway/services:/gateway/services:ro
       - ${PWD}/lib/gateway/public_services:/gateway/public_services:ro
+      - /var/log:/var/log
     mem_limit: ${BENTOV2_GATEWAY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_GATEWAY_CPUS}
     cpu_shares: 512
@@ -166,6 +168,9 @@ networks:
   katsu-net:
     external: true
     name: ${BENTO_KATSU_NETWORK}
+  monitoring-net:
+    external: true
+    name: ${BENTO_MONITORING_NETWORK}
   notification-net:
     external: true
     name: ${BENTO_NOTIFICATION_NETWORK}
