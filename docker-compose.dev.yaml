@@ -234,14 +234,17 @@ services:
       "http.cors.allow-origin": "http://localhost:8081"
       "http.cors.allow-headers": X-Requested-With,Content-Type,Content-Length,Authorization
 
-
   cbioportal:
     ports:
       - "${BENTO_CBIOPORTAL_EXTERNAL_PORT}:${BENTO_CBIOPORTAL_INTERNAL_PORT}"
 
   grafana:
+    ports:
+      - "3000:3000"
     environment:
     # Workaround for self signed certificates in dev
       - GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE=true
-
-    
+  
+  loki:
+    ports:
+      - "3100:3100"

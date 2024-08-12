@@ -1,10 +1,10 @@
 services: 
   grafana:
-    image: ${BENTOV2_GRAFANA_BASE_IMAGE}:${BENTOV2_GRAFANA_BASE_IMAGE_VERSION}
-    container_name: ${BENTOV2_GRAFANA_CONTAINER_NAME}
+    image: ${BENTO_GRAFANA_IMAGE}:${BENTO_GRAFANA_IMAGE_VERSION}
+    container_name: ${BENTO_GRAFANA_CONTAINER_NAME}
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-      - GF_SERVER_ROOT_URL=${BENTOV2_PRIVATE_GRAFANA_URL}
+      - GF_SERVER_ROOT_URL=${BENTO_PRIVATE_GRAFANA_URL}
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       - GF_SECURITY_COOKIE_SAMESITE=none
       - GF_SECURITY_ALLOW_EMBEDDING=true
@@ -47,27 +47,26 @@ services:
     user:
       ${BENTO_UID}
     volumes:
-      - ${BENTOV2_GRAFANA_PROD_LIB_DIR}:/var/lib/grafana
+      - ${BENTO_GRAFANA_PROD_LIB_DIR}:/var/lib/grafana
+    expose:
+      - 3000
     healthcheck:
       test: [ "CMD", "curl", "-k", "https://localhost:3000"]
       timeout: 5s
       interval: 15s
-    ports:
-      - "3000:3000"
     profiles:
       - monitoring
     networks:
       - monitoring-net
-      - auth-net
 
   loki:
-    container_name: ${BENTOV2_LOKI_CONTAINER_NAME}
-    image: ${BENTOV2_LOKI_BASE_IMAGE}:${BENTOV2_LOKI_BASE_IMAGE_VERSION}
+    container_name: ${BENTO_LOKI_CONTAINER_NAME}
+    image: ${BENTO_LOKI_IMAGE}:${BENTO_LOKI_IMAGE_VERSION}
     volumes:
-      - ${BENTOV2_LOKI_PROD_TEMP_DIR}:/tmp/loki
+      - ${BENTO_LOKI_PROD_TEMP_DIR}:/tmp/loki
       - ${PWD}/lib/logs/loki-config.yaml:/etc/loki/loki-config.yaml
-    ports:
-      - "3100:3100"
+    expose:
+      - 3100
     command: -config.file=/etc/loki/loki-config.yaml
     user:
       ${BENTO_UID}
@@ -77,8 +76,8 @@ services:
       - monitoring
 
   promtail:
-    container_name: ${BENTOV2_PROMTAIL_CONTAINER_NAME}
-    image: ${BENTOV2_PROMTAIL_BASE_IMAGE}:${BENTOV2_PROMTAIL_BASE_IMAGE_VERSION}
+    container_name: ${BENTO_PROMTAIL_CONTAINER_NAME}
+    image: ${BENTO_PROMTAIL_IMAGE}:${BENTO_PROMTAIL_IMAGE_VERSION}
     volumes:
       - "/var/lib/docker/containers:/var/lib/docker/containers"
       - "/var/run/docker.sock:/var/run/docker.sock"
@@ -90,9 +89,6 @@ services:
       - monitoring
 
 networks:
-   auth-net:
-    external: true
-    name: ${BENTO_AUTH_NETWORK}
    monitoring-net:
     external: true
     name: ${BENTO_MONITORING_NETWORK}

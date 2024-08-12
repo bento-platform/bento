@@ -105,7 +105,6 @@ services:
       - ${BENTOV2_GATEWAY_CERTS_DIR}:${BENTOV2_GATEWAY_INTERNAL_CERTS_DIR}:ro
       - ${PWD}/lib/gateway/services:/gateway/services:ro
       - ${PWD}/lib/gateway/public_services:/gateway/public_services:ro
-      - /var/log:/var/log
     mem_limit: ${BENTOV2_GATEWAY_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_GATEWAY_CPUS}
     cpu_shares: 512
