@@ -5,7 +5,7 @@ location /api/grafana/ {
     include /gateway/conf/proxy_extra.conf;
     
     # Immediate set/re-use means we don't get resolve errors if not up (as opposed to passing as a literal)
-    set $upstream_grafana http://bentov2-grafana:3000;
+    set $upstream_grafana http://${BENTO_GRAFANA_CONTAINER_NAME}:3000;
     
     proxy_pass $upstream_grafana;
     error_log /var/log/bentov2_grafana_errors.log;

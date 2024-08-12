@@ -9,7 +9,7 @@ location /api/loki/ {
     rewrite ^ $request_uri;
     rewrite ^/api/loki/(.*) /$1 break;
     return 400;
-    proxy_pass http://bentov2-loki:3100/loki/api/v1$uri;
+    proxy_pass http://${BENTO_LOKI_CONTAINER_NAME}:3100/loki/api/v1$uri;
 
     # Errors
     error_log /var/log/bentov2_loki_errors.log;
