@@ -1,3 +1,4 @@
+# env: BENTO_MONITORING_ENABLED
 location /api/grafana { return 302 https://${BENTOV2_PORTAL_DOMAIN}/api/grafana/; }
 location /api/grafana/ {
     # Reverse proxy settings

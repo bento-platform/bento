@@ -76,6 +76,7 @@ services:
       - BENTO_BEACON_INTERNAL_PORT
       - BENTO_CBIOPORTAL_CONTAINER_NAME
       - BENTO_CBIOPORTAL_INTERNAL_PORT
+      - BENTO_GRAFANA_CONTAINER_NAME
     networks:
       - aggregation-net
       - auth-net
