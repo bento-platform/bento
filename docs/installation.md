@@ -327,11 +327,11 @@ bento_authz create grant \
   '{"everything": true}' \
   'view:private_portal'
 
-# This grant gives permission to access and ingest data into all projects
+# This grant gives permission to access and ingest data into all projects and the reference genome service
 bento_authz create grant \
   '{"iss": "ISSUER_HERE", "client": "wes"}' \
   '{"everything": true}' \
-  'query:data' 'ingest:data'
+  'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material'
 ```
 
 ### c. *Optional step:* Assign portal access to all users in the instance realm
@@ -427,19 +427,37 @@ To remove the Docker containers, run the following:
 > (depending on data path, e.g., `./data/[auth, drs, katsu]/...` directories)
 
 
-## 9. Set up Gohan's gene catalogue (*optional*; required for gene querying support)
+## 9. Ingest reference material
 
-Upon initial startup of a fresh instance, it may of use, depending on the use-case, to perform the following:
+To support genomic data and gene querying, a reference genome (FASTA) and GFF3 gene catalog must be ingested.
+Follow these steps:
 
-```
-# navigate to:
-https://portal.bentov2.local/api/gohan/genes/ingestion/run
-# to trigger Gohan to download the default GenCode .gtk files from the internet and process them
+1. Download your reference genome and GFF3 gene catalog files from RefSeq or a similar database.
+2. Upload these files to your Bento instance's drop box.
+3. Have a Phenopackets JSON-style ontology term (from the 
+   [`NCBITaxon` ontology](https://github.com/obophenotype/ncbitaxon)) ready, e.g.:
+   ```json
+   {"id": "NCBITaxon:9606", "label": "Homo sapiens"}
+   ```
+4. Navigate to `/data/manager/ingestion` in the Bento private portal and ingest the reference FASTA and GFF3 into the
+   reference service. This will take some time.
 
-# - followed up by
-https://portal.bentov2.local/api/gohan/genes/ingestion/requests
-# to keep up with the process
+### Set Up Gohan's Gene Catalogue (*Legacy instructions*)
 
-# the end results can be found at
-https://portal.bentov2.local/api/gohan/genes/overview
-```
+To enable gene querying support in versions of Bento before v16, follow these steps to set up Gohan's gene catalogue:
+
+1. **Access the Services Portal**:
+   - Navigate to the `Services` tab on the portal.
+
+2. **Initiate Gohan Request**:
+   - Click the `Make Request` button for Gohan.
+
+3. **Edit and Trigger Ingestion Endpoint**:
+   - Modify the endpoint to `genes/ingestion/run`.
+   - Click `Get` to initiate Gohan's download and processing of the default GenCode `.gtk` files from the internet.
+
+4. **Monitor the Ingestion Process**:
+   - Use the endpoint `genes/ingestion/requests` to track the progress of the ingestion process.
+
+5. **Access the Gene Catalogue**:
+   - Once the ingestion process is complete, the gene catalogue will be available at `genes/overview`.

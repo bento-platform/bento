@@ -212,6 +212,7 @@ def init_dirs():
         "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR" if c.DEV_MODE else "BENTOV2_KATSU_DB_DEV_VOL_DIR",
         "notification": "BENTOV2_NOTIFICATION_VOL_DIR",
         "redis": "BENTOV2_REDIS_VOL_DIR",
+        "reference": "BENTO_REFERENCE_TMP_VOL_DIR",
         "reference-db": "BENTO_REFERENCE_DB_VOL_DIR",
         "wes": "BENTOV2_WES_VOL_DIR",
         "wes-tmp": "BENTOV2_WES_VOL_TMP_DIR",
