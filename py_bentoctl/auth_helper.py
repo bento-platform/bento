@@ -41,6 +41,9 @@ CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
 WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
 WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT"))
 
+GRAFANA_CLIENT_ID = os.getenv("BENTO_GRAFANA_CLIENT_ID")
+GRAFANA_PRIVATE_URL = os.getenv("BENTO_PRIVATE_GRAFANA_URL")
+
 KC_CLIENTS_ENDPOINT = f"admin/realms/{AUTH_REALM}/clients"
 
 
@@ -226,6 +229,42 @@ def init_auth(docker_client: docker.DockerClient):
             use_refresh_tokens=True,
         )
 
+    def create_grafana_client_if_needed(token: str) -> None:
+        grafana_client_kc_id: Optional[str] = fetch_existing_client_id(token, GRAFANA_CLIENT_ID)
+
+        if grafana_client_kc_id is None:
+            # Create the Bento WES client
+            create_keycloak_client_or_exit(
+                token,
+                GRAFANA_CLIENT_ID,
+                standard_flow_enabled=True,
+                service_accounts_enabled=False,
+                public_client=False,  # Use client secret for this one
+                redirect_uris=[
+                    f"{GRAFANA_PRIVATE_URL}/*"
+                ],
+                web_origins=[GRAFANA_PRIVATE_URL],
+                access_token_lifespan=900,  # default access token lifespan: 15 minutes
+                use_refresh_tokens=False,
+            )
+            grafana_client_kc_id = fetch_existing_client_id(token, GRAFANA_CLIENT_ID)
+
+        # Fetch and print secret
+
+        client_secret_res = get_keycloak_client_secret(grafana_client_kc_id, token)
+
+        client_secret_data = client_secret_res.json()
+        if not client_secret_res.ok:
+            err(f"    Failed to get client secret for {GRAFANA_CLIENT_ID}; {client_secret_res.status_code} "
+                f"{client_secret_data}")
+            exit(1)
+
+        client_secret = client_secret_data["value"]
+        cprint(
+            f"    Please set BENTO_GRAFANA_CLIENT_SECRET to {client_secret} in local.env and restart Grafana",
+            attrs=["bold"],
+        )
+
     # noinspection PyUnusedLocal
     def create_cbioportal_client_if_needed(token: str) -> None:
         cbio_client_kc_id: Optional[str] = fetch_existing_client_id(token, CBIOPORTAL_CLIENT_ID)
@@ -375,6 +414,11 @@ def init_auth(docker_client: docker.DockerClient):
     info(f"  Creating WES client: {WES_CLIENT_ID}")
     create_wes_client_if_needed(access_token)
     success()
+
+    if c.BENTO_FEATURE_MONITORING.enabled:
+        info(f"  Creating Grafana client: {GRAFANA_CLIENT_ID}")
+        create_grafana_client_if_needed(access_token)
+        success()
 
     info(f"  Creating user: {AUTH_TEST_USER}")
     create_test_user_if_needed(access_token)

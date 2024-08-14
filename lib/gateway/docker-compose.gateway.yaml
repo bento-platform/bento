@@ -22,6 +22,7 @@ services:
       - BENTO_BEACON_ENABLED
       - BENTO_CBIOPORTAL_ENABLED
       - BENTO_GOHAN_ENABLED
+      - BENTO_MONITORING_ENABLED
 
       - BENTOV2_GATEWAY_CONTAINER_NAME
 
@@ -76,6 +77,7 @@ services:
       - BENTO_BEACON_INTERNAL_PORT
       - BENTO_CBIOPORTAL_CONTAINER_NAME
       - BENTO_CBIOPORTAL_INTERNAL_PORT
+      - BENTO_GRAFANA_CONTAINER_NAME
     networks:
       - aggregation-net
       - auth-net
@@ -87,6 +89,7 @@ services:
       - event-relay-net
       - gohan-api-net
       - katsu-net
+      - monitoring-net
       - notification-net
       - public-net
       - reference-net
@@ -166,6 +169,9 @@ networks:
   katsu-net:
     external: true
     name: ${BENTO_KATSU_NETWORK}
+  monitoring-net:
+    external: true
+    name: ${BENTO_MONITORING_NETWORK}
   notification-net:
     external: true
     name: ${BENTO_NOTIFICATION_NETWORK}
