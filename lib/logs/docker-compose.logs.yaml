@@ -1,0 +1,93 @@
+services: 
+  grafana:
+    image: ${BENTO_GRAFANA_IMAGE}:${BENTO_GRAFANA_IMAGE_VERSION}
+    container_name: ${BENTO_GRAFANA_CONTAINER_NAME}
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_SERVER_ROOT_URL=${BENTO_PRIVATE_GRAFANA_URL}
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_COOKIE_SAMESITE=none
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_LOG_LEVEL=debug
+      - GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION=true
+      - GF_AUTH_GENERIC_OAUTH_ENABLED=true
+      - GF_AUTH_GENERIC_OAUTH_NAME=Keycloak-OAuth
+      - GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP=true
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=${BENTO_GRAFANA_CLIENT_ID}
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=${BENTO_GRAFANA_CLIENT_SECRET}
+      - GF_AUTH_GENERIC_OAUTH_SCOPES=openid profile offline_access roles
+      - GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH=username
+      - GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH=full_name
+      - GF_AUTH_GENERIC_OAUTH_USE_PKCE=true
+      - GF_AUTH_GENERIC_OAUTH_AUTH_URL=https://${BENTOV2_AUTH_DOMAIN}/realms/bentov2/protocol/openid-connect/auth
+      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=https://${BENTOV2_AUTH_DOMAIN}/realms/bentov2/protocol/openid-connect/token
+      - GF_AUTH_GENERIC_OAUTH_API_URL=https://${BENTOV2_AUTH_DOMAIN}/realms/bentov2/protocol/openid-connect/userinfo
+      - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH='GrafanaAdmin'
+      - GF_AUTH_ALLOW_ASSIGN_GRAFANA_ADMIN=true
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy
+          orgId: 1
+          url: http://loki:3100
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: true
+        EOF
+        /run.sh
+    user:
+      ${BENTO_UID}
+    volumes:
+      - ${BENTO_GRAFANA_LIB_DIR}:/var/lib/grafana
+    expose:
+      - 3000
+    healthcheck:
+      test: [ "CMD", "curl", "-k", "https://localhost:3000"]
+      timeout: 5s
+      interval: 15s
+    profiles:
+      - monitoring
+    networks:
+      - monitoring-net
+
+  loki:
+    container_name: ${BENTO_LOKI_CONTAINER_NAME}
+    image: ${BENTO_LOKI_IMAGE}:${BENTO_LOKI_IMAGE_VERSION}
+    volumes:
+      - ${BENTO_LOKI_TEMP_DIR}:/tmp/loki
+      - ${PWD}/lib/logs/loki-config.yaml:/etc/loki/loki-config.yaml
+    expose:
+      - 3100
+    command: -config.file=/etc/loki/loki-config.yaml
+    user:
+      ${BENTO_UID}
+    networks:
+      - monitoring-net
+    profiles:
+      - monitoring
+
+  promtail:
+    container_name: ${BENTO_PROMTAIL_CONTAINER_NAME}
+    image: ${BENTO_PROMTAIL_IMAGE}:${BENTO_PROMTAIL_IMAGE_VERSION}
+    volumes:
+      - "/var/lib/docker/containers:/var/lib/docker/containers"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "${PWD}/lib/logs/promtail-config.yaml:/etc/promtail/config.yaml"
+    command: "-config.file=/etc/promtail/config.yaml"  
+    networks:
+      - monitoring-net
+    profiles:
+      - monitoring
+
+networks:
+   monitoring-net:
+    external: true
+    name: ${BENTO_MONITORING_NETWORK}
