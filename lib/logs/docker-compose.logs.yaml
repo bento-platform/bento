@@ -46,7 +46,7 @@ services:
     user:
       ${BENTO_UID}
     volumes:
-      - ${BENTO_GRAFANA_PROD_LIB_DIR}:/var/lib/grafana
+      - ${BENTO_GRAFANA_LIB_DIR}:/var/lib/grafana
     expose:
       - 3000
     healthcheck:
@@ -62,7 +62,7 @@ services:
     container_name: ${BENTO_LOKI_CONTAINER_NAME}
     image: ${BENTO_LOKI_IMAGE}:${BENTO_LOKI_IMAGE_VERSION}
     volumes:
-      - ${BENTO_LOKI_PROD_TEMP_DIR}:/tmp/loki
+      - ${BENTO_LOKI_TEMP_DIR}:/tmp/loki
       - ${PWD}/lib/logs/loki-config.yaml:/etc/loki/loki-config.yaml
     expose:
       - 3100
