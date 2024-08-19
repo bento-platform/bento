@@ -23,6 +23,7 @@ services:
       - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=https://${BENTOV2_AUTH_DOMAIN}/realms/bentov2/protocol/openid-connect/token
       - GF_AUTH_GENERIC_OAUTH_API_URL=https://${BENTOV2_AUTH_DOMAIN}/realms/bentov2/protocol/openid-connect/userinfo
       - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH='GrafanaAdmin'
+      - GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_PATH='@.email || @.sub'
       - GF_AUTH_ALLOW_ASSIGN_GRAFANA_ADMIN=true
     entrypoint:
       - sh
