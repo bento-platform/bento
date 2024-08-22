@@ -29,5 +29,6 @@ storage_config:
   filesystem:
     directory: /tmp/loki/chunks
 
+# required to not spaz out when the container restarts
 limits_config:
   reject_old_samples: false
