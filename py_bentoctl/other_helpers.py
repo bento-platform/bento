@@ -222,7 +222,7 @@ def init_dirs():
         **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
         #  - cBioPortal
         **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
-        #  - Monitoring: Grafana/Loki 
+        #  - Monitoring: Grafana/Loki
         **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
         **({"loki": "BENTO_LOKI_TEMP_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
     }
