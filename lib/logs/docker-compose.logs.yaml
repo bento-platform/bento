@@ -30,7 +30,7 @@ services:
       - GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_PATH=email || preferred_username || sub
       - GF_AUTH_GENERIC_OAUTH_SIGNOUT_REDIRECT_URL=${BENTO_GRAFANA_SIGNOUT_REDIRECT_URL}
       - GF_AUTH_ALLOW_ASSIGN_GRAFANA_ADMIN=true
-      - GF_LOG_LEVEL=debug
+      - GF_LOG_LEVEL=info
     entrypoint:
       - sh
       - -euc
