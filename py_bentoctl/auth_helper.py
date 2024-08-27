@@ -5,6 +5,7 @@ import os
 import requests
 import subprocess
 import urllib3
+import json
 
 from termcolor import cprint
 from urllib3.exceptions import InsecureRequestWarning
@@ -88,7 +89,7 @@ def keycloak_req(
     raise NotImplementedError
 
 
-def fetch_existing_client_id(token: str, client_id: str) -> Optional[str]:
+def fetch_existing_client_id(token: str, client_id: str, verbose: bool = True) -> Optional[str]:
     existing_clients_res = keycloak_req(KC_ADMIN_API_CLIENTS_ENDPOINT, bearer_token=token)
     existing_clients = existing_clients_res.json()
 
@@ -98,70 +99,117 @@ def fetch_existing_client_id(token: str, client_id: str) -> Optional[str]:
 
     for client in existing_clients:
         if client["clientId"] == client_id:
-            warn(f"    Found existing client: {client_id}; using that.")
+            if verbose:
+                warn(f"    Found existing client: {client_id}; using that.")
             return client["id"]
 
     return None
 
 
-def fetch_existing_group_id(token: str, group_name: str,
-                            parent_id: str | None = None, verbose: bool = True) -> Optional[str]:
-    endpoint = f"{KC_ADMIN_API_GROUP_ENDPOINT}/{parent_id}/children" if parent_id else KC_ADMIN_API_GROUP_ENDPOINT
+def fetch_existing_client_role(token: str, client_id: str, role_name: str, verbose: bool = True) -> Optional[dict]:
+    client_roles_endpoint = f"{KC_ADMIN_API_CLIENTS_ENDPOINT}/{client_id}/roles"
+
+    existing_role_res = keycloak_req(f"{client_roles_endpoint}/{role_name}", bearer_token=token)
+    if not existing_role_res.ok:
+        return
+
+    if verbose:
+        warn(f"    Found existing role: {role_name}; using that.")
+    return existing_role_res.json()
+
+
+def fetch_existing_group_rep_or_exit(
+        token: str,
+        group_name: str,
+        parent_rep: dict | None = None,
+        verbose: bool = True
+        ) -> Optional[dict]:
+    endpoint = KC_ADMIN_API_GROUP_ENDPOINT
+    if parent_rep:
+        endpoint = f"{KC_ADMIN_API_GROUP_ENDPOINT}/{parent_rep['id']}/children"
     existing_groups_res = keycloak_req(endpoint, bearer_token=token)
 
     if not existing_groups_res.ok:
         err(f"    Failed to fetch group id associated with name: {group_name}")
         exit(1)
 
-    exising_groups = existing_groups_res.json()
-    for group in exising_groups:
+    existing_groups = existing_groups_res.json()
+    for group in existing_groups:
         if group["name"] == group_name:
             if verbose:
-                warn(f"    Found existing group: {group_name}; using that.")
-            return group["id"]
+                warn(f"    Found existing group: {group['path']} ; using that.")
+            return group
 
     return None
 
 
-def create_client_role_or_exit(token: str, client_id: str, role_name: str) -> None:
-    client_roles_endpoint = f"{KC_ADMIN_API_CLIENTS_ENDPOINT}/{client_id}/roles"
-
-    # Check if client role exists
-    existing_role_res = keycloak_req(f"{client_roles_endpoint}/{role_name}", bearer_token=token,)
-    if existing_role_res.ok:
-        warn(f"    Found existing role: {role_name}; using that.")
-        return
+def create_client_role_or_exit(token: str, client_id: str, role_name: str) -> Optional[dict]:
+    # Check if client role alread exists
+    if existing_role := fetch_existing_client_role(token, client_id, role_name):
+        return existing_role
 
     # Create client role if needed
+    client_roles_endpoint = f"{KC_ADMIN_API_CLIENTS_ENDPOINT}/{client_id}/roles"
     res = keycloak_req(client_roles_endpoint, bearer_token=token, method="post", json={
         "clientRole": True,
         "name": role_name,
     })
 
     if not res.ok:
-        err(f"    Failed to create {client_id} client role : {role_name}; {res.status_code} {res.json()}")
+        err(f"    Failed to create {client_id} client role : {role_name}; {res.status_code}")
         exit(1)
 
-    warn(f"    Created role: {role_name}.")
+    # role creation response returns no data, fetch the created RoleRepresentation for later use
+    created_role_rep = fetch_existing_client_role(token, client_id, role_name, verbose=False)
+    warn(f"    Created client role: {role_name}.")
+    return created_role_rep
 
 
-def create_group_or_exit(token: str, group_representation: dict, parent_id: str = None) -> Optional[str]:
-    group_endpoint = f"{KC_ADMIN_API_GROUP_ENDPOINT}/{parent_id}/children" if parent_id else KC_ADMIN_API_GROUP_ENDPOINT
-    group_type = f"sub-group of {parent_id}" if parent_id else "group"
+def create_group_or_exit(token: str, group_rep: dict, parent_group_rep: dict = None) -> Optional[dict]:
+    # try to get existing group first
+    if existing_group := fetch_existing_group_rep_or_exit(token, group_rep["name"], parent_group_rep):
+        return existing_group
 
-    if existing_group_id := fetch_existing_group_id(token, group_representation["name"], parent_id):
-        return existing_group_id
+    # group creation endpoint
+    group_endpoint = KC_ADMIN_API_GROUP_ENDPOINT
+    if parent_group_rep:
+        # use sub-group creation endpoint if a parent group is passed
+        group_endpoint = f"{group_endpoint}/{parent_group_rep['id']}/children"
 
-    res = keycloak_req(f"{group_endpoint}", bearer_token=token, method="post", json=group_representation)
-
-    # group creation doesn't return the ID of the newly created group, extra request is required to obtain it
-    created_group_id = fetch_existing_group_id(token, group_representation["name"], parent_id, verbose=False)
-    if not res.ok or not created_group_id:
-        err(f"    Failed to create {group_type}: {group_representation}; {res.status_code}")
+    res = keycloak_req(f"{group_endpoint}", bearer_token=token, method="post", json=group_rep)
+    if not res.ok:
+        err(f"    Failed to create group: {group_rep}; {res.status_code}")
         exit(1)
 
-    warn(f"    Created {group_type}: {group_representation['name']}")
-    return created_group_id
+    # group creation response returns no data, fetch the created GroupRepresentation for later use
+    created_group = fetch_existing_group_rep_or_exit(token, group_rep["name"], parent_group_rep, verbose=False)
+
+    warn(f"    Created group: {created_group['path']}")
+    return created_group
+
+
+def add_client_role_mapping_to_group_or_exit(token: str, group_rep: dict, client_id: str, role_rep: dict) -> None:
+    role_mappings_endpoint = f"{KC_ADMIN_API_GROUP_ENDPOINT}/{group_rep['id']}/role-mappings/clients/{client_id}"
+    existing_mappings_res = keycloak_req(role_mappings_endpoint, bearer_token=token)
+    if existing_mappings_res.ok:
+        target_role_name = role_rep["name"]
+        for role_map in existing_mappings_res.json():
+            if target_role_name == role_map["name"]:
+                warn(f"    Found existing client-level group role: {group_rep['path']}; using that.")
+                return
+
+    # create client role-mapping for given group
+    client_res = keycloak_req(
+        role_mappings_endpoint,
+        method="post",
+        bearer_token=token,
+        data=json.dumps([role_rep])   # RoleRepresentation needs to be in an array and sent as data
+    )
+    if not client_res.ok:
+        err(f"    Failed to add client-level role {role_rep['name']} to group {group_rep['path']}")
+        exit(1)
+
+    warn(f"    Created client-level role mapping for group: {group_rep['path']}")
 
 
 def create_keycloak_client_or_exit(
@@ -291,7 +339,7 @@ def init_auth(docker_client: docker.DockerClient):
             use_refresh_tokens=True,
         )
 
-    def create_grafana_client_if_needed(token: str) -> None:
+    def create_grafana_client_if_needed(token: str) -> Optional[str]:
         grafana_client_kc_id: Optional[str] = fetch_existing_client_id(token, GRAFANA_CLIENT_ID)
 
         if grafana_client_kc_id is None:
@@ -309,7 +357,7 @@ def init_auth(docker_client: docker.DockerClient):
                 access_token_lifespan=900,  # default access token lifespan: 15 minutes
                 use_refresh_tokens=False,
             )
-            grafana_client_kc_id = fetch_existing_client_id(token, GRAFANA_CLIENT_ID)
+            grafana_client_kc_id = fetch_existing_client_id(token, GRAFANA_CLIENT_ID, verbose=False)
 
         # Fetch and print secret
 
@@ -326,16 +374,18 @@ def init_auth(docker_client: docker.DockerClient):
             f"    Please set BENTO_GRAFANA_CLIENT_SECRET to {client_secret} in local.env and restart Grafana",
             attrs=["bold"],
         )
+        return grafana_client_kc_id
 
-    def create_grafana_roles_if_needed(token: str) -> None:
-        grafana_client_kc_id: Optional[str] = fetch_existing_client_id(token, GRAFANA_CLIENT_ID)
-
+    def create_grafana_client_roles_if_needed(token: str, client_id: str) -> Optional[dict]:
+        role_representations = {}
         for role_name in ["admin", "editor", "viewer"]:
-            create_client_role_or_exit(token, grafana_client_kc_id, role_name)
+            client_role = create_client_role_or_exit(token, client_id, role_name)
+            role_representations[role_name] = client_role
+        return role_representations
 
-    def create_grafana_groups_if_needed(token: str) -> None:
+    def create_grafana_client_groups_if_needed(token: str, role_mappings: dict, client_id: str) -> None:
         parent_group = {"name": "grafana"}
-        parent_group_id = create_group_or_exit(token, parent_group)
+        parent_group = create_group_or_exit(token, parent_group)
 
         sub_groups = [
             {"name": "admin"},
@@ -343,8 +393,12 @@ def init_auth(docker_client: docker.DockerClient):
             {"name": "viewer"}
         ]
 
+        # Add client-level role mappings to groups
+        # grafana_client_kc_id: Optional[str] = fetch_existing_client_id(token, GRAFANA_CLIENT_ID, verbose=False)
         for subgroup in sub_groups:
-            create_group_or_exit(token, subgroup, parent_id=parent_group_id)
+            group_rep = create_group_or_exit(token, subgroup, parent_group_rep=parent_group)
+            role_rep = role_mappings[subgroup["name"]]
+            add_client_role_mapping_to_group_or_exit(token, group_rep, client_id, role_rep)
 
     # noinspection PyUnusedLocal
     def create_cbioportal_client_if_needed(token: str) -> None:
@@ -498,11 +552,13 @@ def init_auth(docker_client: docker.DockerClient):
 
     if c.BENTO_FEATURE_MONITORING.enabled:
         info(f"  Creating Grafana client: {GRAFANA_CLIENT_ID}")
-        create_grafana_client_if_needed(access_token)
-        create_grafana_roles_if_needed(access_token)
-        create_grafana_groups_if_needed(access_token)
-        # TODO: group client-role mappings
-        #  /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client}
+        grafana_client_id = create_grafana_client_if_needed(access_token)
+        role_mappings = create_grafana_client_roles_if_needed(access_token, grafana_client_id)
+        create_grafana_client_groups_if_needed(access_token, role_mappings, grafana_client_id)
+        cprint(
+            "    Add users to the relevant Grafana sub-groups to give them access: admin, editor, viewer",
+            attrs=["bold"],
+        )
         success()
 
     info(f"  Creating user: {AUTH_TEST_USER}")
