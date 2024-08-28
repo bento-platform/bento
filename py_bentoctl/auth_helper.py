@@ -173,7 +173,6 @@ def create_client_and_secret_for_service(
     client_kc_id: Optional[str] = fetch_existing_client_id(token, client_id)
 
     if client_kc_id is None:
-        # Create the Bento WES client
         create_keycloak_client_or_exit(
             token,
             client_id,
@@ -283,7 +282,7 @@ def init_auth(docker_client: docker.DockerClient):
     # noinspection PyUnusedLocal
     def create_cbioportal_client_if_needed(token: str) -> None:
         create_client_and_secret_for_service(
-            GRAFANA_CLIENT_ID, "BENTO_CBIOPORTAL_CLIENT_SECRET", CBIOPORTAL_URL, token, use_refresh_tokens=True
+            CBIOPORTAL_CLIENT_ID, "BENTO_CBIOPORTAL_CLIENT_SECRET", CBIOPORTAL_URL, token, use_refresh_tokens=True
         )
 
     def create_wes_client_if_needed(token: str) -> None:
