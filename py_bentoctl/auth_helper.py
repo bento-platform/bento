@@ -48,7 +48,7 @@ GRAFANA_PRIVATE_URL = os.getenv("BENTO_PRIVATE_GRAFANA_URL")
 KC_ADMIN_API_ENDPOINT = f"admin/realms/{AUTH_REALM}"
 KC_ADMIN_API_GROUP_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/groups"
 KC_ADMIN_API_CLIENTS_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/clients"
-
+KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 
 def check_auth_admin_user():
     if not AUTH_ADMIN_USER:
@@ -81,6 +81,12 @@ def keycloak_req(
         return requests.get(make_keycloak_url(path), **kwargs)
     if method == "post":
         return requests.post(
+            make_keycloak_url(path),
+            **(dict(data=data) if data else {}),
+            **(dict(json=json) if json else {}),
+            **kwargs)
+    if method == "put":
+        return requests.put(
             make_keycloak_url(path),
             **(dict(data=data) if data else {}),
             **(dict(json=json) if json else {}),
@@ -400,6 +406,50 @@ def init_auth(docker_client: docker.DockerClient):
             role_rep = role_mappings[subgroup["name"]]
             add_client_role_mapping_to_group_or_exit(token, group_rep, client_id, role_rep)
 
+    # Modifies the "roles" client scope mapper, so that client-level roles are included in the ID token
+    def set_include_client_roles_in_id_tokens(token: str):
+        # Retrieve the 'roles' client-scope
+        client_scopes_res = keycloak_req(KC_ADMIN_API_CLIENT_SCOPES, bearer_token=token)
+        if not client_scopes_res.ok:
+            err(f"    Failed to retrieve client scopes: {client_scopes_res.status_code}")
+            exit(1)
+        client_scopes = client_scopes_res.json()
+
+        roles_client_scope = None
+        for scope in client_scopes:
+            if "roles" == scope["name"]:
+                roles_client_scope = scope
+                break
+
+        if not roles_client_scope:
+            # 'roles' is a predefined scope, so it should always be there by default
+            err("    Failed to retrieve the 'roles' client scope.")
+            exit(1)
+
+        # Find the 'client roles' protocol mapper
+        roles_mapper = None
+        for mapper in roles_client_scope["protocolMappers"]:
+            if "client roles" == mapper["name"]:
+                roles_mapper = mapper
+
+        if not roles_mapper:
+            # 'client roles' is a predefined mapper, so it should always be there by default
+            err("    Failed to retrieve the 'client roles' protocol mapper.")
+            exit(1)
+
+        # Update mapper config's id.token.claim if needed
+        if "id.token.claim" not in roles_mapper["config"] or roles_mapper["config"]["id.token.claim"] == "false":
+            roles_mapper["config"]["id.token.claim"] = "true"
+            mapper_endpoint = f"{KC_ADMIN_API_CLIENT_SCOPES}/{roles_client_scope['id']}" +  \
+                f"/protocol-mappers/models/{roles_mapper['id']}"
+            update_mapper_res = keycloak_req(mapper_endpoint, bearer_token=token, method="put", json=roles_mapper)
+            if not update_mapper_res.ok:
+                err(f"    Failed to modify 'client roles' mapper: {update_mapper_res.status_code}")
+                exit(1)
+            warn("    Updated 'client roles' scope mapper to include roles in the ID token.")
+        elif roles_mapper["config"]["id.token.claim"] == "true":
+            warn("    The 'client roles' scope mapper already includes roles in the ID token.")
+
     # noinspection PyUnusedLocal
     def create_cbioportal_client_if_needed(token: str) -> None:
         cbio_client_kc_id: Optional[str] = fetch_existing_client_id(token, CBIOPORTAL_CLIENT_ID)
@@ -555,6 +605,7 @@ def init_auth(docker_client: docker.DockerClient):
         grafana_client_id = create_grafana_client_if_needed(access_token)
         role_mappings = create_grafana_client_roles_if_needed(access_token, grafana_client_id)
         create_grafana_client_groups_if_needed(access_token, role_mappings, grafana_client_id)
+        set_include_client_roles_in_id_tokens(access_token)
         cprint(
             "    Add users to the relevant Grafana sub-groups to give them access: admin, editor, viewer",
             attrs=["bold"],
