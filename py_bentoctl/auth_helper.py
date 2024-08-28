@@ -50,6 +50,7 @@ KC_ADMIN_API_GROUP_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/groups"
 KC_ADMIN_API_CLIENTS_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/clients"
 KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 
+
 def check_auth_admin_user():
     if not AUTH_ADMIN_USER:
         err("Missing environment value for BENTOV2_AUTH_ADMIN_USER")
