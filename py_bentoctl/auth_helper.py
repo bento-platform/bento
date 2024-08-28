@@ -160,6 +160,51 @@ def get_keycloak_client_secret(client_id: str, token: str):
     return keycloak_req(f"{KC_CLIENTS_ENDPOINT}/{client_id}/client-secret", bearer_token=token)
 
 
+def create_client_and_secret_for_service(
+    client_id: str,
+    env_var_to_set: str,
+    private_url: str | None,
+    token: str,
+    is_service_account: bool = False,
+    to_restart: str = "the gateway",
+    token_lifespan: int = 900,    # default access token lifespan: 15 minutes
+    use_refresh_tokens: bool = False,  # by default, don't use refresh tokens! (they're less secure)
+):
+    client_kc_id: Optional[str] = fetch_existing_client_id(token, client_id)
+
+    if client_kc_id is None:
+        create_keycloak_client_or_exit(
+            token,
+            client_id,
+            standard_flow_enabled=not is_service_account,
+            service_accounts_enabled=is_service_account,
+            public_client=False,
+            redirect_uris=[
+                f"{private_url}/*"
+            ] if not is_service_account else [],  # Not used for client credentials access
+            web_origins=[private_url] if not is_service_account else [],  # "
+            access_token_lifespan=token_lifespan,
+            use_refresh_tokens=use_refresh_tokens,
+        )
+        client_kc_id = fetch_existing_client_id(token, client_id)
+
+    # Fetch and print secret
+
+    client_secret_res = get_keycloak_client_secret(client_kc_id, token)
+
+    client_secret_data = client_secret_res.json()
+    if not client_secret_res.ok:
+        err(f"    Failed to get client secret for {client_id}; {client_secret_res.status_code} "
+            f"{client_secret_data}")
+        exit(1)
+
+    client_secret = client_secret_data["value"]
+    cprint(
+        f"    Please set {env_var_to_set} to {client_secret} in local.env and restart {to_restart}",
+        attrs=["bold"],
+    )
+
+
 def init_auth(docker_client: docker.DockerClient):
     check_auth_admin_user()
 
@@ -230,109 +275,25 @@ def init_auth(docker_client: docker.DockerClient):
         )
 
     def create_grafana_client_if_needed(token: str) -> None:
-        grafana_client_kc_id: Optional[str] = fetch_existing_client_id(token, GRAFANA_CLIENT_ID)
-
-        if grafana_client_kc_id is None:
-            # Create the Bento WES client
-            create_keycloak_client_or_exit(
-                token,
-                GRAFANA_CLIENT_ID,
-                standard_flow_enabled=True,
-                service_accounts_enabled=False,
-                public_client=False,  # Use client secret for this one
-                redirect_uris=[
-                    f"{GRAFANA_PRIVATE_URL}/*"
-                ],
-                web_origins=[GRAFANA_PRIVATE_URL],
-                access_token_lifespan=900,  # default access token lifespan: 15 minutes
-                use_refresh_tokens=False,
-            )
-            grafana_client_kc_id = fetch_existing_client_id(token, GRAFANA_CLIENT_ID)
-
-        # Fetch and print secret
-
-        client_secret_res = get_keycloak_client_secret(grafana_client_kc_id, token)
-
-        client_secret_data = client_secret_res.json()
-        if not client_secret_res.ok:
-            err(f"    Failed to get client secret for {GRAFANA_CLIENT_ID}; {client_secret_res.status_code} "
-                f"{client_secret_data}")
-            exit(1)
-
-        client_secret = client_secret_data["value"]
-        cprint(
-            f"    Please set BENTO_GRAFANA_CLIENT_SECRET to {client_secret} in local.env and restart Grafana",
-            attrs=["bold"],
+        create_client_and_secret_for_service(
+            GRAFANA_CLIENT_ID, "BENTO_GRAFANA_CLIENT_SECRET", GRAFANA_PRIVATE_URL, token, to_restart="Grafana"
         )
 
     # noinspection PyUnusedLocal
     def create_cbioportal_client_if_needed(token: str) -> None:
-        cbio_client_kc_id: Optional[str] = fetch_existing_client_id(token, CBIOPORTAL_CLIENT_ID)
-
-        if cbio_client_kc_id is None:
-            # Create the cBioportal client
-            create_keycloak_client_or_exit(
-                token,
-                CBIOPORTAL_CLIENT_ID,
-                standard_flow_enabled=True,
-                service_accounts_enabled=False,
-                public_client=False,
-                redirect_uris=[f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}"],
-                web_origins=[CBIOPORTAL_URL],
-                access_token_lifespan=900,  # 15 minutes
-                use_refresh_tokens=True,
-            )
-            cbio_client_kc_id = fetch_existing_client_id(token, CBIOPORTAL_CLIENT_ID)
-
-        # Fetch and print secret
-
-        client_secret_res = get_keycloak_client_secret(cbio_client_kc_id, token)
-
-        client_secret_data = client_secret_res.json()
-        if not client_secret_res.ok:
-            err(f"    Failed to get client secret for {CBIOPORTAL_CLIENT_ID}; {client_secret_res.status_code} "
-                f"{client_secret_data}")
-            exit(1)
-
-        client_secret = client_secret_data["value"]
-        cprint(
-            f"    Please set BENTO_CBIOPORTAL_CLIENT_SECRET to {client_secret} in local.env and restart the "
-            f"gateway",
-            attrs=["bold"],
+        create_client_and_secret_for_service(
+            CBIOPORTAL_CLIENT_ID, "BENTO_CBIOPORTAL_CLIENT_SECRET", CBIOPORTAL_URL, token, use_refresh_tokens=True
         )
 
     def create_wes_client_if_needed(token: str) -> None:
-        wes_client_kc_id: Optional[str] = fetch_existing_client_id(token, WES_CLIENT_ID)
-
-        if wes_client_kc_id is None:
-            # Create the Bento WES client
-            create_keycloak_client_or_exit(
-                token,
-                WES_CLIENT_ID,
-                standard_flow_enabled=False,
-                service_accounts_enabled=True,
-                public_client=False,  # Use client secret for this one
-                redirect_uris=[],  # Not used with a standard/web flow - just client credentials
-                web_origins=[],  # "
-                access_token_lifespan=WES_WORKFLOW_TIMEOUT,  # WES workflow lifespan
-                use_refresh_tokens=False,  # No refreshing these allowed!
-            )
-            wes_client_kc_id = fetch_existing_client_id(token, WES_CLIENT_ID)
-
-        # Fetch and print secret
-
-        client_secret_res = get_keycloak_client_secret(wes_client_kc_id, token)
-
-        client_secret_data = client_secret_res.json()
-        if not client_secret_res.ok:
-            err(f"    Failed to get client secret for {WES_CLIENT_ID}; {client_secret_res.status_code} "
-                f"{client_secret_data}")
-            exit(1)
-
-        client_secret = client_secret_data["value"]
-        cprint(
-            f"    Please set BENTO_WES_CLIENT_SECRET to {client_secret} in local.env and restart WES",
-            attrs=["bold"],
+        create_client_and_secret_for_service(
+            WES_CLIENT_ID,
+            "BENTO_WES_CLIENT_SECRET",
+            None,
+            token,
+            is_service_account=True,
+            to_restart="WES",
+            token_lifespan=WES_WORKFLOW_TIMEOUT,
         )
 
     def create_test_user_if_needed(token: str) -> None:
