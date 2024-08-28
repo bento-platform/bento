@@ -391,17 +391,16 @@ def init_auth(docker_client: docker.DockerClient):
         return role_representations
 
     def create_grafana_client_groups_if_needed(token: str, role_mappings: dict, client_id: str) -> None:
+        # create parent grafana group (no role mapping)
         parent_group = {"name": "grafana"}
         parent_group = create_group_or_exit(token, parent_group)
 
+        # create subgroups with client-role mappings
         sub_groups = [
             {"name": "admin"},
             {"name": "editor"},
             {"name": "viewer"}
         ]
-
-        # Add client-level role mappings to groups
-        # grafana_client_kc_id: Optional[str] = fetch_existing_client_id(token, GRAFANA_CLIENT_ID, verbose=False)
         for subgroup in sub_groups:
             group_rep = create_group_or_exit(token, subgroup, parent_group_rep=parent_group)
             role_rep = role_mappings[subgroup["name"]]
