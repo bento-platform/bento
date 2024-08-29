@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import docker
+import json
 import os
 import requests
 import subprocess
 import urllib3
-import json
 
 from termcolor import cprint
 from urllib3.exceptions import InsecureRequestWarning
@@ -44,6 +44,7 @@ WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT"))
 
 GRAFANA_CLIENT_ID = os.getenv("BENTO_GRAFANA_CLIENT_ID")
 GRAFANA_PRIVATE_URL = os.getenv("BENTO_PRIVATE_GRAFANA_URL")
+GRAFANA_ROLES = ("admin", "editor", "viewer")
 
 KC_ADMIN_API_ENDPOINT = f"admin/realms/{AUTH_REALM}"
 KC_ADMIN_API_GROUP_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/groups"
@@ -129,8 +130,7 @@ def fetch_existing_group_rep_or_exit(
         token: str,
         group_name: str,
         parent_rep: dict | None = None,
-        verbose: bool = True
-        ) -> Optional[dict]:
+        verbose: bool = True) -> Optional[dict]:
     endpoint = KC_ADMIN_API_GROUP_ENDPOINT
     if parent_rep:
         endpoint = f"{KC_ADMIN_API_GROUP_ENDPOINT}/{parent_rep['id']}/children"
@@ -168,7 +168,7 @@ def create_client_role_or_exit(token: str, client_id: str, role_name: str) -> Op
 
     # role creation response returns no data, fetch the created RoleRepresentation for later use
     created_role_rep = fetch_existing_client_role(token, client_id, role_name, verbose=False)
-    warn(f"    Created client role: {role_name}.")
+    cprint(f"    Created client role: {role_name}.", "green")
     return created_role_rep
 
 
@@ -191,7 +191,7 @@ def create_group_or_exit(token: str, group_rep: dict, parent_group_rep: dict = N
     # group creation response returns no data, fetch the created GroupRepresentation for later use
     created_group = fetch_existing_group_rep_or_exit(token, group_rep["name"], parent_group_rep, verbose=False)
 
-    warn(f"    Created group: {created_group['path']}")
+    cprint(f"    Created group: {created_group['path']}", "green")
     return created_group
 
 
@@ -216,7 +216,7 @@ def add_client_role_mapping_to_group_or_exit(token: str, group_rep: dict, client
         err(f"    Failed to add client-level role {role_rep['name']} to group {group_rep['path']}")
         exit(1)
 
-    warn(f"    Created client-level role mapping for group: {group_rep['path']}")
+    cprint(f"    Created client-level role mapping for group: {group_rep['path']}", "green")
 
 
 def create_keycloak_client_or_exit(
@@ -385,7 +385,7 @@ def init_auth(docker_client: docker.DockerClient):
 
     def create_grafana_client_roles_if_needed(token: str, client_id: str) -> Optional[dict]:
         role_representations = {}
-        for role_name in ["admin", "editor", "viewer"]:
+        for role_name in GRAFANA_ROLES:
             client_role = create_client_role_or_exit(token, client_id, role_name)
             role_representations[role_name] = client_role
         return role_representations
@@ -396,11 +396,7 @@ def init_auth(docker_client: docker.DockerClient):
         parent_group = create_group_or_exit(token, parent_group)
 
         # create subgroups with client-role mappings
-        sub_groups = [
-            {"name": "admin"},
-            {"name": "editor"},
-            {"name": "viewer"}
-        ]
+        sub_groups = [{"name": g} for g in GRAFANA_ROLES]
         for subgroup in sub_groups:
             group_rep = create_group_or_exit(token, subgroup, parent_group_rep=parent_group)
             role_rep = role_mappings[subgroup["name"]]
@@ -446,7 +442,7 @@ def init_auth(docker_client: docker.DockerClient):
             if not update_mapper_res.ok:
                 err(f"    Failed to modify 'client roles' mapper: {update_mapper_res.status_code}")
                 exit(1)
-            warn("    Updated 'client roles' scope mapper to include roles in the ID token.")
+            cprint("    Updated 'client roles' scope mapper to include roles in the ID token.", "green")
         elif roles_mapper["config"]["id.token.claim"] == "true":
             warn("    The 'client roles' scope mapper already includes roles in the ID token.")
 
@@ -607,7 +603,7 @@ def init_auth(docker_client: docker.DockerClient):
         create_grafana_client_groups_if_needed(access_token, role_mappings, grafana_client_id)
         set_include_client_roles_in_id_tokens(access_token)
         cprint(
-            "    Add users to the relevant Grafana sub-groups to give them access: admin, editor, viewer",
+            f"    Add users to the relevant Grafana sub-groups to give them access: {' '.join(GRAFANA_ROLES)}",
             attrs=["bold"],
         )
         success()
