@@ -36,7 +36,19 @@ TODO: environment
 
 ## 4. Set up public data access grants
 
-TODO
+Starting from Bento v17, anonymous visitors do not have access to see censored counts data by default, even if a 
+discovery configuration has been set up. For anonymous visitors to access data, a level (`bool`, `counts`, `full`)
+must be chosen and passed to the `bento_authz` CLI command below.
+
+```bash
+./bentoctl.bash shell authz
+# The level below (counts) preserves previous functionality. Other possible options are:
+#  - none - will do nothing.
+#  - bool - for censored true/false discovery, but in effect right now forbids access.
+#  - counts - for censored count discovery.
+#  - full - allows full data access (record-level, including sensitive data such as IDs), uncensored counts, etc.
+bento_authz public-data-access counts
+```
 
 
 ## 5. Start Bento
