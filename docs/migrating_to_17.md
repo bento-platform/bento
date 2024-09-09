@@ -42,7 +42,9 @@ must be chosen and passed to the `bento_authz` CLI command below.
 
 ```bash
 ./bentoctl.bash shell authz
-# The level below (counts) preserves previous functionality. Other possible options are:
+# Configure public data access
+# ----------------------------
+# The level below ("counts") preserves previous functionality. Other possible options are:
 #  - none - will do nothing.
 #  - bool - for censored true/false discovery, but in effect right now forbids access.
 #  - counts - for censored count discovery.

@@ -297,7 +297,7 @@ utilize new variables generated during the OIDC configuration.
 
 ## 6. Configure permissions
 
-### a. Create superuser permissions in the new Bento authorization service
+### a. Create superuser permissions in the Bento authorization service
 
 First, run the authorization service and then open a shell into the container:
 
@@ -334,7 +334,23 @@ bento_authz create grant \
   'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material'
 ```
 
-### c. *Optional step:* Assign portal access to all users in the instance realm
+### c. Configure public data access for all users, including anonymous visitors (if desired):
+
+To configure public data access, run the following command in the authorization service container. Note that with the
+`full` value, **THIS GIVES FULL DATA ACCESS TO EVERYONE WHO VISITS YOUR INSTANCE!**
+
+```bash
+# Configure public data access
+# ----------------------------
+# The level below ("counts") preserves previous functionality. Other possible options are:
+#  - none - will do nothing.
+#  - bool - for censored true/false discovery, but in effect right now forbids access.
+#  - counts - for censored count discovery.
+#  - full - allows full data access (record-level, including sensitive data such as IDs), uncensored counts, etc.
+bento_authz public-data-access counts
+```
+
+### d. *Optional step:* Assign portal access to all users in the instance realm
 
 We added a special permission, `view:private_portal`, to Bento v12/v13 in order to carry forward the current
 'legacy' authorization behaviour for one more major version. This permission currently behaves as a super-permission,
