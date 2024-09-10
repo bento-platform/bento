@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import docker
+import json
 import os
 import requests
 import subprocess
@@ -41,7 +42,14 @@ CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
 WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
 WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT"))
 
-KC_CLIENTS_ENDPOINT = f"admin/realms/{AUTH_REALM}/clients"
+GRAFANA_CLIENT_ID = os.getenv("BENTO_GRAFANA_CLIENT_ID")
+GRAFANA_PRIVATE_URL = os.getenv("BENTO_PRIVATE_GRAFANA_URL")
+GRAFANA_ROLES = ("admin", "editor", "viewer")
+
+KC_ADMIN_API_ENDPOINT = f"admin/realms/{AUTH_REALM}"
+KC_ADMIN_API_GROUP_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/groups"
+KC_ADMIN_API_CLIENTS_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/clients"
+KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 
 
 def check_auth_admin_user():
@@ -79,12 +87,18 @@ def keycloak_req(
             **(dict(data=data) if data else {}),
             **(dict(json=json) if json else {}),
             **kwargs)
+    if method == "put":
+        return requests.put(
+            make_keycloak_url(path),
+            **(dict(data=data) if data else {}),
+            **(dict(json=json) if json else {}),
+            **kwargs)
 
     raise NotImplementedError
 
 
-def fetch_existing_client_id(token: str, client_id: str) -> Optional[str]:
-    existing_clients_res = keycloak_req(KC_CLIENTS_ENDPOINT, bearer_token=token)
+def fetch_existing_client_id(token: str, client_id: str, verbose: bool = True) -> Optional[str]:
+    existing_clients_res = keycloak_req(KC_ADMIN_API_CLIENTS_ENDPOINT, bearer_token=token)
     existing_clients = existing_clients_res.json()
 
     if not existing_clients_res.ok:
@@ -93,10 +107,116 @@ def fetch_existing_client_id(token: str, client_id: str) -> Optional[str]:
 
     for client in existing_clients:
         if client["clientId"] == client_id:
-            warn(f"    Found existing client: {client_id}; using that.")
+            if verbose:
+                warn(f"    Found existing client: {client_id}; using that.")
             return client["id"]
 
     return None
+
+
+def fetch_existing_client_role(token: str, client_id: str, role_name: str, verbose: bool = True) -> Optional[dict]:
+    client_roles_endpoint = f"{KC_ADMIN_API_CLIENTS_ENDPOINT}/{client_id}/roles"
+
+    existing_role_res = keycloak_req(f"{client_roles_endpoint}/{role_name}", bearer_token=token)
+    if not existing_role_res.ok:
+        return
+
+    if verbose:
+        warn(f"    Found existing role: {role_name}; using that.")
+    return existing_role_res.json()
+
+
+def fetch_existing_group_rep_or_exit(
+        token: str,
+        group_name: str,
+        parent_rep: dict | None = None,
+        verbose: bool = True) -> Optional[dict]:
+    endpoint = KC_ADMIN_API_GROUP_ENDPOINT
+    if parent_rep:
+        endpoint = f"{KC_ADMIN_API_GROUP_ENDPOINT}/{parent_rep['id']}/children"
+    existing_groups_res = keycloak_req(endpoint, bearer_token=token)
+
+    if not existing_groups_res.ok:
+        err(f"    Failed to fetch group id associated with name: {group_name}")
+        exit(1)
+
+    existing_groups = existing_groups_res.json()
+    for group in existing_groups:
+        if group["name"] == group_name:
+            if verbose:
+                warn(f"    Found existing group: {group['path']} ; using that.")
+            return group
+
+    return None
+
+
+def create_client_role_or_exit(token: str, client_id: str, role_name: str) -> Optional[dict]:
+    # Check if client role alread exists
+    if existing_role := fetch_existing_client_role(token, client_id, role_name):
+        return existing_role
+
+    # Create client role if needed
+    client_roles_endpoint = f"{KC_ADMIN_API_CLIENTS_ENDPOINT}/{client_id}/roles"
+    res = keycloak_req(client_roles_endpoint, bearer_token=token, method="post", json={
+        "clientRole": True,
+        "name": role_name,
+    })
+
+    if not res.ok:
+        err(f"    Failed to create {client_id} client role : {role_name}; {res.status_code}")
+        exit(1)
+
+    # role creation response returns no data, fetch the created RoleRepresentation for later use
+    created_role_rep = fetch_existing_client_role(token, client_id, role_name, verbose=False)
+    cprint(f"    Created client role: {role_name}.", "green")
+    return created_role_rep
+
+
+def create_group_or_exit(token: str, group_rep: dict, parent_group_rep: dict = None) -> Optional[dict]:
+    # try to get existing group first
+    if existing_group := fetch_existing_group_rep_or_exit(token, group_rep["name"], parent_group_rep):
+        return existing_group
+
+    # group creation endpoint
+    group_endpoint = KC_ADMIN_API_GROUP_ENDPOINT
+    if parent_group_rep:
+        # use sub-group creation endpoint if a parent group is passed
+        group_endpoint = f"{group_endpoint}/{parent_group_rep['id']}/children"
+
+    res = keycloak_req(f"{group_endpoint}", bearer_token=token, method="post", json=group_rep)
+    if not res.ok:
+        err(f"    Failed to create group: {group_rep}; {res.status_code}")
+        exit(1)
+
+    # group creation response returns no data, fetch the created GroupRepresentation for later use
+    created_group = fetch_existing_group_rep_or_exit(token, group_rep["name"], parent_group_rep, verbose=False)
+
+    cprint(f"    Created group: {created_group['path']}", "green")
+    return created_group
+
+
+def add_client_role_mapping_to_group_or_exit(token: str, group_rep: dict, client_id: str, role_rep: dict) -> None:
+    role_mappings_endpoint = f"{KC_ADMIN_API_GROUP_ENDPOINT}/{group_rep['id']}/role-mappings/clients/{client_id}"
+    existing_mappings_res = keycloak_req(role_mappings_endpoint, bearer_token=token)
+    if existing_mappings_res.ok:
+        target_role_name = role_rep["name"]
+        for role_map in existing_mappings_res.json():
+            if target_role_name == role_map["name"]:
+                warn(f"    Found existing client-level group role: {group_rep['path']}; using that.")
+                return
+
+    # create client role-mapping for given group
+    client_res = keycloak_req(
+        role_mappings_endpoint,
+        method="post",
+        bearer_token=token,
+        data=json.dumps([role_rep])   # RoleRepresentation needs to be in an array and sent as data
+    )
+    if not client_res.ok:
+        err(f"    Failed to add client-level role {role_rep['name']} to group {group_rep['path']}")
+        exit(1)
+
+    cprint(f"    Created client-level role mapping for group: {group_rep['path']}", "green")
 
 
 def create_keycloak_client_or_exit(
@@ -110,7 +230,7 @@ def create_keycloak_client_or_exit(
     access_token_lifespan: int,
     use_refresh_tokens: bool,
 ) -> None:
-    res = keycloak_req(KC_CLIENTS_ENDPOINT, bearer_token=token, method="post", json={
+    res = keycloak_req(KC_ADMIN_API_CLIENTS_ENDPOINT, bearer_token=token, method="post", json={
         "clientId": client_id,
         "enabled": True,
         "protocol": "openid-connect",
@@ -154,7 +274,52 @@ def create_keycloak_client_or_exit(
 
 
 def get_keycloak_client_secret(client_id: str, token: str):
-    return keycloak_req(f"{KC_CLIENTS_ENDPOINT}/{client_id}/client-secret", bearer_token=token)
+    return keycloak_req(f"{KC_ADMIN_API_CLIENTS_ENDPOINT}/{client_id}/client-secret", bearer_token=token)
+
+
+def create_client_and_secret_for_service(
+    client_id: str,
+    env_var_to_set: str,
+    private_url: str | None,
+    token: str,
+    is_service_account: bool = False,
+    to_restart: str = "the gateway",
+    token_lifespan: int = 900,    # default access token lifespan: 15 minutes
+    use_refresh_tokens: bool = False,  # by default, don't use refresh tokens! (they're less secure)
+):
+    client_kc_id: Optional[str] = fetch_existing_client_id(token, client_id)
+
+    if client_kc_id is None:
+        create_keycloak_client_or_exit(
+            token,
+            client_id,
+            standard_flow_enabled=not is_service_account,
+            service_accounts_enabled=is_service_account,
+            public_client=False,
+            redirect_uris=[
+                f"{private_url}/*"
+            ] if not is_service_account else [],  # Not used for client credentials access
+            web_origins=[private_url] if not is_service_account else [],  # "
+            access_token_lifespan=token_lifespan,
+            use_refresh_tokens=use_refresh_tokens,
+        )
+        client_kc_id = fetch_existing_client_id(token, client_id, verbose=False)
+
+    # Fetch and print secret
+
+    client_secret_res = get_keycloak_client_secret(client_kc_id, token)
+
+    client_secret_data = client_secret_res.json()
+    if not client_secret_res.ok:
+        err(f"    Failed to get client secret for {client_id}; {client_secret_res.status_code} "
+            f"{client_secret_data}")
+        exit(1)
+
+    client_secret = client_secret_data["value"]
+    cprint(
+        f"    Please set {env_var_to_set} to {client_secret} in local.env and restart {to_restart}",
+        attrs=["bold"],
+    )
 
 
 def init_auth(docker_client: docker.DockerClient):
@@ -226,74 +391,89 @@ def init_auth(docker_client: docker.DockerClient):
             use_refresh_tokens=True,
         )
 
-    # noinspection PyUnusedLocal
-    def create_cbioportal_client_if_needed(token: str) -> None:
-        cbio_client_kc_id: Optional[str] = fetch_existing_client_id(token, CBIOPORTAL_CLIENT_ID)
+    def create_grafana_client_if_needed(token: str) -> None:
+        create_client_and_secret_for_service(
+            GRAFANA_CLIENT_ID, "BENTO_GRAFANA_CLIENT_SECRET", GRAFANA_PRIVATE_URL, token, to_restart="Grafana"
+        )
 
-        if cbio_client_kc_id is None:
-            # Create the cBioportal client
-            create_keycloak_client_or_exit(
-                token,
-                CBIOPORTAL_CLIENT_ID,
-                standard_flow_enabled=True,
-                service_accounts_enabled=False,
-                public_client=False,
-                redirect_uris=[f"{CBIOPORTAL_URL}{AUTH_LOGIN_REDIRECT_PATH}"],
-                web_origins=[CBIOPORTAL_URL],
-                access_token_lifespan=900,  # 15 minutes
-                use_refresh_tokens=True,
-            )
-            cbio_client_kc_id = fetch_existing_client_id(token, CBIOPORTAL_CLIENT_ID)
+    def create_grafana_client_roles_if_needed(token: str, client_id: str) -> Optional[dict]:
+        role_representations = {}
+        for role_name in GRAFANA_ROLES:
+            client_role = create_client_role_or_exit(token, client_id, role_name)
+            role_representations[role_name] = client_role
+        return role_representations
 
-        # Fetch and print secret
+    def create_grafana_client_groups_if_needed(token: str, role_mappings: dict, client_id: str) -> None:
+        # create parent grafana group (no role mapping)
+        parent_group = {"name": "grafana"}
+        parent_group = create_group_or_exit(token, parent_group)
 
-        client_secret_res = get_keycloak_client_secret(cbio_client_kc_id, token)
+        # create subgroups with client-role mappings
+        sub_groups = [{"name": g} for g in GRAFANA_ROLES]
+        for subgroup in sub_groups:
+            group_rep = create_group_or_exit(token, subgroup, parent_group_rep=parent_group)
+            role_rep = role_mappings[subgroup["name"]]
+            add_client_role_mapping_to_group_or_exit(token, group_rep, client_id, role_rep)
 
-        client_secret_data = client_secret_res.json()
-        if not client_secret_res.ok:
-            err(f"    Failed to get client secret for {CBIOPORTAL_CLIENT_ID}; {client_secret_res.status_code} "
-                f"{client_secret_data}")
+    # Modifies the "roles" client scope mapper, so that client-level roles are included in the ID token
+    def set_include_client_roles_in_id_tokens(token: str):
+        # Retrieve the 'roles' client-scope
+        client_scopes_res = keycloak_req(KC_ADMIN_API_CLIENT_SCOPES, bearer_token=token)
+        if not client_scopes_res.ok:
+            err(f"    Failed to retrieve client scopes: {client_scopes_res.status_code}")
+            exit(1)
+        client_scopes = client_scopes_res.json()
+
+        roles_client_scope = None
+        for scope in client_scopes:
+            if "roles" == scope["name"]:
+                roles_client_scope = scope
+                break
+
+        if not roles_client_scope:
+            # 'roles' is a predefined scope, so it should always be there by default
+            err("    Failed to retrieve the 'roles' client scope.")
             exit(1)
 
-        client_secret = client_secret_data["value"]
-        cprint(
-            f"    Please set BENTO_CBIOPORTAL_CLIENT_SECRET to {client_secret} in local.env and restart the "
-            f"gateway",
-            attrs=["bold"],
+        # Find the 'client roles' protocol mapper
+        roles_mapper = None
+        for mapper in roles_client_scope["protocolMappers"]:
+            if "client roles" == mapper["name"]:
+                roles_mapper = mapper
+
+        if not roles_mapper:
+            # 'client roles' is a predefined mapper, so it should always be there by default
+            err("    Failed to retrieve the 'client roles' protocol mapper.")
+            exit(1)
+
+        # Update mapper config's id.token.claim if needed
+        if "id.token.claim" not in roles_mapper["config"] or roles_mapper["config"]["id.token.claim"] == "false":
+            roles_mapper["config"]["id.token.claim"] = "true"
+            mapper_endpoint = f"{KC_ADMIN_API_CLIENT_SCOPES}/{roles_client_scope['id']}" +  \
+                f"/protocol-mappers/models/{roles_mapper['id']}"
+            update_mapper_res = keycloak_req(mapper_endpoint, bearer_token=token, method="put", json=roles_mapper)
+            if not update_mapper_res.ok:
+                err(f"    Failed to modify 'client roles' mapper: {update_mapper_res.status_code}")
+                exit(1)
+            cprint("    Updated 'client roles' scope mapper to include roles in the ID token.", "green")
+        elif roles_mapper["config"]["id.token.claim"] == "true":
+            warn("    The 'client roles' scope mapper already includes roles in the ID token.")
+
+    # noinspection PyUnusedLocal
+    def create_cbioportal_client_if_needed(token: str) -> None:
+        create_client_and_secret_for_service(
+            CBIOPORTAL_CLIENT_ID, "BENTO_CBIOPORTAL_CLIENT_SECRET", CBIOPORTAL_URL, token, use_refresh_tokens=True
         )
 
     def create_wes_client_if_needed(token: str) -> None:
-        wes_client_kc_id: Optional[str] = fetch_existing_client_id(token, WES_CLIENT_ID)
-
-        if wes_client_kc_id is None:
-            # Create the Bento WES client
-            create_keycloak_client_or_exit(
-                token,
-                WES_CLIENT_ID,
-                standard_flow_enabled=False,
-                service_accounts_enabled=True,
-                public_client=False,  # Use client secret for this one
-                redirect_uris=[],  # Not used with a standard/web flow - just client credentials
-                web_origins=[],  # "
-                access_token_lifespan=WES_WORKFLOW_TIMEOUT,  # WES workflow lifespan
-                use_refresh_tokens=False,  # No refreshing these allowed!
-            )
-            wes_client_kc_id = fetch_existing_client_id(token, WES_CLIENT_ID)
-
-        # Fetch and print secret
-
-        client_secret_res = get_keycloak_client_secret(wes_client_kc_id, token)
-
-        client_secret_data = client_secret_res.json()
-        if not client_secret_res.ok:
-            err(f"    Failed to get client secret for {WES_CLIENT_ID}; {client_secret_res.status_code} "
-                f"{client_secret_data}")
-            exit(1)
-
-        client_secret = client_secret_data["value"]
-        cprint(
-            f"    Please set BENTO_WES_CLIENT_SECRET to {client_secret} in local.env and restart WES",
-            attrs=["bold"],
+        create_client_and_secret_for_service(
+            WES_CLIENT_ID,
+            "BENTO_WES_CLIENT_SECRET",
+            None,
+            token,
+            is_service_account=True,
+            to_restart="WES",
+            token_lifespan=WES_WORKFLOW_TIMEOUT,
         )
 
     def create_test_user_if_needed(token: str) -> None:
@@ -375,6 +555,19 @@ def init_auth(docker_client: docker.DockerClient):
     info(f"  Creating WES client: {WES_CLIENT_ID}")
     create_wes_client_if_needed(access_token)
     success()
+
+    if c.BENTO_FEATURE_MONITORING.enabled:
+        info(f"  Creating Grafana client: {GRAFANA_CLIENT_ID}")
+        create_grafana_client_if_needed(access_token)
+        grafana_client_id = fetch_existing_client_id(access_token, GRAFANA_CLIENT_ID, verbose=False)
+        role_mappings = create_grafana_client_roles_if_needed(access_token, grafana_client_id)
+        create_grafana_client_groups_if_needed(access_token, role_mappings, grafana_client_id)
+        set_include_client_roles_in_id_tokens(access_token)
+        cprint(
+            f"    Add users to the relevant Grafana sub-groups to give them access: {' '.join(GRAFANA_ROLES)}",
+            attrs=["bold"],
+        )
+        success()
 
     info(f"  Creating user: {AUTH_TEST_USER}")
     create_test_user_if_needed(access_token)
