@@ -67,7 +67,7 @@ data by default, even if a discovery configuration has been set up. For anonymou
 bento_authz create grant \
   '{"iss": "<PUT YOUR ISSUER HERE>", "client": "aggregation"}' \
   '{"everything": true}' \
-  'query:data' 'view:private_portal' 
+  'query:data' 'view:private_portal'
 
 # Configure public data access
 # ----------------------------
