@@ -28,8 +28,12 @@ services:
       - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/metadata
       - DJANGO_SETTINGS_MODULE=chord_metadata_service.metadata.settings
       - BENTOV2_PORTAL_DOMAIN
-        # Allow access by container name or localhost for healthchecks:
-      - KATSU_ALLOWED_HOSTS=${BENTOV2_KATSU_CONTAINER_NAME},localhost
+        # Allow access by public, container name, or localhost for healthchecks:
+      - KATSU_ALLOWED_HOSTS=${BENTOV2_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME},localhost
+        # Authz
+      - BENTO_AUTHZ_ENABLED=True
+      - BENTO_AUTHZ_SERVICE_URL
+      - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
     # configs:
     #   - source: chord-metadata-settings
     #     target: /katsu/metadata/settings.py

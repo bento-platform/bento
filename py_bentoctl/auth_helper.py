@@ -37,6 +37,8 @@ AUTH_TEST_USER = os.getenv("BENTOV2_AUTH_TEST_USER")
 AUTH_TEST_PASSWORD = os.getenv("BENTOV2_AUTH_TEST_PASSWORD")
 AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
 
+AGGREGATION_CLIENT_ID = os.getenv("BENTO_AGGREGATION_CLIENT_ID")
+
 CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
 
 WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
@@ -459,6 +461,16 @@ def init_auth(docker_client: docker.DockerClient):
         elif roles_mapper["config"]["id.token.claim"] == "true":
             warn("    The 'client roles' scope mapper already includes roles in the ID token.")
 
+    def create_aggregation_client_if_needed(token: str) -> None:
+        create_client_and_secret_for_service(
+            AGGREGATION_CLIENT_ID,
+            "BENTO_AGGREGATION_CLIENT_SECRET",
+            None,
+            token,
+            is_service_account=True,
+            to_restart="Aggregation and Beacon",
+        )
+
     # noinspection PyUnusedLocal
     def create_cbioportal_client_if_needed(token: str) -> None:
         create_client_and_secret_for_service(
@@ -542,6 +554,10 @@ def init_auth(docker_client: docker.DockerClient):
 
     info(f"  Creating web client: {AUTH_CLIENT_ID}")
     create_web_client_if_needed(access_token)
+    success()
+
+    info(f"  Creating aggregation/Beacon client: {AGGREGATION_CLIENT_ID}")
+    create_aggregation_client_if_needed(access_token)
     success()
 
     # TODO: if cBioPortal ever needs auth implemented, re-enable this and set up Bento Gateway to handle cBioPortal

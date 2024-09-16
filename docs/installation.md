@@ -276,8 +276,10 @@ specified in the step above.
 ./bentoctl.bash init-auth
 ```
 
-**If using an external identity provider**, only start the cluster's gateway
-after setting `CLIENT_SECRET` in your local environment file:
+After running `init-auth`, be sure to put all client secrets into your `local.env` file!
+
+**If using an external identity provider**, only start the cluster's gateway after setting various `*_CLIENT_SECRET` 
+variables in your local environment file:
 
 ```bash
 ./bentoctl.bash run gateway
@@ -297,7 +299,7 @@ utilize new variables generated during the OIDC configuration.
 
 ## 6. Configure permissions
 
-### a. Create superuser permissions in the new Bento authorization service
+### a. Create superuser permissions in the Bento authorization service
 
 First, run the authorization service and then open a shell into the container:
 
@@ -317,24 +319,54 @@ which in Keycloak should be a UUID.
 
 ### b. Create grants for the Workflow Execution Service (WES) OAuth2 client
 
-Run the following commands to set up authorization for the WES client. Don't forget to replace `ISSUER_HERE` by the 
-issuer URL!
+Run the following commands to set up authorization for the WES client. 
+**Don't forget to replace `<ISSUER_HERE>` with the issuer URL!**
 
 ```bash
 # This grant is a temporary hack to get permissions working for v12/v13. In the future, it should be removed.
 bento_authz create grant \
-  '{"iss": "ISSUER_HERE", "client": "wes"}' \
+  '{"iss": "<ISSUER_HERE>", "client": "wes"}' \
   '{"everything": true}' \
   'view:private_portal'
 
 # This grant gives permission to access and ingest data into all projects and the reference genome service
 bento_authz create grant \
-  '{"iss": "ISSUER_HERE", "client": "wes"}' \
+  '{"iss": "<ISSUER_HERE>", "client": "wes"}' \
   '{"everything": true}' \
   'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material'
 ```
 
-### c. *Optional step:* Assign portal access to all users in the instance realm
+### c. Create a grant for the aggregation and Beacon services
+
+Run the following commands to set up authorization for the aggregation/Beacon client. 
+**Don't forget to replace `<ISSUER_HERE>` with the issuer URL!**
+
+```bash
+# In the future, view:private_portal will need to be removed from this grant.
+bento_authz create grant \
+  '{"iss": "<ISSUER_HERE>", "client": "aggregation"}' \
+  '{"everything": true}' \
+  'query:data' 'view:private_portal'
+```
+
+
+### d. Configure public data access for all users, including anonymous visitors (if desired):
+
+To configure public data access, run the following command in the authorization service container. Note that with the
+`full` value, **THIS GIVES FULL DATA ACCESS TO EVERYONE WHO VISITS YOUR INSTANCE!**
+
+```bash
+# Configure public data access
+# ----------------------------
+# The level below ("counts") preserves previous functionality. Other possible options are:
+#  - none - will do nothing.
+#  - bool - for censored true/false discovery, but in effect right now forbids access.
+#  - counts - for censored count discovery.
+#  - full - allows full data access (record-level, including sensitive data such as IDs), uncensored counts, etc.
+bento_authz public-data-access counts
+```
+
+### e. Assign portal access to all users in the instance realm
 
 We added a special permission, `view:private_portal`, to Bento v12/v13 in order to carry forward the current
 'legacy' authorization behaviour for one more major version. This permission currently behaves as a super-permission,
