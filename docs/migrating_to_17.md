@@ -60,12 +60,12 @@ data by default, even if a discovery configuration has been set up. For anonymou
 # Configure aggregation/Beacon permissions
 # ----------------------------------------
 # This assumes the aggregation/Beacon client ID is "aggregation". 
-# <YOUR ISSUER HERE> MUST be replaced with your actual issuer value.
+# <ISSUER_HERE> MUST be replaced with your actual issuer value.
 #  - The query:data permission gives access to Katsu endpoints which are properly authz-enabled.
 #  - The view:private_portal permission gives access to Katsu and Gohan endpoints where the proxy still manages access.
 #    This permission will be removed in an uncoming version.
 bento_authz create grant \
-  '{"iss": "<PUT YOUR ISSUER HERE>", "client": "aggregation"}' \
+  '{"iss": "<ISSUER_HERE>", "client": "aggregation"}' \
   '{"everything": true}' \
   'query:data' 'view:private_portal'
 

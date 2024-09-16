@@ -344,7 +344,7 @@ Run the following commands to set up authorization for the aggregation/Beacon cl
 ```bash
 # In the future, view:private_portal will need to be removed from this grant.
 bento_authz create grant \
-  '{"iss": "<PUT ISSUER_HERE ISSUER HERE>", "client": "aggregation"}' \
+  '{"iss": "<ISSUER_HERE>", "client": "aggregation"}' \
   '{"everything": true}' \
   'query:data' 'view:private_portal'
 ```
