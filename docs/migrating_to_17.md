@@ -8,7 +8,9 @@ Key points:
   * Data that used to be completely public by default (i.e., 
     censored counts) now requires a permission (`query:project_level_counts` and/or `query:dataset_level_counts`), and 
     thus a grant in the authorization service. 
-  * Beacon now requires a client ID/secret and an authorization service grant to access uncesored data.
+  * Beacon now requires a client ID/secret and an authorization service grant to access uncensored data.
+* Katsu discovery is now more granular, and can be configured to the project or dataset level, in addition to the 
+  instance level. See the [Public data discovery configuration](./public_discovery.md) document for more information.
 * ...
 
 
