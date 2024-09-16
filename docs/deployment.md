@@ -99,3 +99,11 @@ ls certs/gateway/letsencrypt/live/
 ```
 
 If all went well, the `old-bento.example.com` domain should be redirected to `bento.example.com` in a browser.
+
+## Discovery configuration
+
+Bento can serve censored data publicly if configured to do so, this allows anonymous users to take a glimpse into the
+data hosted by a Bento node.
+
+When deploying a Bento instance, make sure that the discovery settings are configured properly at the necessary levels.
+Consult the [public discovery](./public_discovery.md) documentation for more details.
