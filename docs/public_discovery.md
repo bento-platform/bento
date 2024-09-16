@@ -16,12 +16,12 @@ Bento v17 gives the ability to specify a scoped Discovery configuration at the f
     -   Optional at dataset creation
     -   For scoped queries on public endpoints targeting a project and dataset:
         -   Katsu will use the dataset's discovery configuration, if one exists.
-        -   If no configuration is found, fallsback on the parent project's discovery
+        -   If no configuration is found, falls back to the parent project's discovery.
 -   Project
     -   Optional at project creation
     -   For scoped queries on public endpoints targeting a project only:
         -   Katsu will use the project's discovery configuration, if one exists.
-        -   If no configuration is found, fallsback on the node's config
+        -   If no configuration is found, falls back to the node's config.
 -   Node
     -   Optional during Katsu deployment
     -   Uses the legacy `lib/katsu/config.json` file mount

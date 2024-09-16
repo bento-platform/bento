@@ -102,7 +102,7 @@ If all went well, the `old-bento.example.com` domain should be redirected to `be
 
 ## Discovery configuration
 
-Bento can serve censored data publicly if configured to do so, this allows anonymous users to take a glimpse into the
+Bento can serve censored data publicly if configured to do so. This allows anonymous users to take a glimpse into the
 data hosted by a Bento node.
 
 When deploying a Bento instance, make sure that the discovery settings are configured properly at the necessary levels.
