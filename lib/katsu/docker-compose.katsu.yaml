@@ -25,6 +25,7 @@ services:
       - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
       - SERVICE_TEMP=/app/tmp
       - SERVICE_SECRET_KEY=${BENTOV2_KATSU_APP_SECRET}
+      - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/metadata
       - DJANGO_SETTINGS_MODULE=chord_metadata_service.metadata.settings
       - BENTOV2_PORTAL_DOMAIN
         # Allow access by public, container name, or localhost for healthchecks:
