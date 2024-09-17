@@ -654,7 +654,6 @@ def _init_beacon_network_config(force: bool):
     root_path = pathlib.Path.cwd()
     template_dir = (root_path / "etc" / "templates" / "beacon")
     dest_dir = pathlib.Path(os.environ["BENTO_BEACON_CONFIG_DIR"])
-    print(f"network config dir: {dest_dir}")
 
     network_config_template_path = (template_dir / "beacon_network_config.example.json")
     network_config_dest_path = (dest_dir / "beacon_network_config.json")
