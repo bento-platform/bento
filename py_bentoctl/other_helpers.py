@@ -631,12 +631,14 @@ def init_config(service: str, force: bool = False):
         _init_katsu_config(force)
     elif service == "beacon":
         _init_beacon_config(force)
+    elif service == "beacon-network":
+        _init_beacon_network_config(force)
 
 
 def _init_beacon_config(force: bool):
     root_path = pathlib.Path.cwd()
     template_dir = (root_path / "etc" / "templates" / "beacon")
-    dest_dir = (root_path / "lib" / "beacon" / "config")
+    dest_dir = pathlib.Path(os.environ["BENTO_BEACON_CONFIG_DIR"])
 
     config_template_path = (template_dir / "beacon_config.example.json")
     config_dest_path = (dest_dir / "beacon_config.json")
@@ -646,6 +648,17 @@ def _init_beacon_config(force: bool):
 
     _file_copy(config_template_path, config_dest_path, force)
     _file_copy(cohort_template_path, cohort_dest_path, force)
+
+
+def _init_beacon_network_config(force: bool):
+    root_path = pathlib.Path.cwd()
+    template_dir = (root_path / "etc" / "templates" / "beacon")
+    dest_dir = pathlib.Path(os.environ["BENTO_BEACON_CONFIG_DIR"])
+
+    network_config_template_path = (template_dir / "beacon_network_config.example.json")
+    network_config_dest_path = (dest_dir / "beacon_network_config.json")
+
+    _file_copy(network_config_template_path, network_config_dest_path, force)
 
 
 def _init_katsu_config(force: bool):

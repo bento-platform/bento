@@ -84,7 +84,24 @@ bento_authz public-data-access counts
 ```
 
 
-## 5. Start Bento
+## 5. Optionally, add Beacon network
+
+To host a network of beacons, with a corresponding UI in Bento Public, first copy the config file: 
+
+```bash
+./bentoctl.bash init-config beacon-network
+```
+
+
+
+then update values at `lib/beacon/config/beacon_network_config.json`. Activate the network by adding (or modifying) this value in local.env:
+
+
+```bash
+BENTO_BEACON_NETWORK_ENABLED='true'
+```
+
+## 6. Start Bento
 
 ```bash
 ./bentoctl.bash start

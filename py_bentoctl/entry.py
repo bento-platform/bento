@@ -282,7 +282,11 @@ class InitConfig(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=["katsu", "beacon"], help="Prepares services for deployment.")
+            "service",
+            type=str,
+            choices=["katsu", "beacon", "beacon-network"],
+            help="Prepares services for deployment."
+        )
         sp.add_argument(
             "--force", "-f", action="store_true",
             help="Overwrites any existing config.")
