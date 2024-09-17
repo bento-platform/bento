@@ -11,9 +11,6 @@ location /api/metadata/ {
     return 400;
     proxy_pass http://${BENTOV2_KATSU_CONTAINER_NAME}:${BENTOV2_KATSU_INTERNAL_PORT}$uri;
 
-    # CORS
-    include /usr/local/openresty/nginx/conf/cors.conf;
-
     # Errors
     error_log /var/log/bentov2_metadata_errors.log;
 }
