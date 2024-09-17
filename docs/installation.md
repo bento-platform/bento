@@ -158,7 +158,7 @@ If using Beacon, first copy the configuration file:
 Then update any config values as needed at `lib/beacon/config/beacon_config.json` 
 and `lib/beacon/config/beacon_cohort.json`.
 
-If using the beacon network, copy the configuration file:
+If using the Beacon network, copy the configuration file:
 
 ```bash
 ./bentoctl.bash init-config beacon-network
