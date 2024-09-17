@@ -92,18 +92,16 @@ To host a network of beacons, with a corresponding UI in Bento Public, first cop
 ./bentoctl.bash init-config beacon-network
 ```
 
+
+
 then update values at `lib/beacon/config/beacon_network_config.json`. Activate the network by adding (or modifying) this value in local.env:
 
 
-## 6. Add env variable for Beacon network
-
-Add this value to local.env (with the value `true` if you want to activate the network)
 ```bash
-BENTO_BEACON_NETWORK_ENABLED='false'
+BENTO_BEACON_NETWORK_ENABLED='true'
 ```
 
-
-## 5. Start Bento
+## 6. Start Bento
 
 ```bash
 ./bentoctl.bash start
