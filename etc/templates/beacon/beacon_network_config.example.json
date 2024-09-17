@@ -1,8 +1,8 @@
 {
     "beacons": [
-        "https://rsrq.bento.sd4h.ca/api/beacon",
         "https://bqc19.bento.sd4h.ca/api/beacon",
         "https://staging.bento.sd4h.ca/api/beacon",
+        "https://qa.bento.sd4h.ca/api/beacon",
         "https://bentov2.local/api/beacon"
     ],
     "network_default_timeout_seconds": 30,
