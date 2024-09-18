@@ -36,6 +36,8 @@ that make up the Bento platform.
 * [Development](./docs/development.md)
 * [Troubleshooting guide](./docs/troubleshooting.md)
 * [Deployment](./docs/deployment.md)
+* [Monitoring](./docs/monitoring.md)
+* [Public discovery configuration](./docs/public_discovery.md)
 
 ### Data ingestion and usage
 
