@@ -35,7 +35,7 @@ Create the Grafana OIDC client, its permissions and group mappings with the foll
 ./bentoctl.bash init-auth
 ```
 
-Set the outputed value for `BENTO_GRAFANA_CLIENT_SECRET` in the `local.env` file and restart Grafana.
+Set the outputted value for `BENTO_GRAFANA_CLIENT_SECRET` in the `local.env` file and restart Grafana.
 
 ```bash
 ./bentoctl.bash restart grafana
@@ -57,7 +57,8 @@ Group role-mappings in Keycloak:
     - Viewer
         - Can view created dashboards
 
-The `admin`, `editor` and `viewer` roles are Grafana concepts. During authentication, Grafana will synchronize the user's roles from Keycloak, and only let the user in if a valid role can be retrieved from the ID token.
+The `admin`, `editor` and `viewer` roles are Grafana concepts. During authentication, Grafana will synchronize the 
+user's roles from Keycloak, and only let the user in if a valid role can be retrieved from the ID token.
 
 The `init-auth` step in the [configuration](#configuration) creates everything needed for this in Keycloak. 
 
