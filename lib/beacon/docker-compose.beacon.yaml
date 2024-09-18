@@ -21,6 +21,7 @@ services:
       - BENTOV2_DOMAIN
       - BENTOV2_PUBLIC_URL
       - BENTO_BEACON_UI_ENABLED
+      - BENTO_BEACON_NETWORK_ENABLED
       - DRS_URL=${BENTO_DRS_URL}
       # Authorization
       - BENTO_AUTHZ_SERVICE_URL
