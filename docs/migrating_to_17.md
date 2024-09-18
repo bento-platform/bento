@@ -21,9 +21,12 @@ Key points:
 ```
 
 
-## 2. Update images
+## 2. Checkout to v17 and pull new Docker images
 
 ```bash
+# Checkout on the v17 tag
+git checkout v17
+# Pull new Docker images
 ./bentoctl.bash pull
 ```
 
@@ -36,10 +39,18 @@ If you wish to enable Grafana, you first must enable the monitoring feature in y
 BENTO_MONITORING_ENABLED='true'
 ```
 
+After enabling the Grafana feature flag for the first time, 
+you must initialize the Docker networks and mounted directories.
+```bash
+# Init new Docker networks and directories if using Grafana
+./bentoctl.bash init-docker
+./bentoctl.bash init-dirs
+```
+
 To create the client secrets for aggregation/Beacon and Grafana (if the latter is enabled), run the following commands:
 
 ```bash
-./bentoctl.bash start auth
+./bentoctl.bash run auth && ./bentoctl.bash run gateway
 ./bentoctl.bash init-auth
 ```
 
@@ -48,6 +59,8 @@ To create the client secrets for aggregation/Beacon and Grafana (if the latter i
 Aggregation/Beacon data access authorization will not work until an authorization service grant is configured; 
 see step 4 below.
 
+Grafana will not be accessible to users until they are given a valid role; 
+see the [monitoring user management](./monitoring.md#user-management) section for details.
 
 ## 4. Set up aggregation/Beacon permissions and public data access grants
 
@@ -59,6 +72,7 @@ data by default, even if a discovery configuration has been set up. For anonymou
 (`bool`, `counts`, `full`) must be chosen and passed to the `bento_authz` CLI command below.
 
 ```bash
+./bentoctl.bash run authz
 ./bentoctl.bash shell authz
 
 # Configure aggregation/Beacon permissions
