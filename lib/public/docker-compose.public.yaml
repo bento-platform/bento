@@ -11,27 +11,25 @@ services:
       - BENTO_UID
       - BENTO_PUBLIC_SERVICE_ID
       - BENTO_PUBLIC_CLIENT_NAME
-      - BENTO_PUBLIC_WES_URL
-      - BENTO_PUBLIC_GOHAN_URL
       - BENTO_PUBLIC_PORTAL_URL
       - BENTO_PUBLIC_TRANSLATED
       - BENTO_BEACON_UI_ENABLED
       - BENTO_BEACON_NETWORK_ENABLED
       - BEACON_URL=${BENTOV2_PUBLIC_URL}/api/beacon
-      - INTERNAL_PORT=${BENTO_PUBLIC_INTERNAL_PORT}
       - BENTO_PUBLIC_URL=${BENTOV2_PUBLIC_URL}
+      - BENTO_PUBLIC_PORT=${BENTO_PUBLIC_INTERNAL_PORT}
       - OPENID_CONFIG_URL=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
       - CLIENT_ID=${BENTOV2_AUTH_CLIENT_ID}
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
     volumes:
-      - ${PWD}/lib/public/translations/en.json:/bento-public/www/public/locales/en/translation_en.json:ro
-      - ${PWD}/lib/public/translations/fr.json:/bento-public/www/public/locales/fr/translation_fr.json:ro
+      - ${PWD}/lib/public/translations/en.json:/bento-public/dist/public/locales/en/translation_en.json:ro
+      - ${PWD}/lib/public/translations/fr.json:/bento-public/dist/public/locales/fr/translation_fr.json:ro
 
-      - ${PWD}/lib/public/en_about.html:/bento-public/www/public/en_about.html:ro
-      - ${PWD}/lib/public/fr_about.html:/bento-public/www/public/fr_about.html:ro
+      - ${PWD}/lib/public/en_about.html:/bento-public/dist/public/en_about.html:ro
+      - ${PWD}/lib/public/fr_about.html:/bento-public/dist/public/fr_about.html:ro
 
-      - ${PWD}/lib/public/branding.png:/bento-public/www/public/assets/branding.png:ro
+      - ${PWD}/lib/public/branding.png:/bento-public/dist/public/assets/branding.png:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
