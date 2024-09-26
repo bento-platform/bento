@@ -20,6 +20,7 @@ services:
       - ${BENTO_REFERENCE_TMP_VOL_DIR}:/reference/tmp
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_REFERENCE_INTERNAL_PORT}/service-info" ]
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
       interval: ${BENTO_HEALTHCHECK_INTERVAL}
       start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
       start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
@@ -44,7 +45,9 @@ services:
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_REFERENCE_DB_NAME}", "-U", "${BENTO_REFERENCE_DB_USER}" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      # interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      # For Docker <25 and Compose <2.24.x, start_interval doesn't work - use a shorter interval for now
+      interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
       start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
       start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
