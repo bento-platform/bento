@@ -117,8 +117,10 @@ services:
         "--resolve", "${BENTOV2_PORTAL_DOMAIN}:443:127.0.0.1",
         "https://${BENTOV2_PORTAL_DOMAIN}"
       ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
 
 # Lots of networks! Here, we have more or less one network per service, plus a few ones for databases

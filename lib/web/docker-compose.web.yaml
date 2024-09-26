@@ -21,9 +21,11 @@ services:
     cpus: ${BENTOV2_WEB_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "wget", "-q0-", "http://localhost:${BENTOV2_WEB_INTERNAL_PORT}/service-info", "&&", "echo" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_WEB_INTERNAL_PORT}/service-info" ]
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
 networks:
   web-net:

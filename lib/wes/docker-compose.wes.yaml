@@ -49,8 +49,10 @@ services:
     cpu_shares: 1024
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTOV2_WES_INTERNAL_PORT}/service-info" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
     volumes:
       - ${BENTOV2_WES_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
