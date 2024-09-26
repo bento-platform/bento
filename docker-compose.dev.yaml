@@ -14,6 +14,11 @@ services:
     profiles:
       - public
 
+  auth-db:
+    extends:
+      file: $PWD/lib/auth/docker-compose.auth.yaml
+      service: auth-db
+    
   gateway:
     environment:
       - BENTO_DEBUG=true
@@ -122,6 +127,7 @@ services:
       - default
     ports:
       - 8080:8080
+    mem_limit: 1G
 
   elasticvue:
     image: cars10/elasticvue:0.44.0
