@@ -13,7 +13,7 @@ virtual environment.
 ### Instance-specific environment variable file: `local.env`
 
 Depending on your use, development or deployment, you will need to copy the right template file
-to `local.env` in the root of the `bentoV2` folder:
+to `local.env` in the root of the `bento` folder, i.e., the repository folder:
 
 ```bash
 # Dev
