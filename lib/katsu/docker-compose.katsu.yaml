@@ -84,6 +84,7 @@ services:
     cpu_shares: 1024
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${BENTOV2_KATSU_DB}", "-U", "${BENTOV2_KATSU_DB_USER}" ]
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
       interval: ${BENTO_HEALTHCHECK_INTERVAL}
       start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
       start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
