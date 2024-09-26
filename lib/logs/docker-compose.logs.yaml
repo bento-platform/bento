@@ -59,7 +59,7 @@ services:
     expose:
       - 3000
     healthcheck:
-      test: [ "CMD", "curl", "-k", "https://localhost:3000"]
+      test: [ "CMD", "curl", "http://localhost:3000"]
       timeout: 5s
       interval: 15s
     profiles:

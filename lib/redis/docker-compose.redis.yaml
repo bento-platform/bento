@@ -13,8 +13,10 @@ services:
     cpu_shares: 512
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: 15s  # Faster interval for services which others may require to be healthy
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
 networks:
   redis-net:

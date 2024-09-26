@@ -19,9 +19,10 @@ services:
     volumes:
       - ${BENTO_REFERENCE_TMP_VOL_DIR}:/reference/tmp
     healthcheck:
-      test: [ "CMD", "wget", "-q0-", "http://localhost:${BENTO_REFERENCE_INTERNAL_PORT}/service-info", "&&", "echo" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      test: [ "CMD", "curl", "http://localhost:${BENTO_REFERENCE_INTERNAL_PORT}/service-info" ]
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
   reference-db:
     image: ${BENTO_REFERENCE_DB_IMAGE}:${BENTO_REFERENCE_DB_VERSION}
@@ -40,6 +41,12 @@ services:
       - POSTGRES_DB=${BENTO_REFERENCE_DB_NAME}
     volumes:
       - ${BENTO_REFERENCE_DB_VOL_DIR}:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_REFERENCE_DB_NAME}", "-U", "${BENTO_REFERENCE_DB_USER}" ]
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
 networks:
   reference-net:
