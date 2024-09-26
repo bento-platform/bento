@@ -32,7 +32,7 @@ services:
       - ${PWD}/lib/public/branding.png:/bento-public/dist/public/assets/branding.png:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
       interval: ${BENTO_HEALTHCHECK_INTERVAL}
       start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
       start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
