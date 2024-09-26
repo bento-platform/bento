@@ -22,8 +22,8 @@ that make up the Bento platform.
 
 
 ## Requirements
-- Docker >= 24.0.4
-- Docker Compose >= 2.20.0 (plugin form: you should have the `docker compose` command available, without a dash)
+- Docker >= 25.0
+- Docker Compose >= 2.25.0 (plugin form: you should have the `docker compose` command available, without a dash)
 - Python >= 3.9 (for `bentoctl`); the services require Python 3.10 but this is included in their Docker images. 
 
 
