@@ -1,4 +1,4 @@
-# JSON Schemas
+# JSON Schemas for data types and discovery configuration
 
 Bento's services perform some of the data validation using [JSON Schemas](https://json-schema.org/specification).
 
