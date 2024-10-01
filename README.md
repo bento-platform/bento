@@ -42,7 +42,8 @@ that make up the Bento platform.
 ### Data ingestion and usage
 
 * [Guide to genomic reference material in Bento](./docs/reference_material.md)
-* [Converting Phenopackets from V1 to V2 using `bentoctl`](./docs/phenopackets_v1_to_v2.md) 
+* [Converting Phenopackets from V1 to V2 using `bentoctl`](./docs/phenopackets_v1_to_v2.md)
+* [JSON Schemas](./docs/json-schemas.md)
 
 ### Migration documents
 
