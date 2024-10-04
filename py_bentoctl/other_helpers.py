@@ -222,6 +222,9 @@ def init_dirs():
         **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
         #  - cBioPortal
         **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
+        #  - Monitoring: Grafana/Loki
+        **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
+        **({"loki": "BENTO_LOKI_TEMP_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
     }
 
     # Some of these don't use the Bento user inside their containers, so ignore if need be
@@ -287,6 +290,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_KATSU_NETWORK", dict(driver="bridge")),
         ("BENTO_KATSU_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_MONITORING_NETWORK", dict(driver="bridge")),
         ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
         ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),
         ("BENTO_REDIS_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
@@ -627,12 +631,14 @@ def init_config(service: str, force: bool = False):
         _init_katsu_config(force)
     elif service == "beacon":
         _init_beacon_config(force)
+    elif service == "beacon-network":
+        _init_beacon_network_config(force)
 
 
 def _init_beacon_config(force: bool):
     root_path = pathlib.Path.cwd()
     template_dir = (root_path / "etc" / "templates" / "beacon")
-    dest_dir = (root_path / "lib" / "beacon" / "config")
+    dest_dir = pathlib.Path(os.environ["BENTO_BEACON_CONFIG_DIR"])
 
     config_template_path = (template_dir / "beacon_config.example.json")
     config_dest_path = (dest_dir / "beacon_config.json")
@@ -642,6 +648,17 @@ def _init_beacon_config(force: bool):
 
     _file_copy(config_template_path, config_dest_path, force)
     _file_copy(cohort_template_path, cohort_dest_path, force)
+
+
+def _init_beacon_network_config(force: bool):
+    root_path = pathlib.Path.cwd()
+    template_dir = (root_path / "etc" / "templates" / "beacon")
+    dest_dir = pathlib.Path(os.environ["BENTO_BEACON_CONFIG_DIR"])
+
+    network_config_template_path = (template_dir / "beacon_network_config.example.json")
+    network_config_dest_path = (dest_dir / "beacon_network_config.json")
+
+    _file_copy(network_config_template_path, network_config_dest_path, force)
 
 
 def _init_katsu_config(force: bool):

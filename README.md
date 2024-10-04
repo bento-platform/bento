@@ -22,8 +22,8 @@ that make up the Bento platform.
 
 
 ## Requirements
-- Docker >= 24.0.4
-- Docker Compose >= 2.20.0 (plugin form: you should have the `docker compose` command available, without a dash)
+- Docker >= 25.0
+- Docker Compose >= 2.25.0 (plugin form: you should have the `docker compose` command available, without a dash)
 - Python >= 3.9 (for `bentoctl`); the services require Python 3.10 but this is included in their Docker images. 
 
 
@@ -36,14 +36,18 @@ that make up the Bento platform.
 * [Development](./docs/development.md)
 * [Troubleshooting guide](./docs/troubleshooting.md)
 * [Deployment](./docs/deployment.md)
+* [Monitoring](./docs/monitoring.md)
+* [Public discovery configuration](./docs/public_discovery.md)
 
 ### Data ingestion and usage
 
 * [Guide to genomic reference material in Bento](./docs/reference_material.md)
-* [Converting Phenopackets from V1 to V2 using `bentoctl`](./docs/phenopackets_v1_to_v2.md) 
+* [Converting Phenopackets from V1 to V2 using `bentoctl`](./docs/phenopackets_v1_to_v2.md)
+* [JSON Schemas for data types and discovery configuration](./docs/json-schemas.md)
 
 ### Migration documents
 
+* [v16 to v17](./docs/migrating_to_17.md)
 * [v15.2 to v16](./docs/migrating_to_16.md)
 * [v15.1 to v15.2](./docs/migrating_to_15_2.md)
 * [v15 to v15.1](./docs/migrating_to_15_1.md)

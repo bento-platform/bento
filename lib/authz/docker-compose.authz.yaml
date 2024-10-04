@@ -19,6 +19,12 @@ services:
     networks:
       - authz-net
       - authz-db-net
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTO_AUTHZ_INTERNAL_PORT}/service-info" ]
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
   authz-db:
     image: postgres:${BENTO_AUTHZ_DB_VERSION}
@@ -34,8 +40,12 @@ services:
       - ${BENTO_AUTHZ_DB_VOL_DIR}:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_AUTHZ_DB}", "-U", "${BENTO_AUTHZ_DB_USER}" ]
-      timeout: 5s
-      interval: 15s  # Faster interval for authz-db, which authz requires to be healthy
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      # interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      # For Docker <25 and Compose <2.24.x, start_interval doesn't work - use a shorter interval for now
+      interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
 networks:
   authz-net:

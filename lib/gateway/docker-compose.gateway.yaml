@@ -22,6 +22,7 @@ services:
       - BENTO_BEACON_ENABLED
       - BENTO_CBIOPORTAL_ENABLED
       - BENTO_GOHAN_ENABLED
+      - BENTO_MONITORING_ENABLED
 
       - BENTOV2_GATEWAY_CONTAINER_NAME
 
@@ -76,6 +77,7 @@ services:
       - BENTO_BEACON_INTERNAL_PORT
       - BENTO_CBIOPORTAL_CONTAINER_NAME
       - BENTO_CBIOPORTAL_INTERNAL_PORT
+      - BENTO_GRAFANA_CONTAINER_NAME
     networks:
       - aggregation-net
       - auth-net
@@ -87,6 +89,7 @@ services:
       - event-relay-net
       - gohan-api-net
       - katsu-net
+      - monitoring-net
       - notification-net
       - public-net
       - reference-net
@@ -114,8 +117,10 @@ services:
         "--resolve", "${BENTOV2_PORTAL_DOMAIN}:443:127.0.0.1",
         "https://${BENTOV2_PORTAL_DOMAIN}"
       ]
-      timeout: ${BENTOV2_HEALTHCHECK_TIMEOUT}
-      interval: ${BENTOV2_HEALTHCHECK_INTERVAL}
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
 
 # Lots of networks! Here, we have more or less one network per service, plus a few ones for databases
@@ -166,6 +171,9 @@ networks:
   katsu-net:
     external: true
     name: ${BENTO_KATSU_NETWORK}
+  monitoring-net:
+    external: true
+    name: ${BENTO_MONITORING_NETWORK}
   notification-net:
     external: true
     name: ${BENTO_NOTIFICATION_NETWORK}

@@ -59,11 +59,6 @@ services:
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/app
 
-  adminer:
-    # No Docker networks required, bound to host
-    ports:
-      - 8080:8080
-
   aggregation:
     image: ${BENTOV2_AGGREGATION_IMAGE}:${BENTOV2_AGGREGATION_VERSION_DEV}
     environment:

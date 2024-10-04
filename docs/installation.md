@@ -13,7 +13,7 @@ virtual environment.
 ### Instance-specific environment variable file: `local.env`
 
 Depending on your use, development or deployment, you will need to copy the right template file
-to `local.env` in the root of the `bentoV2` folder:
+to `local.env` in the root of the `bento` folder, i.e., the repository folder:
 
 ```bash
 # Dev
@@ -28,87 +28,16 @@ Then, modify the values as needed; depending on if you're using the instance for
 
 #### Development example
 
-The below is an example of a completed development configuration:
-
-```bash
-# in local.env:
-
-MODE=dev
-
-# Gateway/domains -----------------------------------------------------
-BENTOV2_DOMAIN=bentov2.local
-BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
-BENTOV2_AUTH_DOMAIN=bentov2auth.local
-# Unused if cBioPortal is disabled:
-BENTOV2_CBIOPORTAL_DOMAIN=cbioportal.${BENTOV2_DOMAIN}
-# ---------------------------------------------------------------------
-
-# Feature switches ----------------------------------------------------
-
-BENTOV2_USE_EXTERNAL_IDP=0
-BENTOV2_USE_BENTO_PUBLIC=1
-
-#  - Switch to enable TLS - defaults to true (i.e., use TLS):
-BENTO_GATEWAY_USE_TLS='true'
-
-BENTO_BEACON_ENABLED='true'
-BENTO_BEACON_UI_ENABLED='true'
-BENTO_CBIOPORTAL_ENABLED='false'
-BENTO_GOHAN_ENABLED='true'
-
-#  - Switch to enable French translation in Bento Public
-BENTO_PUBLIC_TRANSLATED='true'
-
-# ---------------------------------------------------------------------
-
-# Set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
-# Data directories are split to better use SSD and HDD resources in prod.
-# In dev/local it is more convenient to use a single directory
-BENTO_FAST_DATA_DIR=./data 
-BENTO_SLOW_DATA_DIR=./data
-
-# Auth ----------------------------------------------------------------
-#  - Session secret should be set to a unique secure value.
-#    this adds security and allows sessions to exist across gateway restarts.
-#     - Empty by default, to be filled by local.env
-#  - IMPORTANT: set before starting gateway
-BENTOV2_SESSION_SECRET=my-very-secret-session-secret  # !!! ADD SOMETHING MORE SECURE !!!
-
-#  - Set auth DB password if using a local IDP
-BENTO_AUTH_DB_PASSWORD=some-secure-password
-#  - Always set authz DB password
-BENTO_AUTHZ_DB_PASSWORD=some-other-secure-password
-
-BENTOV2_AUTH_ADMIN_USER=admin
-BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
-
-BENTOV2_AUTH_TEST_USER=user
-BENTOV2_AUTH_TEST_PASSWORD=user  # !!! obviously for dev only !!!
-
-#  - WES Client ID/secret; client within BENTOV2_AUTH_REALM
-BENTO_WES_CLIENT_ID=wes
-BENTO_WES_CLIENT_SECRET=
-# --------------------------------------------------------------------
-
-# Gohan
-BENTOV2_GOHAN_ES_PASSWORD=devpassword567
-
-# Katsu
-BENTOV2_KATSU_DB_PASSWORD=devpassword123
-BENTOV2_KATSU_APP_SECRET=some-random-phrase-here   # !!! ADD SOMETHING MORE SECURE !!!
-
-# Development settings ------------------------------------------------
-
-# - Git configuration
-BENTO_GIT_NAME=David  # Change this to your name
-BENTO_GIT_EMAIL=do-not-reply@example.org  # Change this to your GitHub account email
-```
+For an example of a semi-completed development configuration, see [etc/bento_dev.env](../etc/bento_dev.env).
+In the step above, this file was copied to `local.env`, and **you must now edit `local.env` to specify secrets and other 
+deployment-specific values.**
 
 You should at least fill to the following settings in dev mode (it may differ for a production setup), which are not set 
 in the example file:
 * `BENTOV2_SESSION_SECRET`
 * `BENTO_AUTH_DB_PASSWORD`
 * `BENTO_AUTHZ_DB_PASSWORD`
+* `BENTO_AGGREGATION_CLIENT_SECRET`
 * `BENTO_WES_CLIENT_SECRET`
 
 If the internal OIDC identity provider (IdP) is being used (by default, Keycloak), variables specifying default 
@@ -157,6 +86,14 @@ If using Beacon, first copy the configuration file:
 
 Then update any config values as needed at `lib/beacon/config/beacon_config.json` 
 and `lib/beacon/config/beacon_cohort.json`.
+
+If using the Beacon network, copy the configuration file:
+
+```bash
+./bentoctl.bash init-config beacon-network
+```
+
+and update values at `lib/beacon/config/beacon_network_config.json`.
 
 
 ### Gohan configuration
@@ -276,8 +213,10 @@ specified in the step above.
 ./bentoctl.bash init-auth
 ```
 
-**If using an external identity provider**, only start the cluster's gateway
-after setting `CLIENT_SECRET` in your local environment file:
+After running `init-auth`, be sure to put all client secrets into your `local.env` file!
+
+**If using an external identity provider**, only start the cluster's gateway after setting various `*_CLIENT_SECRET` 
+variables in your local environment file:
 
 ```bash
 ./bentoctl.bash run gateway
@@ -297,7 +236,7 @@ utilize new variables generated during the OIDC configuration.
 
 ## 6. Configure permissions
 
-### a. Create superuser permissions in the new Bento authorization service
+### a. Create superuser permissions in the Bento authorization service
 
 First, run the authorization service and then open a shell into the container:
 
@@ -317,24 +256,54 @@ which in Keycloak should be a UUID.
 
 ### b. Create grants for the Workflow Execution Service (WES) OAuth2 client
 
-Run the following commands to set up authorization for the WES client. Don't forget to replace `ISSUER_HERE` by the 
-issuer URL!
+Run the following commands to set up authorization for the WES client. 
+**Don't forget to replace `<ISSUER_HERE>` with the issuer URL!**
 
 ```bash
 # This grant is a temporary hack to get permissions working for v12/v13. In the future, it should be removed.
 bento_authz create grant \
-  '{"iss": "ISSUER_HERE", "client": "wes"}' \
+  '{"iss": "<ISSUER_HERE>", "client": "wes"}' \
   '{"everything": true}' \
   'view:private_portal'
 
 # This grant gives permission to access and ingest data into all projects and the reference genome service
 bento_authz create grant \
-  '{"iss": "ISSUER_HERE", "client": "wes"}' \
+  '{"iss": "<ISSUER_HERE>", "client": "wes"}' \
   '{"everything": true}' \
   'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material'
 ```
 
-### c. *Optional step:* Assign portal access to all users in the instance realm
+### c. Create a grant for the aggregation and Beacon services
+
+Run the following commands to set up authorization for the aggregation/Beacon client. 
+**Don't forget to replace `<ISSUER_HERE>` with the issuer URL!**
+
+```bash
+# In the future, view:private_portal will need to be removed from this grant.
+bento_authz create grant \
+  '{"iss": "<ISSUER_HERE>", "client": "aggregation"}' \
+  '{"everything": true}' \
+  'query:data' 'view:private_portal'
+```
+
+
+### d. Configure public data access for all users, including anonymous visitors (if desired):
+
+To configure public data access, run the following command in the authorization service container. Note that with the
+`full` value, **THIS GIVES FULL DATA ACCESS TO EVERYONE WHO VISITS YOUR INSTANCE!**
+
+```bash
+# Configure public data access
+# ----------------------------
+# The level below ("counts") preserves previous functionality. Other possible options are:
+#  - none - will do nothing.
+#  - bool - for censored true/false discovery, but in effect right now forbids access.
+#  - counts - for censored count discovery.
+#  - full - allows full data access (record-level, including sensitive data such as IDs), uncensored counts, etc.
+bento_authz public-data-access counts
+```
+
+### e. Assign portal access to all users in the instance realm
 
 We added a special permission, `view:private_portal`, to Bento v12/v13 in order to carry forward the current
 'legacy' authorization behaviour for one more major version. This permission currently behaves as a super-permission,

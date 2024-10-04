@@ -65,6 +65,11 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
+      monitoring-net:
+          aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
       public-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -172,7 +177,6 @@ services:
       - FLASK_DEBUG=True
       - BENTO_DEBUG=True
       - CHORD_DEBUG=True
-      - BENTO_BEACON_DEBUG=true
     ports:
       - "${BENTO_BEACON_EXTERNAL_PORT}:${BENTO_BEACON_INTERNAL_PORT}"
       - "${BENTO_BEACON_DEBUGGER_EXTERNAL_PORT}:${BENTO_BEACON_DEBUGGER_INTERNAL_PORT}"
@@ -232,3 +236,14 @@ services:
   cbioportal:
     ports:
       - "${BENTO_CBIOPORTAL_EXTERNAL_PORT}:${BENTO_CBIOPORTAL_INTERNAL_PORT}"
+
+  grafana:
+    ports:
+      - "3000:3000"
+    environment:
+    # Workaround for self signed certificates in dev
+      - GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE=true
+  
+  loki:
+    ports:
+      - "3100:3100"
