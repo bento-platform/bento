@@ -28,89 +28,16 @@ Then, modify the values as needed; depending on if you're using the instance for
 
 #### Development example
 
-The below is an example of a completed development configuration:
-
-```bash
-# in local.env:
-
-MODE=dev
-
-# Gateway/domains -----------------------------------------------------
-BENTOV2_DOMAIN=bentov2.local
-BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
-BENTOV2_AUTH_DOMAIN=bentov2auth.local
-# Unused if cBioPortal is disabled:
-BENTOV2_CBIOPORTAL_DOMAIN=cbioportal.${BENTOV2_DOMAIN}
-# ---------------------------------------------------------------------
-
-# Feature switches ----------------------------------------------------
-
-BENTOV2_USE_EXTERNAL_IDP=0
-BENTOV2_USE_BENTO_PUBLIC=1
-
-#  - Switch to enable TLS - defaults to true (i.e., use TLS):
-BENTO_GATEWAY_USE_TLS='true'
-
-BENTO_BEACON_ENABLED='true'
-BENTO_BEACON_UI_ENABLED='true'
-BENTO_BEACON_NETWORK_ENABLED='false'
-BENTO_CBIOPORTAL_ENABLED='false'
-BENTO_GOHAN_ENABLED='true'
-BENTO_MONITORING_ENABLED='true'
-
-#  - Switch to enable French translation in Bento Public
-BENTO_PUBLIC_TRANSLATED='true'
-
-# ---------------------------------------------------------------------
-
-# Set this to a data storage location, optionally within the repo itself, like: /path-to-my-bentov2-repo/data
-# Data directories are split to better use SSD and HDD resources in prod.
-# In dev/local it is more convenient to use a single directory
-BENTO_FAST_DATA_DIR=./data 
-BENTO_SLOW_DATA_DIR=./data
-
-# Auth ----------------------------------------------------------------
-#  - Session secret should be set to a unique secure value.
-#    this adds security and allows sessions to exist across gateway restarts.
-#     - Empty by default, to be filled by local.env
-#  - IMPORTANT: set before starting gateway
-BENTOV2_SESSION_SECRET=my-very-secret-session-secret  # !!! ADD SOMETHING MORE SECURE !!!
-
-#  - Set auth DB password if using a local IDP
-BENTO_AUTH_DB_PASSWORD=some-secure-password
-#  - Always set authz DB password
-BENTO_AUTHZ_DB_PASSWORD=some-other-secure-password
-
-BENTOV2_AUTH_ADMIN_USER=admin
-BENTOV2_AUTH_ADMIN_PASSWORD=admin  # !!! obviously for dev only !!!
-
-BENTOV2_AUTH_TEST_USER=user
-BENTOV2_AUTH_TEST_PASSWORD=user  # !!! obviously for dev only !!!
-
-#  - WES Client ID/secret; client within BENTOV2_AUTH_REALM
-BENTO_WES_CLIENT_ID=wes
-BENTO_WES_CLIENT_SECRET=
-# --------------------------------------------------------------------
-
-# Gohan
-BENTOV2_GOHAN_ES_PASSWORD=devpassword567
-
-# Katsu
-BENTOV2_KATSU_DB_PASSWORD=devpassword123
-BENTOV2_KATSU_APP_SECRET=some-random-phrase-here   # !!! ADD SOMETHING MORE SECURE !!!
-
-# Development settings ------------------------------------------------
-
-# - Git configuration
-BENTO_GIT_NAME=David  # Change this to your name
-BENTO_GIT_EMAIL=do-not-reply@example.org  # Change this to your GitHub account email
-```
+For an example of a semi-completed development configuration, see [etc/bento_dev.env](../etc/bento_dev.env).
+In the step above, this file was copied to `local.env`, and **you must now edit `local.env` to specify secrets and other 
+deployment-specific values.**
 
 You should at least fill to the following settings in dev mode (it may differ for a production setup), which are not set 
 in the example file:
 * `BENTOV2_SESSION_SECRET`
 * `BENTO_AUTH_DB_PASSWORD`
 * `BENTO_AUTHZ_DB_PASSWORD`
+* `BENTO_AGGREGATION_CLIENT_SECRET`
 * `BENTO_WES_CLIENT_SECRET`
 
 If the internal OIDC identity provider (IdP) is being used (by default, Keycloak), variables specifying default 
