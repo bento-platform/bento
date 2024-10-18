@@ -26,6 +26,8 @@ PUBLIC_URL = os.getenv("BENTOV2_PUBLIC_URL")
 PORTAL_PUBLIC_URL = os.getenv("BENTOV2_PORTAL_PUBLIC_URL")
 CBIOPORTAL_URL = os.getenv("BENTO_CBIOPORTAL_PUBLIC_URL")
 
+GATEWAY_CONTAINER_NAME = os.getenv("BENTOV2_GATEWAY_CONTAINER_NAME")
+
 AUTH_REALM = os.getenv("BENTOV2_AUTH_REALM")
 AUTH_CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 AUTH_PUBLIC_URL = os.getenv("BENTOV2_AUTH_PUBLIC_URL")
@@ -519,11 +521,14 @@ def init_auth(docker_client: docker.DockerClient):
                 ],
             })
 
-        create_user_res_data = create_user_res.json()
         if create_user_res.ok:
+            create_user_res_data = create_user_res.json()
             cprint(f"    Created user: {AUTH_TEST_USER} (ID={create_user_res_data['id']}).", "green")
         else:
-            err(f"    Failed to create user: {AUTH_TEST_USER}; {create_user_res.status_code} {create_user_res_data}")
+            err(
+                f"    Failed to create user: {AUTH_TEST_USER}; {create_user_res.status_code} "
+                f"{create_user_res.content.decode('utf-8')}"
+            )
             exit(1)
 
     def success():
@@ -536,11 +541,12 @@ def init_auth(docker_client: docker.DockerClient):
     info(f"[bentoctl] Using internal IdP, setting up Keycloak...    (DEV_MODE={c.DEV_MODE})")
 
     try:
+        docker_client.containers.get(GATEWAY_CONTAINER_NAME)  # Needed to access Keycloak through the proper channel
         docker_client.containers.get(AUTH_CONTAINER_NAME)
     except requests.exceptions.HTTPError:
         info(f"  Starting {AUTH_CONTAINER_NAME}...")
         # Not found, so we need to start it
-        subprocess.check_call((*c.COMPOSE, "up", "-d", "auth"))
+        subprocess.check_call((*c.COMPOSE, "up", "--wait", "-d", "auth", "gateway"))
         success()
 
     info(f"  Signing in as {AUTH_ADMIN_USER}...")
