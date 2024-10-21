@@ -140,6 +140,8 @@ The following is a list of all host port allocations for Bento services in devel
 | Reference        | 9510 | 9501          |
 | Reference DB     | 9512 | `N/A`         |
 | Service Registry | 5010 | Unimplemented |
+| TDS              | 9520 | 9520          |
+| TDS DB           | 9522 | `N/A`         |
 | WES              | 9250 | 5680          |
 
 
