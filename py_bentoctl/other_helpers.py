@@ -216,6 +216,7 @@ def init_dirs():
         "reference-db": "BENTO_REFERENCE_DB_VOL_DIR",
         "wes": "BENTOV2_WES_VOL_DIR",
         "wes-tmp": "BENTOV2_WES_VOL_TMP_DIR",
+        "tds-db": "BENTO_TDS_DB_VOL_DIR",
 
         # Feature-specific volume dirs - only if the relevant feature is enabled.
         #  - internal IdP
@@ -299,6 +300,8 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_SERVICE_REGISTRY_NETWORK", dict(driver="bridge")),
         ("BENTO_WEB_NETWORK", dict(driver="bridge")),
         ("BENTO_WES_NETWORK", dict(driver="bridge")),
+        ("BENTO_TDS_NETWORK", dict(driver="bridge")),
+        ("BENTO_TDS_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
     )
 
     for net_var, net_kwargs in networks:

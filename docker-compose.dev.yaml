@@ -85,6 +85,11 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
+      tds-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
       web-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -223,6 +228,19 @@ services:
   reference-db:
     ports:
       - "${BENTO_REFERENCE_DB_EXTERNAL_PORT}:5432"
+
+  tds:
+    environment:
+      - BENTO_DEBUG=True
+      - BENTO_VALIDATE_SSL=False
+      - LOG_LEVEL=debug
+    ports:
+      - "${BENTO_TDS_EXTERNAL_PORT}:${BENTO_TDS_INTERNAL_PORT}"
+      - "${BENTO_TDS_DEBUGGER_EXTERNAL_PORT}:${BENTO_TDS_DEBUGGER_INTERNAL_PORT}"
+
+  tds-db:
+    ports:
+      - "${BENTO_TDS_DB_EXTERNAL_PORT}:5432"
 
   gohan-elasticsearch:
     # In dev / on Mac, sometimes this will trip up and decide there isn't enough disk space even when there is.

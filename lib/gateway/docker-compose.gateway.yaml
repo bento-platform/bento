@@ -78,6 +78,8 @@ services:
       - BENTO_CBIOPORTAL_CONTAINER_NAME
       - BENTO_CBIOPORTAL_INTERNAL_PORT
       - BENTO_GRAFANA_CONTAINER_NAME
+      - BENTO_TDS_CONTAINER_NAME
+      - BENTO_TDS_INTERNAL_PORT
     networks:
       - aggregation-net
       - auth-net
@@ -94,6 +96,7 @@ services:
       - public-net
       - reference-net
       - service-registry-net
+      - tds-net
       - web-net
       - wes-net
     ports:
@@ -186,6 +189,9 @@ networks:
   service-registry-net:
     external: true
     name: ${BENTO_SERVICE_REGISTRY_NETWORK}
+  tds-net:
+    external: true
+    name: ${BENTO_TDS_NETWORK}
   web-net:
     external: true
     name: ${BENTO_WEB_NETWORK}

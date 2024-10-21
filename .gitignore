@@ -51,6 +51,9 @@ lib/public/*
 lib/gohan/es_jvm_options/*
 !lib/gohan/es_jvm_options/.gitkeep
 
+# TDS
+lib/tds/plugins/*
+
 # temp test stuff
 etc/tests/*/__pycache__
 etc/tests/*/*/__pycache__

@@ -71,5 +71,10 @@
   },
   "gateway": {
     "repository": "git@github.com:bento-platform/bento_gateway.git"
+  },
+  "tds": {
+    "service_kind": "tds",
+    "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",
+    "repository": "git@github.com:bento-platform/transcriptomics_data_service.git"
   }
 }

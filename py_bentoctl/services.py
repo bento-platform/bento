@@ -35,6 +35,7 @@ BENTO_USER_EXCLUDED_SERVICES = (
     "katsu-db",
     "redis",
     "reference-db",
+    "tds-db",
 )
 
 
@@ -91,6 +92,8 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
     "reference-db": ("BENTO_REFERENCE_DB_BASE_IMAGE", "BENTO_REFERENCE_DB_BASE_IMAGE_VERSION", None),
     "service-registry": ("BENTOV2_SERVICE_REGISTRY_IMAGE", "BENTOV2_SERVICE_REGISTRY_VERSION",
                          "BENTOV2_SERVICE_REGISTRY_VERSION_DEV"),
+    "tds": ("BENTO_TDS_IMAGE", "BENTO_TDS_VERSION", "BENTO_TDS_VERSION_DEV"),
+    "tds-db": ("BENTO_TDS_DB_IMAGE", "BENTO_TDS_DB_VERSION", None),
     "web": ("BENTOV2_WEB_IMAGE", "BENTOV2_WEB_VERSION", "BENTOV2_WEB_VERSION_DEV"),
     "wes": ("BENTOV2_WES_IMAGE", "BENTOV2_WES_VERSION", "BENTOV2_WES_VERSION_DEV"),
 }
