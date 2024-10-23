@@ -23,6 +23,7 @@ services:
       - BENTO_BEACON_UI_ENABLED
       - BENTO_BEACON_NETWORK_ENABLED
       - DRS_URL=${BENTO_DRS_URL}
+      - REFERENCE_URL=${BENTOV2_PUBLIC_URL}/api/reference
       # Authorization
       - BENTO_AUTHZ_SERVICE_URL
       - BENTO_OPENID_CONFIG_URL
