@@ -5,7 +5,7 @@ By creating DNS `A` or `CNAME` records pointing hostnames to the VM's IP, deploy
 can obtain SSL certificates from Let's Encrypt using certbot.
 
 Having a Bento instance on a VM with a public IP is convenient in terms of deployment,
-but is a security trade-off, as it exposes the VM to attackers.
+but is a security trade-off, as it exposes the VM's IP and ports to attackers.
 
 A more secure deployment can be achieved by using a VM with no public IP to host Bento
 and proxy the trafic through a reverse-proxy.
@@ -19,14 +19,14 @@ As an example, let's assume we have the following hostnames to deploy:
 - Auth: `auth.sandbox.bento.example.com`
 
 We will be using the following deployment infrastructure:
-- Bento Hosting VM (bento-sandbox)
+- **Bento VM** (bento-sandbox)
     - Linux VM in a private or public cloud
-    - On the subnet `bento-private-net`
+    - On the subnet `private-network`
     - Public IP: `NONE`
     - Private IP: `10.0.0.1`
     - DNS records: `NONE`
-- Reverse Proxy
-    - Has network access to `bento-sandbox (10.0.0.1)` on `bento-private-net`
+- **Reverse Proxy**
+    - Has network access to `bento-sandbox (10.0.0.1)` on `private-network`
     - Public IP: `some.public.ip.adr`
     - DNS records:
         - (A) `sandbox.bento.example.com` => `some.public.ip.adr`
@@ -36,8 +36,12 @@ We will be using the following deployment infrastructure:
         - `sandbox.bento.example.com` => `10.0.0.1:80`
         - `*.sandbox.bento.example.com` => `10.0.0.1:80`
 
-With the hosting VM on a dedicated private network, we can have SSL
-termination between the reverse proxy and the VM hosting Bento.
+
+![Reverse proxy architecture](./img/private-network-reverse-proxy.png)
+The diagram above illustrates the deployment architecture.
+
+With the Bento VM on a dedicated private network, we can have SSL
+termination at the reverse proxy in front of our Bento.
 As a result, all the SSL certificates can be managed at the level of the reverse proxy.
 
 ### Configure the Bento hosting VM
@@ -104,9 +108,15 @@ server {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection $connection_upgrade;
     proxy_http_version 1.1;
+
+    # For large requests
+    client_body_timeout     660s;
+    proxy_send_timeout      660s;
+    send_timeout            660s;
+    client_max_body_size    200m;
     
-    # bento VM instance IP on the private network
-    # SSL Termination, proxy HTTPS trafic to the HTTP port 80
+    # Bento VM instance IP on the private network
+    # On port 80 since we use SSL termination
     proxy_pass  http://10.0.0.1:80;
     proxy_redirect	default;
       
@@ -119,4 +129,15 @@ Then restart the NGINX server to load the new configuration.
 
 If everything was done correctly, you should now be able to reach the Bento instance through the reverse-proxy!
 
+### Proxying multiple Bento instances
+If more Bento instances are needed, the same reverse proxy can be used to route trafic.
 
+To do so, one would simply need to:
+1. Create and configure a Bento VM on a private network accesible by the reverse-proxy
+2. Create new DNS records for the desired domains 
+   1. Not necessary if using wildcard DNS records already covering the domain
+3. Obtain the certificates for the desired domains on the reverse proxy
+   1. Or use wildcard certificates (recommended)
+4. Configure the reverse proxy to route trafic to the new instance
+   1. Add a conf to `/etc/nginx/conf.d/`
+   2. Restart the reverse proxy
