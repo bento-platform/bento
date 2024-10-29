@@ -1,6 +1,7 @@
 # Bento behind a proxy
 
 A Bento instance is typically deployed on a dedicated VM with a public IP address.
+
 By creating DNS `A` or `CNAME` records pointing hostnames to the VM's IP, deployers
 can obtain SSL certificates from Let's Encrypt using certbot.
 

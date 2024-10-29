@@ -38,6 +38,7 @@ that make up the Bento platform.
 * [Deployment](./docs/deployment.md)
 * [Monitoring](./docs/monitoring.md)
 * [Public discovery configuration](./docs/public_discovery.md)
+* [Using a reverse proxy in front of Bento](./docs/reverse-proxy.md)
 
 ### Data ingestion and usage
 
