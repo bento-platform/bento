@@ -18,6 +18,7 @@ services:
       - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/tds
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
       - BENTO_AUTHZ_SERVICE_URL
+      - BENTO_AUTHZ_ENABLED=True
     volumes:
       - ${BENTO_TDS_PLUGINS_DIR}:/tds/lib
     healthcheck:
