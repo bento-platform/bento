@@ -273,26 +273,39 @@ def init_docker(client: docker.DockerClient):
     # Init Docker network(s)
 
     # network environment variable, kwargs
-    networks = (
+    networks: tuple[tuple[str, dict] | tuple[str, dict, c.BentoOptionalFeature], ...] = (
+        # Aggregation
         ("BENTO_AGGREGATION_NETWORK", dict(driver="bridge")),
-        ("BENTO_AUTH_NETWORK", dict(driver="bridge")),
-        ("BENTO_AUTH_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_AUTH_NETWORK", dict(driver="bridge"), c.BENTO_FEATURE_AUTH),
+        (
+            "BENTO_AUTH_DB_NETWORK",
+            dict(driver="bridge", internal=True),  # Does not need to access the web
+            c.BENTO_FEATURE_AUTH,
+        ),
         ("BENTO_AUTHZ_NETWORK", dict(driver="bridge")),
         ("BENTO_AUTHZ_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
-        ("BENTO_BEACON_NETWORK", dict(driver="bridge")),
-        ("BENTO_CBIOPORTAL_NETWORK", dict(driver="bridge")),
-        ("BENTO_CBIOPORTAL_DATABASE_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
-        ("BENTO_CBIOPORTAL_SESSION_NETWORK", dict(driver="bridge")),
+        ("BENTO_BEACON_NETWORK", dict(driver="bridge"), c.BENTO_FEATURE_BEACON),
+        ("BENTO_CBIOPORTAL_NETWORK", dict(driver="bridge"), c.BENTO_FEATURE_CBIOPORTAL),
+        (
+            "BENTO_CBIOPORTAL_DATABASE_NETWORK",
+            dict(driver="bridge", internal=True),  # Does not need to access the web
+            c.BENTO_FEATURE_CBIOPORTAL,
+        ),
+        ("BENTO_CBIOPORTAL_SESSION_NETWORK", dict(driver="bridge"), c.BENTO_FEATURE_CBIOPORTAL),
         ("BENTO_DROP_BOX_NETWORK", dict(driver="bridge")),
         ("BENTO_DRS_NETWORK", dict(driver="bridge")),
         ("BENTO_EVENT_RELAY_NETWORK", dict(driver="bridge")),
-        ("BENTO_GOHAN_API_NETWORK", dict(driver="bridge")),
-        ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_GOHAN_API_NETWORK", dict(driver="bridge"), c.BENTO_FEATURE_GOHAN),
+        (
+            "BENTO_GOHAN_ES_NETWORK",
+            dict(driver="bridge", internal=True),  # Does not need to access the web
+            c.BENTO_FEATURE_GOHAN,
+        ),
         ("BENTO_KATSU_NETWORK", dict(driver="bridge")),
         ("BENTO_KATSU_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
-        ("BENTO_MONITORING_NETWORK", dict(driver="bridge")),
+        ("BENTO_MONITORING_NETWORK", dict(driver="bridge"), c.BENTO_FEATURE_MONITORING),
         ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
-        ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),
+        ("BENTO_PUBLIC_NETWORK", dict(driver="bridge"), c.BENTO_FEATURE_PUBLIC),
         ("BENTO_REDIS_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_REFERENCE_NETWORK", dict(driver="bridge")),
         ("BENTO_REFERENCE_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
@@ -301,12 +314,25 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_WES_NETWORK", dict(driver="bridge")),
     )
 
-    for net_var, net_kwargs in networks:
+    for network in networks:
+        if len(network) == 2:
+            net_var, net_kwargs = network
+            net_enabled = True
+        else:  # len(network) == 3:
+            net_var, net_kwargs = network[:2]
+            # noinspection PyTypeChecker
+            net_feat: c.BentoOptionalFeature = network[2]
+            net_enabled = net_feat.enabled
+
         task_print(f"Creating Docker network (var: {net_var}) if needed...")
 
         net_name = os.getenv(net_var)
         if not net_name:
             cprint(f"failed ({net_var} not set).", "red")
+
+        if not net_enabled:
+            task_print_done("feature disabled.", color="yellow")
+            continue
 
         try:
             client.networks.get(net_name)
