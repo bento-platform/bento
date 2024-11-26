@@ -48,6 +48,7 @@ that make up the Bento platform.
 
 ### Migration documents
 
+* [v17 to v17.1](./docs/migrating_to_17_1.md)
 * [v16 to v17](./docs/migrating_to_17.md)
 * [v15.2 to v16](./docs/migrating_to_16.md)
 * [v15.1 to v15.2](./docs/migrating_to_15_2.md)
