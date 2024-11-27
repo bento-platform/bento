@@ -22,19 +22,18 @@ services:
       - KC_DB_URL=jdbc:postgresql://${BENTO_AUTH_DB_CONTAINER_NAME}:5432/${BENTO_AUTH_DB}
       - KC_DB_USERNAME=${BENTO_AUTH_DB_USER}
       - KC_DB_PASSWORD=${BENTO_AUTH_DB_PASSWORD}
-      - KC_HOSTNAME=${BENTOV2_AUTH_DOMAIN}
       # the below environment variables are set up in etc/bento_post_config.bash based on the value of the
       # BENTO_GATEWAY_USE_TLS environment variable.
-      - KC_HOSTNAME_STRICT_HTTPS
+      - KC_HOSTNAME
       - KC_HTTP_ENABLED
       - KC_HTTPS_CERTIFICATE_FILE
       - KC_HTTPS_CERTIFICATE_KEY_FILE
-      - KC_PROXY
+      - KC_PROXY_HEADERS
     mem_limit: ${BENTOV2_AUTH_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_AUTH_CPUS}
     cpu_shares: 512
     healthcheck:
-      test: [ "CMD", "curl", "https://localhost:8443", "-k" ]
+      test: [ "CMD", "bash", "/healthcheck.bash" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
       # interval: ${BENTO_HEALTHCHECK_INTERVAL}
       # For Docker <25 and Compose <2.24.x, start_interval doesn't work - use a shorter interval for now
