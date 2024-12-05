@@ -14,6 +14,7 @@ include:
       - lib/gohan/docker-compose.gohan.yaml  # Optional feature; controlled by a compose profile
       - lib/katsu/docker-compose.katsu.yaml
       - lib/logs/docker-compose.logs.yaml
+      - lib/minio/docker-compose.minio.yaml
       - lib/notification/docker-compose.notification.yaml
       - lib/public/docker-compose.public.yaml  # Optional feature; controlled by a compose profile
       - lib/redis/docker-compose.redis.yaml
