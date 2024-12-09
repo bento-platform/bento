@@ -17,7 +17,7 @@ location /api/minio/ {
     proxy_pass http://${BENTO_MINIO_CONTAINER_NAME}:${BENTO_MINIO_INTERNAL_PORT}$uri;
 
     # Errors
-    error_log /var/log/bentov2_minio_errors.log;    
+    error_log /var/log/bentov2_minio_errors.log;
 }
 
 location /api/minio-console { return 302 https://${BENTOV2_DOMAIN}/api/minio-console/; }
@@ -44,5 +44,5 @@ location /api/minio-console/ {
     proxy_set_header Accept-Encoding "";    
 
     # Errors
-    error_log /var/log/bentov2_minio_errors.log;        
+    error_log /var/log/bentov2_minio_errors.log;
 }

@@ -71,9 +71,5 @@
   },
   "gateway": {
     "repository": "git@github.com:bento-platform/bento_gateway.git"
-  },
-  "minio": {
-    "service_kind": "minio",
-    "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}"
   }
 }
