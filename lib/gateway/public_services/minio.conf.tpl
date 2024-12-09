@@ -9,9 +9,9 @@ location /api/minio/ {
     proxy_connect_timeout 300;
     chunked_transfer_encoding off;
 
-    # Forward request to event-relay
+    # Forward request to minio
     rewrite ^ $request_uri;
-    rewrite ^/api/event-relay/(.*) /$1 break;
+    rewrite ^/api/minio/(.*) /$1 break;
     return 400;
 
     proxy_pass http://${BENTO_MINIO_CONTAINER_NAME}:${BENTO_MINIO_INTERNAL_PORT}$uri;
@@ -31,7 +31,7 @@ location /api/minio-console/ {
     proxy_connect_timeout 300;
     chunked_transfer_encoding off;    
     
-    # Forward request to event-relay
+    # Forward request to minio-console
     rewrite ^ $request_uri;
     rewrite ^/api/minio-console/(.*) /$1 break;
     proxy_pass http://${BENTO_MINIO_CONTAINER_NAME}:${BENTO_MINIO_CONSOLE_PORT}$uri;    
