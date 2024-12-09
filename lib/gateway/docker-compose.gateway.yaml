@@ -3,7 +3,7 @@ services:
     image: ${BENTOV2_GATEWAY_IMAGE}:${BENTOV2_GATEWAY_VERSION}
     container_name: ${BENTOV2_GATEWAY_CONTAINER_NAME}
     environment:
-      - BENTO_DEBUG=true
+      - BENTO_DEBUG=false
 
       - BENTO_AUTHZ_SERVICE_URL=${BENTO_AUTHZ_SERVICE_URL}
       - BENTOV2_SESSION_SECRET
