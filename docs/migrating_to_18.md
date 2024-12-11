@@ -25,5 +25,5 @@ TODO
 ## TODO. Restart services
 
 ```bash
-
+./bentoctl.bash start
 ```
