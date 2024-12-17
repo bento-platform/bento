@@ -138,6 +138,14 @@ def init_self_signed_certs(force: bool):
             "dir": auth_certs_dir,
         },
 
+        # Minio
+        **({"minio": {
+            "var": "BENTO_MINIO_DOMAIN",
+            "priv_key_name": "minio_privkey1.key",
+            "crt": "minio_fullchain1.crt",
+            "dir": gateway_certs_dir,
+        }} if c.BENTO_FEATURE_MINIO.enabled else {}),
+
         # If cBioPortal is enabled, generate a cBioPortal self-signed certificate as well
         **({"cbioportal": {
             "var": "BENTOV2_CBIOPORTAL_DOMAIN",
@@ -146,6 +154,7 @@ def init_self_signed_certs(force: bool):
             "dir": gateway_certs_dir,
         }} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
 
+        # If a domain is configured for redirect (e.g. preserve a published reference)
         **({"redirect": {
             "var": "BENTO_DOMAIN_REDIRECT",
             "priv_key_name": "redirect_privkey1.key",
