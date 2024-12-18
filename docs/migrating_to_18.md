@@ -1,21 +1,18 @@
 # Migrating to Bento v18
 
-## Before enabling minio
-
-Create new docker network, init dirs and init certs for Minio instance
-
-```bash
-./bentoctl.bash init-certs -f
-./bentoctl.bash init-dirs
-./bentoctl.bash init-docker  # new networks for minio
-```
-
-### The following parameters must be configure in `local.env`
+## Enabling minio
 
 Enable minio by setting the feature flag in local.env
-
 ```bash
 BENTO_MINIO_ENABLED='true'
+```
+
+After enabling the Minio feature flag for the first time, 
+you must initialize the Docker networks, mounted directories and certs.
+```bash
+./bentoctl.bash init-certs -f
+./bentoctl.bash init-docker # new network for minio
+./bentoctl.bash init-dirs 
 ```
 
 Also set root user and password in local.env:
