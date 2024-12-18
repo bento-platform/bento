@@ -9,6 +9,7 @@ BENTOV2_DOMAIN=bento.example.com
 BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
 BENTOV2_AUTH_DOMAIN=auth.${BENTOV2_DOMAIN}
 BENTOV2_CBIOPORTAL_DOMAIN=cbioportal.${BENTOV2_DOMAIN}
+BENTO_MINIO_DOMAIN=minio.${BENTOV2_DOMAIN}
 ```
 
 For a real deployment, make sure that your `local.env` file uses valid domain names for which SSL certificates 
