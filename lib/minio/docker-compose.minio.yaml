@@ -16,9 +16,10 @@ services:
       - MINIO_BROWSER_REDIRECT_URL=https://${BENTO_MINIO_DOMAIN}/minio/ui
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
-      interval: 5s
-      timeout: 5s
-      retries: 5      
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}      
     profiles:
       - minio
     command: server /data --console-address ":${BENTO_MINIO_CONSOLE_PORT}"
