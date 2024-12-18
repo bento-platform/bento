@@ -325,10 +325,18 @@ value in the `BENTOV2_AUTH_CLIENT_ID` environment variable. On local instances,
 this is set to `local_bentov2` by default.
 
 
-## 7. *Production only:* set up translations for Bento-Public
+## 7. *Production only:* set up translations and branding
 
-Now that Bento Public has been initialized by either `./bentoctl.bash init-all` or `./bentoctl.bash init-web public`,
-adjust the default translation set as necessary:
+Now that Bento Public and Web have been initialized by either `./bentoctl.bash init-all` or 
+`./bentoctl.bash init-web <public|web>`, translation files and branding (logos) can be configured as necessary.
+
+**For branding (logos)**, copy files to the following paths:
+
+* A logo which works on dark backgrounds should be placed at `lib/public/branding.png` and `lib/web/branding.png`.
+* A logo which works on light backgrounds should be placed at `lib/public/branding.lightbg.png`. This is primarily 
+  useful for Beacon Network. 
+
+**For translations** (which apply only to Bento Public), adjust the default translation set as necessary:
 
 ```js
 // lib/public/translations/<en|fr>.json

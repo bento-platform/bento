@@ -38,6 +38,7 @@ def init_web(service: str, force: bool):
 
 def _init_web_public(force: bool):
     root_path = pathlib.Path.cwd()
+    etc_path = root_path / "etc"
 
     # Init lib dir
     public_path = (root_path / "lib" / "public")
@@ -46,33 +47,41 @@ def _init_web_public(force: bool):
 
     # About html page (English)
     _file_copy(
-        (root_path / "etc" / "default.en_about.html"),
+        (etc_path / "default.en_about.html"),
         (public_path / "en_about.html"),
         force=force,
     )
 
     # About html page (French)
     _file_copy(
-        (root_path / "etc" / "default.fr_about.html"),
+        (etc_path / "default.fr_about.html"),
         (public_path / "fr_about.html"),
         force=force,
     )
 
     # Branding image
+    # - dark background / default
     _file_copy(
-        (root_path / "etc" / "default.public.branding.png"),
+        (etc_path / "default.branding.png"),
         (public_path / "branding.png"),
         force=force,
     )
+    # - light background
+    _file_copy(
+        (etc_path / "default.branding.lightbg.png"),
+        (public_path / "branding.lightbg.png"),
+        force=force,
+    )
+
     # English translations
     _file_copy(
-        (root_path / "etc" / "templates" / "translations" / "en.example.json"),
+        (etc_path / "templates" / "translations" / "en.example.json"),
         (translation_path / "en.json"),
         force=force,
     )
     # French translations
     _file_copy(
-        (root_path / "etc" / "templates" / "translations" / "fr.example.json"),
+        (etc_path / "templates" / "translations" / "fr.example.json"),
         (translation_path / "fr.json"),
         force=force,
     )
@@ -99,7 +108,7 @@ def _init_web_private(force: bool):
     web_path = (root_path / "lib" / "web")
     web_path.mkdir(parents=True, exist_ok=True)
 
-    src_branding = (root_path / "etc" / "default.branding.png")
+    src_branding = (root_path / "etc" / "default.branding.darkbg.png")
     dst_branding = (web_path / "branding.png")
 
     if dst_branding.is_file():
