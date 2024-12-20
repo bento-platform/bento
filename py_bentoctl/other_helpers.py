@@ -147,7 +147,7 @@ def init_self_signed_certs(force: bool):
             "dir": auth_certs_dir,
         },
 
-        # Minio
+        # MinIO
         **({"minio": {
             "var": "BENTO_MINIO_DOMAIN",
             "priv_key_name": "minio_privkey1.key",
@@ -240,7 +240,7 @@ def init_dirs():
         **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
         #  - cBioPortal
         **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
-        #  - minio
+        #  - MinIO
         **({"minio": "BENTO_MINIO_DATA_DIR"} if c.BENTO_FEATURE_MINIO.enabled else {}),
         #  - Monitoring: Grafana/Loki
         **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
