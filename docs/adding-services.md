@@ -8,6 +8,8 @@ There are two types of services in Bento:
 
 ## Aspects to consider when adding any service to Bento
 
+### Environment variables
+
 * Service environment variables, used for configuring the image and some aspects of the service itself, should be added 
   to `etc/bento.env`. These variables typically include:
   * Image
@@ -17,16 +19,37 @@ There are two types of services in Bento:
     networks only as needed)
   * Debugger ports
 * Configuration environment variables TODO
-* Docker container configuration via a Compose file in `lib/<service>/docker-compose.<service>.yaml`
-* *As needed:* a gateway NGINX config in `lib/gateway/<public_services|services>`
 
-* TODO
+### Container setup
 
-Non-Bento services **MUST NOT** be put into `etc/bento_services.json`; this file is for Bento services only (see below).
+The service's Docker container must be set up via a Compose file in `lib/<service>/docker-compose.<service>.yaml`.
+This must then be included in the main `docker-compose.yaml` file, in the `include` block.
+
+The service's network (and potentially feature flag, if applicable), as well as container name and port environment 
+variables must be added to the gateway compose file (`lib/gateway/docker-compose.gateway.yaml`) if the service is to be 
+externally accessible.
+
+### Gateway configuration
+
+*As needed,* a gateway NGINX config must be placed into `lib/gateway/<public_services|services>`.
 
 ### Required `bentoctl` changes
 
 TODO
+
+* If new certificates are needed, add new entries to the `init_self_signed_certs` function (for development purposes)
+  in `py_bentoctl/other_helpers.py`.
+
+### Documentation changes
+
+* Make sure to add a note about how to set up the service for the first time to the 
+  [Installation guide](./installation.md), as well as the migration guide for the version the service is introduced in.
+* If additional deployment steps are needed (i.e., new certificates), add a note to the 
+  [Deployment guide](./deployment.md).
+
+### Additional notes
+
+Non-Bento services **MUST NOT** be put into `etc/bento_services.json`; this file is for Bento services only (see below).
 
 
 ## Additional considerations when adding new Bento services
