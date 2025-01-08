@@ -147,6 +147,14 @@ def init_self_signed_certs(force: bool):
             "dir": auth_certs_dir,
         },
 
+        # MinIO
+        **({"minio": {
+            "var": "BENTO_MINIO_DOMAIN",
+            "priv_key_name": "minio_privkey1.key",
+            "crt": "minio_fullchain1.crt",
+            "dir": gateway_certs_dir,
+        }} if c.BENTO_FEATURE_MINIO.enabled else {}),
+
         # If cBioPortal is enabled, generate a cBioPortal self-signed certificate as well
         **({"cbioportal": {
             "var": "BENTOV2_CBIOPORTAL_DOMAIN",
@@ -155,6 +163,7 @@ def init_self_signed_certs(force: bool):
             "dir": gateway_certs_dir,
         }} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
 
+        # If a domain is configured for redirect (e.g. preserve a published reference)
         **({"redirect": {
             "var": "BENTO_DOMAIN_REDIRECT",
             "priv_key_name": "redirect_privkey1.key",
@@ -231,6 +240,8 @@ def init_dirs():
         **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
         #  - cBioPortal
         **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
+        #  - MinIO
+        **({"minio": "BENTO_MINIO_DATA_DIR"} if c.BENTO_FEATURE_MINIO.enabled else {}),
         #  - Monitoring: Grafana/Loki
         **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
         **({"loki": "BENTO_LOKI_TEMP_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
@@ -299,6 +310,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_KATSU_NETWORK", dict(driver="bridge")),
         ("BENTO_KATSU_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_MINIO_NETWORK", dict(driver="bridge")),
         ("BENTO_MONITORING_NETWORK", dict(driver="bridge")),
         ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
         ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),

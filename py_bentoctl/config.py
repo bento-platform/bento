@@ -103,6 +103,8 @@ BENTO_FEATURE_CBIOPORTAL = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False), profile="cbioportal")
 BENTO_FEATURE_GOHAN = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_GOHAN_ENABLED", default=False), profile="gohan")
+BENTO_FEATURE_MINIO = BentoOptionalFeature(
+    enabled=_env_get_bool("BENTO_MINIO_ENABLED", default=False), profile="minio")
 BENTO_FEATURE_MONITORING = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_MONITORING_ENABLED", default=False), profile="monitoring")
 
