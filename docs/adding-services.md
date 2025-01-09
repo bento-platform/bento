@@ -35,10 +35,20 @@ externally accessible.
 
 ### Required `bentoctl` changes
 
-TODO
+Inside the `py_bentoctl` Python module:
 
-* If new certificates are needed, add new entries to the `init_self_signed_certs` function (for development purposes)
-  in `py_bentoctl/other_helpers.py`.
+* If the service is locked behind a feature flag, add the feature (as an `BentoOptionalFeature` instance) to 
+  `config.py`, modeling it after other definitions.
+* Add the service image environment variables to the `service_image_vars` variable in `services.py`. 
+* If the service is not a Bento service (or does not have the `bento` user in the Docker image), add the service to the
+  `BENTO_USER_EXCLUDED_SERVICES` variable.
+* In `other_helpers.py`:
+  * If the service has a data directory that needs to be initialized, add an entry to the `data_dir_vars` variable 
+    in the `init_dirs(...)` function containing the name of the environment variable which points to the data volume 
+    directory.
+  * Add any entry with the name of the environment variable storing the name of the Docker network to the `networks` 
+    variable in the `init_docker(...)` function.
+  * If new certificates are needed, add new entries to the `init_self_signed_certs` function (for development purposes).
 
 ### Documentation changes
 
