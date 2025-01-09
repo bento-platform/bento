@@ -18,7 +18,11 @@ There are two types of services in Bento:
   * Service Docker network (**Note:** we typically give each service its own network, and add services to multiple 
     networks only as needed)
   * Debugger ports
-* Configuration environment variables TODO
+* Configuration environment variables, for setting up feature flags and passwords, should be added to 
+  `etc/default_config.env` and the example files `etc/bento_deploy.env` and `etc/bento_dev.env`.
+  * `etc/default_config.env` contains feature flags and "empty definitions" for passwords/secrets. 
+  * `etc/bento_deploy.env` is an example / template setup (to be copied to `local.env`) for a production deployment.
+  * `etc/bento_dev.env` is an example / template setup (to be copied to `local.env`) for a development setup.
 
 ### Container setup
 
@@ -63,6 +67,13 @@ Non-Bento services **MUST NOT** be put into `etc/bento_services.json`; this file
 
 
 ## Additional considerations when adding new Bento services
+
+### User and base image
+
+It is expected that Bento services will use one of the 
+[Bento base images](https://github.com/bento-platform/bento_base_images).
+
+These images provide a `bento` user, whose UID is set to the host user's UID.
 
 ### `/service-info` and service record in `bento_services.json`
 
