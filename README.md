@@ -34,6 +34,7 @@ that make up the Bento platform.
 * [`bentoctl`: the Bento deployment command line management tool](./docs/bentoctl.md)
 * [Installation](./docs/installation.md)
 * [Development](./docs/development.md)
+  * [Adding services to Bento](./docs/adding-services.md)
 * [Troubleshooting guide](./docs/troubleshooting.md)
 * [Deployment](./docs/deployment.md)
 * [Monitoring](./docs/monitoring.md)

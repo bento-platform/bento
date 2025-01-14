@@ -33,6 +33,7 @@ BENTO_USER_EXCLUDED_SERVICES = (
     "authz-db",
     "gateway",
     "katsu-db",
+    "minio",
     "redis",
     "reference-db",
 )

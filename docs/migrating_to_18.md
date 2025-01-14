@@ -21,7 +21,8 @@ TODO
 
 ## 3. Enabling MinIO
 
-To enable the deployment of a MinIO server for S3 storage, refer to the documentation on [configuring MinIO for Bento](/docs/minio.md).
+To enable the deployment of a MinIO server for S3 storage, refer to the documentation on 
+[configuring MinIO for Bento](/docs/minio.md).
 
 
 ## TODO. Restart services

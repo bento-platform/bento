@@ -185,6 +185,11 @@ If subsequent modifications are made to the package's code, you will need to cre
 and install it again in the app with `npm install`.
 
 
+## Adding services
+
+See [`adding-services.md`](./adding-services.md) for some considerations when adding new services to Bento.
+
+
 ## Using Adminer
 
 An [Adminer](https://www.adminer.org/) container is deployed in dev and local mode, it can be used to inspect the
