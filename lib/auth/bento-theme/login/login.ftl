@@ -10,7 +10,7 @@
 <body>
     <div class="background">
         <div class="login-container">
-            <img src="${url.resourcesPath}/img/bento_logo.png" alt="${msg("login.logo.alt")}" class="logo" />
+            <img src="${url.resourcesPath}/img/branding.png" alt="${msg("login.logo.alt")}" class="logo" />
 
             <form id="kc-form-login" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post" aria-labelledby="login-heading">
                 <h1 id="login-heading">${msg("login.heading")}</h1>
@@ -51,6 +51,11 @@
                 <#-- Submit Button -->
                 <div class="row">
                     <button type="submit" class="btn-submit" name="login" value="${msg("login.button.submit")}">${msg("login.button.submit")}</button>
+                </div>
+
+                <#-- Ghost Button -->
+                <div class="ghost-watermark">
+                    <img src="${url.resourcesPath}/img/Bento_logo_blk.png" class="watermark" />
                 </div>
             </form>
         </div>
