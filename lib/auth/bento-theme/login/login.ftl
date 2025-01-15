@@ -55,7 +55,7 @@
 
                 <#-- Ghost Button -->
                 <div class="ghost-watermark">
-                    <img src="${url.resourcesPath}/img/Bento_logo_blk.png" class="watermark" />
+                    <img src="${url.resourcesPath}/img/Bento_logo_blk.png" class="ghost-image" />
                 </div>
             </form>
         </div>

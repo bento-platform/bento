@@ -20,6 +20,17 @@ html, body {
     background: linear-gradient(to bottom, #ffffff, #e9ecef);
 }
 
+.ghost-watermark {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    opacity: 0.2;
+}
+
+.ghost-image {
+    width: 250px;
+}
+
 .login-container {
     width: 100%;
     max-width: 500px;
