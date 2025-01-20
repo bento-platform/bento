@@ -21,10 +21,11 @@ html, body {
 }
 
 .ghost-watermark {
-    position: absolute;
+    position: fixed;
     bottom: 24px;
     right: 24px;
     opacity: 0.2;
+    z-index: 1;
 }
 
 .ghost-image {
@@ -39,6 +40,7 @@ html, body {
     border-radius: 16px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     text-align: center;
+    position: relative;
 }
 
 /* Logo styling */
@@ -137,4 +139,36 @@ input:focus {
 
 .btn-submit:hover {
     background-color: #0056b3;
+}
+
+.language-switcher {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.language-switcher select {
+    background: none;
+    border: none;
+    font-size: inherit;
+    color: inherit;
+    outline: none;
+    cursor: pointer;
+    width: 80px;
+    text-align: center;
+    appearance: none;
+    padding: 2px;
+    position: relative;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTYuMDAwMDMgNS4zNDMzN0w5Ljg1NzMzIDAuNzQ0NDc0TDExIDEuOTU0NDdMNiAwTDEgMS45NTQ0N0wyLjE0MjY3IDAuNzQ0NDc0TDYuMDAwMDMgNS4zNDMzN1oiIGZpbGw9IiM1NTUiLz48L3N2Zz4=');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 10px;
+    padding-right: 20px;
+}
+
+.language-switcher select option {
+    background: #ffffff;
+    color: #333;
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="${locale!'en'}">
+<html <#if realm.internationalizationEnabled> lang="${locale.currentLanguageTag}"</#if>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +10,23 @@
 <body>
     <div class="background">
         <div class="login-container">
+            <#if realm.internationalizationEnabled && locale.supported?size gt 1>
+                <div class="language-switcher">
+                    <select
+                            aria-label="${msg("languages")}"
+                            id="login-select-toggle"
+                            onchange="if (this.value) window.location.href=this.value">
+                        <#list locale.supported?sort_by("label") as l>
+                            <option
+                                    value="${l.url}"
+                                    ${(l.languageTag == locale.currentLanguageTag)?then('selected','')}>
+                                ${l.label}
+                            </option>
+                        </#list>
+                    </select>
+                </div>
+            </#if>
+
             <img src="${url.resourcesPath}/img/branding.png" alt="${msg("login.logo.alt")}" class="logo" />
 
             <form id="kc-form-login" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post" aria-labelledby="login-heading">
