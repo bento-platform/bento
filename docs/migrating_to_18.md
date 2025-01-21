@@ -19,7 +19,25 @@ TODO
   above location, or copy `branding.png` to `branding.lightbg.png`
 
 
-## 3. Enabling MinIO
+## 3. If desired, disable Bento Public sign in / portal links
+
+Version 18 includes two new Bento Public environment variables for customizing an instance:
+
+* `BENTO_PUBLIC_SHOW_PORTAL_LINK`: Whether to show a link to the private data portal in the header
+* `BENTO_PUBLIC_SHOW_SIGN_IN`: Whether to show a "Sign In" button in the header
+
+Both of these are set to `true` by default. If desired, they can be toggled to `false` by setting them in `local.env`,
+for example:
+
+```bash
+# ...
+BENTO_PUBLIC_SHOW_PORTAL_LINK='false'
+BENTO_PUBLIC_SHOW_SIGN_IN='false'
+# ...
+```
+
+
+## 4. Enabling MinIO
 
 To enable the deployment of a MinIO server for S3 storage, refer to the documentation on 
 [configuring MinIO for Bento](/docs/minio.md).
