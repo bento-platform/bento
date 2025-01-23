@@ -56,7 +56,7 @@
                             <input id="password" class="form-input" type="password" name="password" placeholder="${msg("login.password.placeholder")}" required
                                 aria-invalid="<#if messagesPerField.existsError('password')>true</#if>" />
                             <button type="button" class="toggle-password" aria-label="${msg("login.password.toggle.aria")}" onclick="togglePasswordVisibility()">
-                                👁️
+                               <img src="${url.resourcesPath}/img/visibility_off.svg" width="24" height="24"  alt="Show password"/>
                             </button>
                         </div>
                         <#if messagesPerField.existsError('password')>
@@ -78,6 +78,20 @@
         </div>
     </div>
 
-    <script src="${url.resourcesPath}/js/showPassword.js"></script>
+    <script>
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('password');
+            const toggleButton = document.querySelector('.toggle-password img');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleButton.src = `${url.resourcesPath}/img/visibility_off.svg`;
+                toggleButton.alt = '${msg("login.password.toggle.hide.alt")}';
+            } else {
+                passwordField.type = 'password';
+                toggleButton.src = `${url.resourcesPath}/img/visibility_on.svg`;
+                toggleButton.alt = '${msg("login.password.toggle.alt")}';
+            }
+        }
+    </script>
 </body>
 </html>
