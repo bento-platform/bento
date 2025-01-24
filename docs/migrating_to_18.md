@@ -29,14 +29,16 @@ Version 18 includes two new Bento Public environment variables for customizing a
 
 * `BENTO_PUBLIC_SHOW_PORTAL_LINK`: Whether to show a link to the private data portal in the header
 * `BENTO_PUBLIC_SHOW_SIGN_IN`: Whether to show a "Sign In" button in the header
+* `BENTO_PUBLIC_FORCE_CATALOGUE`: Whether to force the data catalogue to display, even with only a single project.
 
-Both of these are set to `true` by default. If desired, they can be toggled to `false` by setting them in `local.env`,
-for example:
+The first two are set to `true` by default, and the last is set to `false`. If desired, they can be toggled to 
+non-default settings by modifying `local.env`, for example:
 
 ```bash
 # ...
 BENTO_PUBLIC_SHOW_PORTAL_LINK='false'
 BENTO_PUBLIC_SHOW_SIGN_IN='false'
+BENTO_PUBLIC_FORCE_CATALOGUE='true'
 # ...
 ```
 
