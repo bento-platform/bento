@@ -101,3 +101,55 @@ In this format:
 * The `url_template` key is a template for the base URL used to access the service's API.
 * The `repository` key is an SSH Git repository URL for the service code, so it can be cloned into the `repos` folder
   for development.
+
+
+### Making service-to-service requests go through the gateway (dev)
+
+Bento relies on three mechanisms to resolve hostnames to IP addresses:
+- DNS records (production only)
+  - `/etc/hosts` entries when in local dev
+  - For requests originating outside of the Docker networks (e.g. web browsers)
+- Container names (production & dev)
+  - When two containers are on the same Docker network and need to talk to each other directly
+  - Docker resolves a container's name to its IP on a Docker network
+  - e.g. Katsu can talk directly to DRS with `http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}`
+- Docker network aliases (dev only)
+  - When two services need to communicate with each other via the gateway only.
+  - In production, this is taken care of by DNS records
+
+When developing locally, some services may need to be interacted with strictly through the gateway.
+This is the case for Keycloak (auth) and Minio, as both services require a subdomain and HTTPS.
+
+As such, drop-box cannot use the Docker resolver in order to connect to Minio.
+
+Since we are in local, there is no DNS record to resolve Minio's domain, 
+and the host's `/etc/hosts` entries will not be of help from the container's perspective.
+
+For these situations, we rely on [Docker network aliases.](https://docs.docker.com/reference/compose-file/services/#aliases)
+
+Taking the Minio example, we need:
+  - Drop-Box to interact with Minio via the gateway
+  - DRS to interact with Minio via the gateway
+
+Enabling this is done by adding `${BENTO_MINIO_DOMAIN}` to the respective service networks aliases.
+
+This snippet comes from [docker-compose.dev.yaml](../docker-compose.dev.yaml):
+```yaml
+services:
+  gateway:
+    networks:
+      drop-box-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+          - ${BENTO_MINIO_DOMAIN}
+      drs-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
+          - ${BENTO_MINIO_DOMAIN}
+```
+
+Doing so, we make sure that `${BENTO_MINIO_DOMAIN}` is resolved to the gateway for drop-box and DRS.
