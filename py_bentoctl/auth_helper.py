@@ -364,7 +364,7 @@ def init_auth(docker_client: docker.DockerClient):
                     updated_realm = True
 
                 if realm.get("internationalizationEnabled") is not True or set(realm.get("supportedLocales", [])) != {
-                    "en", "fr"}:
+                  "en", "fr"}:
                     realm["internationalizationEnabled"] = True
                     realm["supportedLocales"] = ["en", "fr"]
                     updated_realm = True
@@ -378,7 +378,8 @@ def init_auth(docker_client: docker.DockerClient):
                     )
                     if update_realm_res.ok:
                         cprint(
-                            f"    Updated realm {AUTH_REALM} with theme '{login_theme}' and internationalization settings.",
+                            f"    Updated realm {AUTH_REALM} with theme '{login_theme}' and internationalization"
+                            f" settings.",
                             "green")
                     else:
                         err(f"    Failed to update realm: {update_realm_res.status_code} {update_realm_res.json()}")
