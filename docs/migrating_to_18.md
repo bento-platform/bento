@@ -1,6 +1,6 @@
 # Migrating to Bento v18
 
-* Bento v18 requires implements some new features for branding, which may require changes as described below.
+* Bento v18 implements some new features for branding, which may require changes as described below.
 * It also adds MinIO as a backend for future S3-compatible object storage. 
   * This can be enabled now, but will not be used until a future version. 
   * For instances hosted on the Secure Data for Health (SD4H) infrastructure, the SD4H object store should be used for 
