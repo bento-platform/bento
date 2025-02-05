@@ -7,11 +7,13 @@
     production instances when S3-compatible services become ready in a future version.
 
 
-## 1. Stop and update services
+## 1. Stop and update services, and initialize new networks
 
 ```bash
 ./bentoctl.bash stop
 ./bentoctl.bash pull
+# set up new Docker networks for MinIO (needed even if MinIO is not set up)
+./bentoctl.bash init-docker
 ```
 
 
