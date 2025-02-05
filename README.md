@@ -34,11 +34,13 @@ that make up the Bento platform.
 * [`bentoctl`: the Bento deployment command line management tool](./docs/bentoctl.md)
 * [Installation](./docs/installation.md)
 * [Development](./docs/development.md)
+  * [Adding services to Bento](./docs/adding-services.md)
 * [Troubleshooting guide](./docs/troubleshooting.md)
 * [Deployment](./docs/deployment.md)
 * [Monitoring](./docs/monitoring.md)
 * [Public discovery configuration](./docs/public_discovery.md)
 * [Using a reverse proxy in front of Bento](./docs/reverse-proxy.md)
+* [MinIO object storage](./docs/minio.md)
 
 ### Data ingestion and usage
 
@@ -48,6 +50,7 @@ that make up the Bento platform.
 
 ### Migration documents
 
+* [v17.1 to v18](./docs/migrating_to_18.md)
 * [v17 to v17.1](./docs/migrating_to_17_1.md)
 * [v16 to v17](./docs/migrating_to_17.md)
 * [v15.2 to v16](./docs/migrating_to_16.md)

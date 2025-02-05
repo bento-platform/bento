@@ -38,6 +38,7 @@ def init_web(service: str, force: bool):
 
 def _init_web_public(force: bool):
     root_path = pathlib.Path.cwd()
+    etc_path = root_path / "etc"
 
     # Init lib dir
     public_path = (root_path / "lib" / "public")
@@ -46,33 +47,41 @@ def _init_web_public(force: bool):
 
     # About html page (English)
     _file_copy(
-        (root_path / "etc" / "default.en_about.html"),
+        (etc_path / "default.en_about.html"),
         (public_path / "en_about.html"),
         force=force,
     )
 
     # About html page (French)
     _file_copy(
-        (root_path / "etc" / "default.fr_about.html"),
+        (etc_path / "default.fr_about.html"),
         (public_path / "fr_about.html"),
         force=force,
     )
 
     # Branding image
+    # - dark background / default
     _file_copy(
-        (root_path / "etc" / "default.public.branding.png"),
+        (etc_path / "default.branding.png"),
         (public_path / "branding.png"),
         force=force,
     )
+    # - light background
+    _file_copy(
+        (etc_path / "default.branding.lightbg.png"),
+        (public_path / "branding.lightbg.png"),
+        force=force,
+    )
+
     # English translations
     _file_copy(
-        (root_path / "etc" / "templates" / "translations" / "en.example.json"),
+        (etc_path / "templates" / "translations" / "en.example.json"),
         (translation_path / "en.json"),
         force=force,
     )
     # French translations
     _file_copy(
-        (root_path / "etc" / "templates" / "translations" / "fr.example.json"),
+        (etc_path / "templates" / "translations" / "fr.example.json"),
         (translation_path / "fr.json"),
         force=force,
     )
@@ -99,7 +108,7 @@ def _init_web_private(force: bool):
     web_path = (root_path / "lib" / "web")
     web_path.mkdir(parents=True, exist_ok=True)
 
-    src_branding = (root_path / "etc" / "default.branding.png")
+    src_branding = (root_path / "etc" / "default.branding.darkbg.png")
     dst_branding = (web_path / "branding.png")
 
     if dst_branding.is_file():
@@ -138,6 +147,14 @@ def init_self_signed_certs(force: bool):
             "dir": auth_certs_dir,
         },
 
+        # MinIO
+        **({"minio": {
+            "var": "BENTO_MINIO_DOMAIN",
+            "priv_key_name": "minio_privkey1.key",
+            "crt": "minio_fullchain1.crt",
+            "dir": gateway_certs_dir,
+        }} if c.BENTO_FEATURE_MINIO.enabled else {}),
+
         # If cBioPortal is enabled, generate a cBioPortal self-signed certificate as well
         **({"cbioportal": {
             "var": "BENTOV2_CBIOPORTAL_DOMAIN",
@@ -146,6 +163,7 @@ def init_self_signed_certs(force: bool):
             "dir": gateway_certs_dir,
         }} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
 
+        # If a domain is configured for redirect (e.g. preserve a published reference)
         **({"redirect": {
             "var": "BENTO_DOMAIN_REDIRECT",
             "priv_key_name": "redirect_privkey1.key",
@@ -222,6 +240,8 @@ def init_dirs():
         **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
         #  - cBioPortal
         **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
+        #  - MinIO
+        **({"minio": "BENTO_MINIO_DATA_DIR"} if c.BENTO_FEATURE_MINIO.enabled else {}),
         #  - Monitoring: Grafana/Loki
         **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
         **({"loki": "BENTO_LOKI_TEMP_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
@@ -290,6 +310,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_KATSU_NETWORK", dict(driver="bridge")),
         ("BENTO_KATSU_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        ("BENTO_MINIO_NETWORK", dict(driver="bridge")),
         ("BENTO_MONITORING_NETWORK", dict(driver="bridge")),
         ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
         ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),

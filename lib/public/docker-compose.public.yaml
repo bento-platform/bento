@@ -13,6 +13,9 @@ services:
       - BENTO_PUBLIC_CLIENT_NAME
       - BENTO_PUBLIC_PORTAL_URL
       - BENTO_PUBLIC_TRANSLATED
+      - BENTO_PUBLIC_SHOW_PORTAL_LINK
+      - BENTO_PUBLIC_SHOW_SIGN_IN
+      - BENTO_PUBLIC_FORCE_CATALOGUE
       - BENTO_BEACON_UI_ENABLED
       - BENTO_BEACON_NETWORK_ENABLED
       - BEACON_URL=${BENTOV2_PUBLIC_URL}/api/beacon
@@ -30,6 +33,7 @@ services:
       - ${PWD}/lib/public/fr_about.html:/bento-public/dist/public/fr_about.html:ro
 
       - ${PWD}/lib/public/branding.png:/bento-public/dist/public/assets/branding.png:ro
+      - ${PWD}/lib/public/branding.lightbg.png:/bento-public/dist/public/assets/branding.lightbg.png:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
