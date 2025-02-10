@@ -108,3 +108,27 @@ input[type="submit"] {
   outline: none !important;
   --pf-v5-c-button--after--BorderColor: transparent !important;
 }
+
+#login-select-toggle {
+  border: 1px solid #999;
+  border-radius: 20px;
+  padding: 8px 12px;
+  background: #fff;
+  color: #333;
+}
+
+.pf-v5-c-login__main-header-utilities select {
+  border: 1px solid #999;
+  border-radius: 20px;
+  padding: 8px 12px;
+  background: #fff;
+  color: #333;
+  font-size: 0.875rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.pf-v5-c-login__main-header-utilities select option {
+  padding: 8px 12px;
+}
