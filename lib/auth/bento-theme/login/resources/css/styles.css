@@ -17,8 +17,10 @@
 }
 
 div.kc-logo-text {
-    background-image: url(../img/keycloak-logo-text.png);
+    background-image: url(../img/branding.png);
     background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
     height: 63px;
     width: 300px;
     margin: 0 auto;
