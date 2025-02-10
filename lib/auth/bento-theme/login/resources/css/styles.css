@@ -11,8 +11,7 @@
 }
 
 .login-pf body {
-    background: url("../img/keycloak-bg.png") no-repeat center center fixed;
-    background-size: cover;
+    background: linear-gradient(to bottom, #ffffff, #e9ecef);
     height: 100%;
 }
 
