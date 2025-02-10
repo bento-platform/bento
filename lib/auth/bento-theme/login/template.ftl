@@ -215,6 +215,7 @@
 
     Alpine.start();
 </script>
+<img src="${url.resourcesPath}/img/Bento_logo_blk.png" alt="Bento Logo" class="bento-logo" />
 </body>
 </html>
 </#macro>
