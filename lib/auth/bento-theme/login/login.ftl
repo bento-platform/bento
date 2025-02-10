@@ -43,17 +43,17 @@
                         </label>
 
                         <div class="${properties.kcInputGroup!}">
-                            <span class="${properties.kcInputClass!}">
+                            <span class="${properties.kcInputClass!} kc-input-with-button" style="position: relative; display: block;">
                                 <input tabindex="2" id="password" name="password" type="password" autocomplete="off"
-                                       aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>"
-                                />
+                                       aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>" style="width:100%; padding-right:2.5rem;"/>
+                                <button class="${properties.kcFormPasswordVisibilityButtonClass!}" type="button" aria-label="${msg('showPassword')}"
+                                        aria-controls="password" data-password-toggle
+                                        data-icon-show="${properties.kcFormPasswordVisibilityIconShow!}" data-icon-hide="${properties.kcFormPasswordVisibilityIconHide!}"
+                                        data-label-show="${msg('showPassword')}" data-label-hide="${msg('hidePassword')}"
+                                        style="position:absolute; right:0; top:50%; transform:translateY(-50%); border:none; background:transparent; padding:0; margin:0;">
+                                    <i class="${properties.kcFormPasswordVisibilityIconShow!}" aria-hidden="true"></i>
+                                </button>
                             </span>
-                            <button class="${properties.kcFormPasswordVisibilityButtonClass!}" type="button" aria-label="${msg('showPassword')}"
-                                    aria-controls="password" data-password-toggle
-                                    data-icon-show="${properties.kcFormPasswordVisibilityIconShow!}" data-icon-hide="${properties.kcFormPasswordVisibilityIconHide!}"
-                                    data-label-show="${msg('showPassword')}" data-label-hide="${msg('hidePassword')}">
-                                <i class="${properties.kcFormPasswordVisibilityIconShow!}" aria-hidden="true"></i>
-                            </button>
                         </div>
 
                         <#if usernameHidden?? && messagesPerField.existsError('username','password')>

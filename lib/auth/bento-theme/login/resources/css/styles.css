@@ -89,3 +89,22 @@ input[type="submit"] {
 .pf-v5-c-form-control::after {
   border-bottom-width: 0;
 }
+
+.kc-input-with-button input {
+  width: 100%;
+  padding-right: 2.5rem; /* room for the eye button */
+}
+
+.kc-input-with-button button {
+  position: absolute;
+  right: 0.6rem !important; /* further left */
+  top: 50%;
+  transform: translateY(-50%);
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  --pf-v5-c-button--after--BorderColor: transparent !important;
+}
