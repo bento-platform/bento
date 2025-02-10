@@ -22,7 +22,7 @@ div.kc-logo-text {
     background-position: center;
     height: 63px;
     width: 300px;
-    margin: 0 auto;
+    margin: 100px auto 0; 
 }
 
 div.kc-logo-text span {
