@@ -59,7 +59,7 @@ textarea.pf-c-form-control:focus {
 
 button,
 input[type="submit"] {
-  border-radius: 12px;
+  border-radius: 24px;
 }
 
 .pf-v5-c-login__main {
