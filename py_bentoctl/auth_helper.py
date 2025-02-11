@@ -641,7 +641,8 @@ def init_auth(docker_client: docker.DockerClient):
         # Not found
         err(f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?")
 
-    # Copy branding file from cwd/etc/default.branding.lightbg.png to cwd/lib/auth/bento-theme/login/resources/img/branding.png
+    # Copy branding file from cwd/etc/default.branding.lightbg.png
+    # to cwd/lib/auth/bento-theme/login/resources/img/branding.png
     branding_src = pathlib.Path.cwd() / "etc" / "default.branding.lightbg.png"
     branding_dst = pathlib.Path.cwd() / "lib" / "auth" / "bento-theme" / "login" / "resources" / "img" / "branding.png"
     info(f"Copying branding file from {branding_src} to {branding_dst}")
