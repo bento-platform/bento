@@ -57,8 +57,8 @@
 
 <body id="keycloak-bg" class="${properties.kcBodyClass!}">
 <div id="kc-header" class="${properties.kcHeaderClass!}">
-    <div id="kc-header-wrapper"
-             class="${properties.kcHeaderWrapperClass!}">${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc}</div>
+    <div class="kc-logo-text">
+        <img src="${url.resourcesPath}/img/branding.png" alt="${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc}" />
     </div>
 </div>
 <div class="pf-v5-c-login"
