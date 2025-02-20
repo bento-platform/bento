@@ -359,19 +359,19 @@ def init_auth(docker_client: docker.DockerClient):
         for realm in existing_realms:
             if realm["realm"] == AUTH_REALM:
                 warn(f"    Found existing realm: {AUTH_REALM}; verifying theme and internationalization...")
-                updated_realm = False
+                realm_update_required = False
 
                 if realm.get("loginTheme") != login_theme:
                     realm["loginTheme"] = login_theme
-                    updated_realm = True
+                    realm_update_required = True
 
                 if realm.get("internationalizationEnabled") is not True or set(realm.get("supportedLocales", [])) != {
                   "en", "fr"}:
                     realm["internationalizationEnabled"] = True
                     realm["supportedLocales"] = ["en", "fr"]
-                    updated_realm = True
+                    realm_update_required = True
 
-                if updated_realm:
+                if realm_update_required:
                     update_realm_res = keycloak_req(
                         f"admin/realms/{AUTH_REALM}",
                         method="put",
