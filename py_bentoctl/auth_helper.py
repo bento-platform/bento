@@ -19,8 +19,10 @@ __all__ = ["init_auth"]
 
 urllib3.disable_warnings(InsecureRequestWarning)
 
-USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP")
+SETUP_EXTERNAL_KEYCLOAK = os.getenv("BENTOV2_USE_EXTERNAL_KEYCLOAK")
+USE_EXTERNAL_IDP = False if SETUP_EXTERNAL_KEYCLOAK else os.getenv("BENTOV2_USE_EXTERNAL_IDP")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
+
 
 PUBLIC_URL = os.getenv("BENTOV2_PUBLIC_URL")
 PORTAL_PUBLIC_URL = os.getenv("BENTOV2_PORTAL_PUBLIC_URL")
