@@ -332,8 +332,9 @@ def init_auth(docker_client: docker.DockerClient):
     check_auth_admin_user()
 
     def get_session():
+        realm = AUTH_REALM if SETUP_EXTERNAL_KEYCLOAK else "master"
         res = keycloak_req(
-            "realms/master/protocol/openid-connect/token",
+            f"realms/{realm}/protocol/openid-connect/token",
             method="post",
             data=dict(
                 client_id="admin-cli",
@@ -551,7 +552,7 @@ def init_auth(docker_client: docker.DockerClient):
         subprocess.check_call((*c.COMPOSE, "up", "--wait", "-d", "auth", "gateway"))
         success()
 
-    info(f"  Signing in as {AUTH_ADMIN_USER}...")
+    info(f"    Signing into {AUTH_REALM if SETUP_EXTERNAL_KEYCLOAK else "master"} realm as {AUTH_ADMIN_USER}...")
     session = get_session()
     access_token = session["access_token"]
     success()
