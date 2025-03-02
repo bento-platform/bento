@@ -19,7 +19,7 @@ __all__ = ["init_auth"]
 
 urllib3.disable_warnings(InsecureRequestWarning)
 
-SETUP_EXTERNAL_KEYCLOAK = os.getenv("BENTOV2_USE_EXTERNAL_KEYCLOAK")
+SETUP_EXTERNAL_KEYCLOAK = os.getenv("BENTOV2_USE_EXTERNAL_KEYCLOAK") in ("1", "true")
 USE_EXTERNAL_IDP = False if SETUP_EXTERNAL_KEYCLOAK else os.getenv("BENTOV2_USE_EXTERNAL_IDP")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 
@@ -541,7 +541,8 @@ def init_auth(docker_client: docker.DockerClient):
         info("Using external IdP, skipping setup.")
         exit(0)
 
-    info(f"[bentoctl] Using internal IdP, setting up Keycloak...    (DEV_MODE={c.DEV_MODE})")
+    idp_type = "external" if SETUP_EXTERNAL_KEYCLOAK else "internal"
+    info(f"[bentoctl] Using {idp_type} IdP, setting up Keycloak... (DEV_MODE={c.DEV_MODE})")
 
     try:
         docker_client.containers.get(GATEWAY_CONTAINER_NAME)  # Needed to access Keycloak through the proper channel
@@ -557,9 +558,12 @@ def init_auth(docker_client: docker.DockerClient):
     access_token = session["access_token"]
     success()
 
-    info(f"  Creating realm: {AUTH_REALM}")
-    create_realm_if_needed(access_token)
-    success()
+    if not SETUP_EXTERNAL_KEYCLOAK:
+        info(f"  Creating realm: {AUTH_REALM}")
+        create_realm_if_needed(access_token)
+        success()
+    else:
+        warn("  Skipping realm creation as using external Keycloak.")
 
     info(f"  Creating web client: {AUTH_CLIENT_ID}")
     create_web_client_if_needed(access_token)
@@ -598,13 +602,14 @@ def init_auth(docker_client: docker.DockerClient):
     create_test_user_if_needed(access_token)
     success()
 
-    info("  Restarting the Keycloak container")
-    try:
-        kc = docker_client.containers.get(AUTH_CONTAINER_NAME)
-        kc.restart()
-        success()
-    except requests.exceptions.HTTPError:
-        # Not found
-        err(f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?")
+    if not SETUP_EXTERNAL_KEYCLOAK:
+        info("  Restarting the Keycloak container")
+        try:
+            kc = docker_client.containers.get(AUTH_CONTAINER_NAME)
+            kc.restart()
+            success()
+        except requests.exceptions.HTTPError:
+            # Not found
+            err(f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?")
 
     cprint("Done.", "green")
