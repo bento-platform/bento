@@ -63,6 +63,13 @@ BENTOV2_AUTH_REALM=bentov2
 BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
 ```
 
+If an *external* keycloak instance is being used and you would like to set it up using `./bentoctl.bash init-auth`, follow the steps above for external and then below:
+- Set up a keycloak instance and provide its url in `BENTOV2_AUTH_PUBLIC_URL`
+- Make the desired realm for bento, update `BENTOV2_AUTH_REALM` accordingly
+- Make an admin user in the bento realm, you can follow the following steps: [article](https://medium.com/@jogarcia/keycloak-rest-api-authorization-162b7506ac02)
+- Setup the following variables accordingly `BENTOV2_AUTH_ADMIN_USER` & `BENTOV2_AUTH_ADMIN_PASSWORD`
+- Set `BENTOV2_USE_EXTERNAL_KEYCLOAK` in local.env as 1
+
 
 ### Bento Public configuration
 
