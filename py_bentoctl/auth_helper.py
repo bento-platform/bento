@@ -57,6 +57,8 @@ KC_ADMIN_API_GROUP_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/groups"
 KC_ADMIN_API_CLIENTS_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/clients"
 KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 
+MASTER_REALM = "master"
+
 
 def check_auth_admin_user():
     if not AUTH_ADMIN_USER:
@@ -332,7 +334,7 @@ def init_auth(docker_client: docker.DockerClient):
     check_auth_admin_user()
 
     def get_session():
-        realm = AUTH_REALM if SETUP_EXTERNAL_KEYCLOAK else "master"
+        realm = AUTH_REALM if SETUP_EXTERNAL_KEYCLOAK else MASTER_REALM
         res = keycloak_req(
             f"realms/{realm}/protocol/openid-connect/token",
             method="post",
@@ -553,7 +555,7 @@ def init_auth(docker_client: docker.DockerClient):
         subprocess.check_call((*c.COMPOSE, "up", "--wait", "-d", "auth", "gateway"))
         success()
 
-    info(f"    Signing into {AUTH_REALM if SETUP_EXTERNAL_KEYCLOAK else "master"} realm as {AUTH_ADMIN_USER}...")
+    info(f"    Signing into {AUTH_REALM if SETUP_EXTERNAL_KEYCLOAK else MASTER_REALM} realm as {AUTH_ADMIN_USER}...")
     session = get_session()
     access_token = session["access_token"]
     success()
