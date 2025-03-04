@@ -6,8 +6,9 @@ Since v17, Bento includes tools that allow authenticated and authorized users to
 in a convenient web application.
 
 The stack enabling this is composed by three open-source services:
-- Promtail: forwards the logs from Bento's services to the log database
-- Loki: stores the logs from Promtail and serves them to Grafana
+- Alloy: collects and writes the logs from Bento's services to Loki
+  - Alloy replaced Promtail, which is now deprecated
+- Loki: stores the logs received from Alloy and serves them to Grafana
 - Grafana: auth protected web application to query and analyse collected logs
 
 ## Configuration
