@@ -1,17 +1,19 @@
 # Migrating to Bento v18
 
-* Bento v18 requires implements some new features for branding, which may require changes as described below.
+* Bento v18 implements some new features for branding, which may require changes as described below.
 * It also adds MinIO as a backend for future S3-compatible object storage. 
   * This can be enabled now, but will not be used until a future version. 
   * For instances hosted on the Secure Data for Health (SD4H) infrastructure, the SD4H object store should be used for 
     production instances when S3-compatible services become ready in a future version.
 
 
-## 1. Stop and update services
+## 1. Stop and update services, and initialize new networks
 
 ```bash
 ./bentoctl.bash stop
 ./bentoctl.bash pull
+# set up new Docker networks for MinIO (needed even if MinIO is not set up)
+./bentoctl.bash init-docker
 ```
 
 
