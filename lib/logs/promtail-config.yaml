@@ -23,6 +23,7 @@ scrape_configs:
             logger: logger
       - labels:
           level:
+          logger:
       - timestamp:
           source: timestamp
           format: RFC3339
