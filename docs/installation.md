@@ -270,7 +270,7 @@ bento_authz create grant \
 bento_authz create grant \
   '{"iss": "<ISSUER_HERE>", "client": "wes"}' \
   '{"everything": true}' \
-  'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material'
+  'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material' 'view:drop_box'
 ```
 
 ### c. Create a grant for the aggregation and Beacon services

@@ -1,3 +1,21 @@
 # Migrating to Bento v19
 
 TODO
+
+## Permissions
+
+Starting with v19, WES interacts with Drop-Box and DRS through the network only, rather than with volumes.
+This means that WES needs to be authorized to download data from Drop-Box:
+
+```bash
+# Open a shell in the authz service
+./bentoctl.bash shell authz
+
+# Inside the authz service, find the Grants assigned to WES
+bento_authz list grants | grep wes
+
+# Add the "view:drop_box" permission to the WES grant
+bento_authz add-grant-permissions <GRANT ID> "view:drop_box"
+```
+
+Once the permission is added, WES can be used right away, no restarts required.
