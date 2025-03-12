@@ -22,6 +22,7 @@ scrape_configs:
             level: level
             logger: logger
             http:
+            network:
       - labels:
           level:
       - timestamp:
