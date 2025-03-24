@@ -7,7 +7,7 @@ in a convenient web application.
 
 The stack enabling this is composed by three open-source services:
 - Alloy: collects and writes the logs from Bento's services to Loki
-  - Alloy replaced Promtail, which is now deprecated
+  - Formerly Promtail, which is now deprecated
 - Loki: stores the logs received from Alloy and serves them to Grafana
 - Grafana: auth protected web application to query and analyse collected logs
 

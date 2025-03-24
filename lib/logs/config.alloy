@@ -13,6 +13,27 @@ loki.process "docker" {
 			job   = "docker",
 		}
 	}
+
+	stage.json {
+		expressions = {
+			level     = "level",
+			logger    = "logger",
+			output    = "event",
+			timestamp = "timestamp",
+		}
+	}
+
+	stage.labels {
+		values = {
+			level  = null,
+			logger = null,
+		}
+	}
+
+	stage.timestamp {
+		source = "timestamp"
+		format = "RFC3339"
+	}
 }
 
 discovery.relabel "docker" {
