@@ -53,12 +53,6 @@ services:
     volumes:
       - ${BENTOV2_WES_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_VOL_TMP_DIR}:/wes/tmp
-      # Read only access to drop box contents via file path:
-      # TODO: RM, operations must be network only for S3
-      # - ${BENTOV2_WES_PROD_DROP_BOX_VOL_DIR}:/data:ro
-      # Read-only access to DRS objects via file path:
-      # TODO: RM, operations must be network only for S3
-      # - ${BENTO_DRS_DATA_VOL_DIR}:${BENTO_DRS_CONTAINER_DATA_VOLUME_DIR}:ro
 
 networks:
   redis-net:
