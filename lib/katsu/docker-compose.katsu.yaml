@@ -32,6 +32,8 @@ services:
         # Authz
       - BENTO_AUTHZ_ENABLED=True
       - BENTO_AUTHZ_SERVICE_URL
+      - KATSU_PROJECTS_LIST_AUTHZ=${BENTO_KATSU_PROJECTS_LIST_AUTHZ}
+      - KATSU_DATASETS_LIST_AUTHZ=${BENTO_KATSU_DATASETS_LIST_AUTHZ}
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
     # configs:
     #   - source: chord-metadata-settings
