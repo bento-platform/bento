@@ -8,6 +8,7 @@ import subprocess
 import urllib3
 import pathlib
 import shutil
+import getpass
 
 from termcolor import cprint
 from urllib3.exceptions import InsecureRequestWarning
@@ -21,11 +22,8 @@ __all__ = ["init_auth"]
 
 urllib3.disable_warnings(InsecureRequestWarning)
 
-SETUP_EXTERNAL_KEYCLOAK = os.getenv("BENTOV2_USE_EXTERNAL_KEYCLOAK") in ("1", "true")
-USE_EXTERNAL_IDP = False if SETUP_EXTERNAL_KEYCLOAK else os.getenv("BENTOV2_USE_EXTERNAL_IDP")
+SETUP_EXTERNAL_KEYCLOAK = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
-
-
 PUBLIC_URL = os.getenv("BENTOV2_PUBLIC_URL")
 PORTAL_PUBLIC_URL = os.getenv("BENTOV2_PORTAL_PUBLIC_URL")
 CBIOPORTAL_URL = os.getenv("BENTO_CBIOPORTAL_PUBLIC_URL")
@@ -42,7 +40,6 @@ AUTH_ADMIN_PASSWORD = os.getenv("BENTOV2_AUTH_ADMIN_PASSWORD")
 AUTH_TEST_USER = os.getenv("BENTOV2_AUTH_TEST_USER")
 AUTH_TEST_PASSWORD = os.getenv("BENTOV2_AUTH_TEST_PASSWORD")
 AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
-
 AGGREGATION_CLIENT_ID = os.getenv("BENTO_AGGREGATION_CLIENT_ID")
 
 CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
@@ -62,9 +59,14 @@ KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 MASTER_REALM = "master"
 
 
-def check_auth_admin_user():
+def get_admin_credentials():
+    global AUTH_ADMIN_USER, AUTH_ADMIN_PASSWORD
     if not AUTH_ADMIN_USER:
-        err("Missing environment value for BENTOV2_AUTH_ADMIN_USER")
+        AUTH_ADMIN_USER = input("Enter admin username: ").strip()
+    if not AUTH_ADMIN_PASSWORD:
+        AUTH_ADMIN_PASSWORD = getpass.getpass("Enter admin password: ")
+    if not AUTH_ADMIN_USER or not AUTH_ADMIN_PASSWORD:
+        err("Missing admin credentials")
         exit(1)
 
 
@@ -333,7 +335,7 @@ def create_client_and_secret_for_service(
 
 
 def init_auth(docker_client: docker.DockerClient):
-    check_auth_admin_user()
+    get_admin_credentials()
 
     def get_session():
         realm = AUTH_REALM if SETUP_EXTERNAL_KEYCLOAK else MASTER_REALM
@@ -564,8 +566,11 @@ def init_auth(docker_client: docker.DockerClient):
             })
 
         if create_user_res.ok:
-            create_user_res_data = create_user_res.json()
-            cprint(f"    Created user: {AUTH_TEST_USER} (ID={create_user_res_data['id']}).", "green")
+            try:
+                create_user_res_data = create_user_res.json()
+                cprint(f"    Created user: {AUTH_TEST_USER} (ID={create_user_res_data['id']}).", "green")
+            except ValueError:
+                cprint(f"    Created user: {AUTH_TEST_USER}, but response contained no JSON body.", "yellow")
         else:
             err(
                 f"    Failed to create user: {AUTH_TEST_USER}; {create_user_res.status_code} "
@@ -573,12 +578,9 @@ def init_auth(docker_client: docker.DockerClient):
             )
             exit(1)
 
+
     def success():
         cprint("    Success.", "green")
-
-    if USE_EXTERNAL_IDP in ("1", "true"):
-        info("Using external IdP, skipping setup.")
-        exit(0)
 
     idp_type = "external" if SETUP_EXTERNAL_KEYCLOAK else "internal"
     info(f"[bentoctl] Using {idp_type} IdP, setting up Keycloak... (DEV_MODE={c.DEV_MODE})")
