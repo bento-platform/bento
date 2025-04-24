@@ -3,6 +3,8 @@
   grid-template-columns: 34rem;
 }
 
+/* due to an unknown cause, there was whitespace below the body. 
+This counter acts that */
 #keycloak-bg {
   position: fixed;
   top: 0;
