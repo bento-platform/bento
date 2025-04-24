@@ -657,7 +657,12 @@ def init_auth(docker_client: docker.DockerClient):
         # Copy branding file from cwd/etc/default.branding.lightbg.png
         # to cwd/lib/auth/bento-theme/login/resources/img/branding.png
         branding_src = pathlib.Path.cwd() / "etc" / "default.branding.lightbg.png"
-        branding_dst = pathlib.Path.cwd() / "lib" / "auth" / "bento-theme" / "login" / "resources" / "img" / "branding.png"
+        branding_dst = (
+            pathlib.Path.cwd() /
+            "lib" / "auth" / "bento-theme" /
+            "login" / "resources" / "img" /
+            "branding.png"
+        )
         info(f"   Copying branding file from {branding_src} to {branding_dst}")
         shutil.copyfile(branding_src, branding_dst)
         info("   Branding file copied successfully")
