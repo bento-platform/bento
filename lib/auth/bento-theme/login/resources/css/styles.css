@@ -4,6 +4,14 @@
   margin-top: -175px;
 }
 
+#keycloak-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: auto;
+}
+
 #kc-header-wrapper {
   padding: 62px 10px 20px;
   position: absolute;
@@ -26,7 +34,6 @@ div.kc-logo-text img {
   max-width: 100%;
   height: auto;
 }
-
 
 .bento-logo {
   position: fixed;
