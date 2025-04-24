@@ -56,6 +56,7 @@
 </head>
 
 <body id="keycloak-bg" class="${properties.kcBodyClass!}">
+
 <div class="pf-v5-c-login"
     x-data="{
         open: false,
@@ -80,12 +81,12 @@
     x-on:focusin.window="! $refs.panel?.contains($event.target) && close()"
     x-id="['language-select']"
 >
-  <div class="pf-v5-c-login__container">
     <div id="kc-header" class="${properties.kcHeaderClass!}">
         <div class="kc-logo-text">
             <img src="${url.resourcesPath}/img/branding.png" alt="${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc}" />
         </div>
     </div>
+  <div class="pf-v5-c-login__container">
     <main class="pf-v5-c-login__main">
       <header class="pf-v5-c-login__main-header">
         <h1 class="pf-v5-c-title pf-m-3xl"><#nested "header"></h1>

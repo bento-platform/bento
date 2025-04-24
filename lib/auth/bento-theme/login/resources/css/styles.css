@@ -1,7 +1,6 @@
 .pf-v5-c-login__container {
   grid-template-areas: "main";
   grid-template-columns: 34rem;
-  margin-top: -175px;
 }
 
 #keycloak-bg {
@@ -10,6 +9,12 @@
   left: 0;
   right: 0;
   overflow: auto;
+}
+
+.pf-v5-c-login {
+  margin-top: -175px; /* Adjusted margin to center the login form */
+  display: flex;
+  flex-direction: column;
 }
 
 #kc-header-wrapper {
