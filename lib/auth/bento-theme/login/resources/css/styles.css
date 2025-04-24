@@ -19,6 +19,10 @@
   transform: translateX(-50%);
 }
 
+#kc-header {
+  padding-bottom: 64px; /* Added padding to create a gap below the logo */
+}
+
 .login-pf body {
   background: linear-gradient(to bottom, #ffffff, #e9ecef);
   height: 100%;
