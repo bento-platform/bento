@@ -13,7 +13,7 @@ import getpass
 from termcolor import cprint
 from urllib3.exceptions import InsecureRequestWarning
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from . import config as c
 from .utils import info, warn, err
@@ -22,8 +22,9 @@ __all__ = ["init_auth"]
 
 urllib3.disable_warnings(InsecureRequestWarning)
 
-SETUP_EXTERNAL_KEYCLOAK = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
+USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
+
 PUBLIC_URL = os.getenv("BENTOV2_PUBLIC_URL")
 PORTAL_PUBLIC_URL = os.getenv("BENTOV2_PORTAL_PUBLIC_URL")
 CBIOPORTAL_URL = os.getenv("BENTO_CBIOPORTAL_PUBLIC_URL")
@@ -59,15 +60,13 @@ KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 MASTER_REALM = "master"
 
 
-def get_admin_credentials():
-    global AUTH_ADMIN_USER, AUTH_ADMIN_PASSWORD
-    if not AUTH_ADMIN_USER:
-        AUTH_ADMIN_USER = input("Enter admin username: ").strip()
-    if not AUTH_ADMIN_PASSWORD:
-        AUTH_ADMIN_PASSWORD = getpass.getpass("Enter admin password: ")
-    if not AUTH_ADMIN_USER or not AUTH_ADMIN_PASSWORD:
+def get_admin_credentials() -> Tuple[str, str]:
+    admin_user = AUTH_ADMIN_USER or input("Enter admin username: ").strip()
+    admin_password = AUTH_ADMIN_PASSWORD or getpass.getpass("Enter admin password: ")
+    if not admin_user or not admin_password:
         err("Missing admin credentials")
         exit(1)
+    return admin_user, admin_password
 
 
 def make_keycloak_url(path: str) -> str:
@@ -335,22 +334,24 @@ def create_client_and_secret_for_service(
 
 
 def init_auth(docker_client: docker.DockerClient):
-    get_admin_credentials()
+    TARGET_REALM = AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM
+
+    # Capture admin credentials from the function
+    admin_user, admin_password = get_admin_credentials()
 
     def get_session():
-        realm = AUTH_REALM if SETUP_EXTERNAL_KEYCLOAK else MASTER_REALM
         res = keycloak_req(
-            f"realms/{realm}/protocol/openid-connect/token",
+            f"realms/{TARGET_REALM}/protocol/openid-connect/token",
             method="post",
             data=dict(
                 client_id="admin-cli",
-                username=AUTH_ADMIN_USER,
-                password=AUTH_ADMIN_PASSWORD,
+                username=admin_user,
+                password=admin_password,
                 grant_type="password",
             ))
 
         if not res.ok:
-            err(f"  Failed to sign in as {AUTH_ADMIN_USER}; {res.status_code} {res.json()}")
+            err(f"  Failed to sign in as {admin_user}; {res.status_code} {res.json()}")
             exit(1)
 
         return res.json()
@@ -581,7 +582,7 @@ def init_auth(docker_client: docker.DockerClient):
     def success():
         cprint("    Success.", "green")
 
-    idp_type = "external" if SETUP_EXTERNAL_KEYCLOAK else "internal"
+    idp_type = "external" if USE_EXTERNAL_IDP else "internal"
     info(f"[bentoctl] Using {idp_type} IdP, setting up Keycloak... (DEV_MODE={c.DEV_MODE})")
 
     try:
@@ -593,17 +594,17 @@ def init_auth(docker_client: docker.DockerClient):
         subprocess.check_call((*c.COMPOSE, "up", "--wait", "-d", "auth", "gateway"))
         success()
 
-    info(f"    Signing into {AUTH_REALM if SETUP_EXTERNAL_KEYCLOAK else MASTER_REALM} realm as {AUTH_ADMIN_USER}...")
+    info(f"   Signing into {TARGET_REALM} realm as {AUTH_ADMIN_USER}...")
     session = get_session()
     access_token = session["access_token"]
     success()
 
-    if not SETUP_EXTERNAL_KEYCLOAK:
+    if not USE_EXTERNAL_IDP:
         info(f"  Creating realm: {AUTH_REALM}")
         create_realm_if_needed(access_token, login_theme="bento-theme")
         success()
     else:
-        warn("  Skipping realm creation as using external Keycloak.")
+        warn("  Skipping realm creation as we are using an external Keycloak instance.")
 
     info(f"  Creating web client: {AUTH_CLIENT_ID}")
     create_web_client_if_needed(access_token)
@@ -642,7 +643,7 @@ def init_auth(docker_client: docker.DockerClient):
     create_test_user_if_needed(access_token)
     success()
 
-    if not SETUP_EXTERNAL_KEYCLOAK:
+    if not USE_EXTERNAL_IDP:
         info("  Restarting the Keycloak container")
         try:
             kc = docker_client.containers.get(AUTH_CONTAINER_NAME)
@@ -652,12 +653,13 @@ def init_auth(docker_client: docker.DockerClient):
             # Not found
             err(f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?")
 
-    # Copy branding file from cwd/etc/default.branding.lightbg.png
-    # to cwd/lib/auth/bento-theme/login/resources/img/branding.png
-    branding_src = pathlib.Path.cwd() / "etc" / "default.branding.lightbg.png"
-    branding_dst = pathlib.Path.cwd() / "lib" / "auth" / "bento-theme" / "login" / "resources" / "img" / "branding.png"
-    info(f"   Copying branding file from {branding_src} to {branding_dst}")
-    shutil.copyfile(branding_src, branding_dst)
-    info("   Branding file copied successfully")
+    if not USE_EXTERNAL_IDP:
+        # Copy branding file from cwd/etc/default.branding.lightbg.png
+        # to cwd/lib/auth/bento-theme/login/resources/img/branding.png
+        branding_src = pathlib.Path.cwd() / "etc" / "default.branding.lightbg.png"
+        branding_dst = pathlib.Path.cwd() / "lib" / "auth" / "bento-theme" / "login" / "resources" / "img" / "branding.png"
+        info(f"   Copying branding file from {branding_src} to {branding_dst}")
+        shutil.copyfile(branding_src, branding_dst)
+        info("   Branding file copied successfully")
 
     cprint("Done.", "green")
