@@ -578,7 +578,6 @@ def init_auth(docker_client: docker.DockerClient):
             )
             exit(1)
 
-
     def success():
         cprint("    Success.", "green")
 
