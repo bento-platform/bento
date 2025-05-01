@@ -639,9 +639,12 @@ def init_auth(docker_client: docker.DockerClient):
         )
         success()
 
-    info(f"  Creating user: {AUTH_TEST_USER}")
-    create_test_user_if_needed(access_token)
-    success()
+    if not USE_EXTERNAL_IDP:
+        info(f"  Creating user: {AUTH_TEST_USER}")
+        create_test_user_if_needed(access_token)
+        success()
+    else:
+        warn(f"  Skipping test user creation as we are using an external Keycloak instance.")
 
     if not USE_EXTERNAL_IDP:
         info("  Restarting the Keycloak container")

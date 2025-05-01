@@ -85,6 +85,8 @@ If an *external* Keycloak instance is being used and you would like to set it up
 > As such, once your Bento instance is properly configured with your remote Keycloak, we recommend that you unassign the admin realm role from the admin user and reset credentials. Doing so mitigates the potential security risks caused by leaked admin credentials.
 > 
 > If you need to re-run `bentoctl init-auth` later, you can set new credentials and reassign the admin role for the configuration process.
+> 
+> `bentoctl init-auth` would skip test user creation. Test users can be created using the admin console for the external keycloak.
 
 ### Bento Public configuration
 
