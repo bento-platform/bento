@@ -226,6 +226,10 @@ services:
     ports:
       - "${BENTO_REFERENCE_DB_EXTERNAL_PORT}:5432"
 
+  gohan-api:
+    environment:
+      - BENTO_VALIDATE_SSL=False
+
   gohan-elasticsearch:
     # In dev / on Mac, sometimes this will trip up and decide there isn't enough disk space even when there is.
     # See https://stackoverflow.com/questions/48119189/elasticsearch-6-index-change-to-read-only-after-few-second
