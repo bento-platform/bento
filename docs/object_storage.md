@@ -7,16 +7,19 @@ to AWS.
 
 ## Why object storage?
 
-Smaller datasets can be stored on disk storage on Bento instances.
+Smaller datasets can easily be stored on disk storage on Bento instances.
 
 On the other hand, larger datasets in the multi TB range can be more difficult to store on traditional 
-block storage, if not impossible.
+block storage, if not impossible. This is where object-storage becomes necessary.
 
 Object storage solutions like S3 can be used to store any file with an API. S3 clusters aim at providing scalability, 
 high availability, low latency and durability.
 
 This paradigm allows applications to read and write files over the network, thus allowing applications to 
 handle more data than they otherwise could with block storage (disk).
+
+On top of providing scalable storage, using object-storage makes it easier to deploy applications in general and especially on Kubernetes, 
+since it eliminates the need to manage Persistent Volume Claims in clusters.
 
 ## S3 compatible services
 
@@ -39,11 +42,13 @@ Edit your `local.env` file to include the drop-box S3 environment variables:
 ```bash
 # local.env
 
-BENTO_DROP_BOX_S3_ENDPOINT="https://minio.bentov2.local"    # Local Minio S3 endpoint
-BENTO_DROP_BOX_S3_BUCKET="drop-box"                         # Bucket name
-BENTO_DROP_BOX_S3_REGION_NAME=""                            # Region (optional)
-BENTO_DROP_BOX_S3_ACCESS_KEY="<get from S3 provider>"
-BENTO_DROP_BOX_S3_SECRET_KEY="<get from S3 provider>"
+BENTO_DROP_BOX_S3_ENDPOINT="minio.bentov2.local"        # Local Minio S3 endpoint (no protocol)
+BENTO_DROP_BOX_S3_USE_HTTPS=true                        # Use HTTPS or HTTP on the endpoint
+BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Bucket name (must already exist)
+BENTO_DROP_BOX_S3_REGION_NAME=""                        # Region (not required for Minio or SD4H)
+BENTO_DROP_BOX_S3_ACCESS_KEY="<get from S3 provider>"   # S3 access key (get from Minio console)
+BENTO_DROP_BOX_S3_SECRET_KEY="<get from S3 provider>"   # S3 secret key (get from Minio console)
+BENTO_DROP_BOX_VALIDATE_SSL=false                       # Needs to be 'false' with self signed certs and HTTPS
 ```
 
 Restart the drop-box service for the changes to take effect.
@@ -57,11 +62,13 @@ Edit your `local.env` file to include the DRS environment variables for S3 stora
 ```bash
 # local.env
 
-BENTO_DRS_S3_ENDPOINT="https://minio.bentov2.local"     # Local Minio S3 endpoint
-BENTO_DRS_S3_BUCKET="drs"                               # Bucket name
-BENTO_DRS_S3_REGION_NAME=""                             # Region (optional)
-BENTO_DRS_S3_ACCESS_KEY="<get from S3 provider>"
-BENTO_DRS_S3_SECRET_KEY="<get from S3 provider>"
+BENTO_DRS_S3_ENDPOINT="minio.bentov2.local"         # Local Minio S3 endpoint (no protocol)
+BENTO_DRS_S3_USE_HTTPS=true                         # Use HTTPS or HTTP on the endpoint
+BENTO_DRS_S3_BUCKET="drs"                           # Bucket name (must already exist)
+BENTO_DRS_S3_REGION_NAME=""                         # Region (not required for Minio or SD4H)
+BENTO_DRS_S3_ACCESS_KEY="<get from S3 provider>"    # S3 access key (get from Minio console)
+BENTO_DRS_S3_SECRET_KEY="<get from S3 provider>"    # S3 secret key (get from Minio console)
+BENTO_DRS_VALIDATE_SSL=false                        # Needs to be 'false' with self signed certs and HTTPS
 ```
 
 Restart the DRS service for the changes to take effect.
