@@ -20,6 +20,7 @@ services:
       - S3_ACCESS_KEY=${BENTO_DRS_S3_ACCESS_KEY}
       - S3_SECRET_KEY=${BENTO_DRS_S3_SECRET_KEY}
       - S3_VALIDATE_SSL=${BENTO_DRS_VALIDATE_SSL}
+      - LOG_LEVEL=${BENTO_LOG_LEVEL}
     networks:
       - drs-net
     expose:

@@ -17,6 +17,7 @@ services:
       - S3_SECRET_KEY=${BENTO_DROP_BOX_S3_SECRET_KEY}
       - S3_USE_HTTPS=${BENTO_DROP_BOX_S3_USE_HTTPS}
       - S3_VALIDATE_SSL=${BENTO_DROP_BOX_VALIDATE_SSL}
+      - LOG_LEVEL=${BENTO_LOG_LEVEL}
     networks:
       - drop-box-net
     expose:
