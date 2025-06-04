@@ -85,6 +85,7 @@ services:
       - BENTO_MINIO_INTERNAL_PORT
       - BENTO_MINIO_CONSOLE_PORT 
       - BENTO_MINIO_DOMAIN
+      # TODO: add container name and port
     networks:
       - aggregation-net
       - auth-net
@@ -148,6 +149,7 @@ services:
 #     'who needs to talk to katsu, without going through standard gateway/authentication procedures'?
 # In this fashion, any other service put into katsu-net must have an important reason!
 
+# TODO: add etl network
 networks:
   aggregation-net:
     external: true
