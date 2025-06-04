@@ -465,6 +465,11 @@ def init_auth(docker_client: docker.DockerClient):
             role_rep = role_mappings_[subgroup["name"]]
             add_client_role_mapping_to_group_or_exit(token, group_rep, client_id, role_rep)
 
+    def create_etl_client_if_needed(token: str):
+        # TODO: create a service account client for bento_etl (similar to WES)
+        # TODO: should output client secret after 'bentoctl init-auth'
+        pass
+
     # Modifies the "roles" client scope mapper, so that client-level roles are included in the ID token
     def set_include_client_roles_in_id_tokens(token: str):
         # Retrieve the 'roles' client-scope

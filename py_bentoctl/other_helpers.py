@@ -299,6 +299,7 @@ def init_docker(client: docker.DockerClient):
     # Init Docker network(s)
 
     # network environment variable, kwargs
+    # TODO: add ETL network
     networks = (
         ("BENTO_AGGREGATION_NETWORK", dict(driver="bridge")),
         ("BENTO_AUTH_NETWORK", dict(driver="bridge")),

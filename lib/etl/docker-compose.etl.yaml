@@ -1,0 +1,4 @@
+# TODO: create a docker file for ETL
+# see: https://github.com/bento-platform/bento_etl/blob/main/docker-compose.dev.yaml
+# Use published images: ${BENTO_ETL_IMAGE}:${BENTO_ETL_VERSION}
+# e.g. ghcr.io/bento-platform/bento_etl:sha-0a33a84
