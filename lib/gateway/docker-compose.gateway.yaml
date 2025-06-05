@@ -85,7 +85,8 @@ services:
       - BENTO_MINIO_INTERNAL_PORT
       - BENTO_MINIO_CONSOLE_PORT 
       - BENTO_MINIO_DOMAIN
-      # TODO: add container name and port
+      - BENTO_ETL_CONTAINER_NAME
+      - BENTO_ETL_INTERNAL_PORT
     networks:
       - aggregation-net
       - auth-net
@@ -94,6 +95,7 @@ services:
       - cbioportal-net
       - drop-box-net
       - drs-net
+      - etl-net
       - event-relay-net
       - gohan-api-net
       - katsu-net
@@ -149,7 +151,6 @@ services:
 #     'who needs to talk to katsu, without going through standard gateway/authentication procedures'?
 # In this fashion, any other service put into katsu-net must have an important reason!
 
-# TODO: add etl network
 networks:
   aggregation-net:
     external: true
@@ -172,6 +173,9 @@ networks:
   drs-net:
     external: true
     name: ${BENTO_DRS_NETWORK}
+  etl-net:
+    external: true
+    name: ${BENTO_ETL_NETWORK}
   event-relay-net:
     external: true
     name: ${BENTO_EVENT_RELAY_NETWORK}
@@ -183,7 +187,7 @@ networks:
     name: ${BENTO_KATSU_NETWORK}
   minio-net:
     external: true
-    name: ${BENTO_MINIO_NETWORK}    
+    name: ${BENTO_MINIO_NETWORK}
   monitoring-net:
     external: true
     name: ${BENTO_MONITORING_NETWORK}

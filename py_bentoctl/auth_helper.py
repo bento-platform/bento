@@ -60,6 +60,8 @@ KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 
 MASTER_REALM = "master"
 
+ETL_CLIENT_ID = os.getenv("BENTO_ETL_CLIENT_ID")
+
 
 def get_admin_credentials() -> Tuple[str, str]:
     admin_user = AUTH_ADMIN_USER or input("Enter admin username: ").strip()
@@ -468,7 +470,14 @@ def init_auth(docker_client: docker.DockerClient):
     def create_etl_client_if_needed(token: str):
         # TODO: create a service account client for bento_etl (similar to WES)
         # TODO: should output client secret after 'bentoctl init-auth'
-        pass
+        create_client_and_secret_for_service(
+            ETL_CLIENT_ID,
+            "BENTO_ETL_CLIENT_SECRET",
+            None,
+            token,
+            is_service_account=True,
+            to_restart="ETL",
+        )
 
     # Modifies the "roles" client scope mapper, so that client-level roles are included in the ID token
     def set_include_client_roles_in_id_tokens(token: str):
@@ -630,6 +639,10 @@ def init_auth(docker_client: docker.DockerClient):
 
     info(f"  Creating WES client: {WES_CLIENT_ID}")
     create_wes_client_if_needed(access_token)
+    success()
+
+    info(f"  Creating ETL client: {ETL_CLIENT_ID}")
+    create_etl_client_if_needed(access_token)
     success()
 
     if c.BENTO_FEATURE_MONITORING.enabled:

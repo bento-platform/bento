@@ -1,4 +1,26 @@
-# TODO: create a docker file for ETL
-# see: https://github.com/bento-platform/bento_etl/blob/main/docker-compose.dev.yaml
-# Use published images: ${BENTO_ETL_IMAGE}:${BENTO_ETL_VERSION}
-# e.g. ghcr.io/bento-platform/bento_etl:sha-0a33a84
+services:
+  etl:
+    image: ${BENTO_ETL_IMAGE}:${BENTO_ETL_VERSION}
+    container_name: ${BENTO_ETL_CONTAINER_NAME}
+    environment:
+      - BENTO_UID
+      - BENTO_DEBUG=False
+      - BENTO_AUTHZ_ENABLED=True
+      - BENTO_AUTHZ_SERVICE_URL
+      - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
+      - KATSU_URL=${BENTO_KATSU_URL}/
+    networks:
+      - etl-net
+    expose:
+      - ${BENTO_ETL_INTERNAL_PORT}
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTO_ETL_INTERNAL_PORT}" ]
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
+
+networks:
+  etl-net:
+    external: true
+    name: ${BENTO_ETL_NETWORK}
