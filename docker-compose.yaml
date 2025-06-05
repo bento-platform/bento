@@ -22,4 +22,5 @@ include:
       - lib/service-registry/docker-compose.service-registry.yaml
       - lib/web/docker-compose.web.yaml
       - lib/wes/docker-compose.wes.yaml
+      - lib/etl/docker-compose.etl.yaml
     project_directory: .  # Paths in the lib/* compose files must be relative to the Bento base directory
