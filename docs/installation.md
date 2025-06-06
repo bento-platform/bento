@@ -63,6 +63,30 @@ BENTOV2_AUTH_REALM=bentov2
 BENTOV2_AUTH_WELLKNOWN_PATH=/auth/realms/${BENTOV2_AUTH_REALM}/.well-known/openid-configuration
 ```
 
+If an *external* Keycloak instance is being used and you would like to set it up using `./bentoctl.bash init-auth`, follow the steps above for external IdPs and then below:
+- Set up a keycloak instance and provide its URL in `BENTOV2_AUTH_PUBLIC_URL`
+- Make the desired Bento realm and update `BENTOV2_AUTH_REALM` accordingly
+- Create an administrative user account in the Bento realm
+- In _Realm Roles_, create an admin role, which we will give to the administrative user later
+- In the admin role, go to the associated roles tab and assign all the **realm-management** roles to the admin realm role.
+- In the admin user page, select the _Role Mapping_ tab and click on the _Assign Role_ button
+- Select _Filter By Realm Roles_, select the admin role and click _Assign_
+- The user account can then be used to remotely configure the realm with the admin API
+- Set the credential variables in `local.env`
+  - To provide credentials during `init-auth` (**recommended**)
+    - `BENTOV2_AUTH_ADMIN_USER=''` & `BENTOV2_AUTH_ADMIN_PASSWORD=''`
+    - You will then be prompted to provide the credentials
+  - To store the credentials in an environment variable
+    - `BENTOV2_AUTH_ADMIN_USER=<admin username>` & `BENTOV2_AUTH_ADMIN_PASSWORD=<admin password>`
+- Set `BENTOV2_USE_EXTERNAL_KEYCLOAK=1` in `local.env` 
+- Run `./bentoctl.bash init-auth`
+
+> This administrative user account should only be used to configure a Keycloak realm for a Bento instance.
+> As such, once your Bento instance is properly configured with your remote Keycloak, we recommend that you unassign the admin realm role from the admin user and reset credentials. Doing so mitigates the potential security risks caused by leaked admin credentials.
+> 
+> If you need to re-run `bentoctl init-auth` later, you can set new credentials and reassign the admin role for the configuration process.
+> 
+> `bentoctl init-auth` would skip test user creation. Test users can be created using the admin console for the external keycloak.
 
 ### Bento Public configuration
 
