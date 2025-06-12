@@ -47,6 +47,11 @@ services:
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
           - ${BENTO_MINIO_DOMAIN}
+      etl-net:
+        aliases:
+          - ${BENTOV2_DOMAIN}
+          - ${BENTOV2_PORTAL_DOMAIN}
+          - ${BENTOV2_AUTH_DOMAIN}
       event-relay-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -171,6 +176,15 @@ services:
     ports:
       - "${BENTOV2_WES_EXTERNAL_PORT}:${BENTOV2_WES_INTERNAL_PORT}"
       - "${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_WES_DEBUGGER_INTERNAL_PORT}"
+
+  etl:
+    environment:
+      - BENTO_DEBUG=True
+      - PORT=${BENTO_ETL_INTERNAL_PORT}
+      - DEBUGGER_PORT=${BENTO_ETL_DEBUGGER_EXTERNAL_PORT}
+    ports:
+      - "${BENTO_ETL_EXTERNAL_PORT}:${BENTO_ETL_INTERNAL_PORT}"
+      - "${BENTO_ETL_DEBUGGER_EXTERNAL_PORT}:${BENTO_ETL_DEBUGGER_INTERNAL_PORT}"
 
   drs:
     environment:
