@@ -95,7 +95,6 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
                          "BENTOV2_SERVICE_REGISTRY_VERSION_DEV"),
     "web": ("BENTOV2_WEB_IMAGE", "BENTOV2_WEB_VERSION", "BENTOV2_WEB_VERSION_DEV"),
     "wes": ("BENTOV2_WES_IMAGE", "BENTOV2_WES_VERSION", "BENTOV2_WES_VERSION_DEV"),
-    # TODO: add configs for ETL images and versions
 }
 
 
