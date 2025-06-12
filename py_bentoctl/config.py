@@ -43,6 +43,7 @@ __all__ = [
     "BENTO_FEATURE_CBIOPORTAL",
     "BENTO_FEATURE_GOHAN",
     "BENTO_FEATURE_PUBLIC",
+    "BENTO_FEATURE_ETL",
 
     "BENTO_GIT_CLONE_HTTPS",
 
@@ -107,6 +108,8 @@ BENTO_FEATURE_MINIO = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_MINIO_ENABLED", default=False), profile="minio")
 BENTO_FEATURE_MONITORING = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_MONITORING_ENABLED", default=False), profile="monitoring")
+BENTO_FEATURE_ETL = BentoOptionalFeature(
+    enabled=_env_get_bool("BENTO_ETL_ENABLED", default=False), profile="etl")
 
 BENTO_FEATURE_PUBLIC = BentoOptionalFeature(enabled=BENTOV2_USE_BENTO_PUBLIC, profile="public")
 BENTO_FEATURE_REDIRECT = BentoOptionalFeature(enabled=bool(BENTO_DOMAIN_REDIRECT), profile="redirect")
@@ -185,5 +188,3 @@ BENTO_ORCHESTRATION_STATE_DB_FILE = os.getenv("BENTO_ORCHESTRATION_STATE_DB", ".
 MULTI_SERVICE_PREFIXES = ("gohan",)
 
 PHENOTOOL_PATH = os.getenv("PHENOTOOL_JAR_PATH", "")
-
-# TODO: etl feature flag
