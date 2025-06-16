@@ -10,6 +10,8 @@ services:
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
       - KATSU_URL=${BENTO_KATSU_URL}/
       - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/etl
+      - BENTO_OPENID_CONFIG_URL
+      - ETL_CLIENT_SECRET=${BENTO_ETL_CLIENT_SECRET}
     networks:
       - etl-net
     expose:
