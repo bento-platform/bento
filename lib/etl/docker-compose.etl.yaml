@@ -11,6 +11,7 @@ services:
       - KATSU_URL=${BENTO_KATSU_URL}/
       - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/etl
       - BENTO_OPENID_CONFIG_URL
+      - ETL_CLIENT_ID=${BENTO_ETL_CLIENT_ID}
       - ETL_CLIENT_SECRET=${BENTO_ETL_CLIENT_SECRET}
     networks:
       - etl-net
