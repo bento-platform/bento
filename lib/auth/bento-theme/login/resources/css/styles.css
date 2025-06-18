@@ -1,7 +1,22 @@
 .pf-v5-c-login__container {
   grid-template-areas: "main";
   grid-template-columns: 34rem;
-  margin-top: -175px;
+}
+
+/* due to an unknown cause, there was whitespace below the body. 
+This counter acts that */
+#keycloak-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: auto;
+}
+
+.pf-v5-c-login {
+  margin-top: -175px; /* Adjusted margin to center the login form */
+  display: flex;
+  flex-direction: column;
 }
 
 #kc-header-wrapper {
@@ -9,6 +24,10 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+}
+
+#kc-header {
+  padding-bottom: 64px; /* Added padding to create a gap below the logo */
 }
 
 .login-pf body {
@@ -26,7 +45,6 @@ div.kc-logo-text img {
   max-width: 100%;
   height: auto;
 }
-
 
 .bento-logo {
   position: fixed;
