@@ -68,7 +68,7 @@ services:
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
       monitoring-net:
-          aliases:
+        aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
@@ -97,6 +97,13 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
+
+  auth:
+    environment:
+      # Allows hot reload of changes to theme
+      - KC_SPI_THEME_STATIC_MAX_AGE=-1
+      - KC_SPI_THEME_CACHE_THEMES=false
+      - KC_SPI_THEME_CACHE_TEMPLATES=false
 
   authz:
     environment:
@@ -243,9 +250,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-    # Workaround for self signed certificates in dev
+      # Workaround for self signed certificates in dev
       - GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE=true
-  
+
   loki:
     ports:
       - "3100:3100"
