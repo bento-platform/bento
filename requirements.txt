@@ -13,7 +13,7 @@ pycparser==2.22
 pyflakes==3.2.0
 pyhumps==3.8.0
 PyYAML==6.0.2
-requests==2.32.3
+requests==2.32.4
 termcolor==2.4.0
 tqdm==4.66.5
 urllib3==2.5.0
