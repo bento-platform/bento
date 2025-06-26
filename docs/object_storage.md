@@ -18,8 +18,8 @@ high availability, low latency and durability.
 This paradigm allows applications to read and write files over the network, thus allowing applications to 
 handle more data than they otherwise could with block storage (disk).
 
-On top of providing scalable storage, using object-storage makes it easier to deploy applications in general and especially on Kubernetes, 
-since it eliminates the need to manage Persistent Volume Claims in clusters.
+On top of providing scalable storage, using object-storage makes it easier to deploy applications in general and 
+especially on Kubernetes, since it eliminates the need to manage Persistent Volume Claims in clusters.
 
 ## S3 compatible services
 
@@ -32,12 +32,12 @@ To enable S3 on Bento services, you first need to configure the following in you
 The steps for this depend on which S3 provider you are using. For local development, we recommend 
 using the Minio deployment that comes with Bento.
 
-### Drop-box
+### Drop Box
 
-The drop-box service in Bento acts as a deposit location for Bento.
-Files accessible to drop-box can be ingested in Bento's various data services (Phenopackets, experiments, VCFs).
+The drop box service in Bento acts as a deposit location for Bento.
+Files accessible to drop box can be ingested in Bento's various data services (Phenopackets, experiments, VCFs).
 
-Edit your `local.env` file to include the drop-box S3 environment variables:
+Edit your `local.env` file to include the drop box S3 environment variables:
 
 ```bash
 # local.env
@@ -51,7 +51,11 @@ BENTO_DROP_BOX_S3_SECRET_KEY="<get from S3 provider>"   # S3 secret key (get fro
 BENTO_DROP_BOX_VALIDATE_SSL=false                       # Needs to be 'false' with self signed certs and HTTPS
 ```
 
-Restart the drop-box service for the changes to take effect.
+Restart the drop box service for the changes to take effect:
+
+```bash
+./bentoctl.bash restart drop-box
+```
 
 ### DRS (WIP)
 
@@ -71,4 +75,8 @@ BENTO_DRS_S3_SECRET_KEY="<get from S3 provider>"    # S3 secret key (get from Mi
 BENTO_DRS_VALIDATE_SSL=false                        # Needs to be 'false' with self signed certs and HTTPS
 ```
 
-Restart the DRS service for the changes to take effect.
+Restart the DRS service for the changes to take effect:
+
+```bash
+./bentoctl.bash restart drs
+```
