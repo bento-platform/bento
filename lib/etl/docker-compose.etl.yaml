@@ -2,6 +2,8 @@ services:
   etl:
     image: ${BENTO_ETL_IMAGE}:${BENTO_ETL_VERSION}
     container_name: ${BENTO_ETL_CONTAINER_NAME}
+    depends_on:
+      - etl-db
     environment:
       - BENTO_UID
       - BENTO_DEBUG=False
@@ -24,7 +26,28 @@ services:
       start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
       start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
+  etl-db:
+    image: ${BENTO_ETL_DB_IMAGE}:${BENTO_ETL_DB_VERSION}
+    container_name: ${BENTO_ETL_DB_CONTAINER_NAME}
+    environment:
+      - POSTGRES_USER=${BENTO_ETL_DB_USER}
+      - POSTGRES_PASSWORD=${BENTO_ETL_DB_PASSWORD}
+      - POSTGRES_DB=${BENTO_ETL_DB_NAME}
+    networks:
+      - etl-db-net
+    volumes:
+      - ${BENTO_ETL_DB_VOL_DIR}:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_ETL_DB_NAME}", "-U", "${BENTO_ETL_DB_USER}" ]
+      interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
+
 networks:
   etl-net:
     external: true
     name: ${BENTO_ETL_NETWORK}
+  etl-db-net:
+    external: true
+    name: ${BENTO_ETL_DB_NETWORK}
