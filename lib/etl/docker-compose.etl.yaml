@@ -2,8 +2,14 @@ services:
   etl:
     image: ${BENTO_ETL_IMAGE}:${BENTO_ETL_VERSION}
     container_name: ${BENTO_ETL_CONTAINER_NAME}
+    networks:
+      - etl-net
+      - etl-db-net
+    expose:
+      - ${BENTO_ETL_INTERNAL_PORT}
     depends_on:
-      - etl-db
+      etl-db:
+        condition: service_healthy
     environment:
       - BENTO_UID
       - BENTO_DEBUG=False
@@ -15,10 +21,8 @@ services:
       - BENTO_OPENID_CONFIG_URL
       - ETL_CLIENT_ID=${BENTO_ETL_CLIENT_ID}
       - ETL_CLIENT_SECRET=${BENTO_ETL_CLIENT_SECRET}
-    networks:
-      - etl-net
-    expose:
-      - ${BENTO_ETL_INTERNAL_PORT}
+      - DATABASE_PATH=postgresql://${BENTO_ETL_DB_USER}:${BENTO_ETL_DB_PASSWORD}@${BENTO_ETL_DB_CONTAINER_NAME} #:${BENTO_ETL_DB_EXTERNAL_PORT}
+      - DATABASE_NAME=${BENTO_ETL_DB_NAME}
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_ETL_INTERNAL_PORT}" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
@@ -33,6 +37,8 @@ services:
       - POSTGRES_USER=${BENTO_ETL_DB_USER}
       - POSTGRES_PASSWORD=${BENTO_ETL_DB_PASSWORD}
       - POSTGRES_DB=${BENTO_ETL_DB_NAME}
+    expose:
+      - ${BENTO_ETL_DB_EXTERNAL_PORT}
     networks:
       - etl-db-net
     volumes:
