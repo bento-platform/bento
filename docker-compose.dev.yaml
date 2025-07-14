@@ -187,10 +187,6 @@ services:
       - "${BENTO_ETL_EXTERNAL_PORT}:${BENTO_ETL_INTERNAL_PORT}"
       - "${BENTO_ETL_DEBUGGER_EXTERNAL_PORT}:${BENTO_ETL_DEBUGGER_INTERNAL_PORT}"
 
-  etl-db:
-    ports:
-      - "${BENTO_ETL_DB_EXTERNAL_PORT}:6432"
-
   drs:
     environment:
       - FLASK_DEBUG=True

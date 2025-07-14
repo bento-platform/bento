@@ -226,7 +226,6 @@ def init_dirs():
         "root_fast": "BENTO_FAST_DATA_DIR",
         "root_slow": "BENTO_SLOW_DATA_DIR",
         "authz-db": "BENTO_AUTHZ_DB_VOL_DIR",
-        "etl-db": "BENTO_ETL_DB_VOL_DIR",
         "drs-data": "BENTO_DRS_DATA_VOL_DIR",
         "drs-tmp": "BENTO_DRS_TMP_VOL_DIR",
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
@@ -313,7 +312,6 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_DROP_BOX_NETWORK", dict(driver="bridge")),
         ("BENTO_DRS_NETWORK", dict(driver="bridge")),
         ("BENTO_ETL_NETWORK", dict(driver="bridge")),
-        ("BENTO_ETL_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_EVENT_RELAY_NETWORK", dict(driver="bridge")),
         ("BENTO_GOHAN_API_NETWORK", dict(driver="bridge")),
         ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
