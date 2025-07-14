@@ -297,6 +297,13 @@ bento_authz create grant \
   'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material' 'view:drop_box'
 ```
 
+> [!IMPORTANT]
+> With the object-storage (S3) refactors included in v19, it is now required to add the `view:drop_box` permission to 
+> the WES grant. Otherwise WES will not be authorized to download files from Drop-Box, even with local storage.
+> 
+> If you already have a grant for the WES client coming from earlier versions, you can simply add the permission by 
+> following the steps detailed in the [migrating to v19 docs.](./migrating_to_19.md#permissions)
+
 ### c. Create a grant for the aggregation and Beacon services
 
 Run the following commands to set up authorization for the aggregation/Beacon client. 
