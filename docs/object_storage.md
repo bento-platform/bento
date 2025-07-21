@@ -80,3 +80,94 @@ Restart the DRS service for the changes to take effect:
 ```bash
 ./bentoctl.bash restart drs
 ```
+
+## Migrating from block storage to S3
+
+This section goes over some useful tips to preserve your data when migrating a Bento instance from block storage
+to S3 compatible object storage.
+
+When turning S3 on in Bento, we recommend that you upload the data that was previously on disk to the appropriate 
+bucket for a seamless transition.
+
+### Prepare for S3 uploads
+
+To upload old files to S3 you will need the following:
+- An S3 store (use Bento's Minio if you don't have one)
+  - Save the hostname for later
+  - Determine if HTTPS or HTTP should be used
+    - HTTPS is strongly recommended for security reasons, but some S3 stores are configured to be HTTP only
+  - Determine if SSL validation should be performed if using HTTPS
+- S3 credentials (created in the S3 store)
+  - Save the `Access Key` string for later
+  - Save the `Secret Key` string for later
+- An S3 CLI tool installed on the machine hosting Bento
+  - We detail usage with S3CMD here, but any S3 compatible CLI tool will work (aws, Minio CLI)
+
+Before performing the uploads, configure your S3 CLI tool (S3CMD here):
+
+```bash
+# Create S3CMD config file
+touch ~/.s3cfg
+
+# Edit the file (details bellow)
+vim ~/.s3cfg
+
+# Test the connection to the S3 store by listing the buckets
+s3cmd ls
+```
+
+The `~/.s3cfg` config file should be populated with the following fields at least:
+```bash
+host_base = <S3 STORE ENDPOINT>     # don't include the protocol
+host_bucket = <S3 STORE ENDPOINT>   # don't include the protocol
+use_https = True                    # False if HTTP
+check_ssl_certificate = True        # False if using HTTPS with self-signed certs
+access_key = <FILL FROM S3 STORE>
+secret_key = <FILL FROM S3 STORE>
+```
+
+You can now proceed to uploading your data to the appropriate buckets in S3!
+
+### Drop-Box
+
+The following instructions apply to Drop-Box.
+
+```bash
+# Go to the drop-box directory
+cd /path/to/drop-box/data-x/
+
+# Make sure you have a destination bucket ready
+# Here we expect s3://drop-box to be present
+s3cmd ls
+
+# Upload the content of the directory to S3 recursively
+s3cmd put --recursive -v ./* s3://drop-box
+```
+
+### DRS
+
+DRS includes a database that tracks file information, such as paths, timestamps etc.
+
+If you are migrating from a DRS service with block-storage, any previously ingested file will include a path prefix.
+
+
+Since DRS blobs were created on block storage, their path includes the mountpoint for the container volume that included
+the files: `/drs/bento_drs/data/obj/<files>`
+
+Instead of changing each DB row for DRS blobs that were uploaded from block-storage, we can simply upload the old data 
+to the bucket using the same path prefix! New DRS blobs created with DRS in S3 mode will be placed at the root of the 
+bucket.
+
+```bash
+# Go to the DRS data directory
+cd /path/to/drs/data/obj
+
+# Make sure you have a destination bucket ready
+# Here we expect s3://drs to be present
+s3cmd ls
+
+# Upload the content of the directory to S3 recursively
+# Here we re-use the block-storage path prefix in S3 to maintain valid paths:
+#   s3://<BUCKET NAME>/<BLOCK STORAGE PREFIX> ==> s3://drs/drs/bento_drs/data/obj/
+s3cmd put -v ./* s3://drs/drs/bento_drs/data/obj/
+```
