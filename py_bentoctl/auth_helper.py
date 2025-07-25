@@ -62,7 +62,6 @@ MASTER_REALM = "master"
 
 ETL_CLIENT_ID = os.getenv("BENTO_ETL_CLIENT_ID")
 
-
 def get_admin_credentials() -> Tuple[str, str]:
     admin_user = AUTH_ADMIN_USER or input("Enter admin username: ").strip()
     admin_password = AUTH_ADMIN_PASSWORD or getpass.getpass("Enter admin password: ")
