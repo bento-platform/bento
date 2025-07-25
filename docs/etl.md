@@ -1,10 +1,11 @@
 # Bento ETL (Extract, Transform, Load)
 
-Bento ETL is a service that converts and uploads external data to Bento data services.
+Bento ETL is a service to automate the injestion of external health data into the Bento data services.
+With customizable transformers, ETL can collect and convert a variety of data types from any data source.
 
 ## Configuration
 
-Please follow the instructions below.
+Please follow the instructions below to deploy the ETL service in a Bento stack.
 
 ### Environment variables
 
@@ -29,7 +30,7 @@ After running `init-auth`, update the following in your `local.env` file!
 
 ```bash
 BENTO_ETL_CLIENT_ID=etl
-BENTO_ETL_CLIENT_SECRET=your-secret-here
+BENTO_ETL_CLIENT_SECRET={your-newly-generated-secret-here!}
 ```
 
 ### Create additional grants
