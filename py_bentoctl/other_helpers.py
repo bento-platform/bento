@@ -73,6 +73,13 @@ def _init_web_public(force: bool):
         force=force,
     )
 
+    # - favicon
+    _file_copy(
+        (etc_path / "default.favicon.png"),
+        (public_path / "favicon.png"),
+        force=force,
+    )
+
     # English translations
     _file_copy(
         (etc_path / "templates" / "translations" / "en.example.json"),
