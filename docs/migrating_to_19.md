@@ -2,6 +2,15 @@
 
 TODO
 
+## Custom Favicon
+
+Bento v19 adds support for custom favicons. Even without a custom favicon, you **MUST** run the following to initialize 
+the file mount:
+
+```bash
+./bentoctl.bash init-web public
+```
+
 ## Permissions
 
 Starting with v19, WES interacts with Drop-Box and DRS through the network only, rather than with volumes.
