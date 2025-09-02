@@ -57,7 +57,7 @@ Restart the drop box service for the changes to take effect:
 ./bentoctl.bash restart drop-box
 ```
 
-### DRS (WIP)
+### DRS
 
 The DRS service is the Bento implementation of the DRS GA4GH standard.
 
@@ -79,6 +79,21 @@ Restart the DRS service for the changes to take effect:
 
 ```bash
 ./bentoctl.bash restart drs
+```
+
+
+## Verify that services are using the S3 backend
+
+You can verify that DRS and Dop-Box are using the S3 backend by checking their logs:
+
+Look for S3 logs in DRS:
+```bash
+./bentoctl.bash logs drs | grep -i s3
+```
+
+Look for S3 logs in Drop-Box:
+```bash
+./bentoctl.bash logs drop-box | grep -i s3
 ```
 
 ## Migrating from block storage to S3
