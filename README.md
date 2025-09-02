@@ -40,7 +40,8 @@ that make up the Bento platform.
 * [Monitoring](./docs/monitoring.md)
 * [Public discovery configuration](./docs/public_discovery.md)
 * [Using a reverse proxy in front of Bento](./docs/reverse-proxy.md)
-* [MinIO object storage](./docs/minio.md)
+* [Batteries-included S3 object storage with MinIO](./docs/minio.md)
+* [Configuring services for object storage](./docs/object_storage.md)
 
 ### Data ingestion and usage
 
