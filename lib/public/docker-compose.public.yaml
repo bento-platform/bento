@@ -34,6 +34,7 @@ services:
 
       - ${PWD}/lib/public/branding.png:/bento-public/dist/public/assets/branding.png:ro
       - ${PWD}/lib/public/branding.lightbg.png:/bento-public/dist/public/assets/branding.lightbg.png:ro
+      - ${PWD}/lib/public/favicon.png:/bento-public/dist/public/assets/icon_small.png:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
