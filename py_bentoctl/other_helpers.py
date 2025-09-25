@@ -251,6 +251,8 @@ def init_dirs():
         #  - Monitoring: Grafana/Loki
         **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
         **({"loki": "BENTO_LOKI_TEMP_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
+        #  - ETL Service
+        **({"etl": "BENTO_ETL_VOL_DATA_DIR"} if c.BENTO_FEATURE_ETL else {})
     }
 
     # Some of these don't use the Bento user inside their containers, so ignore if need be
