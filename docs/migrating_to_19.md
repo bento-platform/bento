@@ -19,13 +19,15 @@ Starting with v19, WES interacts with Drop Box and DRS through the network only,
 This means that WES needs to be authorized to download data from Drop Box:
 
 ```bash
-# Open a shell in the authz service
+# Open a shell in the authz service:
 ./bentoctl.bash shell authz
 
-# Inside the authz service, find the Grants assigned to WES
+# Inside the authz service, find the grants assigned to WES:
 bento_authz list grants | grep wes
 
-# Add the "view:drop_box" permission to the WES grant
+# In the above list, find the WES grant which has "ingest:data", "ingest:reference_material", etc., and copy the ID.
+
+# Add the "view:drop_box" permission to this grant:
 bento_authz add-grant-permissions <GRANT ID> "view:drop_box"
 ```
 
