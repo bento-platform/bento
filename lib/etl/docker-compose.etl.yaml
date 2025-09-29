@@ -17,6 +17,8 @@ services:
       - BENTO_OPENID_CONFIG_URL
       - ETL_CLIENT_ID=${BENTO_ETL_CLIENT_ID}
       - ETL_CLIENT_SECRET=${BENTO_ETL_CLIENT_SECRET}
+      - DB_NAME=${BENTO_ETL_SQLITE_DB_NAME}
+      - DATABASE_PATH=${BENTO_ETL_INTERNAL_DATA_DIR}/{BENTO_ETL_SQLITE_DB_NAME}
     healthcheck:
       test:
         [
@@ -29,7 +31,7 @@ services:
       start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
       start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
     volumes:
-      - ${BENTO_ETL_VOL_DATA_DIR}:/etl/data
+      - ${BENTO_ETL_VOL_DATA_DIR}:${BENTO_ETL_INTERNAL_DATA_DIR}
 
 networks:
   etl-net:
