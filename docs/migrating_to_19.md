@@ -1,5 +1,13 @@
 # Migrating to Bento v19
 
+In version 19 of Bento, we've made several improvements to the public researcher portal, as well as adding S3 support
+for our Drop Box and Data Repository (DRS) services (which requires a few changes to permissions). We've also made 
+**one breaking change** to our Experiment model (specifically, the Instrument sub-model). See the below sections for 
+details on how to migrate to version 19.
+
+
+## Update experiment instruments (if needed)
+
 TODO
 
 
@@ -36,7 +44,12 @@ Once the permission is added, WES can be used right away, no restarts required.
 
 ## Update discovery configurations (preparing for future deprecations)
 
-TODO
+Katsu has been reconfigured such that the `mapping_for_search_filter` field is no longer relevant, although it still 
+works for overriding `mapping`. Instead, we can predictably re-map `mapping` from the perspective of 
+`phenopacket`/`individual`, which is in all cases what this field was being used for.
+
+Thus, unless there exists some edge case that must be fixed in a future version that we do not know about yet, these 
+`mapping_for_search_filter` properties should be removed from the config.
 
 
 ## If using a beacon network, update config
