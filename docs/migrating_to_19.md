@@ -8,7 +8,35 @@ details on how to migrate to version 19.
 
 ## Update experiment instruments (if needed)
 
-TODO
+Katsu's experiment instrument model has been updated. Instead of the `platform` / `model` fields, we now have a `device`
+field and a `device_ontology` field, which represent the same concept (in free text and Phenopackets-style ontology 
+class formats, respectively): the device used to perform the experiment.
+
+**Before:**
+
+```json
+{
+  "identifier": "sequencer-0",
+  "platform": "Illumina",
+  "model": "Illumina HiSeq X"
+}
+```
+
+**After:**
+
+```json
+{
+  "identifier": "sequencer-0",
+  "device": "Illumina HiSeq X",
+  "device_ontology": { "id": "EFO:0008567", "label": "Illumina HiSeq X" }
+}
+```
+
+The `device_ontology` field can be left out if there is not an existing ontology term for the instrument (`device` can 
+also be left out, but is recommended.)
+
+**Note:** for migration purposes, the `model` field contents will be copied to the `device` field, and `device_ontology`
+will remain null. Future data releases should incorporate the new schema instead of relying on this fallback behaviour.
 
 
 ## Initialize custom favicon
