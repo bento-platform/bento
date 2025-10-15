@@ -72,10 +72,12 @@ also be left out, but is recommended.)
 will remain null. Future data releases should incorporate the new schema instead of relying on this fallback behaviour.
 
 
-## 2. Stop the instance and pull new images
+## 2. Stop the instance, update `bentoctl` dependencies, and pull new images
 
 ```bash
+source env/bin/activate  # activate the bentoctl enviroment (however you have set that up)
 ./bentoctl.bash stop
+pip install -r requirements.txt
 ./bentoctl.bash pull
 ```
 
@@ -146,6 +148,8 @@ old file first so you can remember the network URLs.)
 
 ```bash
 ./bentoctl.bash start
+# might be wise to prune old images and clean up some space:
+docker system prune -a
 ```
 
 
