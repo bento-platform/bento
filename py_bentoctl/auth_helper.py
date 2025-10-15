@@ -41,6 +41,7 @@ AUTH_ADMIN_PASSWORD = os.getenv("BENTOV2_AUTH_ADMIN_PASSWORD")
 AUTH_TEST_USER = os.getenv("BENTOV2_AUTH_TEST_USER")
 AUTH_TEST_PASSWORD = os.getenv("BENTOV2_AUTH_TEST_PASSWORD")
 AUTH_CONTAINER_NAME = os.getenv("BENTOV2_AUTH_CONTAINER_NAME")
+
 AGGREGATION_CLIENT_ID = os.getenv("BENTO_AGGREGATION_CLIENT_ID")
 
 CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
@@ -78,8 +79,8 @@ def keycloak_req(
     method: str = "get",
     headers: Optional[dict] = None,
     bearer_token: Optional[str] = None,
-    data: Optional[dict] = None,
-    json: Optional[dict] = None,
+    data: Optional[dict | bytes] = None,
+    json_: Optional[dict] = None,
 ) -> requests.Response:
     method = method.lower()
 
@@ -96,13 +97,13 @@ def keycloak_req(
         return requests.post(
             make_keycloak_url(path),
             **(dict(data=data) if data else {}),
-            **(dict(json=json) if json else {}),
+            **(dict(json=json_) if json_ else {}),
             **kwargs)
     if method == "put":
         return requests.put(
             make_keycloak_url(path),
             **(dict(data=data) if data else {}),
-            **(dict(json=json) if json else {}),
+            **(dict(json=json_) if json_ else {}),
             **kwargs)
 
     raise NotImplementedError
@@ -130,7 +131,7 @@ def fetch_existing_client_role(token: str, client_id: str, role_name: str, verbo
 
     existing_role_res = keycloak_req(f"{client_roles_endpoint}/{role_name}", bearer_token=token)
     if not existing_role_res.ok:
-        return
+        return None
 
     if verbose:
         warn(f"    Found existing role: {role_name}; using that.")
@@ -168,7 +169,7 @@ def create_client_role_or_exit(token: str, client_id: str, role_name: str) -> Op
 
     # Create client role if needed
     client_roles_endpoint = f"{KC_ADMIN_API_CLIENTS_ENDPOINT}/{client_id}/roles"
-    res = keycloak_req(client_roles_endpoint, bearer_token=token, method="post", json={
+    res = keycloak_req(client_roles_endpoint, bearer_token=token, method="post", json_={
         "clientRole": True,
         "name": role_name,
     })
@@ -191,10 +192,10 @@ def create_group_or_exit(token: str, group_rep: dict, parent_group_rep: dict = N
     # group creation endpoint
     group_endpoint = KC_ADMIN_API_GROUP_ENDPOINT
     if parent_group_rep:
-        # use sub-group creation endpoint if a parent group is passed
+        # use subgroup creation endpoint if a parent group is passed
         group_endpoint = f"{group_endpoint}/{parent_group_rep['id']}/children"
 
-    res = keycloak_req(f"{group_endpoint}", bearer_token=token, method="post", json=group_rep)
+    res = keycloak_req(f"{group_endpoint}", bearer_token=token, method="post", json_=group_rep)
     if not res.ok:
         err(f"    Failed to create group: {group_rep}; {res.status_code}")
         exit(1)
@@ -221,7 +222,7 @@ def add_client_role_mapping_to_group_or_exit(token: str, group_rep: dict, client
         role_mappings_endpoint,
         method="post",
         bearer_token=token,
-        data=json.dumps([role_rep])   # RoleRepresentation needs to be in an array and sent as data
+        data=json.dumps([role_rep]).encode()   # RoleRepresentation needs to be in an array and sent as data
     )
     if not client_res.ok:
         err(f"    Failed to add client-level role {role_rep['name']} to group {group_rep['path']}")
@@ -241,7 +242,7 @@ def create_keycloak_client_or_exit(
     access_token_lifespan: int,
     use_refresh_tokens: bool,
 ) -> None:
-    res = keycloak_req(KC_ADMIN_API_CLIENTS_ENDPOINT, bearer_token=token, method="post", json={
+    res = keycloak_req(KC_ADMIN_API_CLIENTS_ENDPOINT, bearer_token=token, method="post", json_={
         "clientId": client_id,
         "enabled": True,
         "protocol": "openid-connect",
@@ -334,14 +335,14 @@ def create_client_and_secret_for_service(
 
 
 def init_auth(docker_client: docker.DockerClient):
-    TARGET_REALM = AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM
+    target_realm = AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM
 
     # Capture admin credentials from the function
     admin_user, admin_password = get_admin_credentials()
 
     def get_session():
         res = keycloak_req(
-            f"realms/{TARGET_REALM}/protocol/openid-connect/token",
+            f"realms/{target_realm}/protocol/openid-connect/token",
             method="post",
             data=dict(
                 client_id="admin-cli",
@@ -384,7 +385,7 @@ def init_auth(docker_client: docker.DockerClient):
                         f"admin/realms/{AUTH_REALM}",
                         method="put",
                         bearer_token=token,
-                        json=realm,
+                        json_=realm,
                     )
                     if update_realm_res.ok:
                         cprint(
@@ -402,7 +403,7 @@ def init_auth(docker_client: docker.DockerClient):
             "admin/realms",
             method="post",
             bearer_token=token,
-            json={
+            json_={
                 "realm": AUTH_REALM,
                 "enabled": True,
                 "editUsernameAllowed": False,
@@ -452,7 +453,7 @@ def init_auth(docker_client: docker.DockerClient):
             role_representations[role_name] = client_role
         return role_representations
 
-    def create_grafana_client_groups_if_needed(token: str, role_mappings: dict, client_id: str) -> None:
+    def create_grafana_client_groups_if_needed(token: str, role_mappings_: dict, client_id: str) -> None:
         # create parent grafana group (no role mapping)
         parent_group = {"name": "grafana"}
         parent_group = create_group_or_exit(token, parent_group)
@@ -461,7 +462,7 @@ def init_auth(docker_client: docker.DockerClient):
         sub_groups = [{"name": g} for g in GRAFANA_ROLES]
         for subgroup in sub_groups:
             group_rep = create_group_or_exit(token, subgroup, parent_group_rep=parent_group)
-            role_rep = role_mappings[subgroup["name"]]
+            role_rep = role_mappings_[subgroup["name"]]
             add_client_role_mapping_to_group_or_exit(token, group_rep, client_id, role_rep)
 
     # Modifies the "roles" client scope mapper, so that client-level roles are included in the ID token
@@ -500,7 +501,7 @@ def init_auth(docker_client: docker.DockerClient):
             roles_mapper["config"]["id.token.claim"] = "true"
             mapper_endpoint = f"{KC_ADMIN_API_CLIENT_SCOPES}/{roles_client_scope['id']}" +  \
                 f"/protocol-mappers/models/{roles_mapper['id']}"
-            update_mapper_res = keycloak_req(mapper_endpoint, bearer_token=token, method="put", json=roles_mapper)
+            update_mapper_res = keycloak_req(mapper_endpoint, bearer_token=token, method="put", json_=roles_mapper)
             if not update_mapper_res.ok:
                 err(f"    Failed to modify 'client roles' mapper: {update_mapper_res.status_code}")
                 exit(1)
@@ -554,7 +555,7 @@ def init_auth(docker_client: docker.DockerClient):
             p,
             bearer_token=token,
             method="post",
-            json={
+            json_={
                 "username": AUTH_TEST_USER,
                 "enabled": True,
                 "credentials": [
@@ -594,7 +595,7 @@ def init_auth(docker_client: docker.DockerClient):
         subprocess.check_call((*c.COMPOSE, "up", "--wait", "-d", "auth", "gateway"))
         success()
 
-    info(f"   Signing into {TARGET_REALM} realm as {AUTH_ADMIN_USER}...")
+    info(f"   Signing into {target_realm} realm as {AUTH_ADMIN_USER}...")
     session = get_session()
     access_token = session["access_token"]
     success()
