@@ -1,0 +1,62 @@
+discovery.docker "docker" {
+	host             = "unix:///var/run/docker.sock"
+	refresh_interval = "5s"
+}
+
+loki.process "docker" {
+	forward_to = [loki.write.default.receiver]
+
+	stage.static_labels {
+		values = {
+			agent = "alloy",
+			host  = "docker",
+			job   = "docker",
+		}
+	}
+
+	stage.json {
+		expressions = {
+			level     = "level",
+			logger    = "logger",
+			output    = "event",
+			timestamp = "timestamp",
+		}
+	}
+
+	stage.labels {
+		values = {
+			level  = null,
+			logger = null,
+		}
+	}
+
+	stage.timestamp {
+		source = "timestamp"
+		format = "RFC3339"
+	}
+}
+
+discovery.relabel "docker" {
+	targets = []
+
+	rule {
+		source_labels = ["__meta_docker_container_name"]
+		regex         = "/(.*)"
+		target_label  = "container"
+	}
+}
+
+loki.source.docker "docker" {
+	host             = "unix:///var/run/docker.sock"
+	targets          = discovery.docker.docker.targets
+	forward_to       = [loki.process.docker.receiver]
+	relabel_rules    = discovery.relabel.docker.rules
+	refresh_interval = "5s"
+}
+
+loki.write "default" {
+	endpoint {
+		url = "http://loki:3100/loki/api/v1/push"
+	}
+	external_labels = {}
+}
