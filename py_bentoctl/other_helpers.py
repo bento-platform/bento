@@ -73,6 +73,13 @@ def _init_web_public(force: bool):
         force=force,
     )
 
+    # - favicon
+    _file_copy(
+        (etc_path / "default.favicon.png"),
+        (public_path / "favicon.png"),
+        force=force,
+    )
+
     # English translations
     _file_copy(
         (etc_path / "templates" / "translations" / "en.example.json"),
@@ -224,7 +231,6 @@ def init_dirs():
         "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
         "gohan": "BENTOV2_GOHAN_DATA_ROOT",
         "gohan-elasticsearch": "BENTOV2_GOHAN_ES_DATA_DIR",
-        "gohan-api-drs-bridge": "BENTOV2_GOHAN_API_DRS_BRIDGE_HOST_DIR",
         "gohan-vcfs": "BENTOV2_GOHAN_API_VCF_PATH",
         "gohan-gtfs": "BENTOV2_GOHAN_API_GTF_PATH",
         "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR" if c.DEV_MODE else "BENTOV2_KATSU_DB_DEV_VOL_DIR",

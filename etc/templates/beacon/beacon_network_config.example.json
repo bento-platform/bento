@@ -1,10 +1,21 @@
 {
-    "beacons": [
-        "https://bqc19.bento.sd4h.ca/api/beacon",
-        "https://staging.bento.sd4h.ca/api/beacon",
-        "https://qa.bento.sd4h.ca/api/beacon",
-        "https://bentov2.local/api/beacon"
-    ],
+    "beacons": {
+        "local": {
+            "api_url": "https://bentov2.local/api/beacon"
+        },
+        "staging": {
+            "api_url": "https://staging.bento.sd4h.ca/api/beacon"
+        },
+        "qa": {
+            "api_url": "https://qa.bento.sd4h.ca/api/beacon"
+        },
+        "bqc19": {
+            "api_url": "https://bqc19.bento.sd4h.ca/api/beacon"
+        },
+        "gdi": {
+            "api_url": "https://gdi.bento.sd4h.ca/api/beacon"
+        }
+    },
     "network_default_timeout_seconds": 30,
     "network_variants_query_timeout_seconds": 120
 }

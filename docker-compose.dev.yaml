@@ -68,7 +68,7 @@ services:
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
       monitoring-net:
-          aliases:
+        aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
@@ -97,6 +97,13 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
+
+  auth:
+    environment:
+      # Allows hot reload of changes to theme
+      - KC_SPI_THEME_STATIC_MAX_AGE=-1
+      - KC_SPI_THEME_CACHE_THEMES=false
+      - KC_SPI_THEME_CACHE_TEMPLATES=false
 
   authz:
     environment:
@@ -161,7 +168,6 @@ services:
     volumes:
       - ${BENTOV2_WES_DEV_VOL_DIR}:/wes/data
       - ${BENTOV2_WES_DEV_VOL_TMP_DIR}:/wes/tmp
-      - ${BENTOV2_WES_DEV_DROP_BOX_VOL_DIR}:/data
     ports:
       - "${BENTOV2_WES_EXTERNAL_PORT}:${BENTOV2_WES_INTERNAL_PORT}"
       - "${BENTOV2_WES_DEBUGGER_EXTERNAL_PORT}:${BENTOV2_WES_DEBUGGER_INTERNAL_PORT}"
@@ -226,6 +232,10 @@ services:
     ports:
       - "${BENTO_REFERENCE_DB_EXTERNAL_PORT}:5432"
 
+  gohan-api:
+    environment:
+      - BENTO_VALIDATE_SSL=False
+
   gohan-elasticsearch:
     # In dev / on Mac, sometimes this will trip up and decide there isn't enough disk space even when there is.
     # See https://stackoverflow.com/questions/48119189/elasticsearch-6-index-change-to-read-only-after-few-second
@@ -243,9 +253,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-    # Workaround for self signed certificates in dev
+      # Workaround for self signed certificates in dev
       - GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE=true
-  
+
   loki:
     ports:
       - "3100:3100"
