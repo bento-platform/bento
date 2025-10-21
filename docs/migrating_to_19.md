@@ -171,4 +171,17 @@ bento_authz list grants | grep wes
 bento_authz add-grant-permissions <GRANT ID> "view:drop_box"
 ```
 
-Once the permission is added, WES can be used right away, no restarts required.
+Once the permission is added, WES can be used right away, no restarts required, and you can exit the container shell.
+
+
+## 9. Enable the Bento login theme for Keycloak
+
+If you're running an instance-specific Keycloak for authentication, you can enable the Bento login theme for Keycloak 
+for a more cohesive user experience during the sign-in flow. This can either be done in the administration portal for 
+the Keycloak instance, or just by running the following command:
+
+```bash
+./bentoctl.bash init-auth
+```
+
+This should update the login theme of your Keycloak instance.
