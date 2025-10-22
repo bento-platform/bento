@@ -10,6 +10,8 @@ __all__ = [
     "warn",
     "err",
 
+    "indent_str",
+
     "get_docker_client",
 ]
 
@@ -32,6 +34,10 @@ def warn(msg: str) -> None:
 
 def err(msg: str) -> None:
     cprint(msg, "red", file=sys.stderr)
+
+
+def indent_str(msg: str, n: int) -> str:
+    return "\n".join((" " * n) + m for m in msg.split("\n"))
 
 
 def get_docker_client() -> docker.DockerClient:
