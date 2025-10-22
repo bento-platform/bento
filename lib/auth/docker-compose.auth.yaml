@@ -50,7 +50,7 @@ services:
     environment:
       - POSTGRES_USER=${BENTO_AUTH_DB_USER}
       - POSTGRES_PASSWORD=${BENTO_AUTH_DB_PASSWORD}
-      - POSTGRES_DB=${BENTO_AUTH_DB}
+      - POSTGRES_DB=${BENTO_AUTH_DB_NAME}
     networks:
       - auth-db-net
     volumes:
