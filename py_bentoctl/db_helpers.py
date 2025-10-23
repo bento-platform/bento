@@ -31,7 +31,6 @@ class PostgresContainer:
     # -----------
     db: str
     username: str
-    # password: str
 
 
 def process_ansi(res: bytes) -> bytes:
@@ -150,7 +149,7 @@ def pg_load(pgdump_dir: Path):
             u.task_print_done("imported.")
 
 
-def pg_wipe():  # TODO: hook up to cli
+def pg_wipe():
     """
     Scary utility!! Wipes all Postgres database volumes.
     """
