@@ -27,12 +27,12 @@ services:
       start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
   authz-db:
-    image: postgres:${BENTO_AUTHZ_DB_VERSION}
+    image: ${BENTO_AUTHZ_DB_IMAGE}:${BENTO_AUTHZ_DB_VERSION}
     container_name: ${BENTO_AUTHZ_DB_CONTAINER_NAME}
     environment:
       - POSTGRES_USER=${BENTO_AUTHZ_DB_USER}
       - POSTGRES_PASSWORD=${BENTO_AUTHZ_DB_PASSWORD}
-      - POSTGRES_DB=${BENTO_AUTHZ_DB}
+      - POSTGRES_DB=${BENTO_AUTHZ_DB_NAME}
     mem_limit: ${BENTO_AUTHZ_DB_MEM_LIM}
     networks:
       - authz-db-net
