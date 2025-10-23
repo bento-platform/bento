@@ -50,6 +50,12 @@ __all__ = [
     "BENTO_SERVICES_DATA",
 
     "BENTO_ORCHESTRATION_STATE_DB_FILE",
+
+    "MULTI_SERVICE_PREFIXES",
+
+    "PHENOTOOL_PATH",
+
+    "DATA_DIR_ENV_VARS",
 ]
 
 DOCKER_COMPOSE_FILE_BASE = "./docker-compose.yaml"
@@ -185,3 +191,37 @@ BENTO_ORCHESTRATION_STATE_DB_FILE = os.getenv("BENTO_ORCHESTRATION_STATE_DB", ".
 MULTI_SERVICE_PREFIXES = ("gohan",)
 
 PHENOTOOL_PATH = os.getenv("PHENOTOOL_JAR_PATH", "")
+
+# Look up table
+#   from: a well-known arbitrary key representing a particular service volume
+#   to:   the name of an environment variable containing the path to the corresponding data volume on disk
+DATA_DIR_ENV_VARS = {
+    "root_fast": "BENTO_FAST_DATA_DIR",
+    "root_slow": "BENTO_SLOW_DATA_DIR",
+    "authz-db": "BENTO_AUTHZ_DB_VOL_DIR",
+    "drs-data": "BENTO_DRS_DATA_VOL_DIR",
+    "drs-tmp": "BENTO_DRS_TMP_VOL_DIR",
+    "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
+    "gohan": "BENTOV2_GOHAN_DATA_ROOT",
+    "gohan-elasticsearch": "BENTOV2_GOHAN_ES_DATA_DIR",
+    "gohan-vcfs": "BENTOV2_GOHAN_API_VCF_PATH",
+    "gohan-gtfs": "BENTOV2_GOHAN_API_GTF_PATH",
+    "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR" if DEV_MODE else "BENTOV2_KATSU_DB_DEV_VOL_DIR",
+    "notification": "BENTOV2_NOTIFICATION_VOL_DIR",
+    "redis": "BENTOV2_REDIS_VOL_DIR",
+    "reference": "BENTO_REFERENCE_TMP_VOL_DIR",
+    "reference-db": "BENTO_REFERENCE_DB_VOL_DIR",
+    "wes": "BENTOV2_WES_VOL_DIR",
+    "wes-tmp": "BENTOV2_WES_VOL_TMP_DIR",
+
+    # Feature-specific volume dirs - only if the relevant feature is enabled.
+    #  - internal IdP
+    **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not BENTOV2_USE_EXTERNAL_IDP else {}),
+    #  - cBioPortal
+    **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if BENTO_FEATURE_CBIOPORTAL.enabled else {}),
+    #  - MinIO
+    **({"minio": "BENTO_MINIO_DATA_DIR"} if BENTO_FEATURE_MINIO.enabled else {}),
+    #  - Monitoring: Grafana/Loki
+    **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if BENTO_FEATURE_MONITORING else {}),
+    **({"loki": "BENTO_LOKI_TEMP_DIR"} if BENTO_FEATURE_MONITORING else {}),
+}
