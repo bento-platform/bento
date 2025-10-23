@@ -383,6 +383,7 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
 
     # Database commands
+    #  - Postgres:
     _add_subparser("pg-dump", "Dump contents of all Postgres database containers to a directory.", PgDump)
     _add_subparser("pg-load", "Load contents of all Postgres database containers from a directory.", PgLoad)
     _add_subparser("pg-wipe", "Wipe contents of all Postgres database volumes.", PgWipe)
