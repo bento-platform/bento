@@ -30,3 +30,32 @@ TODO
 ```
 
 All database volume directories will now be empty.
+
+
+## TODO
+
+
+## TODO. Restart Bento
+
+```bash
+./bentoctl.bash start
+```
+
+
+## TODO. Restore database contents
+
+To restore the contents of Postgres databases, run the following:
+
+```bash
+./bentoctl.bash pg-load db_dumps/v19_to_v20
+```
+
+**If everything succeeds**, run the following to delete the database dump, which contains sensitive information:
+
+```bash
+# ONLY IF EVERYTHING SUCCEEDS!
+rm -rf db_dumps/v19_to_v20
+```
+
+If the load fails for some reason, you will either need to re-ingest data by hand or rollback Postgres to another 
+version and try to load the database dump files.
