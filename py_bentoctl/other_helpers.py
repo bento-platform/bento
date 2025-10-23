@@ -222,37 +222,6 @@ def init_self_signed_certs(force: bool):
 
 
 def init_dirs():
-    data_dir_vars = {
-        "root_fast": "BENTO_FAST_DATA_DIR",
-        "root_slow": "BENTO_SLOW_DATA_DIR",
-        "authz-db": "BENTO_AUTHZ_DB_VOL_DIR",
-        "drs-data": "BENTO_DRS_DATA_VOL_DIR",
-        "drs-tmp": "BENTO_DRS_TMP_VOL_DIR",
-        "drop-box": "BENTOV2_DROP_BOX_VOL_DIR",
-        "gohan": "BENTOV2_GOHAN_DATA_ROOT",
-        "gohan-elasticsearch": "BENTOV2_GOHAN_ES_DATA_DIR",
-        "gohan-vcfs": "BENTOV2_GOHAN_API_VCF_PATH",
-        "gohan-gtfs": "BENTOV2_GOHAN_API_GTF_PATH",
-        "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR" if c.DEV_MODE else "BENTOV2_KATSU_DB_DEV_VOL_DIR",
-        "notification": "BENTOV2_NOTIFICATION_VOL_DIR",
-        "redis": "BENTOV2_REDIS_VOL_DIR",
-        "reference": "BENTO_REFERENCE_TMP_VOL_DIR",
-        "reference-db": "BENTO_REFERENCE_DB_VOL_DIR",
-        "wes": "BENTOV2_WES_VOL_DIR",
-        "wes-tmp": "BENTOV2_WES_VOL_TMP_DIR",
-
-        # Feature-specific volume dirs - only if the relevant feature is enabled.
-        #  - internal IdP
-        **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not c.BENTOV2_USE_EXTERNAL_IDP else {}),
-        #  - cBioPortal
-        **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
-        #  - MinIO
-        **({"minio": "BENTO_MINIO_DATA_DIR"} if c.BENTO_FEATURE_MINIO.enabled else {}),
-        #  - Monitoring: Grafana/Loki
-        **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
-        **({"loki": "BENTO_LOKI_TEMP_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
-    }
-
     # Some of these don't use the Bento user inside their containers, so ignore if need be
     ignore_permissions_for = set(BENTO_USER_EXCLUDED_SERVICES)
 
@@ -263,7 +232,7 @@ def init_dirs():
     task_print_done(msg="already exists." if secrets_dir_exists else "done.")
 
     print("Creating data directories if needed... this may ask you for your password to set permissions.")
-    for dir_for, dir_var in data_dir_vars.items():
+    for dir_for, dir_var in c.DATA_DIR_ENV_VARS.items():
         task_print(f"  {dir_for}")
 
         data_dir = os.getenv(dir_var)
