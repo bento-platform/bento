@@ -122,12 +122,20 @@ def pg_load(pgdump_dir: Path):
 
         # Receive any initial messages
 
-        s.settimeout(1.0)
+        initial_messages: bytes = b""
+        s.settimeout(1.5)
         try:
-            initial_messages: bytes = s.recv(1024 * 100)
-            u.warn("    receieved initial messages:")
-            u.warn(u.indent_str(process_ansi(initial_messages).decode("ascii"), 6))
+            initial_messages = s.recv(1024 * 100)
+            if initial_messages:
+                u.warn("    receieved initial messages:")
+                u.warn(u.indent_str(process_ansi(initial_messages).decode("ascii"), 6))
         except TimeoutError:
+            # Warning: this is a bit brittle.
+            # We assume that if we time out while receiving any initial messages from the socket, we didn't receive any
+            # startup messages. An example of a startup message is something like this (truncated here):
+            #     WARNING:  database "..." has a collation version mismatch
+            #     DETAIL:  The database was created using collation version 2.36, but the operating system provides ...
+            #     HINT:  Rebuild all objects in this database that use the default collation and run ALTER DATABASE ...
             pass
         s.settimeout(None)
 
@@ -144,7 +152,7 @@ def pg_load(pgdump_dir: Path):
         # noinspection PyTypeChecker
         has_error = response.find(b"ERROR:") >= 0
         if has_error:
-            u.task_print_done("failed.", color="red")
+            u.task_print_done(("    " if initial_messages else "") + "failed.", color="red")
             u.err(u.indent_str(response.decode("ascii").strip(), 6))
             # exit(1)
         else:
