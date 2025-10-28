@@ -19,6 +19,7 @@ services:
       - CHORD_METADATA_SUB_PATH
       - INTERNAL_PORT=${BENTOV2_KATSU_INTERNAL_PORT}
       - POSTGRES_HOST=${BENTOV2_KATSU_DB_CONTAINER_NAME}
+      - POSTGRES_DATABASE=${BENTOV2_KATSU_DB_NAME}
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
       - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
       - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
@@ -82,7 +83,7 @@ services:
     cpus: ${BENTOV2_KATSU_DB_CPUS}
     cpu_shares: 1024
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTOV2_KATSU_DB}", "-U", "${BENTOV2_KATSU_DB_USER}" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTOV2_KATSU_DB_NAME}", "-U", "${BENTOV2_KATSU_DB_USER}" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
       # interval: ${BENTO_HEALTHCHECK_INTERVAL}
       # For Docker <25 and Compose <2.24.x, start_interval doesn't work - use a shorter interval for now

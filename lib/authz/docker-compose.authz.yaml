@@ -10,7 +10,7 @@ services:
     environment:
       - BENTO_UID
       - BENTO_DEBUG=False
-      - DATABASE_URI=postgres://${BENTO_AUTHZ_DB_USER}:${BENTO_AUTHZ_DB_PASSWORD}@${BENTO_AUTHZ_DB_CONTAINER_NAME}:5432/${BENTO_AUTHZ_DB}
+      - DATABASE_URI=postgres://${BENTO_AUTHZ_DB_USER}:${BENTO_AUTHZ_DB_PASSWORD}@${BENTO_AUTHZ_DB_CONTAINER_NAME}:5432/${BENTO_AUTHZ_DB_NAME}
       - INTERNAL_PORT=${BENTO_AUTHZ_INTERNAL_PORT}
       - OPENID_CONFIG_URL=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
@@ -39,7 +39,7 @@ services:
     volumes:
       - ${BENTO_AUTHZ_DB_VOL_DIR}:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_AUTHZ_DB}", "-U", "${BENTO_AUTHZ_DB_USER}" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_AUTHZ_DB_NAME}", "-U", "${BENTO_AUTHZ_DB_USER}" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
       # interval: ${BENTO_HEALTHCHECK_INTERVAL}
       # For Docker <25 and Compose <2.24.x, start_interval doesn't work - use a shorter interval for now

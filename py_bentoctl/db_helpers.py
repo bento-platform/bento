@@ -13,7 +13,7 @@ __all__ = [
 ]
 
 # Each entry here is a three-tuple of the following:
-#  - An environment variable prefix
+#  - An environment variable prefix (which standard suffixes are appended to)
 POSTGRES_DB_CONTAINERS: tuple[tuple[str, c.BentoOptionalFeature | None, str], ...] = (
     ("BENTO_AUTH_DB", c.BENTO_FEATURE_AUTH, "auth"),
     ("BENTO_AUTHZ_DB", None, "authz-db"),
