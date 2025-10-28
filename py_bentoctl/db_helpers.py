@@ -44,7 +44,7 @@ def _load_pg_db_containers() -> list[PostgresContainer]:
 
     for prefix, feature, volume_key in POSTGRES_DB_CONTAINERS:
         if feature is not None and not feature.enabled:
-            # TODO: log
+            u.info(f"skipping database container {prefix} (disabled)")
             continue
 
         pg_containers.append(
@@ -72,14 +72,22 @@ def pg_dump(pgdump_dir: Path):
 
         # ---
 
-        _, output = container.exec_run(("pg_dumpall", "-U", pg.username), stream=True, demux=True)
+        _, output = container.exec_run(
+            ("pg_dump", "--clean", "--if-exists", "-U", pg.username, pg.db), stream=True, demux=True
+        )
 
         # ---
 
         if not pgdump_dir.exists():
             pgdump_dir.mkdir(parents=True, exist_ok=True)
 
-        # TODO: validate not empty
+        if files := tuple(pgdump_dir.glob("*.pgdump")):
+            # If we have any pgdump files already here, it looks like we're trying to overwrite a previous call to
+            # pg_dump --> we error out to prevent any data loss.
+            u.err(f"pgdump files already exist in directory: {pgdump_dir}")
+            for f in files:
+                u.err(f"    already exists: {f}")
+            exit(1)
 
         with open(pgdump_dir / f"{pg.container}.pgdump", "wb") as fh:
             for chunk_stdout, chunk_stderr in output:
@@ -141,20 +149,19 @@ def pg_load(pgdump_dir: Path):
 
         with open(container_pgdump_to_load, "rb") as fh:
             while send_chunk := fh.read(4096):
-                # TODO:
-                # s.sendall(send_chunk)
-                pass
+                # noinspection PyTypeChecker
+                s.sendall(send_chunk)
 
-        # noinspection PyTypeChecker
-        s.sendall(b"SELECT * FROM dasdf;\n")
         response: bytes = process_ansi(s.recv(1024 * 100))
 
         # noinspection PyTypeChecker
         has_error = response.find(b"ERROR:") >= 0
         if has_error:
             u.task_print_done(("    " if initial_messages else "") + "failed.", color="red")
-            u.err(u.indent_str(response.decode("ascii").strip(), 6))
-            # exit(1)
+            try:
+                u.err(u.indent_str(response.decode("ascii").strip(), 6))
+            except UnicodeDecodeError:
+                u.err(u.indent_str(str(response), 6))
         else:
             u.task_print_done("imported.")
 
@@ -164,7 +171,7 @@ def pg_wipe():
     Scary utility!! Wipes all Postgres database volumes.
     """
 
-    confirm = input("Are you sure you want to wipe all Postgres database volumes? [y/N]")
+    confirm = input("Are you sure you want to wipe all Postgres database volumes? [y/N] ")
 
     if confirm.lower() != "y":
         u.info("terminating without destroying data.")
@@ -177,7 +184,7 @@ def pg_wipe():
     u.info(f"deleting contents of {len(containers)} Postgres volumes")
 
     for pg in containers:
-        u.task_print(f"    deleting {pg.container} database volume...")
+        u.task_print(f"    deleting {pg.container} database volume ({pg.vol_dir})...")
         if not pg.vol_dir.exists():
             u.task_print_done("already does not exist.", color="yellow")
             continue
