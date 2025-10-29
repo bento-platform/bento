@@ -147,10 +147,17 @@ def pg_load(pgdump_dir: Path):
             pass
         s.settimeout(None)
 
-        with open(container_pgdump_to_load, "rb") as fh:
-            while send_chunk := fh.read(4096):
+        with open(container_pgdump_to_load, "r") as fh:
+            for send_line in fh:
+                # pg_dump generates these for postgis, which cause errors during loading
+                if (
+                    send_line.startswith("DROP EXTENSION") or
+                    send_line.startswith("COMMENT ON") or
+                    send_line.startswith("CREATE EXTENSION")
+                ):
+                    continue
                 # noinspection PyTypeChecker
-                s.sendall(send_chunk)
+                s.sendall(send_line.encode("utf-8"))
 
         response: bytes = process_ansi(s.recv(1024 * 100))
 
