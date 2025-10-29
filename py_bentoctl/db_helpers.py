@@ -65,6 +65,17 @@ def pg_dump(pgdump_dir: Path):
     docker_client = u.get_docker_client()
     pg_containers = _load_pg_db_containers()
 
+    if not pgdump_dir.exists():
+        pgdump_dir.mkdir(parents=True, exist_ok=True)
+
+    if files := tuple(pgdump_dir.glob("*.pgdump")):
+        # If we have any pgdump files already here, it looks like we're trying to overwrite a previous call to
+        # pg_dump --> we error out to prevent any data loss.
+        u.err(f"pgdump files already exist in directory: {pgdump_dir}")
+        for f in files:
+            u.err(f"    already exists: {f}")
+        exit(1)
+
     for pg in pg_containers:
         u.info(f"creating pgdumps for database {pg.container}")
 
@@ -77,17 +88,6 @@ def pg_dump(pgdump_dir: Path):
         )
 
         # ---
-
-        if not pgdump_dir.exists():
-            pgdump_dir.mkdir(parents=True, exist_ok=True)
-
-        if files := tuple(pgdump_dir.glob("*.pgdump")):
-            # If we have any pgdump files already here, it looks like we're trying to overwrite a previous call to
-            # pg_dump --> we error out to prevent any data loss.
-            u.err(f"pgdump files already exist in directory: {pgdump_dir}")
-            for f in files:
-                u.err(f"    already exists: {f}")
-            exit(1)
 
         with open(pgdump_dir / f"{pg.container}.pgdump", "wb") as fh:
             for chunk_stdout, chunk_stderr in output:
