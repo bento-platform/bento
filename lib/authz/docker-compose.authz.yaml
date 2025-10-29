@@ -37,7 +37,7 @@ services:
     networks:
       - authz-db-net
     volumes:
-      - ${BENTO_AUTHZ_DB_VOL_DIR}:/var/lib/postgresql/data
+      - ${BENTO_AUTHZ_DB_VOL_DIR}:/var/lib/postgresql
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_AUTHZ_DB_NAME}", "-U", "${BENTO_AUTHZ_DB_USER}" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
