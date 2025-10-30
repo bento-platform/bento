@@ -189,14 +189,22 @@ def pg_wipe():
     containers = _load_pg_db_containers()
 
     u.info(f"deleting contents of {len(containers)} Postgres volumes")
+    has_errors = False
 
     for pg in containers:
         u.task_print(f"    deleting {pg.container} database volume ({pg.vol_dir})...")
         if not pg.vol_dir.exists():
             u.task_print_done("already does not exist.", color="yellow")
             continue
-        shutil.rmtree(pg.vol_dir)
+        try:
+            shutil.rmtree(pg.vol_dir)
+        except PermissionError:
+            u.task_print_done("permission denied.", color="red")
+            has_errors = True
         pg.vol_dir.mkdir(exist_ok=True)
         u.task_print_done()
 
-    u.info("done.")
+    if has_errors:
+        u.err("done with errors.")
+    else:
+        u.info("done.")
