@@ -199,7 +199,7 @@ def pg_wipe():
         try:
             shutil.rmtree(pg.vol_dir)
         except PermissionError:
-            u.task_print_done("permission denied.", color="red")
+            u.task_print_done("permission denied (please remove by hand).", color="red")
             has_errors = True
         pg.vol_dir.mkdir(exist_ok=True)
         u.task_print_done()
