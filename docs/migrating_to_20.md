@@ -38,8 +38,12 @@ cd path/to/data
 # ---
 mv auth/data auth/data_old
 mv authz/db authz/db_old
-mv katsu/data katsu/data_old
 mv reference/data reference/data_old
+# The katsu DB directory to move depends on whether you're running in development or production mode. The following is 
+# for MODE=prod in local.env:
+mv katsu/data katsu/data_old
+# If you're running with MODE=dev in your local.env, run this instead:
+mv katsu/dev/data katsu/dev/data_old
 # ---
 cd path/to/bento
 ```
@@ -47,15 +51,13 @@ cd path/to/bento
 If anything goes wrong, you can manually roll back Postgres versions and try to keep using these volumes to perform the 
 migration by hand. 
 
-To wipe the volumes and re-create them as blank folders, run the following command:
+To re-create blank volume folders, run the following command:
 
 ```bash
-./bentoctl.bash pg-wipe
+./bentoctl.bash init-dirs
 ```
 
-This command may fail due to permissions issues, in which case you should remove the directories by hand.
-
-All database volume directories will now be empty.
+All database volume directories should now exist, but be empty.
 
 
 ## TODO

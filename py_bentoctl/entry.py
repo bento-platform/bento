@@ -318,13 +318,6 @@ class PgLoad(SubCommand):
         dh.pg_load(args.dir)
 
 
-class PgWipe(SubCommand):
-
-    @staticmethod
-    def exec(args):
-        dh.pg_wipe()
-
-
 class ConvertPhenopacket(SubCommand):
 
     @staticmethod
@@ -386,7 +379,6 @@ def main(args: Optional[list[str]] = None) -> int:
     #  - Postgres:
     _add_subparser("pg-dump", "Dump contents of all Postgres database containers to a directory.", PgDump)
     _add_subparser("pg-load", "Load contents of all Postgres database containers from a directory.", PgLoad)
-    _add_subparser("pg-wipe", "Wipe contents of all Postgres database volumes.", PgWipe)
 
     # Other commands
     _add_subparser("convert-pheno",

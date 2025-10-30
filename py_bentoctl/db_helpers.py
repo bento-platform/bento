@@ -1,5 +1,4 @@
 import os
-import shutil
 import socket
 
 from dataclasses import dataclass
@@ -66,6 +65,7 @@ def pg_dump(pgdump_dir: Path):
     pg_containers = _load_pg_db_containers()
 
     if not pgdump_dir.exists():
+        u.info(f"creating directory: {pgdump_dir}")
         pgdump_dir.mkdir(parents=True, exist_ok=True)
 
     if files := tuple(pgdump_dir.glob("*.pgdump")):
@@ -96,7 +96,7 @@ def pg_dump(pgdump_dir: Path):
                 if chunk_stdout:
                     fh.write(chunk_stdout)
 
-    # TODO: write success
+    u.info("done.")
 
 
 def pg_load(pgdump_dir: Path):
@@ -171,40 +171,3 @@ def pg_load(pgdump_dir: Path):
                 u.err(u.indent_str(str(response), 6))
         else:
             u.task_print_done("imported.")
-
-
-def pg_wipe():
-    """
-    Scary utility!! Wipes all Postgres database volumes.
-    """
-
-    confirm = input("Are you sure you want to wipe all Postgres database volumes? [y/N] ")
-
-    if confirm.lower() != "y":
-        u.info("terminating without destroying data.")
-        exit(0)
-
-    # Now we do the scary thing
-
-    containers = _load_pg_db_containers()
-
-    u.info(f"deleting contents of {len(containers)} Postgres volumes")
-    has_errors = False
-
-    for pg in containers:
-        u.task_print(f"    deleting {pg.container} database volume ({pg.vol_dir})...")
-        if not pg.vol_dir.exists():
-            u.task_print_done("already does not exist.", color="yellow")
-            continue
-        try:
-            shutil.rmtree(pg.vol_dir)
-        except PermissionError:
-            u.task_print_done("permission denied (please remove by hand).", color="red")
-            has_errors = True
-        pg.vol_dir.mkdir(exist_ok=True)
-        u.task_print_done()
-
-    if has_errors:
-        u.err("done with errors.")
-    else:
-        u.info("done.")
