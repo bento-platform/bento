@@ -206,7 +206,7 @@ DATA_DIR_ENV_VARS = {
     "gohan-elasticsearch": "BENTOV2_GOHAN_ES_DATA_DIR",
     "gohan-vcfs": "BENTOV2_GOHAN_API_VCF_PATH",
     "gohan-gtfs": "BENTOV2_GOHAN_API_GTF_PATH",
-    "katsu-db": "BENTOV2_KATSU_DB_PROD_VOL_DIR" if DEV_MODE else "BENTOV2_KATSU_DB_DEV_VOL_DIR",
+    "katsu-db": "BENTOV2_KATSU_DB_DEV_VOL_DIR" if DEV_MODE else "BENTOV2_KATSU_DB_PROD_VOL_DIR",
     "notification": "BENTOV2_NOTIFICATION_VOL_DIR",
     "redis": "BENTOV2_REDIS_VOL_DIR",
     "reference": "BENTO_REFERENCE_TMP_VOL_DIR",
