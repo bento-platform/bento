@@ -53,6 +53,8 @@ To wipe the volumes and re-create them as blank folders, run the following comma
 ./bentoctl.bash pg-wipe
 ```
 
+This command may fail due to permissions issues, in which case you should remove the directories by hand.
+
 All database volume directories will now be empty.
 
 
