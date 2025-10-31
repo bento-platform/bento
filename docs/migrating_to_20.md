@@ -16,6 +16,8 @@ databases in a folder of your choosing and will create the folder if needed. To 
 
 This will make `*.pgdump` files in a directory called `v19_to_v20` inside the `db_dumps` folder.
 
+> **Note:** You may get collation version mismatch warnings during the dump process. This should not affect anything.
+
 
 ## 2. Shut down Bento and pull new images
 
