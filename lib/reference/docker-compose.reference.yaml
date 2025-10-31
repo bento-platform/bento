@@ -44,7 +44,7 @@ services:
       - POSTGRES_PASSWORD=${BENTO_REFERENCE_DB_PASSWORD}
       - POSTGRES_DB=${BENTO_REFERENCE_DB_NAME}
     volumes:
-      - ${BENTO_REFERENCE_DB_VOL_DIR}:/var/lib/postgresql/data
+      - ${BENTO_REFERENCE_DB_VOL_DIR}:/var/lib/postgresql
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_REFERENCE_DB_NAME}", "-U", "${BENTO_REFERENCE_DB_USER}" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
