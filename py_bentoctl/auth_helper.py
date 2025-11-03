@@ -47,7 +47,7 @@ AGGREGATION_CLIENT_ID = os.getenv("BENTO_AGGREGATION_CLIENT_ID")
 CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
 
 WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
-WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT"))
+WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT", "172800"))
 
 GRAFANA_CLIENT_ID = os.getenv("BENTO_GRAFANA_CLIENT_ID")
 GRAFANA_PRIVATE_URL = os.getenv("BENTO_PRIVATE_GRAFANA_URL")
@@ -61,6 +61,7 @@ KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 MASTER_REALM = "master"
 
 ETL_CLIENT_ID = os.getenv("BENTO_ETL_CLIENT_ID")
+
 
 def get_admin_credentials() -> Tuple[str, str]:
     admin_user = AUTH_ADMIN_USER or input("Enter admin username: ").strip()
