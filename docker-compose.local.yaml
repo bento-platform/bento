@@ -79,6 +79,15 @@ services:
     volumes:
       - ./repos/wes:/wes
 
+  etl:
+    image: ${BENTO_ETL_IMAGE}:${BENTO_ETL_VERSION_DEV}
+    environment:
+        - BENTO_GIT_NAME
+        - BENTO_GIT_EMAIL
+        - BENTO_GIT_REPOSITORY_DIR=/etl
+    volumes:
+      - ./repos/etl:/etl
+
   drs:
     image: ${BENTOV2_DRS_IMAGE}:${BENTOV2_DRS_VERSION_DEV}
     environment:

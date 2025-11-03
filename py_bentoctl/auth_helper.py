@@ -47,7 +47,7 @@ AGGREGATION_CLIENT_ID = os.getenv("BENTO_AGGREGATION_CLIENT_ID")
 CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
 
 WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
-WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT"))
+WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT", "172800"))
 
 GRAFANA_CLIENT_ID = os.getenv("BENTO_GRAFANA_CLIENT_ID")
 GRAFANA_PRIVATE_URL = os.getenv("BENTO_PRIVATE_GRAFANA_URL")
@@ -59,6 +59,8 @@ KC_ADMIN_API_CLIENTS_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/clients"
 KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 
 MASTER_REALM = "master"
+
+ETL_CLIENT_ID = os.getenv("BENTO_ETL_CLIENT_ID")
 
 
 def get_admin_credentials() -> Tuple[str, str]:
@@ -465,6 +467,16 @@ def init_auth(docker_client: docker.DockerClient):
             role_rep = role_mappings_[subgroup["name"]]
             add_client_role_mapping_to_group_or_exit(token, group_rep, client_id, role_rep)
 
+    def create_etl_client_if_needed(token: str):
+        create_client_and_secret_for_service(
+            ETL_CLIENT_ID,
+            "BENTO_ETL_CLIENT_SECRET",
+            None,
+            token,
+            is_service_account=True,
+            to_restart="ETL",
+        )
+
     # Modifies the "roles" client scope mapper, so that client-level roles are included in the ID token
     def set_include_client_roles_in_id_tokens(token: str):
         # Retrieve the 'roles' client-scope
@@ -625,6 +637,10 @@ def init_auth(docker_client: docker.DockerClient):
 
     info(f"  Creating WES client: {WES_CLIENT_ID}")
     create_wes_client_if_needed(access_token)
+    success()
+
+    info(f"  Creating ETL client: {ETL_CLIENT_ID}")
+    create_etl_client_if_needed(access_token)
     success()
 
     if c.BENTO_FEATURE_MONITORING.enabled:

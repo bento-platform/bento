@@ -141,7 +141,7 @@ The following is a list of all host port allocations for Bento services in devel
 | Reference DB     | 9512 | `N/A`         |
 | Service Registry | 5010 | Unimplemented |
 | WES              | 9250 | 5680          |
-
+| ETL              | 6400 | 6456          |
 
 ## Local NPM package development
 

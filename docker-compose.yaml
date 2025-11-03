@@ -10,6 +10,7 @@ include:
       - lib/cbioportal/docker-compose.cbioportal.yaml  # Optional feature; controlled by a compose profile
       - lib/drop-box/docker-compose.drop-box.yaml
       - lib/drs/docker-compose.drs.yaml
+      - lib/etl/docker-compose.etl.yaml
       - lib/event-relay/docker-compose.event-relay.yaml
       - lib/gohan/docker-compose.gohan.yaml  # Optional feature; controlled by a compose profile
       - lib/katsu/docker-compose.katsu.yaml

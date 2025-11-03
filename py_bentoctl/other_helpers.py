@@ -251,6 +251,8 @@ def init_dirs():
         #  - Monitoring: Grafana/Loki
         **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
         **({"loki": "BENTO_LOKI_TEMP_DIR"} if c.BENTO_FEATURE_MONITORING else {}),
+        #  - ETL Service
+        **({"etl": "BENTO_ETL_VOL_DATA_DIR"} if c.BENTO_FEATURE_ETL else {})
     }
 
     # Some of these don't use the Bento user inside their containers, so ignore if need be
@@ -311,6 +313,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_CBIOPORTAL_SESSION_NETWORK", dict(driver="bridge")),
         ("BENTO_DROP_BOX_NETWORK", dict(driver="bridge")),
         ("BENTO_DRS_NETWORK", dict(driver="bridge")),
+        ("BENTO_ETL_NETWORK", dict(driver="bridge")),
         ("BENTO_EVENT_RELAY_NETWORK", dict(driver="bridge")),
         ("BENTO_GOHAN_API_NETWORK", dict(driver="bridge")),
         ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
