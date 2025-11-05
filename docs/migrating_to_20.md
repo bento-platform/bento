@@ -84,11 +84,24 @@ To restore the contents of Postgres databases, run the following:
 ./bentoctl.bash pg-load db_dumps/v19_to_v20
 ```
 
-**If everything succeeds**, run the following to delete the database dump, which contains sensitive information:
+**If everything succeeds**, run the following to delete the database dump, which contains sensitive information, as well
+as your backup copies of the database volumes:
 
 ```bash
 # ONLY IF EVERYTHING SUCCEEDS!
 rm -rf db_dumps/v19_to_v20
+# ---
+cd path/to/data
+rm -rf auth/data_old
+rm -rf authz/db_old
+rm -rf reference/data_old
+# The katsu DB directory to move depends on whether you're running in development or production mode. The following is 
+# for MODE=prod in local.env:
+rm -rf katsu/data_old
+# If you're running with MODE=dev in your local.env, run this instead:
+rm -rf katsu/dev/data_old
+# ---
+cd path/to/bento
 ```
 
 If the load fails for some reason, you will either need to re-ingest data by hand or rollback Postgres to another 
