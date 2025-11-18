@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# bentoctl - Global wrapper to run bentoctl from anywhere
+#
+# This script allows you to invoke bentoctl from any directory.
+# It changes to the BENTO_HOME directory and runs the actual bentoctl.bash script.
+
+# Determine the Bento installation directory
+# If BENTO_HOME is set, use it; otherwise, use the script's parent directory
+if [[ -z "${BENTO_HOME}" ]]; then
+    # Get the directory where this script is located (resolving symlinks)
+    SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+    BENTO_HOME="$(dirname "$(dirname "$SCRIPT_PATH")")"
+fi
+
+export BENTO_HOME
+
+# Validate that the directory exists
+if [[ ! -d "${BENTO_HOME}" ]]; then
+    echo "Error: BENTO_HOME directory not found: ${BENTO_HOME}" >&2
+    echo "Set BENTO_HOME environment variable to your bento installation path." >&2
+    exit 1
+fi
+
+# Validate that bentoctl.bash exists
+if [[ ! -f "${BENTO_HOME}/bentoctl.bash" ]]; then
+    echo "Error: bentoctl.bash not found in ${BENTO_HOME}" >&2
+    exit 1
+fi
+
+# Change to the Bento directory and execute the script
+cd "${BENTO_HOME}" || exit 1
+
+# Activate virtual environment if it exists
+if [[ -f "${BENTO_HOME}/env/bin/activate" ]]; then
+    source "${BENTO_HOME}/env/bin/activate"
+fi
+
+# Execute the actual bentoctl script with all arguments
+exec ./bentoctl.bash "$@"

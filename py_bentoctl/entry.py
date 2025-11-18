@@ -3,6 +3,8 @@ import argparse
 import subprocess
 import sys
 
+import argcomplete
+
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -402,6 +404,7 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("logs", "Check logs for a service.", Logs)
     _add_subparser("compose-config", "Generate Compose config YAML.", ComposeConfig)
 
+    argcomplete.autocomplete(parser)
     p_args = parser.parse_args(args)
 
     if not getattr(p_args, "func", None):
