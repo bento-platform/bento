@@ -2,12 +2,6 @@
 
 This guide explains how to install `bentoctl` so it can be run from any directory with shell autocompletions.
 
-## Prerequisites
-
-- Python 3.7+
-- A Bento installation at `/path/to/bento`
-- Virtual environment with dependencies installed
-
 ## Installation Steps
 
 ### 1. Install Python Dependencies
@@ -23,12 +17,14 @@ pip install -r requirements.txt
 Choose one of the following locations:
 
 **User-local (recommended, no sudo required):**
+
 ```bash
 mkdir -p ~/.local/bin
 ln -sf /path/to/bento/bin/bentoctl ~/.local/bin/bentoctl
 ```
 
 **System-wide:**
+
 ```bash
 sudo ln -sf /path/to/bento/bin/bentoctl /usr/local/bin/bentoctl
 ```
@@ -63,12 +59,26 @@ fpath=(/path/to/bento/completions $fpath)
 autoload -Uz compinit && compinit
 ```
 
-#### Bash
+#### Bash (with argcomplete - recommended)
 
 Add to `~/.bashrc`:
 
 ```bash
+# bentoctl completions
 eval "$(register-python-argcomplete bentoctl)"
+```
+
+#### Bash (with static completions - alternative)
+
+Copy the completion script to the bash-completion directory:
+
+```bash
+# System-wide
+sudo cp /path/to/bento/completions/bentoctl.bash /etc/bash_completion.d/bentoctl
+
+# Or user-local
+mkdir -p ~/.local/share/bash-completion/completions
+cp /path/to/bento/completions/bentoctl.bash ~/.local/share/bash-completion/completions/bentoctl
 ```
 
 ### 5. Reload Shell
@@ -111,6 +121,7 @@ alias bentoctl-staging='BENTO_HOME=/path/to/staging bentoctl'
 ### Command not found
 
 Ensure `~/.local/bin` is in your PATH:
+
 ```bash
 echo $PATH | grep -q ".local/bin" && echo "OK" || echo "Add ~/.local/bin to PATH"
 ```
@@ -118,6 +129,7 @@ echo $PATH | grep -q ".local/bin" && echo "OK" || echo "Add ~/.local/bin to PATH
 ### Completions not working
 
 1. Verify argcomplete is installed:
+
    ```bash
    pip show argcomplete
    ```
@@ -132,6 +144,7 @@ echo $PATH | grep -q ".local/bin" && echo "OK" || echo "Add ~/.local/bin to PATH
 ### Wrong Bento directory
 
 The wrapper script auto-detects `BENTO_HOME` from the symlink location. To override:
+
 ```bash
 export BENTO_HOME=/path/to/your/bento
 ```
