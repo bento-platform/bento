@@ -1,5 +1,6 @@
 from __future__ import annotations
 import argparse
+import os
 import subprocess
 import sys
 
@@ -7,16 +8,91 @@ import argcomplete
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-
-from .auth_helper import init_auth
-from . import config as c
-from . import db_helpers as dh
-from . import feature_helpers as fh
-from . import services as s
-from . import other_helpers as oh
-from . import utils as u
-
 from typing import Optional, Tuple, Type
+
+# Lazy imports - these modules are heavy and slow down tab completion
+# They will be imported on first use in the functions that need them
+_config = None
+_db_helpers = None
+_feature_helpers = None
+_services = None
+_other_helpers = None
+_utils = None
+_auth_helper = None
+
+
+def _get_config():
+    global _config
+    if _config is None:
+        from . import config as c
+        _config = c
+    return _config
+
+
+def _get_db_helpers():
+    global _db_helpers
+    if _db_helpers is None:
+        from . import db_helpers as dh
+        _db_helpers = dh
+    return _db_helpers
+
+
+def _get_feature_helpers():
+    global _feature_helpers
+    if _feature_helpers is None:
+        from . import feature_helpers as fh
+        _feature_helpers = fh
+    return _feature_helpers
+
+
+def _get_services():
+    global _services
+    if _services is None:
+        from . import services as s
+        _services = s
+    return _services
+
+
+def _get_other_helpers():
+    global _other_helpers
+    if _other_helpers is None:
+        from . import other_helpers as oh
+        _other_helpers = oh
+    return _other_helpers
+
+
+def _get_utils():
+    global _utils
+    if _utils is None:
+        from . import utils as u
+        _utils = u
+    return _utils
+
+
+def _get_auth_helper():
+    global _auth_helper
+    if _auth_helper is None:
+        from .auth_helper import init_auth
+        _auth_helper = init_auth
+    return _auth_helper
+
+
+# Static service lists for fast completions (these don't require loading config)
+# These are used during tab completion to avoid loading the heavy config module
+STATIC_ALL_SERVICES = (
+    "all", "aggregation", "auth", "auth-db", "authz", "authz-db", "beacon",
+    "cbioportal", "drs", "drop-box", "event-relay", "gateway", "gohan",
+    "gohan-api", "gohan-elasticsearch", "katsu", "katsu-db", "notification",
+    "public", "redis", "reference", "reference-db", "service-registry", "web", "wes"
+)
+
+STATIC_WORKABLE_SERVICES = (
+    "aggregation", "authz", "beacon", "drs", "drop-box", "event-relay",
+    "gateway", "gohan-api", "katsu", "notification", "public", "reference",
+    "service-registry", "web", "wes"
+)
+
+STATIC_MULTI_SERVICE_PREFIXES = ("gohan",)
 
 
 class SubCommand(ABC):
@@ -35,7 +111,7 @@ class InitAuth(SubCommand):
 
     @staticmethod
     def exec(args):
-        init_auth(docker_client=u.get_docker_client())
+        _get_auth_helper()(docker_client=_get_utils().get_docker_client())
 
 
 class Run(SubCommand):
@@ -43,17 +119,19 @@ class Run(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
+            "service", type=str, nargs="?", default="all", choices=STATIC_ALL_SERVICES,
             help="Service to run, or 'all' to run everything.")
         sp.add_argument("--pull", "-p", action="store_true", help="Try to pull the corresponding service image first.")
 
     @staticmethod
     def exec(args):
+        c = _get_config()
+        s = _get_services()
         if args.pull:
             s.pull_service(args.service)
 
         if c.BENTO_FEATURE_CBIOPORTAL.enabled:
-            fh.init_cbioportal()
+            _get_feature_helpers().init_cbioportal()
 
         s.run_service(args.service)
 
@@ -63,12 +141,12 @@ class Stop(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
+            "service", type=str, nargs="?", default="all", choices=STATIC_ALL_SERVICES,
             help="Service to stop, or 'all' to stop everything.")
 
     @staticmethod
     def exec(args):
-        s.stop_service(args.service)
+        _get_services().stop_service(args.service)
 
 
 class Restart(SubCommand):
@@ -76,7 +154,7 @@ class Restart(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
+            "service", type=str, nargs="?", default="all", choices=STATIC_ALL_SERVICES,
             help="Service to restart, or 'all' to restart everything.")
         sp.add_argument(
             "--pull", "-p", action="store_true",
@@ -84,6 +162,7 @@ class Restart(SubCommand):
 
     @staticmethod
     def exec(args):
+        s = _get_services()
         if args.pull:
             s.pull_service(args.service)
         s.restart_service(args.service)
@@ -94,23 +173,23 @@ class Clean(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
+            "service", type=str, nargs="?", default="all", choices=STATIC_ALL_SERVICES,
             help="Service to clean, or 'all' to clean everything.")
 
     @staticmethod
     def exec(args):
-        s.clean_service(args.service)
+        _get_services().clean_service(args.service)
 
 
 class WorkOn(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("service", type=str, choices=tuple(c.BENTO_SERVICES_DATA.keys()), help="Service to work on.")
+        sp.add_argument("service", type=str, choices=STATIC_WORKABLE_SERVICES, help="Service to work on.")
 
     @staticmethod
     def exec(args):
-        s.work_on_service(args.service)
+        _get_services().work_on_service(args.service)
 
 
 class Prebuilt(SubCommand):
@@ -118,12 +197,12 @@ class Prebuilt(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=c.BENTO_SERVICES_COMPOSE_IDS_PLUS_ALL,
+            "service", type=str, choices=STATIC_ALL_SERVICES,
             help="Service to switch to pre-built mode (will use an entirely pre-built image with code).")
 
     @staticmethod
     def exec(args):
-        s.prod_service(args.service)
+        _get_services().prod_service(args.service)
 
 
 class Mode(SubCommand):
@@ -131,13 +210,13 @@ class Mode(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL,
-            choices=c.BENTO_SERVICES_COMPOSE_IDS_PLUS_ALL,
+            "service", type=str, nargs="?", default="all",
+            choices=STATIC_ALL_SERVICES,
             help="Displays the current mode of the service(s).")
 
     @staticmethod
     def exec(args):
-        s.mode_service(args.service)
+        _get_services().mode_service(args.service)
 
 
 class Pull(SubCommand):
@@ -145,20 +224,22 @@ class Pull(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL,
-            choices=(*c.DOCKER_COMPOSE_SERVICES, *c.MULTI_SERVICE_PREFIXES, c.SERVICE_LITERAL_ALL),
+            "service", type=str, nargs="?", default="all",
+            choices=STATIC_ALL_SERVICES,
             help="Service to pull image for.")
 
     @staticmethod
     def exec(args):
-        s.pull_service(args.service)
+        _get_services().pull_service(args.service)
 
 
 class Shell(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("service", type=str, choices=c.DOCKER_COMPOSE_SERVICES, help="Service to enter a shell for.")
+        # Exclude "all" from shell choices - can only shell into one service
+        shell_services = tuple(s for s in STATIC_ALL_SERVICES if s != "all")
+        sp.add_argument("service", type=str, choices=shell_services, help="Service to enter a shell for.")
         sp.add_argument(
             "--shell", "-s",
             default="/bin/bash", type=str, choices=("/bin/bash", "/bin/sh"),
@@ -166,14 +247,16 @@ class Shell(SubCommand):
 
     @staticmethod
     def exec(args):
-        s.enter_shell_for_service(args.service, args.shell)
+        _get_services().enter_shell_for_service(args.service, args.shell)
 
 
 class RunShell(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("service", type=str, choices=c.DOCKER_COMPOSE_SERVICES, help="Service to run a shell for.")
+        # Exclude "all" from shell choices - can only shell into one service
+        shell_services = tuple(s for s in STATIC_ALL_SERVICES if s != "all")
+        sp.add_argument("service", type=str, choices=shell_services, help="Service to run a shell for.")
         sp.add_argument(
             "--shell", "-s",
             default="/bin/bash", type=str, choices=("/bin/bash", "/bin/sh"),
@@ -181,7 +264,7 @@ class RunShell(SubCommand):
 
     @staticmethod
     def exec(args):
-        s.run_as_shell_for_service(args.service, args.shell)
+        _get_services().run_as_shell_for_service(args.service, args.shell)
 
 
 class Logs(SubCommand):
@@ -189,7 +272,7 @@ class Logs(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
+            "service", type=str, nargs="?", default="all", choices=STATIC_ALL_SERVICES,
             help="Service to check logs of.")
         sp.add_argument(
             "--follow", "-f", action="store_true",
@@ -197,7 +280,7 @@ class Logs(SubCommand):
 
     @staticmethod
     def exec(args):
-        s.logs_service(args.service, args.follow)
+        _get_services().logs_service(args.service, args.follow)
 
 
 class ComposeConfig(SubCommand):
@@ -208,7 +291,7 @@ class ComposeConfig(SubCommand):
 
     @staticmethod
     def exec(args):
-        s.compose_config(args.services)
+        _get_services().compose_config(args.services)
 
 
 # Other helpers
@@ -217,7 +300,7 @@ class InitDirs(SubCommand):
 
     @staticmethod
     def exec(args):
-        oh.init_dirs()
+        _get_other_helpers().init_dirs()
 
 
 class InitCerts(SubCommand):
@@ -230,14 +313,14 @@ class InitCerts(SubCommand):
 
     @staticmethod
     def exec(args):
-        oh.init_self_signed_certs(args.force)
+        _get_other_helpers().init_self_signed_certs(args.force)
 
 
 class InitDocker(SubCommand):
 
     @staticmethod
     def exec(args):
-        oh.init_docker(client=u.get_docker_client())
+        _get_other_helpers().init_docker(client=_get_utils().get_docker_client())
 
 
 class InitWeb(SubCommand):
@@ -252,14 +335,14 @@ class InitWeb(SubCommand):
 
     @staticmethod
     def exec(args):
-        oh.init_web(args.service, args.force)
+        _get_other_helpers().init_web(args.service, args.force)
 
 
 class InitCBioPortal(SubCommand):
 
     @staticmethod
     def exec(args):
-        fh.init_cbioportal()
+        _get_feature_helpers().init_cbioportal()
 
 
 class InitAll(SubCommand):
@@ -270,13 +353,14 @@ class InitAll(SubCommand):
 
     @staticmethod
     def exec(args):
+        oh = _get_other_helpers()
         oh.init_self_signed_certs(force=False)
         oh.init_dirs()
-        oh.init_docker(client=u.get_docker_client())
+        oh.init_docker(client=_get_utils().get_docker_client())
         oh.init_web("private", force=False)
         oh.init_web("public", force=False)
-        if c.BENTO_FEATURE_CBIOPORTAL.enabled:
-            fh.init_cbioportal()
+        if _get_config().BENTO_FEATURE_CBIOPORTAL.enabled:
+            _get_feature_helpers().init_cbioportal()
 
 
 class InitConfig(SubCommand):
@@ -295,7 +379,7 @@ class InitConfig(SubCommand):
 
     @staticmethod
     def exec(args):
-        oh.init_config(args.service, args.force)
+        _get_other_helpers().init_config(args.service, args.force)
 
 
 class PgDump(SubCommand):
@@ -306,7 +390,7 @@ class PgDump(SubCommand):
 
     @staticmethod
     def exec(args):
-        dh.pg_dump(args.dir)
+        _get_db_helpers().pg_dump(args.dir)
 
 
 class PgLoad(SubCommand):
@@ -317,7 +401,7 @@ class PgLoad(SubCommand):
 
     @staticmethod
     def exec(args):
-        dh.pg_load(args.dir)
+        _get_db_helpers().pg_load(args.dir)
 
 
 class ConvertPhenopacket(SubCommand):
@@ -333,7 +417,7 @@ class ConvertPhenopacket(SubCommand):
         # import asyncio
         # TODO: re-convert to async
         # asyncio.run(oh.convert_phenopacket_file(args.source, args.target))
-        oh.convert_phenopacket_file(args.source, args.target)
+        _get_other_helpers().convert_phenopacket_file(args.source, args.target)
 
 
 def main(args: Optional[list[str]] = None) -> int:
