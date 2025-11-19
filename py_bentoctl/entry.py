@@ -1,6 +1,5 @@
 from __future__ import annotations
 import argparse
-import os
 import subprocess
 import sys
 
@@ -77,13 +76,15 @@ def _get_auth_helper():
     return _auth_helper
 
 
-# Static service lists for fast completions (these don't require loading config)
+# Static service lists for fast completions
+# (these don't require loading config)
 # These are used during tab completion to avoid loading the heavy config module
 STATIC_ALL_SERVICES = (
     "all", "aggregation", "auth", "auth-db", "authz", "authz-db", "beacon",
     "cbioportal", "drs", "drop-box", "event-relay", "gateway", "gohan",
     "gohan-api", "gohan-elasticsearch", "katsu", "katsu-db", "notification",
-    "public", "redis", "reference", "reference-db", "service-registry", "web", "wes"
+    "public", "redis", "reference", "reference-db", "service-registry",
+    "web", "wes"
 )
 
 STATIC_WORKABLE_SERVICES = (
@@ -119,9 +120,12 @@ class Run(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=STATIC_ALL_SERVICES,
+            "service", type=str, nargs="?", default="all",
+            choices=STATIC_ALL_SERVICES,
             help="Service to run, or 'all' to run everything.")
-        sp.add_argument("--pull", "-p", action="store_true", help="Try to pull the corresponding service image first.")
+        sp.add_argument(
+            "--pull", "-p", action="store_true",
+            help="Try to pull the corresponding service image first.")
 
     @staticmethod
     def exec(args):
@@ -141,7 +145,8 @@ class Stop(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=STATIC_ALL_SERVICES,
+            "service", type=str, nargs="?", default="all",
+            choices=STATIC_ALL_SERVICES,
             help="Service to stop, or 'all' to stop everything.")
 
     @staticmethod
@@ -154,7 +159,8 @@ class Restart(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=STATIC_ALL_SERVICES,
+            "service", type=str, nargs="?", default="all",
+            choices=STATIC_ALL_SERVICES,
             help="Service to restart, or 'all' to restart everything.")
         sp.add_argument(
             "--pull", "-p", action="store_true",
@@ -173,7 +179,8 @@ class Clean(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=STATIC_ALL_SERVICES,
+            "service", type=str, nargs="?", default="all",
+            choices=STATIC_ALL_SERVICES,
             help="Service to clean, or 'all' to clean everything.")
 
     @staticmethod
@@ -185,7 +192,9 @@ class WorkOn(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("service", type=str, choices=STATIC_WORKABLE_SERVICES, help="Service to work on.")
+        sp.add_argument(
+            "service", type=str, choices=STATIC_WORKABLE_SERVICES,
+            help="Service to work on.")
 
     @staticmethod
     def exec(args):
@@ -198,7 +207,7 @@ class Prebuilt(SubCommand):
     def add_args(sp):
         sp.add_argument(
             "service", type=str, choices=STATIC_ALL_SERVICES,
-            help="Service to switch to pre-built mode (will use an entirely pre-built image with code).")
+            help="Service to switch to pre-built mode.")
 
     @staticmethod
     def exec(args):
@@ -238,8 +247,11 @@ class Shell(SubCommand):
     @staticmethod
     def add_args(sp):
         # Exclude "all" from shell choices - can only shell into one service
-        shell_services = tuple(s for s in STATIC_ALL_SERVICES if s != "all")
-        sp.add_argument("service", type=str, choices=shell_services, help="Service to enter a shell for.")
+        shell_services = tuple(
+            s for s in STATIC_ALL_SERVICES if s != "all")
+        sp.add_argument(
+            "service", type=str, choices=shell_services,
+            help="Service to enter a shell for.")
         sp.add_argument(
             "--shell", "-s",
             default="/bin/bash", type=str, choices=("/bin/bash", "/bin/sh"),
@@ -255,8 +267,11 @@ class RunShell(SubCommand):
     @staticmethod
     def add_args(sp):
         # Exclude "all" from shell choices - can only shell into one service
-        shell_services = tuple(s for s in STATIC_ALL_SERVICES if s != "all")
-        sp.add_argument("service", type=str, choices=shell_services, help="Service to run a shell for.")
+        shell_services = tuple(
+            s for s in STATIC_ALL_SERVICES if s != "all")
+        sp.add_argument(
+            "service", type=str, choices=shell_services,
+            help="Service to run a shell for.")
         sp.add_argument(
             "--shell", "-s",
             default="/bin/bash", type=str, choices=("/bin/bash", "/bin/sh"),
@@ -272,11 +287,12 @@ class Logs(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, nargs="?", default="all", choices=STATIC_ALL_SERVICES,
+            "service", type=str, nargs="?", default="all",
+            choices=STATIC_ALL_SERVICES,
             help="Service to check logs of.")
         sp.add_argument(
             "--follow", "-f", action="store_true",
-            help="Whether to follow the logs (keep them open and show new entries).")
+            help="Follow logs (keep open and show new entries).")
 
     @staticmethod
     def exec(args):
@@ -287,7 +303,9 @@ class ComposeConfig(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("--services", action="store_true", help="List services seen by Compose.")
+        sp.add_argument(
+            "--services", action="store_true",
+            help="List services seen by Compose.")
 
     @staticmethod
     def exec(args):
@@ -309,7 +327,7 @@ class InitCerts(SubCommand):
     def add_args(sp):
         sp.add_argument(
             "--force", "-f", action="store_true",
-            help="Removes all previously created certs and keys before creating new ones.")
+            help="Remove existing certs and keys before creating new ones.")
 
     @staticmethod
     def exec(args):
@@ -320,7 +338,8 @@ class InitDocker(SubCommand):
 
     @staticmethod
     def exec(args):
-        _get_other_helpers().init_docker(client=_get_utils().get_docker_client())
+        client = _get_utils().get_docker_client()
+        _get_other_helpers().init_docker(client=client)
 
 
 class InitWeb(SubCommand):
@@ -328,7 +347,8 @@ class InitWeb(SubCommand):
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=["public", "private"], help="Prepares the web applications for deployment.")
+            "service", type=str, choices=["public", "private"],
+            help="Prepares the web applications for deployment.")
         sp.add_argument(
             "--force", "-f", action="store_true",
             help="Overwrites any existing branding/translation/etc.")
@@ -386,7 +406,9 @@ class PgDump(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("dir", type=Path, help="Path to a new directory for the database dump files.")
+        sp.add_argument(
+            "dir", type=Path,
+            help="Path to a new directory for the database dump files.")
 
     @staticmethod
     def exec(args):
@@ -397,7 +419,9 @@ class PgLoad(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("dir", type=Path, help="Path to a directory to load the database dump files from.")
+        sp.add_argument(
+            "dir", type=Path,
+            help="Path to a directory to load database dump files from.")
 
     @staticmethod
     def exec(args):
@@ -408,9 +432,12 @@ class ConvertPhenopacket(SubCommand):
 
     @staticmethod
     def add_args(sp):
-        sp.add_argument("source", type=str, help="Source Phenopackets V1 JSON document to convert")
-        sp.add_argument("target", nargs="?", default=None, type=str,
-                        help="Optional target file path where to place the converted Phenopackets")
+        sp.add_argument(
+            "source", type=str,
+            help="Source Phenopackets V1 JSON document to convert")
+        sp.add_argument(
+            "target", nargs="?", default=None, type=str,
+            help="Target file path for converted Phenopackets")
 
     @staticmethod
     def exec(args):
@@ -435,58 +462,83 @@ def main(args: Optional[list[str]] = None) -> int:
         print("break on this line")
 
     parser = argparse.ArgumentParser(
-        description="Tools for managing a Bento deployment (development or production).",
+        description="Tools for managing a Bento deployment.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--debug", "-d", action="store_true")
     subparsers = parser.add_subparsers()
 
-    def _add_subparser(arg: str, help_text: str, subcommand: Type[SubCommand], aliases: Tuple[str, ...] = ()):
-        subparser = subparsers.add_parser(arg, help=help_text, aliases=aliases)
+    def _add_subparser(
+        arg: str,
+        help_text: str,
+        subcommand: Type[SubCommand],
+        aliases: Tuple[str, ...] = ()
+    ):
+        subparser = subparsers.add_parser(
+            arg, help=help_text, aliases=aliases)
         subparser.set_defaults(func=subcommand.exec)
         subcommand.add_args(subparser)
 
     # Generic initialization helpers
-    _add_subparser("init-dirs", "Initialize directories for BentoV2 structure.", InitDirs)
-    _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
-    _add_subparser("init-certs", "Initialize ssl certificates for BentoV2 gateway domains.", InitCerts)
-    _add_subparser("init-docker", "Initialize Docker configuration & networks.", InitDocker)
-    _add_subparser("init-web", "Init web app (public or private) files", InitWeb)
+    _add_subparser(
+        "init-dirs", "Initialize directories for BentoV2.", InitDirs)
+    _add_subparser(
+        "init-auth", "Configure authentication with Keycloak.", InitAuth)
+    _add_subparser(
+        "init-certs", "Initialize SSL certificates for gateway.", InitCerts)
+    _add_subparser(
+        "init-docker", "Initialize Docker config & networks.", InitDocker)
+    _add_subparser(
+        "init-web", "Init web app (public or private) files", InitWeb)
     _add_subparser(
         "init-all",
-        "Initialize certs, directories, Docker networks, secrets, and web portals. DOES NOT initialize Keycloak.",
+        "Initialize certs, dirs, Docker, web. NOT Keycloak.",
         InitAll)
-    _add_subparser("init-config", "Initialize configuration files for specific services.", InitConfig)
+    _add_subparser(
+        "init-config", "Initialize config files for services.", InitConfig)
 
     # Feature-specific initialization commands
-    _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
+    _add_subparser(
+        "init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
 
     # Database commands
     #  - Postgres:
-    _add_subparser("pg-dump", "Dump contents of all Postgres database containers to a directory.", PgDump)
-    _add_subparser("pg-load", "Load contents of all Postgres database containers from a directory.", PgLoad)
+    _add_subparser(
+        "pg-dump", "Dump Postgres databases to directory.", PgDump)
+    _add_subparser(
+        "pg-load", "Load Postgres databases from directory.", PgLoad)
 
     # Other commands
-    _add_subparser("convert-pheno",
-                   "Convert a Phenopacket V1 JSON document to V2", ConvertPhenopacket, aliases=("conv",))
+    _add_subparser(
+        "convert-pheno", "Convert Phenopacket V1 to V2",
+        ConvertPhenopacket, aliases=("conv",))
 
     # Service commands
-    _add_subparser("run", "Run Bento services.", Run, aliases=("start", "up"))
-    _add_subparser("stop", "Stop Bento services.", Stop, aliases=("down",))
+    _add_subparser(
+        "run", "Run Bento services.", Run, aliases=("start", "up"))
+    _add_subparser(
+        "stop", "Stop Bento services.", Stop, aliases=("down",))
     _add_subparser("restart", "Restart Bento services.", Restart)
     _add_subparser("clean", "Clean services.", Clean)
     _add_subparser(
-        "work-on", "Work on a specific service in a local development mode.", WorkOn,
+        "work-on", "Work on service in local dev mode.", WorkOn,
         aliases=("dev", "develop", "local"))
-    _add_subparser("prebuilt", "Switch a service back to prebuilt mode.", Prebuilt, aliases=("pre-built", "prod"))
     _add_subparser(
-        "mode", "See if a service (or which services) are in production/development mode.", Mode,
+        "prebuilt", "Switch service to prebuilt mode.", Prebuilt,
+        aliases=("pre-built", "prod"))
+    _add_subparser(
+        "mode", "See service mode (local/prebuilt).", Mode,
         aliases=("state", "status"))
-    _add_subparser("pull", "Pull the image for a specific service.", Pull)
-    _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=("sh",))
-    _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
+    _add_subparser(
+        "pull", "Pull the image for a service.", Pull)
+    _add_subparser(
+        "shell", "Shell into running service container.", Shell,
+        aliases=("sh",))
+    _add_subparser(
+        "run-as-shell", "Shell into stopped service container.", RunShell)
     _add_subparser("logs", "Check logs for a service.", Logs)
-    _add_subparser("compose-config", "Generate Compose config YAML.", ComposeConfig)
+    _add_subparser(
+        "compose-config", "Generate Compose config YAML.", ComposeConfig)
 
     argcomplete.autocomplete(parser)
     p_args = parser.parse_args(args)
