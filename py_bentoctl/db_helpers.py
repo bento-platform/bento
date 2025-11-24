@@ -13,6 +13,8 @@ __all__ = [
 
 # Each entry here is a three-tuple of the following:
 #  - An environment variable prefix (which standard suffixes are appended to)
+#  - A optional feature associated with the database container, meaning the container may not be started at all
+#  - A key associated with the volume for the database container, to be looked up in c.DATA_DIR_ENV_VARS
 POSTGRES_DB_CONTAINERS: tuple[tuple[str, c.BentoOptionalFeature | None, str], ...] = (
     ("BENTO_AUTH_DB", c.BENTO_FEATURE_AUTH, "auth"),
     ("BENTO_AUTHZ_DB", None, "authz-db"),
