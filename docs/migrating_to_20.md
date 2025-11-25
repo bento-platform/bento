@@ -1,8 +1,15 @@
 # Migrating to Bento v20
 
+Bento version 20 includes enhancements to the Bento Public researcher portal user interface, full-text clin./phen. 
+metadata search, and more. 
+
+It also migrates to Postgres v18 from a mix of v13 and v16. Most of the steps below describe how to migrate the 
+database containers, and it is **very important** that they are followed closely!
+
 > [!IMPORTANT]
 > Before beginning these steps, make sure you have **checked out** `releases/v20` on Git, but **NOT** pulled any new 
 > Docker images yet!
+
 
 ## 1. Dump all Postgres databases
 
