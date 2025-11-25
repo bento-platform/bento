@@ -106,3 +106,17 @@ cd path/to/bento
 
 If the load fails for some reason, you will either need to re-ingest data by hand or rollback Postgres to another 
 version and try to load the database dump files.
+
+
+## TODO. Populate Katsu's full-text search fields
+
+For Katsu's new faster full-text search to work properly, a command needs to be run to populate some fields in the 
+database when Katsu is migrated from a previous version (for some technical reasons, this could not be automatically 
+done with a Django migration.)
+
+To populate these fields, you will need to enter the Katsu shell and run a command:
+
+```bash
+./bentoctl.bash shell katsu
+./manage.py populate_fts
+```
