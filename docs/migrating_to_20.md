@@ -11,7 +11,27 @@ database containers, and it is **very important** that they are followed closely
 > Docker images yet!
 
 
-## 1. Dump all Postgres databases
+## 1. Update `bentoctl` requirements
+
+First, update `bentoctl` dependencies: 
+
+```bash
+source env/bin/activate
+pip install -U pip
+pip install -r requirements.txt
+```
+
+
+## 2. Clean up old Docker images (if needed)
+
+While the system is still running, run the following command to reclaim space by deleting old Docker resources:
+
+```bash
+docker system prune -a
+```
+
+
+## 3. Dump all Postgres databases
 
 To upgrade to the latest version of Postgres, we need to exfiltrate and then re-load all data, since major upgrades are
 not well-supported by the Postgres Docker image (although Postgres v17+ seems to be making headway here.)
@@ -32,15 +52,18 @@ This will make `*.pgdump` files in a directory called `v19_to_v20` inside the `d
 > Make sure to check the contents of the database dump files to make sure they have **your actual data** in them!
 
 
-## 2. Shut down Bento and pull new images
+## 4. Shut down Bento and pull new images
 
 ```bash
 ./bentoctl.bash stop
 ./bentoctl.bash pull
 ```
 
+> [!IMPORTANT]
+> Do not start the containers yet!
 
-## 3. Remove old database volumes
+
+## 5. Remove old database volumes
 
 As described in [step 1](#1-dump-all-postgres-databases), we need to delete and re-create the database volumes in order
 to upgrade the major Postgres version of the database containers. Here, we delete the contents of the old database 
@@ -75,14 +98,14 @@ To re-create blank volume folders, run the following command:
 All database volume directories should now exist, but be empty.
 
 
-## 4. Restart Bento
+## 6. Restart Bento
 
 ```bash
 ./bentoctl.bash start
 ```
 
 
-## 5. Restore database contents
+## 7. Restore database contents
 
 To restore the contents of Postgres databases, run the following:
 
@@ -111,10 +134,20 @@ cd path/to/bento
 ```
 
 If the load fails for some reason, you will either need to re-ingest data by hand or rollback Postgres to another 
-version and try to load the database dump files.
+version and try to load the database dump files.\
 
 
-## 6. Populate Katsu's full-text search fields
+## 8. Restart Katsu to migrate the database
+
+The database load will reset the database to a version before any migrations associated with Bento v20. We need to 
+re-restart Katsu to perform these migrations in the Postgres 18 `katsu-db` container:
+
+```bash
+./bentoctl.bash restart katsu
+```
+
+
+## 9. Populate Katsu's full-text search fields
 
 For Katsu's new faster full-text search to work properly, a command needs to be run to populate some fields in the 
 database when Katsu is migrated from a previous version (for some technical reasons, this could not be automatically 
