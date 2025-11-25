@@ -250,7 +250,10 @@ def init_dirs():
             exit(1)
 
         data_dir_path.mkdir(parents=True, exist_ok=True)
-        task_print_done(msg="already exists." if already_exists else "done.")
+        task_print_done(
+            msg="already exists." if already_exists else "done.",
+            color="blue" if already_exists else "green",
+        )
 
 
 def init_docker(client: docker.DockerClient):
