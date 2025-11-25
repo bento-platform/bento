@@ -138,7 +138,10 @@ def pg_load(pgdump_dir: Path):
             initial_messages = s.recv(1024 * 100)
             if initial_messages:
                 u.warn("    receieved initial messages:")
-                u.warn(u.indent_str(process_ansi(initial_messages).decode("ascii"), 6))
+                try:
+                    u.warn(u.indent_str(process_ansi(initial_messages).decode("ascii"), 6))
+                except UnicodeDecodeError:  # handle any response we don't correctly deal with above in our processing
+                    u.warn(u.indent_str(str(initial_messages), 6))
         except TimeoutError:
             # Warning: this is a bit brittle.
             # We assume that if we time out while receiving any initial messages from the socket, we didn't receive any
