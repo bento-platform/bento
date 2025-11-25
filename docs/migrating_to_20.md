@@ -1,6 +1,8 @@
 # Migrating to Bento v20
 
-TODO
+> [!IMPORTANT]
+> Before beginning these steps, make sure you have **checked out** `releases/v20` on Git, but **NOT** pulled any new 
+> Docker images yet!
 
 ## 1. Dump all Postgres databases
 
@@ -66,17 +68,14 @@ To re-create blank volume folders, run the following command:
 All database volume directories should now exist, but be empty.
 
 
-## TODO
-
-
-## TODO. Restart Bento
+## 4. Restart Bento
 
 ```bash
 ./bentoctl.bash start
 ```
 
 
-## TODO. Restore database contents
+## 5. Restore database contents
 
 To restore the contents of Postgres databases, run the following:
 
@@ -108,7 +107,7 @@ If the load fails for some reason, you will either need to re-ingest data by han
 version and try to load the database dump files.
 
 
-## TODO. Populate Katsu's full-text search fields
+## 6. Populate Katsu's full-text search fields
 
 For Katsu's new faster full-text search to work properly, a command needs to be run to populate some fields in the 
 database when Katsu is migrated from a previous version (for some technical reasons, this could not be automatically 
