@@ -65,7 +65,7 @@ This will make `*.pgdump` files in a directory called `v19_to_v20` inside the `d
 
 ## 5. Remove old database volumes
 
-As described in [step 1](#1-dump-all-postgres-databases), we need to delete and re-create the database volumes in order
+As described in [step 3](#3-dump-all-postgres-databases), we need to delete and re-create the database volumes in order
 to upgrade the major Postgres version of the database containers. Here, we delete the contents of the old database 
 volumes in order to prepare for fresh ones.
 
@@ -159,3 +159,20 @@ To populate these fields, you will need to enter the Katsu shell and run a comma
 ./bentoctl.bash shell katsu
 ./manage.py populate_fts
 ```
+
+
+## 10. Migrate the reference service database
+
+The reference service has a small SQL migration which must be run inside the `reference-db` container. This migration
+fixes an issue where known GFF3 feature types could exceed the maximum length of the field in the database.
+
+To run the SQL migration, first run the following commands:
+
+```bash
+./bentoctl.bash shell reference-db
+psql -U "$POSTGRES_USER" "$POSTGRES_DB"
+```
+
+Then, paste the contents of the reference service 
+[`migrate_v0_6.sql`](https://github.com/bento-platform/bento_reference_service/blob/main/bento_reference_service/sql/migrate_v0_6.sql) 
+file into the prompt.
