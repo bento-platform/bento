@@ -118,7 +118,6 @@ def pg_load(pgdump_dir: Path):
 
         if not container_pgdump_to_load.exists():
             u.err(f"    file {container_pgdump_to_load} does not exist")
-            # TODO
             exit(1)
 
         # --------------------------------------------------------------------------------------------------------------
