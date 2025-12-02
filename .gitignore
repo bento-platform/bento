@@ -59,3 +59,7 @@ etc/tests/*/*/*/__pycache__
 etc/tests/*/geckodriver
 etc/tests/*/geckodriver.log
 geckodriver.log
+
+# resolved k8s kompose resources
+k8s/kompose
+k8s/resolved-compose.yaml
