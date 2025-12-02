@@ -109,8 +109,8 @@ BENTO_FEATURE_CBIOPORTAL = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False), profile="cbioportal")
 BENTO_FEATURE_GOHAN = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_GOHAN_ENABLED", default=False), profile="gohan")
-BENTO_FEATURE_MINIO = BentoOptionalFeature(
-    enabled=_env_get_bool("BENTO_MINIO_ENABLED", default=False), profile="minio")
+BENTO_FEATURE_GARAGE = BentoOptionalFeature(
+    enabled=_env_get_bool("BENTO_GARAGE_ENABLED", default=False), profile="garage")
 BENTO_FEATURE_MONITORING = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_MONITORING_ENABLED", default=False), profile="monitoring")
 
@@ -219,8 +219,9 @@ DATA_DIR_ENV_VARS = {
     **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not BENTOV2_USE_EXTERNAL_IDP else {}),
     #  - cBioPortal
     **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if BENTO_FEATURE_CBIOPORTAL.enabled else {}),
-    #  - MinIO
-    **({"minio": "BENTO_MINIO_DATA_DIR"} if BENTO_FEATURE_MINIO.enabled else {}),
+    #  - Garage
+    **({"garage-meta": "BENTO_GARAGE_META_DIR"} if BENTO_FEATURE_GARAGE.enabled else {}),
+    **({"garage-data": "BENTO_GARAGE_DATA_DIR"} if BENTO_FEATURE_GARAGE.enabled else {}),
     #  - Monitoring: Grafana/Loki
     **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if BENTO_FEATURE_MONITORING else {}),
     **({"loki": "BENTO_LOKI_TEMP_DIR"} if BENTO_FEATURE_MONITORING else {}),
