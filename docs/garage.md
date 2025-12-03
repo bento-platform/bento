@@ -57,13 +57,23 @@ BENTO_GARAGE_ENABLED='true'
 
 ### 2. Generate SSL Certificates (HTTPS Access)
 
-For HTTPS access to `garage.bentov2.local`, you need SSL certificates. You have two options:
+For HTTPS access to `garage.bentov2.local`, you need SSL certificates.
 
-**Option A: Use existing Bento certificates (temporary/development)**
+**Recommended: Use Bento's certificate generation**
 
-The garage nginx configuration currently uses the main Bento certificate. This will cause certificate warnings in browsers but will work with `-k` flag in curl.
+```bash
+# Generate certificates for all Bento services including garage
+./bentoctl.bash init-certs
 
-**Option B: Generate dedicated certificates for Garage**
+# Restart gateway to load new certificates and render garage nginx config
+./bentoctl.bash restart gateway
+```
+
+The `init-certs` command generates self-signed certificates for all configured Bento domains, including `garage.bentov2.local`, with proper Subject Alternative Names (SANs) for wildcard subdomains (`*.s3.garage.bentov2.local`, `*.web.garage.bentov2.local`).
+
+**Alternative: Manual certificate generation (advanced)**
+
+If you need custom certificates:
 
 ```bash
 # Generate self-signed certificate for garage domain
@@ -83,6 +93,7 @@ openssl req -x509 -newkey rsa:4096 -nodes \
 ```
 
 > **Note**:
+> - `init-certs` is the recommended approach as it handles all Bento domains consistently
 > - For production, use proper certificates from Let's Encrypt or your certificate authority
 > - Gateway restart is required for the garage nginx configuration to be rendered from template
 > - The garage.conf.tpl template is processed at gateway startup
