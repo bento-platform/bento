@@ -19,6 +19,7 @@ services:
       - CHORD_METADATA_SUB_PATH
       - INTERNAL_PORT=${BENTOV2_KATSU_INTERNAL_PORT}
       - POSTGRES_HOST=${BENTOV2_KATSU_DB_CONTAINER_NAME}
+      - POSTGRES_DATABASE=${BENTOV2_KATSU_DB_NAME}
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
       - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
       - DRS_URL=http://${BENTOV2_DRS_CONTAINER_NAME}:${BENTOV2_DRS_INTERNAL_PORT}
@@ -66,7 +67,7 @@ services:
     environment:
       - POSTGRES_USER=${BENTOV2_KATSU_DB_USER}
       - POSTGRES_PASSWORD=${BENTOV2_KATSU_DB_PASSWORD}
-      - POSTGRES_DB=${BENTOV2_KATSU_DB}
+      - POSTGRES_DB=${BENTOV2_KATSU_DB_NAME}
     expose:
       - 5432
     # secrets:
@@ -77,12 +78,12 @@ services:
     networks:
       - katsu-db-net
     volumes:
-      - ${BENTOV2_KATSU_DB_PROD_VOL_DIR}:/var/lib/postgresql/data
+      - ${BENTOV2_KATSU_DB_PROD_VOL_DIR}:/var/lib/postgresql
     mem_limit: ${BENTOV2_KATSU_DB_MEM_LIM} # for mem_limit to work, make sure docker-compose is v2.4
     cpus: ${BENTOV2_KATSU_DB_CPUS}
     cpu_shares: 1024
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTOV2_KATSU_DB}", "-U", "${BENTOV2_KATSU_DB_USER}" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "${BENTOV2_KATSU_DB_NAME}", "-U", "${BENTOV2_KATSU_DB_USER}" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
       # interval: ${BENTO_HEALTHCHECK_INTERVAL}
       # For Docker <25 and Compose <2.24.x, start_interval doesn't work - use a shorter interval for now

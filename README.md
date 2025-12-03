@@ -57,6 +57,7 @@ For now, comment out this diagram since it's outdated and confusing.
 
 ### Migration documents
 
+* [v19 to v20](./docs/migrating_to_20.md)
 * [v18 to v19](./docs/migrating_to_19.md)
 * [v17.1 to v18](./docs/migrating_to_18.md)
 * [v17 to v17.1](./docs/migrating_to_17_1.md)
