@@ -55,7 +55,39 @@ Garage is deployed as a Docker Compose profile. To enable it, add `garage` to yo
 BENTO_GARAGE_ENABLED='true'
 ```
 
-### 2. Initialize Garage
+### 2. Generate SSL Certificates (HTTPS Access)
+
+For HTTPS access to `garage.bentov2.local`, you need SSL certificates. You have two options:
+
+**Option A: Use existing Bento certificates (temporary/development)**
+
+The garage nginx configuration currently uses the main Bento certificate. This will cause certificate warnings in browsers but will work with `-k` flag in curl.
+
+**Option B: Generate dedicated certificates for Garage**
+
+```bash
+# Generate self-signed certificate for garage domain
+openssl req -x509 -newkey rsa:4096 -nodes \
+  -keyout ./local/certs/gateway/garage_privkey1.key \
+  -out ./local/certs/gateway/garage_fullchain1.crt \
+  -days 365 -subj "/CN=garage.bentov2.local" \
+  -addext "subjectAltName=DNS:garage.bentov2.local,DNS:*.s3.garage.bentov2.local,DNS:*.web.garage.bentov2.local"
+
+# Update gateway configuration to use dedicated cert
+# Edit lib/gateway/public_services/garage.conf.tpl to use:
+# ssl_certificate ${BENTO_GATEWAY_INTERNAL_GARAGE_FULLCHAIN_RELATIVE_PATH};
+# ssl_certificate_key ${BENTO_GATEWAY_INTERNAL_GARAGE_PRIVKEY_RELATIVE_PATH};
+
+# Restart gateway to apply new configuration
+./bentoctl.bash restart gateway
+```
+
+> **Note**:
+> - For production, use proper certificates from Let's Encrypt or your certificate authority
+> - Gateway restart is required for the garage nginx configuration to be rendered from template
+> - The garage.conf.tpl template is processed at gateway startup
+
+### 3. Initialize Garage
 
 Initialize the Garage cluster with single-node layout and create default buckets:
 
@@ -121,10 +153,21 @@ This domain is used for:
 - **Virtual-hosted buckets**: `https://bucket.s3.garage.bentov2.local/object` (optional)
 - **Web interface**: `https://bucket.web.garage.bentov2.local` (optional)
 
-> **Note**: Add `garage.bentov2.local` (or your domain) to your `/etc/hosts` file for local development:
-> ```
+> **Note**: For local development, add these entries to your `/etc/hosts` file:
+> ```bash
+> # Main S3 API endpoint
 > 127.0.0.1  garage.bentov2.local
+>
+> # Example virtual-hosted bucket subdomains (add as needed)
+> 127.0.0.1  drs.s3.garage.bentov2.local
+> 127.0.0.1  drop-box.s3.garage.bentov2.local
+>
+> # Example web interface subdomains (add as needed)
+> 127.0.0.1  drs.web.garage.bentov2.local
+> 127.0.0.1  drop-box.web.garage.bentov2.local
 > ```
+>
+> **Note**: Wildcard DNS (e.g., `*.s3.garage.bentov2.local`) is not supported in `/etc/hosts`. You need to add each subdomain individually as you create buckets.
 
 #### Security Configuration
 
@@ -508,6 +551,88 @@ If you're writing custom scripts or tools, ensure you use the v1 API endpoints:
 - `/v1/key` - Key management
 - `/v1/bucket` - Bucket management
 - `/health` - Health check (no version prefix, no auth required)
+
+## Testing Garage Access
+
+After setting up Garage and restarting the gateway, test access:
+
+```bash
+# Test Admin API (direct access, no gateway)
+curl http://localhost:3903/health
+
+# Test S3 API through gateway (HTTP - will redirect to HTTPS)
+curl http://garage.bentov2.local/
+
+# Test S3 API through gateway (HTTPS - requires valid certificate or -k flag)
+curl -k https://garage.bentov2.local/
+
+# List buckets using AWS CLI
+aws --endpoint-url https://garage.bentov2.local \
+    --no-verify-ssl \
+    s3 ls
+
+# Upload a test file
+echo "test" > test.txt
+aws --endpoint-url https://garage.bentov2.local \
+    --no-verify-ssl \
+    s3 cp test.txt s3://drs/test.txt
+```
+
+> **Note**: Use `--no-verify-ssl` with AWS CLI when using self-signed certificates.
+
+## Using the Web Interface
+
+Garage supports serving static websites directly from buckets using the web interface feature.
+
+### Setup Web Hosting for a Bucket
+
+1. **Upload website files** to your bucket (e.g., `index.html`, `error.html`)
+
+2. **Configure the bucket for web hosting** using the Admin API:
+
+```bash
+# Get your bucket ID
+curl -H "Authorization: Bearer devgarageadmin789" http://localhost:3903/v1/bucket | jq '.[] | select(.globalAliases[] == "mybucket")'
+
+# Enable website for the bucket
+curl -X PUT -H "Authorization: Bearer devgarageadmin789" \
+  -H "Content-Type: application/json" \
+  -d '{"indexDocument": "index.html", "errorDocument": "error.html"}' \
+  http://localhost:3903/v1/bucket/<bucket-id>/website
+```
+
+3. **Add subdomain to `/etc/hosts`**:
+
+```bash
+127.0.0.1  mybucket.web.garage.bentov2.local
+```
+
+4. **Access your website** at: `https://mybucket.web.garage.bentov2.local`
+
+### Example: Hosting Documentation
+
+```bash
+# Create a bucket for docs
+curl -X POST -H "Authorization: Bearer devgarageadmin789" \
+  -H "Content-Type: application/json" \
+  -d '{"globalAlias": "docs"}' \
+  http://localhost:3903/v1/bucket
+
+# Upload HTML files using AWS CLI
+aws --endpoint-url https://garage.bentov2.local s3 cp ./index.html s3://docs/
+aws --endpoint-url https://garage.bentov2.local s3 cp ./404.html s3://docs/
+
+# Enable web hosting
+curl -X PUT -H "Authorization: Bearer devgarageadmin789" \
+  -H "Content-Type: application/json" \
+  -d '{"indexDocument": "index.html", "errorDocument": "404.html"}' \
+  http://localhost:3903/v1/bucket/<bucket-id>/website
+
+# Add to /etc/hosts
+echo "127.0.0.1  docs.web.garage.bentov2.local" | sudo tee -a /etc/hosts
+
+# Visit https://docs.web.garage.bentov2.local
+```
 
 ## Migrating from MinIO to Garage
 
