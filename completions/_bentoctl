@@ -1,0 +1,176 @@
+#compdef bentoctl
+
+# Zsh completion script for bentoctl
+# Place this file in a directory in your $fpath (e.g., ~/.zsh/completions/)
+# Or source it directly in your .zshrc
+
+_bentoctl() {
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    local -a commands
+    commands=(
+        # Initialization commands
+        'init-dirs:Initialize directories for BentoV2 structure'
+        'init-auth:Configure authentication with Keycloak'
+        'init-certs:Initialize SSL certificates for gateway domains'
+        'init-docker:Initialize Docker configuration and networks'
+        'init-web:Initialize web app (public or private) files'
+        'init-all:Initialize certs, directories, Docker networks, and web portals'
+        'init-config:Initialize configuration files for specific services'
+        'init-cbioportal:Initialize cBioPortal if enabled'
+
+        # Database commands
+        'pg-dump:Dump contents of all Postgres databases to a directory'
+        'pg-load:Load contents of all Postgres databases from a directory'
+
+        # Utility commands
+        'convert-pheno:Convert a Phenopacket V1 JSON document to V2'
+        'conv:Convert a Phenopacket V1 JSON document to V2'
+
+        # Service commands
+        'run:Run Bento services'
+        'start:Run Bento services'
+        'up:Run Bento services'
+        'stop:Stop Bento services'
+        'down:Stop Bento services'
+        'restart:Restart Bento services'
+        'clean:Clean services'
+        'work-on:Work on a service in local development mode'
+        'dev:Work on a service in local development mode'
+        'develop:Work on a service in local development mode'
+        'local:Work on a service in local development mode'
+        'prebuilt:Switch a service back to prebuilt mode'
+        'pre-built:Switch a service back to prebuilt mode'
+        'prod:Switch a service back to prebuilt mode'
+        'mode:See service production/development mode'
+        'state:See service production/development mode'
+        'status:See service production/development mode'
+        'pull:Pull the image for a specific service'
+        'shell:Run a shell inside a running service container'
+        'sh:Run a shell inside a running service container'
+        'run-as-shell:Run a shell inside a stopped service container'
+        'logs:Check logs for a service'
+        'compose-config:Generate Compose config YAML'
+    )
+
+    # Common services for service-based commands
+    local -a all_services
+    all_services=(
+        'all:All services'
+        'aggregation:Federation/aggregation service'
+        'auth:Authentication service'
+        'auth-db:Authentication database'
+        'authz:Authorization service'
+        'authz-db:Authorization database'
+        'beacon:Beacon service'
+        'cbioportal:cBioPortal service'
+        'drs:Data Repository Service'
+        'drop-box:Drop box service'
+        'event-relay:Event relay service'
+        'gateway:Gateway/proxy service'
+        'gohan:Gohan services (api + elasticsearch)'
+        'gohan-api:Gohan API service'
+        'gohan-elasticsearch:Gohan Elasticsearch'
+        'katsu:Metadata service'
+        'katsu-db:Metadata database'
+        'notification:Notification service'
+        'public:Public frontend'
+        'redis:Redis cache'
+        'reference:Reference service'
+        'reference-db:Reference database'
+        'service-registry:Service registry'
+        'web:Web frontend'
+        'wes:Workflow Execution Service'
+    )
+
+    # Services that can be worked on (have repositories)
+    local -a workable_services
+    workable_services=(
+        'aggregation:Federation/aggregation service'
+        'authz:Authorization service'
+        'beacon:Beacon service'
+        'drs:Data Repository Service'
+        'drop-box:Drop box service'
+        'event-relay:Event relay service'
+        'gateway:Gateway service'
+        'gohan-api:Gohan API service'
+        'katsu:Metadata service'
+        'notification:Notification service'
+        'public:Public frontend'
+        'reference:Reference service'
+        'service-registry:Service registry'
+        'web:Web frontend'
+        'wes:Workflow Execution Service'
+    )
+
+    _arguments -C \
+        '(-d --debug)'{-d,--debug}'[Enable remote Python debugging]' \
+        '1: :->command' \
+        '*:: :->args'
+
+    case $state in
+        command)
+            _describe -t commands 'bentoctl command' commands
+            ;;
+        args)
+            case $line[1] in
+                run|start|up|stop|down|restart|clean|logs|pull|mode|state|status)
+                    _arguments \
+                        '1: :->service' \
+                        '(-p --pull)'{-p,--pull}'[Pull the service image first]' \
+                        '(-f --follow)'{-f,--follow}'[Follow logs]'
+                    if [[ $state == service ]]; then
+                        _describe -t services 'service' all_services
+                    fi
+                    ;;
+                work-on|dev|develop|local)
+                    _arguments '1: :->service'
+                    if [[ $state == service ]]; then
+                        _describe -t services 'service' workable_services
+                    fi
+                    ;;
+                prebuilt|pre-built|prod)
+                    _arguments '1: :->service'
+                    if [[ $state == service ]]; then
+                        _describe -t services 'service' all_services
+                    fi
+                    ;;
+                shell|sh|run-as-shell)
+                    _arguments \
+                        '1: :->service' \
+                        '(-s --shell)'{-s,--shell}'[Shell to use]: :(/bin/bash /bin/sh)'
+                    if [[ $state == service ]]; then
+                        _describe -t services 'service' all_services
+                    fi
+                    ;;
+                init-web)
+                    _arguments \
+                        '1: :(public private)' \
+                        '(-f --force)'{-f,--force}'[Overwrite existing files]'
+                    ;;
+                init-config)
+                    _arguments \
+                        '1: :(katsu beacon beacon-network)' \
+                        '(-f --force)'{-f,--force}'[Overwrite existing config]'
+                    ;;
+                init-certs)
+                    _arguments '(-f --force)'{-f,--force}'[Remove and recreate certificates]'
+                    ;;
+                pg-dump|pg-load)
+                    _arguments '1:directory:_directories'
+                    ;;
+                convert-pheno|conv)
+                    _arguments \
+                        '1:source file:_files -g "*.json"' \
+                        '2:target file:_files -g "*.json"'
+                    ;;
+                compose-config)
+                    _arguments '--services[List services seen by Compose]'
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_bentoctl "$@"
