@@ -12,10 +12,6 @@ s3_region = "garage"
 api_bind_addr = "[::]:3900"
 root_domain = ".s3.${BENTO_GARAGE_DOMAIN}"
 
-[s3_web]
-bind_addr = "[::]:3902"
-root_domain = ".web.${BENTO_GARAGE_DOMAIN}"
-
 [admin]
 api_bind_addr = "[::]:3903"
 admin_token = "${BENTO_GARAGE_ADMIN_TOKEN}"
