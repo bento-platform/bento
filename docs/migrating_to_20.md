@@ -134,7 +134,7 @@ cd path/to/bento
 ```
 
 If the load fails for some reason, you will either need to re-ingest data by hand or rollback Postgres to another 
-version and try to load the database dump files.\
+version and try to load the database dump files.
 
 
 ## 8. Restart Katsu to migrate the database
