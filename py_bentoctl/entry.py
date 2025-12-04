@@ -198,6 +198,19 @@ class Logs(SubCommand):
         s.logs_service(args.service, args.follow)
 
 
+class CheckServices(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
+            help="Service to check, or 'all' to inspect every service.")
+
+    @staticmethod
+    def exec(args):
+        s.check_services_status(args.service)
+
+
 class ComposeConfig(SubCommand):
 
     @staticmethod
@@ -258,6 +271,13 @@ class InitCBioPortal(SubCommand):
     @staticmethod
     def exec(args):
         fh.init_cbioportal()
+
+
+class InitGarage(SubCommand):
+
+    @staticmethod
+    def exec(args):
+        oh.init_garage()
 
 
 class InitAll(SubCommand):
@@ -374,6 +394,7 @@ def main(args: Optional[list[str]] = None) -> int:
 
     # Feature-specific initialization commands
     _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
+    _add_subparser("init-garage", "Initialize Garage object storage with single-node layout", InitGarage)
 
     # Database commands
     #  - Postgres:
@@ -400,6 +421,7 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=("sh",))
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
     _add_subparser("logs", "Check logs for a service.", Logs)
+    _add_subparser("check-services", "Verify whether a service is running.", CheckServices)
     _add_subparser("compose-config", "Generate Compose config YAML.", ComposeConfig)
 
     p_args = parser.parse_args(args)

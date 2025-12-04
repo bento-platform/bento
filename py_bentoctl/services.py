@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 import subprocess
@@ -20,6 +21,7 @@ __all__ = [
     "run_as_shell_for_service",
     "logs_service",
     "compose_config",
+    "check_services_status",
 ]
 
 BENTO_SERVICES_DATA_BY_KIND = {
@@ -32,8 +34,8 @@ BENTO_USER_EXCLUDED_SERVICES = (
     "auth",
     "authz-db",
     "gateway",
+    "garage",
     "katsu-db",
-    "minio",
     "redis",
     "reference-db",
 )
@@ -407,3 +409,87 @@ def logs_service(compose_service: str, follow: bool) -> None:
 
 def compose_config(services_flag: bool) -> None:
     os.execvp(c.COMPOSE[0], (*c.COMPOSE, "config", *(("--services",) if services_flag else ())))
+
+
+def _status_compose_args(service: str, service_state: dict) -> Tuple[str, ...]:
+    if service_state.get(service, {}).get("mode") == MODE_LOCAL:
+        return _get_compose_with_files(dev=True, local=True)
+
+    return _get_compose_with_files(dev=c.DEV_MODE, local=False)
+
+
+def _get_service_runtime_state(service: str, service_state: dict) -> Tuple[bool, str]:
+    compose_args = _status_compose_args(service, service_state)
+    ps = subprocess.run(
+        (*compose_args, "ps", "--format", "json", service),
+        capture_output=True,
+        text=True,
+    )
+
+    if ps.returncode != 0:
+        err(f"  Failed to check status for {service}: {ps.stderr.strip()}")
+        exit(1)
+
+    def _load_entry(raw: str):
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            err(f"  Unable to parse docker compose status output for {service}.")
+            exit(1)
+
+    stdout = (ps.stdout or "").strip()
+    entries: list = []
+
+    if not stdout:
+        entries = []
+    else:
+        try:
+            parsed = json.loads(stdout)
+        except json.JSONDecodeError:
+            entries = [_load_entry(line) for line in stdout.splitlines() if line.strip()]
+        else:
+            if isinstance(parsed, list):
+                entries = [
+                    _load_entry(entry) if isinstance(entry, str) else entry
+                    for entry in parsed
+                ]
+            elif isinstance(parsed, dict):
+                entries = [parsed]
+            else:
+                err(f"  Unexpected docker compose status output for {service}.")
+                exit(1)
+
+    if not entries:
+        return False, "No containers found"
+
+    any_running = any(e.get("State") == "running" for e in entries)
+    status_text = entries[0].get("Status") or entries[0].get("State") or ""
+    return any_running, status_text
+
+
+def _print_service_runtime_state(service: str, service_state: dict) -> bool:
+    running, status_text = _get_service_runtime_state(service, service_state)
+    print(f"{service[:18].rjust(18)} ", end="")
+    colour = "green" if running else "red"
+    prefix = "running" if running else "not running"
+    suffix = f" ({status_text})" if status_text else ""
+    cprint(f"{prefix}{suffix}", colour)
+    return running
+
+
+def check_services_status(compose_service: str) -> None:
+    compose_service = translate_service_aliases(compose_service)
+    service_state = get_state()["services"]
+
+    if compose_service == c.SERVICE_LITERAL_ALL:
+        results = tuple(_print_service_runtime_state(s, service_state) for s in c.DOCKER_COMPOSE_SERVICES)
+        if all(results):
+            info("All services appear to be running.")
+            return
+        err("One or more services are not running.")
+        exit(1)
+
+    check_service_is_compose(compose_service)
+    if not _print_service_runtime_state(compose_service, service_state):
+        err(f"{compose_service} is not running.")
+        exit(1)
