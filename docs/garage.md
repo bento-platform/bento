@@ -69,6 +69,7 @@ For HTTPS access to `garage.bentov2.local`, you need SSL certificates.
 The `init-certs` command generates self-signed certificates for all configured Bento domains, including `garage.bentov2.local`.
 
 > **Note**:
+>
 > - For production, use proper certificates from Let's Encrypt or your certificate authority
 > - Gateway restart is required for the garage nginx configuration to be rendered from template
 > - The garage.conf.tpl template is processed at gateway startup
@@ -134,9 +135,11 @@ BENTO_GARAGE_DOMAIN=garage.${BENTOV2_DOMAIN}
 ```
 
 This domain is used for:
+
 - **S3 API access**: `https://garage.bentov2.local/bucket/object` (path-style)
 
 > **Note**: For local development, add this entry to your `/etc/hosts` file:
+>
 > ```bash
 > 127.0.0.1  garage.bentov2.local
 > ```
@@ -372,213 +375,6 @@ Garage stores data in two locations:
 - **Object data**: `${BENTO_SLOW_DATA_DIR}/garage/data` (default: `./data/garage/data`)
 
 These directories are mounted as Docker volumes and persist across container restarts.
-
-## Troubleshooting
-
-### Garage Container Won't Start
-
-Check the logs:
-
-```bash
-./bentoctl.bash logs garage
-```
-
-Common issues:
-
-- RPC secret or admin token not set
-- Config file missing or invalid
-- Ports already in use
-- Network not created (see below)
-
-### Invalid RPC Secret Error
-
-**Error**: `Invalid RPC secret key: expected 32 bits of entropy`
-
-**Cause**: RPC secret is not exactly 64 hex characters (32 bytes)
-
-**Solution**:
-
-1. Generate valid secret: `openssl rand -hex 32`
-2. Update in `etc/bento_dev.env` or `local.env`:
-   ```bash
-   BENTO_GARAGE_RPC_SECRET=<64-char-hex-string>
-   ```
-3. Recreate config: `./bentoctl.bash init-garage`
-4. Restart container: `./bentoctl.bash restart garage`
-
-### Config File Created as Directory
-
-**Error**: `Is a directory` or mount errors
-
-**Cause**: Docker created `garage.toml` as directory when file didn't exist during mount
-
-**Solution**:
-
-1. Stop container: `./bentoctl.bash stop garage`
-2. Remove directory:
-   ```bash
-   docker run --rm -v "${PWD}/lib/garage/config:/config" alpine rm -rf /config/garage.toml
-   ```
-3. Run init again: `./bentoctl.bash init-garage`
-
-### Network Not Found
-
-**Error**: `network bentov2-garage-net not found`
-
-**Cause**: Docker network wasn't created
-
-**Solutions**:
-
-1. Run `./bentoctl.bash init-docker`
-2. If that fails with "all predefined address pools have been fully subnetted":
-   ```bash
-   docker network prune -f
-   ./bentoctl.bash init-docker
-   ```
-
-### Init-Garage Fails
-
-Ensure:
-
-1. Garage container is running: `docker ps | grep garage`
-2. Container is healthy (may take 30-60 seconds)
-3. Admin token is set in environment variables
-4. RPC secret is valid (64 hex characters)
-
-### Services Can't Connect to Garage
-
-Verify:
-
-1. Services are on the same Docker network (`garage-net`)
-2. Endpoint uses container name, not `localhost`
-3. Port 3900 is accessible within the network
-4. Access key and secret are correct
-
-### Permission Denied Errors
-
-Check:
-
-1. Bucket permissions are set correctly
-2. Access key has proper permissions for the bucket
-3. Region matches (`garage` in this setup)
-
-### Admin API Connection Refused
-
-**Error**: `Connection refused` when running `init-garage`
-
-**Cause**: Admin port not accessible on localhost
-
-**Solutions**:
-
-1. Verify port is published in docker-compose:
-
-   ```bash
-   docker ps --filter "name=garage" --format "table {{.Names}}\t{{.Ports}}"
-   ```
-
-   Should show: `0.0.0.0:3903->3903/tcp`
-
-2. Check if port 3903 is in use by another process:
-
-   ```bash
-   sudo lsof -i :3903
-   ```
-
-3. Restart container to apply port changes:
-   ```bash
-   ./bentoctl.bash restart garage
-   ```
-
-### Container Shows Unhealthy (Older Versions)
-
-**Error**: Container status shows "unhealthy"
-
-**Cause**: Older docker-compose configuration included healthcheck using `curl`, which is not available in Garage image
-
-**Solution**: This has been fixed in the current configuration. If you see this:
-
-1. Update your `lib/garage/docker-compose.garage.yaml` from the latest version
-2. Restart container: `./bentoctl.bash restart garage`
-
-**Note**: The healthcheck has been removed as it's not needed - the `init-garage` script directly checks if the Admin API is responsive.
-
-### Admin API Version Compatibility
-
-**Note**: Bento uses Garage Admin API v1 (`/v1/` endpoints). The older v0 API has been deprecated in Garage v1.0+.
-
-If you're writing custom scripts or tools, ensure you use the v1 API endpoints:
-- `/v1/status` - Cluster status
-- `/v1/layout` - Layout configuration
-- `/v1/key` - Key management
-- `/v1/bucket` - Bucket management
-- `/health` - Health check (no version prefix, no auth required)
-
-## Testing Garage Access
-
-After setting up Garage and restarting the gateway, test access:
-
-```bash
-# Test Admin API (direct access, no gateway)
-curl http://localhost:3903/health
-
-# Test S3 API through gateway (HTTP - will redirect to HTTPS)
-curl http://garage.bentov2.local/
-
-# Test S3 API through gateway (HTTPS - requires valid certificate or -k flag)
-curl -k https://garage.bentov2.local/
-
-# List buckets using AWS CLI
-aws --endpoint-url https://garage.bentov2.local \
-    --no-verify-ssl \
-    s3 ls
-
-# Upload a test file
-echo "test" > test.txt
-aws --endpoint-url https://garage.bentov2.local \
-    --no-verify-ssl \
-    s3 cp test.txt s3://drs/test.txt
-```
-
-> **Note**: Use `--no-verify-ssl` with AWS CLI when using self-signed certificates.
-
-## Migrating from MinIO to Garage
-
-If you're migrating from MinIO to Garage:
-
-1. **Export data from MinIO** using `mc mirror` or similar tools
-2. **Initialize Garage** with `./bentoctl.bash init-garage`
-3. **Upload data to Garage** using S3 CLI tools (see above)
-4. **Update service configuration** to point to Garage
-5. **Restart services** to apply changes
-
-See [object_storage.md](object_storage.md) for more details on data migration.
-
-## Production Considerations
-
-For production deployments:
-
-1. **Security**
-
-   - Use strong random values for `BENTO_GARAGE_RPC_SECRET` and `BENTO_GARAGE_ADMIN_TOKEN`
-   - Store secrets in `local.env` (not committed to git)
-   - Consider enabling HTTPS for external access
-   - Restrict Admin API access
-
-2. **Performance**
-
-   - Place metadata on fast storage (SSD)
-   - Place object data on slower, larger storage (HDD/object storage)
-   - Adjust capacity in layout configuration based on actual storage
-
-3. **Backups**
-
-   - Backup both metadata and data directories regularly
-   - Consider Garage's built-in replication for redundancy
-
-4. **Monitoring**
-   - Monitor Garage logs for errors
-   - Check storage capacity regularly
-   - Monitor API response times
 
 ## Resources
 
