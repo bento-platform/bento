@@ -23,7 +23,6 @@ services:
       - LOG_LEVEL=${BENTO_LOG_LEVEL}
     networks:
       - drs-net
-      - garage-net
     expose:
       - ${BENTOV2_DRS_INTERNAL_PORT}
     volumes:
@@ -48,6 +47,3 @@ networks:
   drs-net:
     external: true
     name: ${BENTO_DRS_NETWORK}
-  garage-net:
-    external: true
-    name: ${BENTO_GARAGE_NETWORK}

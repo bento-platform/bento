@@ -227,14 +227,14 @@ Edit your `local.env` file:
 ```bash
 # local.env
 
-# Use the container name as the endpoint (no protocol)
-BENTO_DROP_BOX_S3_ENDPOINT="${BENTO_GARAGE_CONTAINER_NAME}"
-BENTO_DROP_BOX_S3_USE_HTTPS=false                       # HTTP within Docker network
+# Use the gateway domain as the endpoint (no protocol)
+BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Access via gateway
+BENTO_DROP_BOX_S3_USE_HTTPS=true                        # HTTPS through gateway
 BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Created by init-garage
 BENTO_DROP_BOX_S3_REGION_NAME="garage"                  # Must match garage.toml
 BENTO_DROP_BOX_S3_ACCESS_KEY="<from init-garage>"       # Save from init-garage output
 BENTO_DROP_BOX_S3_SECRET_KEY="<from init-garage>"       # Save from init-garage output
-BENTO_DROP_BOX_VALIDATE_SSL=false                       # Not using SSL internally
+BENTO_DROP_BOX_VALIDATE_SSL=false                       # Set to false for self-signed certs
 ```
 
 Restart Drop Box:
@@ -250,13 +250,13 @@ Edit your `local.env` file:
 ```bash
 # local.env
 
-BENTO_DRS_S3_ENDPOINT="${BENTO_GARAGE_CONTAINER_NAME}"  # Use container name
-BENTO_DRS_S3_USE_HTTPS=false                            # HTTP within Docker network
+BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"            # Access via gateway
+BENTO_DRS_S3_USE_HTTPS=true                             # HTTPS through gateway
 BENTO_DRS_S3_BUCKET="drs"                               # Created by init-garage
 BENTO_DRS_S3_REGION_NAME="garage"                       # Must match garage.toml
 BENTO_DRS_S3_ACCESS_KEY="<from init-garage>"            # Save from init-garage output
 BENTO_DRS_S3_SECRET_KEY="<from init-garage>"            # Save from init-garage output
-BENTO_DRS_VALIDATE_SSL=false                            # Not using SSL internally
+BENTO_DRS_VALIDATE_SSL=false                            # Set to false for self-signed certs
 ```
 
 Restart DRS:

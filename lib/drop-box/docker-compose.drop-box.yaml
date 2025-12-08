@@ -20,7 +20,6 @@ services:
       - LOG_LEVEL=${BENTO_LOG_LEVEL}
     networks:
       - drop-box-net
-      - garage-net
     expose:
       - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
     volumes:
@@ -44,6 +43,3 @@ networks:
   drop-box-net:
     external: true
     name: ${BENTO_DROP_BOX_NETWORK}
-  garage-net:
-    external: true
-    name: ${BENTO_GARAGE_NETWORK}
