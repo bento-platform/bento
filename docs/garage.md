@@ -22,41 +22,31 @@ In Bento's single-node configuration (`replication_mode = "1"`), the RPC port is
   - Required for `init-garage` script to configure the cluster
   - Accessible at: `http://localhost:3903`
 
-## Prerequisites
-
-Before setting up Garage, ensure you have:
-
-1. **Docker networks created**: Run `./bentoctl.bash init-docker` first
-
-   - This creates the required `bentov2-garage-net` network
-   - If you see "all predefined address pools have been fully subnetted", run `docker network prune -f` to clean up unused networks, then retry
-
-2. **Valid RPC secret**: Must be exactly 64 hexadecimal characters (32 bytes)
-   - For development: The default in `etc/bento_dev.env` is valid
-   - For production: Generate with `openssl rand -hex 32` and set in `local.env`
-
 ## Quick Start
 
-### 0. Run Prerequisites
+### 1. Initialize Docker Networks
 
-Ensure Docker networks exist:
+Create the required Docker networks for Garage:
 
 ```bash
 ./bentoctl.bash init-docker
 ```
 
-### 1. Enable Garage Profile
+This creates the required `bentov2-garage-net` network.
 
-Garage is deployed as a Docker Compose profile. To enable it, add `garage` to your enabled profiles in `local.env`:
+> **Note**: If you see "all predefined address pools have been fully subnetted", run `docker network prune -f` to clean up unused networks, then retry.
+
+### 2. Add Garage Domain to /etc/hosts
+
+Add the following entry to your `/etc/hosts` file for local access:
 
 ```bash
-# local.env
-BENTO_GARAGE_ENABLED='true'
+127.0.0.1  garage.bentov2.local
 ```
 
-### 2. Generate SSL Certificates (HTTPS Access)
+### 3. Generate SSL Certificates
 
-For HTTPS access to `garage.bentov2.local`, you need SSL certificates.
+Generate SSL certificates for HTTPS access to `garage.bentov2.local`:
 
 ```bash
 # Generate certificates for all Bento services including garage
@@ -74,7 +64,36 @@ The `init-certs` command generates self-signed certificates for all configured B
 > - Gateway restart is required for the garage nginx configuration to be rendered from template
 > - The garage.conf.tpl template is processed at gateway startup
 
-### 3. Initialize Garage
+### 4. Configure Garage Variables
+
+Edit your `local.env` file and set the following variables:
+
+```bash
+# local.env
+
+# Enable Garage profile
+BENTO_GARAGE_ENABLED='true'
+
+# Generate RPC secret (must be exactly 64 hexadecimal characters)
+# Use: openssl rand -hex 32
+BENTO_GARAGE_RPC_SECRET='<your-64-char-hex-secret>'
+
+# Set admin token (use a secure value for production)
+BENTO_GARAGE_ADMIN_TOKEN='<your-secure-admin-token>'
+```
+
+**Generate the RPC secret:**
+
+```bash
+openssl rand -hex 32
+```
+
+> ⚠️ **Important**:
+> - The RPC secret must be exactly 64 hexadecimal characters (32 bytes)
+> - For development, you can use the default value from `etc/bento_dev.env`
+> - For production, always generate new secrets and never commit them to git
+
+### 5. Initialize Garage
 
 Initialize the Garage cluster with single-node layout and create default buckets:
 
@@ -93,11 +112,57 @@ This command will:
 7. Create default buckets: `drs` and `drop-box`
 8. Grant bucket permissions to the access key
 
-**IMPORTANT:** Save the Access Key and Secret Key printed by this command - you'll need them to configure Bento services.
+**IMPORTANT:** Save the Access Key and Secret Key printed by this command - you'll need them in the next step.
 
 > **Note**: You don't need to manually run `./bentoctl.bash run garage` - the init command will start the container automatically if it's not running.
 
-## Configuration
+### 6. Configure Drop Box Service
+
+Add the following Drop Box configuration to your `local.env` file:
+
+```bash
+# local.env
+
+# Drop Box S3 Configuration
+BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Access via gateway
+BENTO_DROP_BOX_S3_USE_HTTPS=true                        # HTTPS through gateway
+BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Created by init-garage
+BENTO_DROP_BOX_S3_REGION_NAME="garage"                  # Must match garage.toml
+BENTO_DROP_BOX_S3_ACCESS_KEY="<from-init-garage>"       # Save from init-garage output
+BENTO_DROP_BOX_S3_SECRET_KEY="<from-init-garage>"       # Save from init-garage output
+BENTO_DROP_BOX_VALIDATE_SSL=false                       # Set to false for self-signed certs
+```
+
+Restart Drop Box:
+
+```bash
+./bentoctl.bash restart drop-box
+```
+
+### 7. Configure DRS Service
+
+Add the following DRS configuration to your `local.env` file:
+
+```bash
+# local.env
+
+# DRS S3 Configuration
+BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"            # Access via gateway
+BENTO_DRS_S3_USE_HTTPS=true                             # HTTPS through gateway
+BENTO_DRS_S3_BUCKET="drs"                               # Created by init-garage
+BENTO_DRS_S3_REGION_NAME="garage"                       # Must match garage.toml
+BENTO_DRS_S3_ACCESS_KEY="<from-init-garage>"            # Save from init-garage output
+BENTO_DRS_S3_SECRET_KEY="<from-init-garage>"            # Save from init-garage output
+BENTO_DRS_VALIDATE_SSL=false                            # Set to false for self-signed certs
+```
+
+Restart DRS:
+
+```bash
+./bentoctl.bash restart drs
+```
+
+## Configuration Reference
 
 ### Environment Variables
 
@@ -137,12 +202,6 @@ BENTO_GARAGE_DOMAIN=garage.${BENTOV2_DOMAIN}
 This domain is used for:
 
 - **S3 API access**: `https://garage.bentov2.local/bucket/object` (path-style)
-
-> **Note**: For local development, add this entry to your `/etc/hosts` file:
->
-> ```bash
-> 127.0.0.1  garage.bentov2.local
-> ```
 
 #### Security Configuration
 
@@ -218,55 +277,6 @@ expose:
 ```
 
 > **Note**: The admin port must be published to localhost because the `init-garage` script runs on the host and needs to make API calls to configure the cluster.
-
-## Configuring Bento Services
-
-After initializing Garage, configure your Bento services to use it for object storage.
-
-### Drop Box
-
-Edit your `local.env` file:
-
-```bash
-# local.env
-
-# Use the gateway domain as the endpoint (no protocol)
-BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Access via gateway
-BENTO_DROP_BOX_S3_USE_HTTPS=true                        # HTTPS through gateway
-BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Created by init-garage
-BENTO_DROP_BOX_S3_REGION_NAME="garage"                  # Must match garage.toml
-BENTO_DROP_BOX_S3_ACCESS_KEY="<from init-garage>"       # Save from init-garage output
-BENTO_DROP_BOX_S3_SECRET_KEY="<from init-garage>"       # Save from init-garage output
-BENTO_DROP_BOX_VALIDATE_SSL=false                       # Set to false for self-signed certs
-```
-
-Restart Drop Box:
-
-```bash
-./bentoctl.bash restart drop-box
-```
-
-### DRS
-
-Edit your `local.env` file:
-
-```bash
-# local.env
-
-BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"            # Access via gateway
-BENTO_DRS_S3_USE_HTTPS=true                             # HTTPS through gateway
-BENTO_DRS_S3_BUCKET="drs"                               # Created by init-garage
-BENTO_DRS_S3_REGION_NAME="garage"                       # Must match garage.toml
-BENTO_DRS_S3_ACCESS_KEY="<from init-garage>"            # Save from init-garage output
-BENTO_DRS_S3_SECRET_KEY="<from init-garage>"            # Save from init-garage output
-BENTO_DRS_VALIDATE_SSL=false                            # Set to false for self-signed certs
-```
-
-Restart DRS:
-
-```bash
-./bentoctl.bash restart drs
-```
 
 ## Verification
 
