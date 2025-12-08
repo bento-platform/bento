@@ -40,41 +40,57 @@ def init_web(service: str, force: bool):
 
 def _init_web_public(force: bool):
     root_path = pathlib.Path.cwd()
+    etc_path = root_path / "etc"
 
     # Init lib dir
-    public_path = (root_path / "lib" / "public")
-    translation_path = (public_path / "translations")
+    public_path = root_path / "lib" / "public"
+    translation_path = public_path / "translations"
     translation_path.mkdir(parents=True, exist_ok=True)
 
     # About html page (English)
     _file_copy(
-        (root_path / "etc" / "default.en_about.html"),
+        (etc_path / "default.en_about.html"),
         (public_path / "en_about.html"),
         force=force,
     )
 
     # About html page (French)
     _file_copy(
-        (root_path / "etc" / "default.fr_about.html"),
+        (etc_path / "default.fr_about.html"),
         (public_path / "fr_about.html"),
         force=force,
     )
 
     # Branding image
+    # - dark background / default
     _file_copy(
-        (root_path / "etc" / "default.public.branding.png"),
+        (etc_path / "default.branding.png"),
         (public_path / "branding.png"),
         force=force,
     )
+    # - light background
+    _file_copy(
+        (etc_path / "default.branding.lightbg.png"),
+        (public_path / "branding.lightbg.png"),
+        force=force,
+    )
+
+    # - favicon
+    _file_copy(
+        (etc_path / "default.favicon.png"),
+        (public_path / "favicon.png"),
+        force=force,
+    )
+
     # English translations
     _file_copy(
-        (root_path / "etc" / "templates" / "translations" / "en.example.json"),
+        (etc_path / "templates" / "translations" / "en.example.json"),
         (translation_path / "en.json"),
         force=force,
     )
     # French translations
     _file_copy(
-        (root_path / "etc" / "templates" / "translations" / "fr.example.json"),
+        (etc_path / "templates" / "translations" / "fr.example.json"),
         (translation_path / "fr.json"),
         force=force,
     )
@@ -98,7 +114,7 @@ def _init_web_private(force: bool):
     task_print("Init public web folder with branding image...")
 
     root_path = pathlib.Path.cwd()
-    web_path = (root_path / "lib" / "web")
+    web_path = root_path / "lib" / "web"
     web_path.mkdir(parents=True, exist_ok=True)
 
     src_branding = (root_path / "etc" / "default.branding.png")  # dark background branding
@@ -109,7 +125,12 @@ def _init_web_private(force: bool):
             warn(f"file {dst_branding} exists, skipping copy.")
             return
 
-        cprint(f"file {dst_branding} exists, overwriting... ", "yellow", file=sys.stderr, end="")
+        cprint(
+            f"file {dst_branding} exists, overwriting... ",
+            "yellow",
+            file=sys.stderr,
+            end="",
+        )
 
     shutil.copyfile(src=src_branding, dst=dst_branding)
     task_print_done()
@@ -117,8 +138,8 @@ def _init_web_private(force: bool):
 
 def init_self_signed_certs(force: bool):
     certs_dir = pathlib.Path(os.environ["BENTOV2_CERTS_DIR"])
-    auth_certs_dir = (certs_dir / "auth")
-    gateway_certs_dir = (certs_dir / "gateway")
+    auth_certs_dir = certs_dir / "auth"
+    gateway_certs_dir = certs_dir / "gateway"
 
     cert_domains_vars = {
         "public": {
@@ -149,19 +170,31 @@ def init_self_signed_certs(force: bool):
         }} if c.BENTO_FEATURE_GARAGE.enabled else {}),
 
         # If cBioPortal is enabled, generate a cBioPortal self-signed certificate as well
-        **({"cbioportal": {
-            "var": "BENTOV2_CBIOPORTAL_DOMAIN",
-            "priv_key_name": "cbioportal_privkey1.key",
-            "crt": "cbioportal_fullchain1.crt",
-            "dir": gateway_certs_dir,
-        }} if c.BENTO_FEATURE_CBIOPORTAL.enabled else {}),
-
-        **({"redirect": {
-            "var": "BENTO_DOMAIN_REDIRECT",
-            "priv_key_name": "redirect_privkey1.key",
-            "crt": "redirect_fullchain1.crt",
-            "dir": gateway_certs_dir,
-        }} if c.BENTO_FEATURE_REDIRECT.enabled else {}),
+        **(
+            {
+                "cbioportal": {
+                    "var": "BENTOV2_CBIOPORTAL_DOMAIN",
+                    "priv_key_name": "cbioportal_privkey1.key",
+                    "crt": "cbioportal_fullchain1.crt",
+                    "dir": gateway_certs_dir,
+                }
+            }
+            if c.BENTO_FEATURE_CBIOPORTAL.enabled
+            else {}
+        ),
+        # If a domain is configured for redirect (e.g. preserve a published reference)
+        **(
+            {
+                "redirect": {
+                    "var": "BENTO_DOMAIN_REDIRECT",
+                    "priv_key_name": "redirect_privkey1.key",
+                    "crt": "redirect_fullchain1.crt",
+                    "dir": gateway_certs_dir,
+                }
+            }
+            if c.BENTO_FEATURE_REDIRECT.enabled
+            else {}
+        ),
     }
 
     # Init cert directories
@@ -173,22 +206,28 @@ def init_self_signed_certs(force: bool):
 
     # Check for existing cert files first
     cert_files = [
-        *auth_certs_dir.glob('*.crt'),
-        *auth_certs_dir.glob('*.key'),
+        *auth_certs_dir.glob("*.crt"),
+        *auth_certs_dir.glob("*.key"),
         *auth_certs_dir.glob("*.pem"),
-        *gateway_certs_dir.glob('*.crt'),
-        *gateway_certs_dir.glob('*.key'),
+        *gateway_certs_dir.glob("*.crt"),
+        *gateway_certs_dir.glob("*.key"),
         *gateway_certs_dir.glob("*.pem"),
     ]
     if not force and any(cert_files):
-        warn("WARNING: Cert files detected in the target directory, new cert creation skipped.")
-        warn("To create new certs, remove all \".crt\" and \".key\" files in target directory first.")
+        warn(
+            "WARNING: Cert files detected in the target directory, new cert creation skipped."
+        )
+        warn(
+            'To create new certs, remove all ".crt" and ".key" files in target directory first.'
+        )
         for f in cert_files:
             warn(f"Cert file path: {f}")
         return
 
     for domain in cert_domains_vars.keys():
-        domain_var, priv_key_name, crt_name, crt_pk_dir = cert_domains_vars[domain].values()
+        domain_var, priv_key_name, crt_name, crt_pk_dir = cert_domains_vars[
+            domain
+        ].values()
         domain_val = os.getenv(domain_var)
 
         if domain_val is None:
@@ -201,7 +240,9 @@ def init_self_signed_certs(force: bool):
         task_print_done()
 
         # Create signed cert for domain
-        task_print(f"Creating certificate file for domain: {domain} -> {domain_val} ...")
+        task_print(
+            f"Creating certificate file for domain: {domain} -> {domain_val} ..."
+        )
         create_cert(crt_pk_dir, pkey, crt_name, domain_val)
         task_print_done()
 
@@ -255,14 +296,22 @@ def init_dirs():
         data_dir_path = pathlib.Path(data_dir)
         already_exists = data_dir_path.exists()
 
-        if already_exists and dir_for not in ignore_permissions_for and \
-                (data_dir_owner := data_dir_path.owner()) != c.BENTO_USERNAME:
-            err(f"error: data directory {data_dir_path} exists, but is owned by {data_dir_owner} instead of "
-                f"{c.BENTO_USERNAME}. please fix this!")
+        if (
+            already_exists
+            and dir_for not in ignore_permissions_for
+            and (data_dir_owner := data_dir_path.owner()) != c.BENTO_USERNAME
+        ):
+            err(
+                f"error: data directory {data_dir_path} exists, but is owned by {data_dir_owner} instead of "
+                f"{c.BENTO_USERNAME}. please fix this!"
+            )
             exit(1)
 
         data_dir_path.mkdir(parents=True, exist_ok=True)
-        task_print_done(msg="already exists." if already_exists else "done.")
+        task_print_done(
+            msg="already exists." if already_exists else "done.",
+            color="blue" if already_exists else "green",
+        )
 
 
 def init_docker(client: docker.DockerClient):
@@ -283,25 +332,48 @@ def init_docker(client: docker.DockerClient):
     networks = (
         ("BENTO_AGGREGATION_NETWORK", dict(driver="bridge")),
         ("BENTO_AUTH_NETWORK", dict(driver="bridge")),
-        ("BENTO_AUTH_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        (
+            "BENTO_AUTH_DB_NETWORK",
+            dict(driver="bridge", internal=True),
+        ),  # Does not need to access the web
         ("BENTO_AUTHZ_NETWORK", dict(driver="bridge")),
-        ("BENTO_AUTHZ_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        (
+            "BENTO_AUTHZ_DB_NETWORK",
+            dict(driver="bridge", internal=True),
+        ),  # Does not need to access the web
         ("BENTO_BEACON_NETWORK", dict(driver="bridge")),
         ("BENTO_CBIOPORTAL_NETWORK", dict(driver="bridge")),
-        ("BENTO_CBIOPORTAL_DATABASE_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        (
+            "BENTO_CBIOPORTAL_DATABASE_NETWORK",
+            dict(driver="bridge", internal=True),
+        ),  # Does not need to access the web
         ("BENTO_CBIOPORTAL_SESSION_NETWORK", dict(driver="bridge")),
         ("BENTO_DROP_BOX_NETWORK", dict(driver="bridge")),
         ("BENTO_DRS_NETWORK", dict(driver="bridge")),
         ("BENTO_EVENT_RELAY_NETWORK", dict(driver="bridge")),
         ("BENTO_GOHAN_API_NETWORK", dict(driver="bridge")),
-        ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        (
+            "BENTO_GOHAN_ES_NETWORK",
+            dict(driver="bridge", internal=True),
+        ),  # Does not need to access the web
         ("BENTO_KATSU_NETWORK", dict(driver="bridge")),
-        ("BENTO_KATSU_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        (
+            "BENTO_KATSU_DB_NETWORK",
+            dict(driver="bridge", internal=True),
+        ),  # Does not need to access the web
+        ("BENTO_MINIO_NETWORK", dict(driver="bridge")),
+        ("BENTO_MONITORING_NETWORK", dict(driver="bridge")),
         ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
         ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),
-        ("BENTO_REDIS_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        (
+            "BENTO_REDIS_NETWORK",
+            dict(driver="bridge", internal=True),
+        ),  # Does not need to access the web
         ("BENTO_REFERENCE_NETWORK", dict(driver="bridge")),
-        ("BENTO_REFERENCE_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
+        (
+            "BENTO_REFERENCE_DB_NETWORK",
+            dict(driver="bridge", internal=True),
+        ),  # Does not need to access the web
         ("BENTO_SERVICE_REGISTRY_NETWORK", dict(driver="bridge")),
         ("BENTO_WEB_NETWORK", dict(driver="bridge")),
         ("BENTO_WES_NETWORK", dict(driver="bridge")),
@@ -399,15 +471,21 @@ def format_biosample_variants(biosample: dict):
 
     formated_variants = []
     for variant in biosample.get("variants", []):
-        if (allele := variant.pop("allele", None)) and (allele_type := variant.pop("allele_type", None)):
-            formated_variants.append({
-                allele_type: allele
-            })
+        if (allele := variant.pop("allele", None)) and (
+            allele_type := variant.pop("allele_type", None)
+        ):
+            formated_variants.append({allele_type: allele})
     biosample["variants"] = formated_variants
     return biosample
 
 
-SUBJECT_MCODE_FIELDS = ["comorbid_condition", "ecog_performance_status", "karnofsky", "race", "ethnicity"]
+SUBJECT_MCODE_FIELDS = [
+    "comorbid_condition",
+    "ecog_performance_status",
+    "karnofsky",
+    "race",
+    "ethnicity",
+]
 
 
 def format_subject_mcode(subject: dict):
@@ -474,10 +552,10 @@ def remove_null_none_empty(obj: dict):
                     clean_item = remove_null_none_empty(item)
                     if len(clean_item.keys()) > 0:
                         clean_list.append(clean_item)
-                elif item is not None and item != '':
+                elif item is not None and item != "":
                     clean_list.append(item)
             clean_obj[k] = clean_list
-        elif v is not None and v != '':
+        elif v is not None and v != "":
             clean_obj[k] = v
     return clean_obj
 
@@ -498,17 +576,29 @@ def _convert_phenopacket(phenopacket: dict, idx: int | None = None):
     # Stash extra_properties before conversion
     stashed_extra_properties = stash_phenopacket_extra_properties(formated_pheno)
 
-    pxf_cmd = ("java", "-jar", c.PHENOTOOL_PATH, "convert", "-f", "json", "-e", "phenopacket")
+    pxf_cmd = (
+        "java",
+        "-jar",
+        c.PHENOTOOL_PATH,
+        "convert",
+        "-f",
+        "json",
+        "-e",
+        "phenopacket",
+    )
     # Pipe pheno_pipe.stdout as stdin of async convert command
-    conversion_process = subprocess.Popen(pxf_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+    conversion_process = subprocess.Popen(
+        pxf_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True
+    )
 
     stdout, stderr = conversion_process.communicate(input=json.dumps(formated_pheno))
     if conversion_process.returncode != 0:
         # Conversion encountered an error
         raise ValueError(
-            (stderr if stderr else "") +
-            f"\nOn phenopacket element {idx} of array document."
-            if idx is not None else "",
+            (stderr if stderr else "")
+            + f"\nOn phenopacket element {idx} of array document."
+            if idx is not None
+            else "",
         )
 
     # Load converted output
@@ -542,7 +632,7 @@ def convert_phenopacket_file(source: str, target: str):
 
     # Read source file
     source_path = pathlib.Path.cwd() / source
-    with open(source_path, 'r') as source_file:
+    with open(source_path, "r") as source_file:
         pheno_v1 = json.load(source_file)
 
     try:
@@ -567,12 +657,13 @@ def convert_phenopacket_file(source: str, target: str):
         target_file_name = source_path.name.split(".json")[0] + "_pheno_v2.json"
         target_path = source_path.parent / target_file_name
 
-    with open(target_path, 'w') as output_file:
+    with open(target_path, "w") as output_file:
         json.dump(converted, output_file)
 
     task_print_done(f"Phenopacket V2 conversion done: {source} -> {target_path}")
 
     return converted
+
 
 # def init_secrets(force: bool):
 #     client = docker.from_env()
@@ -637,27 +728,40 @@ def init_config(service: str, force: bool = False):
         _init_katsu_config(force)
     elif service == "beacon":
         _init_beacon_config(force)
+    elif service == "beacon-network":
+        _init_beacon_network_config(force)
 
 
 def _init_beacon_config(force: bool):
     root_path = pathlib.Path.cwd()
-    template_dir = (root_path / "etc" / "templates" / "beacon")
-    dest_dir = (root_path / "lib" / "beacon" / "config")
+    template_dir = root_path / "etc" / "templates" / "beacon"
+    dest_dir = pathlib.Path(os.environ["BENTO_BEACON_CONFIG_DIR"])
 
-    config_template_path = (template_dir / "beacon_config.example.json")
-    config_dest_path = (dest_dir / "beacon_config.json")
+    config_template_path = template_dir / "beacon_config.example.json"
+    config_dest_path = dest_dir / "beacon_config.json"
 
-    cohort_template_path = (template_dir / "beacon_cohort.example.json")
-    cohort_dest_path = (dest_dir / "beacon_cohort.json")
+    cohort_template_path = template_dir / "beacon_cohort.example.json"
+    cohort_dest_path = dest_dir / "beacon_cohort.json"
 
     _file_copy(config_template_path, config_dest_path, force)
     _file_copy(cohort_template_path, cohort_dest_path, force)
 
 
+def _init_beacon_network_config(force: bool):
+    root_path = pathlib.Path.cwd()
+    template_dir = root_path / "etc" / "templates" / "beacon"
+    dest_dir = pathlib.Path(os.environ["BENTO_BEACON_CONFIG_DIR"])
+
+    network_config_template_path = template_dir / "beacon_network_config.example.json"
+    network_config_dest_path = dest_dir / "beacon_network_config.json"
+
+    _file_copy(network_config_template_path, network_config_dest_path, force)
+
+
 def _init_katsu_config(force: bool):
     root_path = pathlib.Path.cwd()
-    katsu_config_template_path = (root_path / "etc" / "katsu.config.example.json")
-    katsu_config_dest_path = (root_path / "lib" / "katsu" / "config.json")
+    katsu_config_template_path = root_path / "etc" / "katsu.config.example.json"
+    katsu_config_dest_path = root_path / "lib" / "katsu" / "config.json"
 
     _file_copy(katsu_config_template_path, katsu_config_dest_path, force)
 
