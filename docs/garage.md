@@ -4,20 +4,19 @@ This document covers how to use [Garage](https://garagehq.deuxfleurs.fr/), a lig
 
 ## Architecture
 
-Garage exposes four ports for different purposes:
+Garage exposes three ports for different purposes:
 
 | Port     | Purpose        | Used By                              | Protocol                  |
 | -------- | -------------- | ------------------------------------ | ------------------------- |
 | **3900** | S3 API         | Services (DRS, Drop-Box)             | HTTP REST (S3-compatible) |
 | **3901** | RPC (Internal) | Garage nodes (cluster communication) | Custom RPC                |
-| **3902** | Web Server     | Static website hosting               | HTTP                      |
 | **3903** | Admin API      | Administration and management        | HTTP REST                 |
 
 In Bento's single-node configuration (`replication_mode = "1"`), the RPC port is still required for internal operations.
 
 ### Port Configuration
 
-- **Ports 3900-3902** (S3 API, RPC, Web): Exposed to internal Docker network only
+- **Ports 3900-3901** (S3 API, RPC): Exposed to internal Docker network only
   - Services access these via container name: `http://bentov2-garage:3900`
 - **Port 3903** (Admin API): Published to localhost
   - Required for `init-garage` script to configure the cluster
@@ -59,8 +58,6 @@ BENTO_GARAGE_ENABLED='true'
 
 For HTTPS access to `garage.bentov2.local`, you need SSL certificates.
 
-**Recommended: Use Bento's certificate generation**
-
 ```bash
 # Generate certificates for all Bento services including garage
 ./bentoctl.bash init-certs
@@ -69,31 +66,9 @@ For HTTPS access to `garage.bentov2.local`, you need SSL certificates.
 ./bentoctl.bash restart gateway
 ```
 
-The `init-certs` command generates self-signed certificates for all configured Bento domains, including `garage.bentov2.local`, with proper Subject Alternative Names (SANs) for wildcard subdomains (`*.s3.garage.bentov2.local`, `*.web.garage.bentov2.local`).
-
-**Alternative: Manual certificate generation (advanced)**
-
-If you need custom certificates:
-
-```bash
-# Generate self-signed certificate for garage domain
-openssl req -x509 -newkey rsa:4096 -nodes \
-  -keyout ./local/certs/gateway/garage_privkey1.key \
-  -out ./local/certs/gateway/garage_fullchain1.crt \
-  -days 365 -subj "/CN=garage.bentov2.local" \
-  -addext "subjectAltName=DNS:garage.bentov2.local,DNS:*.s3.garage.bentov2.local,DNS:*.web.garage.bentov2.local"
-
-# Update gateway configuration to use dedicated cert
-# Edit lib/gateway/public_services/garage.conf.tpl to use:
-# ssl_certificate ${BENTO_GATEWAY_INTERNAL_GARAGE_FULLCHAIN_RELATIVE_PATH};
-# ssl_certificate_key ${BENTO_GATEWAY_INTERNAL_GARAGE_PRIVKEY_RELATIVE_PATH};
-
-# Restart gateway to apply new configuration
-./bentoctl.bash restart gateway
-```
+The `init-certs` command generates self-signed certificates for all configured Bento domains, including `garage.bentov2.local`, with proper Subject Alternative Names (SANs) for wildcard subdomains (`*.s3.garage.bentov2.local`).
 
 > **Note**:
-> - `init-certs` is the recommended approach as it handles all Bento domains consistently
 > - For production, use proper certificates from Let's Encrypt or your certificate authority
 > - Gateway restart is required for the garage nginx configuration to be rendered from template
 > - The garage.conf.tpl template is processed at gateway startup
@@ -147,7 +122,6 @@ BENTO_GARAGE_NETWORK=${BENTOV2_PREFIX}-garage-net
 # Port assignments
 BENTO_GARAGE_S3_API_PORT=3900
 BENTO_GARAGE_RPC_PORT=3901
-BENTO_GARAGE_WEB_PORT=3902
 BENTO_GARAGE_ADMIN_PORT=3903
 
 ```
@@ -162,7 +136,6 @@ BENTO_GARAGE_DOMAIN=garage.${BENTOV2_DOMAIN}
 This domain is used for:
 - **S3 API access**: `https://garage.bentov2.local` (path-style: `/bucket/object`)
 - **Virtual-hosted buckets**: `https://bucket.s3.garage.bentov2.local/object` (optional)
-- **Web interface**: `https://bucket.web.garage.bentov2.local` (optional)
 
 > **Note**: For local development, add these entries to your `/etc/hosts` file:
 > ```bash
@@ -172,10 +145,6 @@ This domain is used for:
 > # Example virtual-hosted bucket subdomains (add as needed)
 > 127.0.0.1  drs.s3.garage.bentov2.local
 > 127.0.0.1  drop-box.s3.garage.bentov2.local
->
-> # Example web interface subdomains (add as needed)
-> 127.0.0.1  drs.web.garage.bentov2.local
-> 127.0.0.1  drop-box.web.garage.bentov2.local
 > ```
 >
 > **Note**: Wildcard DNS (e.g., `*.s3.garage.bentov2.local`) is not supported in `/etc/hosts`. You need to add each subdomain individually as you create buckets.
@@ -226,10 +195,6 @@ s3_region = "garage"
 api_bind_addr = "[::]:3900"
 root_domain = ".s3.<from BENTO_GARAGE_DOMAIN>"  # e.g., .s3.garage.bentov2.local
 
-[s3_web]
-bind_addr = "[::]:3902"
-root_domain = ".web.<from BENTO_GARAGE_DOMAIN>"  # e.g., .web.garage.bentov2.local
-
 [admin]
 api_bind_addr = "[::]:3903"
 admin_token = "<from BENTO_GARAGE_ADMIN_TOKEN>"
@@ -237,10 +202,9 @@ admin_token = "<from BENTO_GARAGE_ADMIN_TOKEN>"
 
 **What the domains mean:**
 - `root_domain` in `[s3_api]`: Enables virtual-hosted-style bucket access (e.g., `https://mybucket.s3.garage.bentov2.local/object`)
-- `root_domain` in `[s3_web]`: Enables web interface for buckets (e.g., `https://mybucket.web.garage.bentov2.local`)
-- Both use the `BENTO_GARAGE_DOMAIN` environment variable (defaults to `garage.bentov2.local`)
+- Uses the `BENTO_GARAGE_DOMAIN` environment variable (defaults to `garage.bentov2.local`)
 
-> **Note**: These are optional features. Standard path-style access (`https://garage.bentov2.local/mybucket/object`) works without them.
+> **Note**: Virtual-hosted-style access is optional. Standard path-style access (`https://garage.bentov2.local/mybucket/object`) works without it.
 
 ### Docker Compose Configuration
 
@@ -250,7 +214,7 @@ The Garage service is configured in `lib/garage/docker-compose.garage.yaml`:
 
 - Admin port (3903) is published to localhost for initialization
 - No healthcheck (Garage image doesn't include curl)
-- Other ports (3900-3902) are exposed only to internal network
+- Other ports (3900-3901) are exposed only to internal network
 - Config file mounted read-only at `/etc/garage.toml`
 
 **Port configuration:**
@@ -261,7 +225,6 @@ ports:
 expose:
   - 3900 # S3 API (internal network only)
   - 3901 # RPC (internal network only)
-  - 3902 # Web (internal network only)
 ```
 
 > **Note**: The admin port must be published to localhost because the `init-garage` script runs on the host and needs to make API calls to configure the cluster.
@@ -590,60 +553,6 @@ aws --endpoint-url https://garage.bentov2.local \
 ```
 
 > **Note**: Use `--no-verify-ssl` with AWS CLI when using self-signed certificates.
-
-## Using the Web Interface
-
-Garage supports serving static websites directly from buckets using the web interface feature.
-
-### Setup Web Hosting for a Bucket
-
-1. **Upload website files** to your bucket (e.g., `index.html`, `error.html`)
-
-2. **Configure the bucket for web hosting** using the Admin API:
-
-```bash
-# Get your bucket ID
-curl -H "Authorization: Bearer devgarageadmin789" http://localhost:3903/v1/bucket | jq '.[] | select(.globalAliases[] == "mybucket")'
-
-# Enable website for the bucket
-curl -X PUT -H "Authorization: Bearer devgarageadmin789" \
-  -H "Content-Type: application/json" \
-  -d '{"indexDocument": "index.html", "errorDocument": "error.html"}' \
-  http://localhost:3903/v1/bucket/<bucket-id>/website
-```
-
-3. **Add subdomain to `/etc/hosts`**:
-
-```bash
-127.0.0.1  mybucket.web.garage.bentov2.local
-```
-
-4. **Access your website** at: `https://mybucket.web.garage.bentov2.local`
-
-### Example: Hosting Documentation
-
-```bash
-# Create a bucket for docs
-curl -X POST -H "Authorization: Bearer devgarageadmin789" \
-  -H "Content-Type: application/json" \
-  -d '{"globalAlias": "docs"}' \
-  http://localhost:3903/v1/bucket
-
-# Upload HTML files using AWS CLI
-aws --endpoint-url https://garage.bentov2.local s3 cp ./index.html s3://docs/
-aws --endpoint-url https://garage.bentov2.local s3 cp ./404.html s3://docs/
-
-# Enable web hosting
-curl -X PUT -H "Authorization: Bearer devgarageadmin789" \
-  -H "Content-Type: application/json" \
-  -d '{"indexDocument": "index.html", "errorDocument": "404.html"}' \
-  http://localhost:3903/v1/bucket/<bucket-id>/website
-
-# Add to /etc/hosts
-echo "127.0.0.1  docs.web.garage.bentov2.local" | sudo tee -a /etc/hosts
-
-# Visit https://docs.web.garage.bentov2.local
-```
 
 ## Migrating from MinIO to Garage
 
