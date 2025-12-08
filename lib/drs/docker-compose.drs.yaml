@@ -5,12 +5,12 @@ services:
     environment:
       - BENTO_UID
       - FLASK_DEBUG=False
-      - BENTO_DRS_CONTAINER_DATA_VOLUME_DIR # Special container-only variable to specify where the volume is mounted
-      - DATABASE=${BENTO_DRS_CONTAINER_DATA_VOLUME_DIR}/db/ # slightly confused naming, folder for database to go in
-      - DATA=${BENTO_DRS_CONTAINER_DATA_VOLUME_DIR}/obj/ # DRS file objects, vs. the database
+      - BENTO_DRS_CONTAINER_DATA_VOLUME_DIR  # Special container-only variable to specify where the volume is mounted
+      - DATABASE=${BENTO_DRS_CONTAINER_DATA_VOLUME_DIR}/db/  # slightly confused naming, folder for database to go in
+      - DATA=${BENTO_DRS_CONTAINER_DATA_VOLUME_DIR}/obj/  # DRS file objects, vs. the database
       - SERVICE_BASE_URL=${BENTO_DRS_URL}
       - INTERNAL_PORT=${BENTOV2_DRS_INTERNAL_PORT}
-      - DRS_INGEST_TMP_DIR=${BENTO_DRS_CONTAINER_TMP_VOLUME_DIR} # Volume for writing possibly large temporary files to
+      - DRS_INGEST_TMP_DIR=${BENTO_DRS_CONTAINER_TMP_VOLUME_DIR}  # Volume for writing possibly large temporary files to
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
       - BENTO_AUTHZ_SERVICE_URL
       - S3_ENDPOINT=${BENTO_DRS_S3_ENDPOINT}
@@ -32,12 +32,7 @@ services:
     cpus: ${BENTOV2_DRS_CPUS}
     cpu_shares: 512
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "http://localhost:${BENTOV2_DRS_INTERNAL_PORT}/service-info",
-        ]
+      test: [ "CMD", "curl", "http://localhost:${BENTOV2_DRS_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
       interval: ${BENTO_HEALTHCHECK_INTERVAL}
       start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
