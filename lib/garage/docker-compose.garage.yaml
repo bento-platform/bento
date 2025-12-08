@@ -7,7 +7,6 @@ services:
     expose:
       - ${BENTO_GARAGE_S3_API_PORT}
       - ${BENTO_GARAGE_RPC_PORT}
-      - ${BENTO_GARAGE_WEB_PORT}
     networks:
       - garage-net
     volumes:

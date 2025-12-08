@@ -66,7 +66,7 @@ For HTTPS access to `garage.bentov2.local`, you need SSL certificates.
 ./bentoctl.bash restart gateway
 ```
 
-The `init-certs` command generates self-signed certificates for all configured Bento domains, including `garage.bentov2.local`, with proper Subject Alternative Names (SANs) for wildcard subdomains (`*.s3.garage.bentov2.local`).
+The `init-certs` command generates self-signed certificates for all configured Bento domains, including `garage.bentov2.local`.
 
 > **Note**:
 > - For production, use proper certificates from Let's Encrypt or your certificate authority
@@ -134,20 +134,12 @@ BENTO_GARAGE_DOMAIN=garage.${BENTOV2_DOMAIN}
 ```
 
 This domain is used for:
-- **S3 API access**: `https://garage.bentov2.local` (path-style: `/bucket/object`)
-- **Virtual-hosted buckets**: `https://bucket.s3.garage.bentov2.local/object` (optional)
+- **S3 API access**: `https://garage.bentov2.local/bucket/object` (path-style)
 
-> **Note**: For local development, add these entries to your `/etc/hosts` file:
+> **Note**: For local development, add this entry to your `/etc/hosts` file:
 > ```bash
-> # Main S3 API endpoint
 > 127.0.0.1  garage.bentov2.local
->
-> # Example virtual-hosted bucket subdomains (add as needed)
-> 127.0.0.1  drs.s3.garage.bentov2.local
-> 127.0.0.1  drop-box.s3.garage.bentov2.local
 > ```
->
-> **Note**: Wildcard DNS (e.g., `*.s3.garage.bentov2.local`) is not supported in `/etc/hosts`. You need to add each subdomain individually as you create buckets.
 
 #### Security Configuration
 
@@ -193,18 +185,13 @@ rpc_secret = "<from BENTO_GARAGE_RPC_SECRET>"
 [s3_api]
 s3_region = "garage"
 api_bind_addr = "[::]:3900"
-root_domain = ".s3.<from BENTO_GARAGE_DOMAIN>"  # e.g., .s3.garage.bentov2.local
 
 [admin]
 api_bind_addr = "[::]:3903"
 admin_token = "<from BENTO_GARAGE_ADMIN_TOKEN>"
 ```
 
-**What the domains mean:**
-- `root_domain` in `[s3_api]`: Enables virtual-hosted-style bucket access (e.g., `https://mybucket.s3.garage.bentov2.local/object`)
-- Uses the `BENTO_GARAGE_DOMAIN` environment variable (defaults to `garage.bentov2.local`)
-
-> **Note**: Virtual-hosted-style access is optional. Standard path-style access (`https://garage.bentov2.local/mybucket/object`) works without it.
+All bucket access uses path-style addressing: `https://garage.bentov2.local/bucket/object`
 
 ### Docker Compose Configuration
 

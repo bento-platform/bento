@@ -20,6 +20,7 @@ services:
       - LOG_LEVEL=${BENTO_LOG_LEVEL}
     networks:
       - drop-box-net
+      - garage-net
     expose:
       - ${BENTOV2_DROP_BOX_INTERNAL_PORT}
     volumes:
@@ -28,7 +29,12 @@ services:
     cpus: ${BENTOV2_DROP_BOX_CPUS}
     cpu_shares: 1024
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}/service-info" ]
+      test:
+        [
+          "CMD",
+          "curl",
+          "http://localhost:${BENTOV2_DROP_BOX_INTERNAL_PORT}/service-info",
+        ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
       interval: ${BENTO_HEALTHCHECK_INTERVAL}
       start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
@@ -38,3 +44,6 @@ networks:
   drop-box-net:
     external: true
     name: ${BENTO_DROP_BOX_NETWORK}
+  garage-net:
+    external: true
+    name: ${BENTO_GARAGE_NETWORK}

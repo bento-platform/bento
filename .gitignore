@@ -2,6 +2,8 @@
 local.env
 .vscode/*
 .idea/*
+claude*
+.claude/*
 
 env
 .bentoctl.state.db
