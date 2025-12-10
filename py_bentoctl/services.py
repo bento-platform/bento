@@ -21,7 +21,7 @@ __all__ = [
     "run_as_shell_for_service",
     "logs_service",
     "compose_config",
-    "check_services_status",
+    "get_services_status",
 ]
 
 BENTO_SERVICES_DATA_BY_KIND = {
@@ -411,17 +411,10 @@ def compose_config(services_flag: bool) -> None:
     os.execvp(c.COMPOSE[0], (*c.COMPOSE, "config", *(("--services",) if services_flag else ())))
 
 
-def _status_compose_args(service: str, service_state: dict) -> Tuple[str, ...]:
-    if service_state.get(service, {}).get("mode") == MODE_LOCAL:
-        return _get_compose_with_files(dev=True, local=True)
-
-    return _get_compose_with_files(dev=c.DEV_MODE, local=False)
-
-
-def _get_service_runtime_state(service: str, service_state: dict) -> Tuple[bool, str]:
-    compose_args = _status_compose_args(service, service_state)
+def _get_service_runtime_state(service: str) -> Tuple[bool, str]:
+    # Use basic compose command to check running containers, independent of mode
     ps = subprocess.run(
-        (*compose_args, "ps", "--format", "json", service),
+        (*c.COMPOSE, "ps", "--format", "json", service),
         capture_output=True,
         text=True,
     )
@@ -467,8 +460,8 @@ def _get_service_runtime_state(service: str, service_state: dict) -> Tuple[bool,
     return any_running, status_text
 
 
-def _print_service_runtime_state(service: str, service_state: dict) -> bool:
-    running, status_text = _get_service_runtime_state(service, service_state)
+def _print_service_runtime_state(service: str) -> bool:
+    running, status_text = _get_service_runtime_state(service)
     print(f"{service[:18].rjust(18)} ", end="")
     colour = "green" if running else "red"
     prefix = "running" if running else "not running"
@@ -477,12 +470,11 @@ def _print_service_runtime_state(service: str, service_state: dict) -> bool:
     return running
 
 
-def check_services_status(compose_service: str) -> None:
+def get_services_status(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
-    service_state = get_state()["services"]
 
     if compose_service == c.SERVICE_LITERAL_ALL:
-        results = tuple(_print_service_runtime_state(s, service_state) for s in c.DOCKER_COMPOSE_SERVICES)
+        results = tuple(_print_service_runtime_state(s) for s in c.DOCKER_COMPOSE_SERVICES)
         if all(results):
             info("All services appear to be running.")
             return
@@ -490,6 +482,6 @@ def check_services_status(compose_service: str) -> None:
         exit(1)
 
     check_service_is_compose(compose_service)
-    if not _print_service_runtime_state(compose_service, service_state):
+    if not _print_service_runtime_state(compose_service):
         err(f"{compose_service} is not running.")
         exit(1)
