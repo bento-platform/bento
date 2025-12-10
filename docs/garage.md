@@ -1,6 +1,6 @@
 # Using Garage Object Storage in Bento
 
-This document covers how to use [Garage](https://garagehq.deuxfleurs.fr/), a lightweight, self-hosted, S3-compatible object storage solution, as an alternative to MinIO in your Bento deployment.
+This document covers how to use [Garage](https://garagehq.deuxfleurs.fr/), a lightweight, self-hosted, S3-compatible object storage solution, which replaces MinIO in your Bento deployment.
 
 ## Architecture
 
@@ -13,14 +13,6 @@ Garage exposes three ports for different purposes:
 | **3903** | Admin API      | Administration and management        | HTTP REST                 |
 
 In Bento's single-node configuration (`replication_mode = "1"`), the RPC port is still required for internal operations.
-
-### Port Configuration
-
-- **Ports 3900-3901** (S3 API, RPC): Exposed to internal Docker network only
-  - Services access these via container name: `http://bentov2-garage:3900`
-- **Port 3903** (Admin API): Published to localhost
-  - Required for `init-garage` script to configure the cluster
-  - Accessible at: `http://localhost:3903`
 
 ## Quick Start
 
@@ -42,11 +34,12 @@ Add the following entry to your `/etc/hosts` file for local access:
 
 ```bash
 127.0.0.1  garage.bentov2.local
+127.0.0.1  admin.garage.bentov2.local
 ```
 
 ### 3. Generate SSL Certificates
 
-Generate SSL certificates for HTTPS access to `garage.bentov2.local`:
+Generate SSL certificates for HTTPS access:
 
 ```bash
 # Generate certificates for all Bento services including garage
@@ -55,14 +48,6 @@ Generate SSL certificates for HTTPS access to `garage.bentov2.local`:
 # Restart gateway to load new certificates and render garage nginx config
 ./bentoctl.bash restart gateway
 ```
-
-The `init-certs` command generates self-signed certificates for all configured Bento domains, including `garage.bentov2.local`.
-
-> **Note**:
->
-> - For production, use proper certificates from Let's Encrypt or your certificate authority
-> - Gateway restart is required for the garage nginx configuration to be rendered from template
-> - The garage.conf.tpl template is processed at gateway startup
 
 ### 4. Configure Garage Variables
 
@@ -163,36 +148,7 @@ Restart DRS:
 ```
 
 ## Configuration Reference
-
-### Environment Variables
-
-Garage configuration follows Bento's standard configuration hierarchy:
-
-1. **`etc/default_config.env`** - Base defaults (empty values)
-2. **`etc/bento.env`** - Core configuration (image, ports, paths)
-3. **`etc/bento_dev.env`** or **`etc/bento_deploy.env`** - Environment-specific defaults
-4. **`local.env`** - Your local overrides (not in git)
-
-#### Core Configuration (from bento.env)
-
-```bash
-# Core configuration (bento.env)
-BENTO_GARAGE_IMAGE=dxflrs/garage
-BENTO_GARAGE_IMAGE_VERSION=v1.0.1
-BENTO_GARAGE_CONTAINER_NAME=${BENTOV2_PREFIX}-garage
-BENTO_GARAGE_CONFIG_DIR=${PWD}/lib/garage/config
-BENTO_GARAGE_META_DIR=${BENTO_FAST_DATA_DIR}/garage/meta
-BENTO_GARAGE_DATA_DIR=${BENTO_SLOW_DATA_DIR}/garage/data
-BENTO_GARAGE_NETWORK=${BENTOV2_PREFIX}-garage-net
-
-# Port assignments
-BENTO_GARAGE_S3_API_PORT=3900
-BENTO_GARAGE_RPC_PORT=3901
-BENTO_GARAGE_ADMIN_PORT=3903
-
-```
-
-#### Domain Configuration
+### Domain Configuration
 
 ```bash
 # Domain for accessing Garage S3 API through the gateway
@@ -203,7 +159,7 @@ This domain is used for:
 
 - **S3 API access**: `https://garage.bentov2.local/bucket/object` (path-style)
 
-#### Security Configuration
+### Security Configuration
 
 **For Development** (from `etc/bento_dev.env`):
 
@@ -271,8 +227,8 @@ The Garage service is configured in `lib/garage/docker-compose.garage.yaml`:
 ```yaml
 ports:
   - "3903:3903" # Admin API published for init script
+  - "3900:3900" # S3 API 
 expose:
-  - 3900 # S3 API (internal network only)
   - 3901 # RPC (internal network only)
 ```
 
