@@ -741,7 +741,7 @@ def init_garage():
         info(f"  Starting {container_name}...")
         run_service("garage")
 
-    client = GarageAdminClient(admin_url, admin_token)
+    client = GarageAdminClient(f"https://{admin_url}", admin_token)
 
     task_print("  Waiting for Garage Admin API to be ready...")
     if not client.wait_until_ready():
