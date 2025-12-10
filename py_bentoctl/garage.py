@@ -9,12 +9,12 @@ class GarageAdminClient:
         self.session.headers["Authorization"] = f"Bearer {token}"
 
     def get(self, path: str) -> requests.Response:
-        resp = self.session.get(f"{self.base_url}{path}")
+        resp = self.session.get(f"{self.base_url}{path}", verify=False)
         resp.raise_for_status()
         return resp
 
     def post(self, path: str, data: dict | list | None = None) -> requests.Response:
-        resp = self.session.post(f"{self.base_url}{path}", json=data or {})
+        resp = self.session.post(f"{self.base_url}{path}", json=data or {}, verify=False)
         resp.raise_for_status()
         return resp
 
@@ -23,7 +23,7 @@ class GarageAdminClient:
         elapsed = 0
         while elapsed < timeout:
             try:
-                resp = self.session.get(f"{self.base_url}/health", timeout=2)
+                resp = self.get("/health")
                 if resp.status_code == 200:
                     return True
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
