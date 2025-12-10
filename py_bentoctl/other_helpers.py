@@ -700,8 +700,8 @@ def init_garage():
 
     # Get environment variables
     container_name = getenv_or_exit("BENTO_GARAGE_CONTAINER_NAME")
-    admin_port = getenv_or_exit("BENTO_GARAGE_ADMIN_PORT")
     admin_token = getenv_or_exit("BENTO_GARAGE_ADMIN_TOKEN")
+    admin_url = getenv_or_exit("BENTO_GARAGE_ADMIN_DOMAIN")
     rpc_secret = getenv_or_exit("BENTO_GARAGE_RPC_SECRET")
     config_dir = pathlib.Path(getenv_or_exit("BENTO_GARAGE_CONFIG_DIR"))
 
@@ -741,7 +741,7 @@ def init_garage():
         info(f"  Starting {container_name}...")
         run_service("garage")
 
-    client = GarageAdminClient(f"http://localhost:{admin_port}", admin_token)
+    client = GarageAdminClient(admin_url, admin_token)
 
     task_print("  Waiting for Garage Admin API to be ready...")
     if not client.wait_until_ready():
