@@ -15,8 +15,6 @@ services:
       - public
 
   gateway:
-    volumes:
-      - ./repos/gateway/entrypoint.bash:/gateway/entrypoint.bash:ro
     environment:
       - BENTO_DEBUG=true
     # Override network aliases, adding BENTOV2_AUTH_DOMAIN
