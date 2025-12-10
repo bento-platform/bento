@@ -12,6 +12,7 @@ __all__ = [
     "err",
     "indent_str",
     "get_docker_client",
+    "getenv_or_exit",
 ]
 
 
