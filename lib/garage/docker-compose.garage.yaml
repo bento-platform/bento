@@ -2,9 +2,8 @@ services:
   garage:
     image: ${BENTO_GARAGE_IMAGE}:${BENTO_GARAGE_IMAGE_VERSION}
     container_name: ${BENTO_GARAGE_CONTAINER_NAME}
-    ports:
-      - "${BENTO_GARAGE_ADMIN_PORT}:${BENTO_GARAGE_ADMIN_PORT}"
     expose:
+      - ${BENTO_GARAGE_ADMIN_PORT}
       - ${BENTO_GARAGE_S3_API_PORT}
       - ${BENTO_GARAGE_RPC_PORT}
     networks:
