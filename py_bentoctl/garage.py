@@ -23,9 +23,8 @@ class GarageAdminClient:
         elapsed = 0
         while elapsed < timeout:
             try:
-                print(f"{self.base_url}/health")
                 resp = self.session.get(f"{self.base_url}/health", timeout=2, verify=False)
-                if resp.status_code == 200:
+                if resp.status_code == 200 or resp.status_code == 503:
                     return True
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
                 pass
@@ -49,14 +48,11 @@ class GarageAdminClient:
 
         # Layout needs configuration - use UpdateClusterLayout
         layout_update = {
-            "remove": [],
-            "update": {
-                node_id: {"zone": "dc1", "capacity": capacity_bytes, "tags": []}
-            },
+            "roles": [{"id": node_id, "capacity": capacity_bytes, "tags": [], "zone": "garage"}]
         }
         resp = self.post("/v2/UpdateClusterLayout", layout_update)
         current_version = resp.json()["version"]
-        self.post("/v2/ApplyClusterLayout", {"version": current_version})
+        self.post("/v2/ApplyClusterLayout", {"version": current_version + 1})
 
     def create_access_key(self) -> tuple[str, str]:
         """Returns (access_key_id, secret_access_key)."""
