@@ -16,12 +16,13 @@ In Bento's single-node configuration (`replication_mode = "1"`), the RPC port is
 
 ## Quick Start
 
-### 1. Initialize Docker Networks
-
-Create the required Docker networks for Garage:
+### 1. Initialize Docker Networks, Directories and Certs
 
 ```bash
 ./bentoctl.bash init-docker
+./bentoctl.bash init-dirs
+./bentoctl.bash init-certs  # use -f flag if certs directory already exists
+./bentoctl.bash restart gateway
 ```
 
 This creates the required `bentov2-garage-net` network.
@@ -37,19 +38,7 @@ Add the following entry to your `/etc/hosts` file for local access:
 127.0.0.1  admin.garage.bentov2.local
 ```
 
-### 3. Generate SSL Certificates
-
-Generate SSL certificates for HTTPS access:
-
-```bash
-# Generate certificates for all Bento services including garage
-./bentoctl.bash init-certs
-
-# Restart gateway to load new certificates and render garage nginx config
-./bentoctl.bash restart gateway
-```
-
-### 4. Configure Garage Variables
+### 3. Configure Garage Variables
 
 Edit your `local.env` file and set the following variables:
 
@@ -78,7 +67,7 @@ openssl rand -hex 32
 > - For development, you can use the default value from `etc/bento_dev.env`
 > - For production, always generate new secrets and never commit them to git
 
-### 5. Initialize Garage
+### 4. Initialize Garage
 
 Initialize the Garage cluster with single-node layout and create default buckets:
 
@@ -101,7 +90,7 @@ This command will:
 
 > **Note**: You don't need to manually run `./bentoctl.bash run garage` - the init command will start the container automatically if it's not running.
 
-### 6. Configure Drop Box Service
+### 5. Configure Drop Box Service
 
 Add the following Drop Box configuration to your `local.env` file:
 
@@ -124,7 +113,7 @@ Restart Drop Box:
 ./bentoctl.bash restart drop-box
 ```
 
-### 7. Configure DRS Service
+### 6. Configure DRS Service
 
 Add the following DRS configuration to your `local.env` file:
 
