@@ -37,7 +37,7 @@ class GarageAdminClient:
         return status["nodes"][0]["id"]
 
     def configure_layout(
-        self, node_id: str, capacity_bytes: int = 100_000_000_000 #TODO: make capacity configurable
+        self, node_id: str, capacity_bytes: int = 100_000_000_000  # TODO: make capacity configurable
     ) -> None:
         layout = self.get("/v2/GetClusterLayout").json()
 
