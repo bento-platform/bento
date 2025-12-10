@@ -160,13 +160,13 @@ def init_self_signed_certs(force: bool):
         **({"garage_s3": {
             "var": "BENTO_GARAGE_DOMAIN",
             "priv_key_name": "garage_s3_privkey1.key",
-            "crt": "garage__s3_fullchain1.crt",
+            "crt": "garage_s3_fullchain1.crt",
             "dir": gateway_certs_dir,
         }} if c.BENTO_FEATURE_GARAGE.enabled else {}),
         **({"garage_admin": {
             "var": "BENTO_GARAGE_ADMIN_DOMAIN",
             "priv_key_name": "garage_admin_privkey1.key",
-            "crt": "garage__admin_fullchain1.crt",
+            "crt": "garage_admin_fullchain1.crt",
             "dir": gateway_certs_dir,
         }} if c.BENTO_FEATURE_GARAGE.enabled else {}),
 
