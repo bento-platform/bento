@@ -351,6 +351,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_DROP_BOX_NETWORK", dict(driver="bridge")),
         ("BENTO_DRS_NETWORK", dict(driver="bridge")),
         ("BENTO_EVENT_RELAY_NETWORK", dict(driver="bridge")),
+        ("BENTO_GARAGE_NETWORK", dict(driver="bridge")),
         ("BENTO_GOHAN_API_NETWORK", dict(driver="bridge")),
         (
             "BENTO_GOHAN_ES_NETWORK",
@@ -361,7 +362,6 @@ def init_docker(client: docker.DockerClient):
             "BENTO_KATSU_DB_NETWORK",
             dict(driver="bridge", internal=True),
         ),  # Does not need to access the web
-        ("BENTO_MINIO_NETWORK", dict(driver="bridge")),
         ("BENTO_MONITORING_NETWORK", dict(driver="bridge")),
         ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
         ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),
@@ -385,12 +385,13 @@ def init_docker(client: docker.DockerClient):
         net_name = os.getenv(net_var)
         if not net_name:
             cprint(f"failed ({net_var} not set).", "red")
+            continue
 
         try:
             client.networks.get(net_name)
             task_print_done(f"exists already (name: {net_name}).", color="blue")
         except docker.errors.NotFound:
-            client.networks.create(net_name, **net_kwargs)
+            client.networks.create(net_name, **net_kwargs)  # type: ignore
             task_print_done(f"network created (name: {net_name}).")
 
 
@@ -447,7 +448,7 @@ def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: 
             elif idx in element_stash:
                 item[EXTRA_PROPERTIES_KEY] = element_stash[idx]
 
-    else:
+    elif element is not None:
         element[EXTRA_PROPERTIES_KEY] = element_stash
 
 
