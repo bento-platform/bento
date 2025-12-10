@@ -117,7 +117,7 @@ def _init_web_private(force: bool):
     web_path = (root_path / "lib" / "web")
     web_path.mkdir(parents=True, exist_ok=True)
 
-    src_branding = (root_path / "etc" / "default.branding.png")  # dark background branding
+    src_branding = (root_path / "etc" / "default.branding.darkbg.png")
     dst_branding = (web_path / "branding.png")
 
     if dst_branding.is_file():
@@ -806,4 +806,3 @@ def init_garage():
             warn(f"Failed to configure bucket {bucket_name}: {e}")
 
     task_print_done("Garage initialization complete!")
-    
