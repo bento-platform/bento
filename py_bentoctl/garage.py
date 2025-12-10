@@ -23,7 +23,8 @@ class GarageAdminClient:
         elapsed = 0
         while elapsed < timeout:
             try:
-                resp = self.get("/health")
+                print(f"{self.base_url}/health")
+                resp = self.session.get(f"{self.base_url}/health", timeout=2, verify=False)
                 if resp.status_code == 200:
                     return True
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -37,7 +38,7 @@ class GarageAdminClient:
         return status["nodes"][0]["id"]
 
     def configure_layout(
-        self, node_id: str, capacity_bytes: int = 100_000_000_000  # TODO: make capacity configurable
+        self, node_id: str, capacity_bytes: int = 10_000_000_000  # TODO: make capacity configurable
     ) -> None:
         layout = self.get("/v2/GetClusterLayout").json()
 
