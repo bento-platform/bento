@@ -2,7 +2,7 @@
 
 This document section covers how to configure Bento services to use S3 object storage.
 
-When we refer to S3 here, we mean any S3 compatible implementation (Minio, Ceph, GCP, ...), which is not limited
+When we refer to S3 here, we mean any S3 compatible implementation (Garage, Ceph, GCP, ...), which is not limited
 to AWS.
 
 ## Why object storage?
@@ -107,7 +107,7 @@ bucket for a seamless transition.
 ### Prepare for S3 uploads
 
 To upload old files to S3 you will need the following:
-- An S3 store (use Bento's Minio if you don't have one)
+- An S3 store (use Bento's Garage if you don't have one)
   - Save the hostname for later
   - Determine if HTTPS or HTTP should be used
     - HTTPS is strongly recommended for security reasons, but some S3 stores are configured to be HTTP only
@@ -116,7 +116,7 @@ To upload old files to S3 you will need the following:
   - Save the `Access Key` string for later
   - Save the `Secret Key` string for later
 - An S3 CLI tool installed on the machine hosting Bento
-  - We detail usage with S3CMD here, but any S3 compatible CLI tool will work (aws, Minio CLI)
+  - We detail usage with S3CMD here, but any S3 compatible CLI tool will work (aws, Garage CLI)
 
 Before performing the uploads, configure your S3 CLI tool (S3CMD here):
 
