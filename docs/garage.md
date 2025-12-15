@@ -12,7 +12,7 @@ Garage exposes three ports for different purposes:
 | **3901** | RPC (Internal) | Garage nodes (cluster communication) | Custom RPC                |
 | **3903** | Admin API      | Administration and management        | HTTP REST                 |
 
-In Bento's single-node configuration (`replication_facotr = "1"`), the RPC port is still required for internal operations.
+In Bento's single-node configuration (`replication_factor = "1"`), the RPC port is still required for internal operations.
 
 ## Quick Start
 
