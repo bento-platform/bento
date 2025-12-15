@@ -541,9 +541,9 @@ def get_services_status(compose_service: str) -> None:
         # Get only the services that are actually configured
         configured_services = _get_configured_services()
 
-        # Print status for each configured service
+        # Print status for each configured service in alphabetical order
         results = []
-        for service in configured_services:
+        for service in sorted(configured_services):
             if service in all_statuses:
                 running, status_text, health_status = all_statuses[service]
                 is_running = _print_service_status(service, running, status_text, health_status)
