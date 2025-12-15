@@ -476,7 +476,7 @@ def _fetch_all_service_statuses() -> Dict[str, Tuple[bool, str, str]]:
         elif isinstance(parsed, dict):
             entries = [parsed]
         else:
-            err(f"  Unexpected docker compose status output.")
+            err("  Unexpected docker compose status output.")
             exit(1)
 
     # Build dict mapping service name to status
