@@ -33,6 +33,12 @@ s3cmd --access_key=AKIA_MINIO --secret_key=MINIOSECRET \
       sync s3://drs/ ./drs-backup/
 ```
 
+**Notes**
+- Use `--dry-run` flag to preview sync operations before executing
+- Add `--delete-removed` if you want to mirror deletions
+- Consider using `--skip-existing` for incremental syncs
+- The `--no-check-certificate` flag is used for local development environments
+
 ### Step 2: Setting up Garage
 
 Now you can switch to Bento - v20.1; Follow the steps listed [here](./garage.md) to setup Garage.
@@ -100,8 +106,4 @@ rm -rf ./drop-box-backup/
 rm -rf ./drs-backup/
 ```
 
-### Notes
-- Use `--dry-run` flag to preview sync operations before executing
-- Add `--delete-removed` if you want to mirror deletions
-- Consider using `--skip-existing` for incremental syncs
-- The `--no-check-certificate` flag is used for local development environments
+
