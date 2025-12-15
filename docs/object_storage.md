@@ -46,8 +46,8 @@ BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Local Garage S3 endpoi
 BENTO_DROP_BOX_S3_USE_HTTPS=true                        # Use HTTPS or HTTP on the endpoint
 BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Bucket name (created by init-garage)
 BENTO_DROP_BOX_S3_REGION_NAME=""                        # Region (required for Garage)
-BENTO_DROP_BOX_S3_ACCESS_KEY="<get from init-garage>"   # S3 access key (from init-garage output)
-BENTO_DROP_BOX_S3_SECRET_KEY="<get from init-garage>"   # S3 secret key (from init-garage output)
+BENTO_DROP_BOX_S3_ACCESS_KEY="<get from S3 provider>"   # S3 access key (from init-garage output in dev)
+BENTO_DROP_BOX_S3_SECRET_KEY="<get from S3 provider>"   # S3 secret key (from init-garage output in dev)
 BENTO_DROP_BOX_VALIDATE_SSL=false                       # Needs to be 'false' with self signed certs and HTTPS
 ```
 
@@ -70,8 +70,8 @@ BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"        # Local Garage S3 endpoint (
 BENTO_DRS_S3_USE_HTTPS=true                         # Use HTTPS or HTTP on the endpoint
 BENTO_DRS_S3_BUCKET="drs"                           # Bucket name (created by init-garage)
 BENTO_DRS_S3_REGION_NAME=""                         # Region (required for Garage)
-BENTO_DRS_S3_ACCESS_KEY="<get from init-garage>"    # S3 access key (from init-garage output)
-BENTO_DRS_S3_SECRET_KEY="<get from init-garage>"    # S3 secret key (from init-garage output)
+BENTO_DRS_S3_ACCESS_KEY="<get from S3 provider>"    # S3 access key (from init-garage output in dev)
+BENTO_DRS_S3_SECRET_KEY="<get from S3 provider>"    # S3 secret key (from init-garage output in dev)
 BENTO_DRS_VALIDATE_SSL=false                        # Needs to be 'false' with self signed certs and HTTPS
 ```
 
