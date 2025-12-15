@@ -48,7 +48,7 @@ s3cmd -c ~/.s3cfg-garage-local sync ./drs-backup/ s3://drs/
 
 S3cfg template for garage: 
 
-```bash
+```ini
 # ~/.s3cfg-garage-local
 [default]
 access_key = <GARAGE_ACCESS_KEY>
@@ -88,6 +88,15 @@ s3cmd -c ~/.s3cfg-garage-local ls s3://drop-box/ --recursive | wc -l
 # Compare object counts for drs
 s3cmd -c ~/.s3cfg-minio-local ls s3://drs/ --recursive | wc -l
 s3cmd -c ~/.s3cfg-garage-local ls s3://drs/ --recursive | wc -l
+```
+
+### Step 4: Cleanup
+
+After verifying the migration is successful, clean up the backup files (**Note**: Consider keeping the backup for a grace period after removal):
+```bash
+# Remove local backup directories
+rm -rf ./drop-box-backup/
+rm -rf ./drs-backup/
 ```
 
 ### Notes
