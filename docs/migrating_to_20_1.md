@@ -49,8 +49,7 @@ s3cmd -c ~/.s3cfg-garage-local sync ./drs-backup/ s3://drs/
 S3cfg template for garage: 
 
 ```bash
-# s3cfg-garage-local
-cat > ~/.s3cfg-garage-local << 'EOF'
+# ~/.s3cfg-garage-local
 [default]
 access_key = <GARAGE_ACCESS_KEY>
 secret_key = <GARAGE_SECRET_KEY>
