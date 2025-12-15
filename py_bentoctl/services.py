@@ -483,12 +483,28 @@ async def _print_service_runtime_state(service: str) -> Tuple[bool, Optional[str
     return running, None
 
 
+def _get_configured_services() -> list[str]:
+    """Get the list of services that are actually configured in the current compose setup."""
+    result = subprocess.run(
+        (*c.COMPOSE, "config", "--services"),
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        err(f"  Failed to get configured services: {result.stderr.strip()}")
+        exit(1)
+    return [s.strip() for s in result.stdout.strip().split('\n') if s.strip()]
+
+
 def get_services_status(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
     if compose_service == c.SERVICE_LITERAL_ALL:
+        # Get only the services that are actually configured
+        configured_services = _get_configured_services()
+
         async def check_all_services():
-            tasks = [_print_service_runtime_state(s) for s in c.DOCKER_COMPOSE_SERVICES]
+            tasks = [_print_service_runtime_state(s) for s in configured_services]
             return await asyncio.gather(*tasks, return_exceptions=True)
 
         results = asyncio.run(check_all_services())
