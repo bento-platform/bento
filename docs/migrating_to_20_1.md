@@ -4,7 +4,8 @@
 
 ### Prerequisites
 Before starting the migration, ensure you have:
-- Access to both Minio and Garage instances
+- Be on Bento - v20 in the start
+- Access to both Minio instance
 - `s3cmd` installed and configured
 - Sufficient local disk space for the backup
 
@@ -32,9 +33,9 @@ s3cmd --access_key=AKIA_MINIO --secret_key=MINIOSECRET \
       sync s3://drs/ ./drs-backup/
 ```
 
-### Step 2: Setting up garage
+### Step 2: Setting up Garage
 
-Follow the steps listed [here](./garage.md)
+Now you can switch to Bento - v20.1; Follow the steps listed [here](./garage.md) to setup Garage.
 
 ### Step 3: Upload data to Garage
 
