@@ -220,7 +220,8 @@ DATA_DIR_ENV_VARS = {
     #  - cBioPortal
     **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if BENTO_FEATURE_CBIOPORTAL.enabled else {}),
     #  - Garage
-    **({"garage-meta": "BENTO_GARAGE_META_DIR", "garage-data": "BENTO_GARAGE_DATA_DIR"} if BENTO_FEATURE_GARAGE.enabled else {}),
+    **({"garage-meta": "BENTO_GARAGE_META_DIR",
+        "garage-data": "BENTO_GARAGE_DATA_DIR"} if BENTO_FEATURE_GARAGE.enabled else {}),
     #  - Monitoring: Grafana/Loki
     **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if BENTO_FEATURE_MONITORING else {}),
     **({"loki": "BENTO_LOKI_TEMP_DIR"} if BENTO_FEATURE_MONITORING else {}),
