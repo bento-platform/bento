@@ -413,10 +413,11 @@ def compose_config(services_flag: bool) -> None:
 
 
 async def _get_service_runtime_state(service: str) -> Tuple[bool, str, Optional[str]]:
-    # Use basic compose command to check running containers, independent of mode
+    # Use compose command with proper files and profiles to check running containers
     # Returns (is_running, status_text, error_message)
+    compose_cmd = _get_compose_with_files(dev=c.DEV_MODE)
     proc = await asyncio.create_subprocess_exec(
-        *c.COMPOSE, "ps", "--format", "json", service,
+        *compose_cmd, "ps", "--format", "json", service,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
@@ -486,14 +487,15 @@ async def _print_service_runtime_state(service: str) -> Tuple[bool, Optional[str
 def _get_configured_services() -> list[str]:
     """Get the list of services that are actually configured in the current compose setup."""
     result = subprocess.run(
-        (*c.COMPOSE, "config", "--services"),
+        (*_get_compose_with_files(dev=c.DEV_MODE), "config", "--services"),
         capture_output=True,
         text=True,
     )
     if result.returncode != 0:
         err(f"  Failed to get configured services: {result.stderr.strip()}")
         exit(1)
-    return [s.strip() for s in result.stdout.strip().split('\n') if s.strip()]
+    services = [s.strip() for s in result.stdout.strip().split('\n') if s.strip()]
+    return services
 
 
 def get_services_status(compose_service: str) -> None:
