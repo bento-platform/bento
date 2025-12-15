@@ -25,6 +25,8 @@ class GarageAdminClient:
             try:
                 resp = self.session.get(f"{self.base_url}/health", timeout=2, verify=False)
                 if resp.status_code == 200 or resp.status_code == 503:
+                    # 503: Garage is up and responding but has layout issues,
+                    # This gets resolved later by setting a layout
                     return True
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
                 pass
