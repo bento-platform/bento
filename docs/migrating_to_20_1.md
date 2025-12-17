@@ -21,6 +21,22 @@ s3cmd -c ~/.s3cfg-minio-local sync s3://drop-box/ ./drop-box-backup/
 s3cmd -c ~/.s3cfg-minio-local sync s3://drs/ ./drs-backup/
 ```
 
+For example, your `.s3cfg-minio-local` might look something like this:
+```ini
+[default]
+host_base = minio.bentov2.local  
+host_bucket = minio.bentov2.local  
+use_https = True  
+
+# For dev self-signed certs only  
+check_ssl_certificate = False  
+
+# Credentials  
+# Re-use ones in your local.env, or create new ones in the minio UI at minio.bentov2.local  
+access_key = <REDACTED>  
+secret_key = <REDACTED>  
+```
+
 #### Option B: Without existing config file
 ```bash
 # Backup drop-box bucket
