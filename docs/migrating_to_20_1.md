@@ -96,6 +96,6 @@ rm -rf ./drs-backup/
 ```bash
 rm ~/.s3cfg-minio-local
 rm ./certs/gateway/minio_privkey1.key
-rm ./certs/gateway/minio_privkey1.key
+rm ./certs/gateway/minio_fullchain1.crt
 rm ${BENTO_MINIO_DATA_DIR} # Internally referenced as ${BENTO_SLOW_DATA_DIR}/minio/data
 ```
