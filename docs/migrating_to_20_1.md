@@ -4,9 +4,12 @@
 
 ### Prerequisites
 Before starting the migration, ensure you have:
-- Be on Bento - v20 in the start
+
+> [!IMPORTANT]
+> If using MinIO, **DO NOT** check out the `v20.1` tag or release branch until you've downloaded all data from MinIO for migration to Garage.
+
 - Access to both Minio instance
-- `s3cmd` installed and configured
+- [`s3cmd`](https://github.com/s3tools/s3cmd) installed and configured
 - Sufficient local disk space for the backup
 
 ### Step 1: Back up data from Minio
@@ -21,13 +24,13 @@ s3cmd -c ~/.s3cfg-minio-local sync s3://drs/ ./drs-backup/
 #### Option B: Without existing config file
 ```bash
 # Backup drop-box bucket
-s3cmd --access_key=AKIA_MINIO --secret_key=MINIOSECRET \
+s3cmd --access_key=ACCESS_KEY --secret_key=SECRET_KEY \
       --host=minio.bentov2.local --no-check-certificate \
       --host-bucket="minio.bentov2.local/%(bucket)s" \
       sync s3://drop-box/ ./drop-box-backup/
 
 # Backup drs bucket
-s3cmd --access_key=AKIA_MINIO --secret_key=MINIOSECRET \
+s3cmd --access_key=ACCESS_KEY --secret_key=SECRET_KEY \
       --host=minio.bentov2.local --no-check-certificate \
       --host-bucket="minio.bentov2.local/%(bucket)s" \
       sync s3://drs/ ./drs-backup/
@@ -53,7 +56,7 @@ s3cmd -c ~/.s3cfg-garage-local sync ./drop-box-backup/ s3://drop-box/
 s3cmd -c ~/.s3cfg-garage-local sync ./drs-backup/ s3://drs/
 ```
 
-S3cfg template for garage: 
+S3cfg template for Garage: 
 
 ```ini
 # ~/.s3cfg-garage-local

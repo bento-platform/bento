@@ -1,6 +1,6 @@
 # Using Garage Object Storage in Bento
 
-This document covers how to use [Garage](https://garagehq.deuxfleurs.fr/), a lightweight, self-hosted, S3-compatible object storage solution, which replaces MinIO in your Bento deployment.
+This document covers how to use [Garage](https://garagehq.deuxfleurs.fr/), a lightweight, self-hosted, S3-compatible object storage solution, which replaces MinIO in Bento deployments which use a local S3 API provider.
 
 ## Architecture
 
@@ -80,7 +80,7 @@ This command will:
 1. Validate the RPC secret format (64 hex characters)
 2. Check if the Garage container is running (starts it if needed)
 3. Generate the `garage.toml` configuration file
-4. Wait for the Admin API to be ready (polls http://localhost:3903)
+4. Wait for the Admin API to be ready (polls https://admin.garage.{BENTO_DOMAIN})
 5. Configure a single-node cluster layout
 6. Create S3 access credentials
 7. Create default buckets: `drs` and `drop-box`
