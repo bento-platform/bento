@@ -118,11 +118,20 @@ s3cmd -c ~/.s3cfg-garage-local ls s3://drs/ --recursive | wc -l
 
 ### Step 4: Cleanup
 
-After verifying the migration is successful, clean up the backup files (**Note**: Consider keeping the backup for a grace period after removal):
+(**Note**: Consider keeping the backup for a grace period after removal):
+
+#### Backup removal
+After verifying the migration is successful, clean up the backup files 
 ```bash
 # Remove local backup directories
 rm -rf ./drop-box-backup/
 rm -rf ./drs-backup/
 ```
 
-
+#### Old Minio files
+```bash
+rm ~/.s3cfg-minio-local
+rm ./certs/gateway/minio_privkey1.key
+rm ./certs/gateway/minio_privkey1.key
+rm ${BENTO_MINIO_DATA_DIR} # Internally referenced as ${BENTO_SLOW_DATA_DIR}/minio/data
+```
