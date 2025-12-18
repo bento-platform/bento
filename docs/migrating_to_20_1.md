@@ -36,6 +36,13 @@ access_key = <REDACTED>
 secret_key = <REDACTED>  
 ```
 
+For verfication later, you can store the output of the following to check after migration:
+```bash
+# Save output text somewhere
+s3cmd -c ~/.s3cfg-minio-local ls s3://drop-box/ --recursive | wc -l
+s3cmd -c ~/.s3cfg-minio-local ls s3://drs/ --recursive | wc -l
+```
+
 **Notes**
 - Use `--dry-run` flag to preview sync operations before executing
 - Add `--delete-removed` if you want to mirror deletions
@@ -58,25 +65,23 @@ S3cfg template for Garage:
 ```ini
 # ~/.s3cfg-garage-local
 [default]
+host_base = garage.bentov2.local
+host_bucket = garage.bentov2.local
+use_https = True
+
+# Provided from init-garage output
 access_key = <GARAGE_ACCESS_KEY>
 secret_key = <GARAGE_SECRET_KEY>
-host_base = garage.bentov2.local
-host_bucket = garage.bentov2.local/%(bucket)s
-use_https = True
+
+# For dev self-signed certs only  
 check_ssl_certificate = False
-check_ssl_hostname = False
-signature_v2 = False
-region = garage
 ```
 
 ### Step 3: Verify migration
-```bash
-# Compare object counts for drop-box
-s3cmd -c ~/.s3cfg-minio-local ls s3://drop-box/ --recursive | wc -l
-s3cmd -c ~/.s3cfg-garage-local ls s3://drop-box/ --recursive | wc -l
 
-# Compare object counts for drs
-s3cmd -c ~/.s3cfg-minio-local ls s3://drs/ --recursive | wc -l
+Compare the object counts against the output from Step 1.
+```bash
+s3cmd -c ~/.s3cfg-garage-local ls s3://drop-box/ --recursive | wc -l
 s3cmd -c ~/.s3cfg-garage-local ls s3://drs/ --recursive | wc -l
 ```
 

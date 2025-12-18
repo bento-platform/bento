@@ -60,12 +60,6 @@ BENTO_GARAGE_RPC_SECRET='<your-64-char-hex-secret>'
 BENTO_GARAGE_ADMIN_TOKEN='<your-secure-admin-token>'
 ```
 
-**Generate the RPC secret:**
-
-```bash
-openssl rand -hex 32
-```
-
 > ⚠️ **Important**:
 > - The RPC secret must be exactly 64 hexadecimal characters (32 bytes)
 > - For development, you can use the default value from `etc/bento_dev.env`
@@ -227,10 +221,28 @@ Garage is S3-compatible, so you can use standard S3 tools:
 aws configure set aws_access_key_id <ACCESS_KEY>
 aws configure set aws_secret_access_key <SECRET_KEY>
 aws --endpoint-url https://garage.bentov2.local s3 ls
+```
 
-# Using s3cmd (create ~/.s3cfg first)
-s3cmd --host=localhost:3900 --host-bucket=localhost:3900 \
-  --no-ssl ls
+For S3cmd you can create an s3cf with the following template:
+```ini
+# ~/.s3cfg-garage-local
+[default]
+host_base = minio.bentov2.local  
+host_bucket = minio.bentov2.local  
+use_https = True  
+
+# For dev self-signed certs only  
+check_ssl_certificate = False  
+
+# Credentials  
+# Re-use ones in your local.env, or create new ones in the minio UI at minio.bentov2.local  
+access_key = <REDACTED>  
+secret_key = <REDACTED> 
+```
+
+And then you can do ls with the following command:
+```bash
+s3cmd -c ~/.s3cfg-garage-local ls 
 ```
 
 ## Data Persistence
