@@ -534,14 +534,11 @@ def _get_configured_services() -> list[str]:
 def get_services_status(compose_service: str) -> None:
     compose_service = translate_service_aliases(compose_service)
 
-    # Fetch all service statuses in one docker compose ps call
     all_statuses = _fetch_all_service_statuses()
 
     if compose_service == c.SERVICE_LITERAL_ALL:
-        # Get only the services that are actually configured
         configured_services = _get_configured_services()
 
-        # Print status for each configured service in alphabetical order
         results = []
         for service in sorted(configured_services):
             if service in all_statuses:
