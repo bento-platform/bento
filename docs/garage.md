@@ -30,7 +30,6 @@ Then run the following:
 ./bentoctl.bash init-docker
 ./bentoctl.bash init-dirs
 ./bentoctl.bash init-certs  # use -f flag if certs directory already exists
-./bentoctl.bash restart gateway
 ```
 
 This creates the required `bentov2-garage-net` network.

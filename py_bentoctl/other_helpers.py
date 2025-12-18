@@ -12,7 +12,7 @@ from termcolor import cprint
 from datetime import datetime, timezone
 
 from . import config as c
-from .services import BENTO_USER_EXCLUDED_SERVICES, run_service
+from .services import BENTO_USER_EXCLUDED_SERVICES, restart_service, run_service
 from .openssl import create_cert, create_private_key
 from .garage import GarageAdminClient
 from .utils import info, task_print, task_print_done, warn, err, getenv_or_exit, get_docker_client
@@ -740,6 +740,8 @@ def init_garage():
         task_print_done("not running, starting...")
         info(f"  Starting {container_name}...")
         run_service("garage")
+        info("  Restarting gateway...")
+        restart_service("gateway")
 
     client = GarageAdminClient(f"https://{admin_url}", admin_token)
 
