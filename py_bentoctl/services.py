@@ -301,7 +301,7 @@ def mode_service(compose_service: str) -> None:
     else:
         mode += "\t(dev)"
 
-    print(f"{compose_service[:18].rjust(18)} ", end="")
+    print(f"{compose_service[:19].rjust(19)} ", end="")
     cprint(mode, colour)
 
 
@@ -496,7 +496,7 @@ def _fetch_all_service_statuses() -> Dict[str, Tuple[bool, str, str]]:
 
 def _print_service_status(service: str, running: bool, status_text: str, health_status: str) -> bool:
     """Print service status with color coding. Returns whether service is running."""
-    print(f"{service[:18].rjust(18)} ", end="")
+    print(f"{service[:19].rjust(19)} ", end="")
 
     # Determine color and prefix based on health status
     if not running:
@@ -547,7 +547,7 @@ def get_services_status(compose_service: str) -> None:
                 results.append(is_running)
             else:
                 # Service is configured but not found in docker ps output
-                print(f"{service[:18].rjust(18)} ", end="")
+                print(f"{service[:19].rjust(19)} ", end="")
                 cprint("not found (No containers)", "red")
                 results.append(False)
 
@@ -567,7 +567,7 @@ def get_services_status(compose_service: str) -> None:
             err(f"{compose_service} is not running.")
             exit(1)
     else:
-        print(f"{compose_service[:18].rjust(18)} ", end="")
+        print(f"{compose_service[:19].rjust(19)} ", end="")
         cprint("not found (No containers)", "red")
         err(f"{compose_service} is not running.")
         exit(1)
