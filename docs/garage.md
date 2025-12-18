@@ -18,6 +18,14 @@ In Bento's single-node configuration (`replication_factor = "1"`), the RPC port 
 
 ### 1. Initialize Docker Networks, Directories and Certs
 
+For initialization to work, first modify your local.env to set the Garage feature flag as true.
+```bash
+# local.env
+# Enable Garage profile
+BENTO_GARAGE_ENABLED='true'
+```
+
+Then run the following:
 ```bash
 ./bentoctl.bash init-docker
 ./bentoctl.bash init-dirs
@@ -44,9 +52,6 @@ Edit your `local.env` file and set the following variables:
 
 ```bash
 # local.env
-
-# Enable Garage profile
-BENTO_GARAGE_ENABLED='true'
 
 # Generate RPC secret (must be exactly 64 hexadecimal characters)
 # Use: openssl rand -hex 32
