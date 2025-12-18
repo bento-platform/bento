@@ -102,5 +102,5 @@ rm -rf ./drs-backup/
 rm ~/.s3cfg-minio-local
 rm ./certs/gateway/minio_privkey1.key
 rm ./certs/gateway/minio_fullchain1.crt
-rm ${BENTO_MINIO_DATA_DIR} # Internally referenced as ${BENTO_SLOW_DATA_DIR}/minio/data
+rm <path-to-your-minio-data-dir> # Defualt is ${BENTO_SLOW_DATA_DIR}/minio/data
 ```
