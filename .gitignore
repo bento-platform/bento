@@ -61,3 +61,8 @@ etc/tests/*/*/*/__pycache__
 etc/tests/*/geckodriver
 etc/tests/*/geckodriver.log
 geckodriver.log
+
+# backups
+
+drop-box-backup
+drs-backup
