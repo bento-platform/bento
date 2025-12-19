@@ -1,15 +1,25 @@
 # Migrating to Bento v20.1
 
+> [!IMPORTANT]
+> If using MinIO, **DO NOT** check out the `v20.1` tag or release branch until you've downloaded all data from MinIO for 
+> the migration to Garage.
+
+Bento v20.1 brings two different changes which may require data migration when moving from v20:
+
+* Fixes for genomic interpretations in Katsu, require reingestion if any genomic interpretations are present.
+* The replacement of MinIO with GarageHQ as a local S3 backend, which requires migration of all bucket data.
+
+
+## Re-ingesting Genomic Interpretations
+
+TODO
+
 
 ## MinIO to Garage Migration
 
 ### Prerequisites
 
 Before starting the migration, ensure you have:
-
-> [!IMPORTANT]
-> If using MinIO, **DO NOT** check out the `v20.1` tag or release branch until you've downloaded all data from MinIO for 
-> the migration to Garage.
 
 - Access to both MinIO instance
 - [`s3cmd`](https://github.com/s3tools/s3cmd) installed and configured
