@@ -235,7 +235,7 @@ use_https = True
 check_ssl_certificate = False  
 
 # Credentials  
-# Re-use ones in your local.env, or create new ones in the minio UI at minio.bentov2.local  
+# Provided by init-garage
 access_key = <REDACTED>  
 secret_key = <REDACTED> 
 ```
