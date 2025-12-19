@@ -227,8 +227,8 @@ For S3cmd you can create an s3cf with the following template:
 ```ini
 # ~/.s3cfg-garage-local
 [default]
-host_base = minio.bentov2.local  
-host_bucket = minio.bentov2.local  
+host_base = garage.bentov2.local  
+host_bucket = garage.bentov2.local  
 use_https = True  
 
 # For dev self-signed certs only  
