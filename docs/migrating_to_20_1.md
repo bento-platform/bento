@@ -102,6 +102,20 @@ rm -rf ./drop-box-backup/
 rm -rf ./drs-backup/
 ```
 
+#### Clearing Minio vars from local.env
+Remove the following lines from your local.env
+```bash
+# local.env
+
+BENTO_MINIO_ENABLED='true'
+---
+# Unused if MinIO is disabled
+BENTO_MINIO_DOMAIN=minio.${BENTOV2_DOMAIN}
+---
+# MinIO
+BENTO_MINIO_ROOT_PASSWORD=devpassword789
+```
+
 #### Old Minio files
 ```bash
 rm ~/.s3cfg-minio-local
