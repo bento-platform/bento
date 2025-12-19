@@ -89,6 +89,11 @@ s3cmd -c ~/.s3cfg-garage-local ls s3://drs/ --recursive | wc -l
 
 (**Note**: Consider keeping the backup for a grace period after removal):
 
+#### Stopping Minio
+```bash
+docker stop bentov2-minio
+```
+
 #### Backup removal
 After verifying the migration is successful, clean up the backup files 
 ```bash
