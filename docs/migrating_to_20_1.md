@@ -77,6 +77,8 @@ pip install -r requirements.txt
 
 # update images
 ./bentoctl.bash pull
+
+# don't start the new versions of services yet, as we need to set up Garage first!
 ```
 
 
@@ -85,7 +87,12 @@ pip install -r requirements.txt
 Follow the steps listed [here](./garage.md) to set up Garage.
 
 
-### Step 4: Upload data to Garage
+### Step 4. Restart other Bento services
+
+TODO
+
+
+### Step 5: Upload data to Garage
 
 ```bash
 # Sync local backup to Garage
@@ -110,7 +117,7 @@ secret_key = <GARAGE_SECRET_KEY>
 check_ssl_certificate = False
 ```
 
-### Step 5: Verify migration
+### Step 6: Verify migration
 
 Compare the object counts against the output from Step 1.
 ```bash
@@ -118,12 +125,13 @@ s3cmd -c ~/.s3cfg-garage-local ls s3://drop-box/ --recursive | wc -l
 s3cmd -c ~/.s3cfg-garage-local ls s3://drs/ --recursive | wc -l
 ```
 
-### Step 4: Cleanup
+### Step 7: Cleanup
 
 (**Note**: Consider keeping the backup for a grace period after removal):
 
 #### Stopping MinIO
 ```bash
+# stop the container (if it's running)
 docker stop bentov2-minio
 # below: only if you're completely done with MinIO!
 docker rm bentov2-minio
