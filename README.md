@@ -16,15 +16,21 @@ that make up the Bento platform.
 
 
 
+<!--
+For now, comment out this diagram since it's outdated and confusing.
 <div style="text-align:center">
   <img src="https://github.com/bento-platform/bentoV2/blob/main/diagram.png?raw=true" alt="diagram" style="align:middle;"/>
 </div>
+-->
 
 
 ## Requirements
-- Docker >= 25.0
-- Docker Compose >= 2.25.0 (plugin form: you should have the `docker compose` command available, without a dash)
-- Python >= 3.9 (for `bentoctl`); the services require Python 3.10 but this is included in their Docker images. 
+- Docker >= 27.3
+- Docker Compose >= 2.40.2 (plugin form: you should have the `docker compose` command available, without a dash)
+  - Version 2.40.2 addressed a
+    [major security vulnerability](https://www.cyber.gc.ca/en/alerts-advisories/docker-security-advisory-av25-708)
+    in Compose, and is the minimum required version.
+- Python >= 3.10 (for `bentoctl`); the services require Python 3.12 but this is included in their Docker images.
 
 
 ## Documentation
