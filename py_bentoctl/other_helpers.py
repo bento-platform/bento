@@ -12,9 +12,10 @@ from termcolor import cprint
 from datetime import datetime, timezone
 
 from . import config as c
-from .services import BENTO_USER_EXCLUDED_SERVICES
+from .services import BENTO_USER_EXCLUDED_SERVICES, restart_service, run_service
 from .openssl import create_cert, create_private_key
-from .utils import info, task_print, task_print_done, warn, err
+from .garage import GarageAdminClient
+from .utils import info, task_print, task_print_done, warn, err, getenv_or_exit, get_docker_client
 
 __all__ = [
     "init_web",
@@ -22,6 +23,7 @@ __all__ = [
     "init_dirs",
     "init_self_signed_certs",
     "init_config",
+    "init_garage",
 ]
 
 
@@ -154,13 +156,19 @@ def init_self_signed_certs(force: bool):
             "dir": auth_certs_dir,
         },
 
-        # MinIO
-        **({"minio": {
-            "var": "BENTO_MINIO_DOMAIN",
-            "priv_key_name": "minio_privkey1.key",
-            "crt": "minio_fullchain1.crt",
+        # Garage
+        **({"garage_s3": {
+            "var": "BENTO_GARAGE_DOMAIN",
+            "priv_key_name": "garage_s3_privkey1.key",
+            "crt": "garage_s3_fullchain1.crt",
             "dir": gateway_certs_dir,
-        }} if c.BENTO_FEATURE_MINIO.enabled else {}),
+        }} if c.BENTO_FEATURE_GARAGE.enabled else {}),
+        **({"garage_admin": {
+            "var": "BENTO_GARAGE_ADMIN_DOMAIN",
+            "priv_key_name": "garage_admin_privkey1.key",
+            "crt": "garage_admin_fullchain1.crt",
+            "dir": gateway_certs_dir,
+        }} if c.BENTO_FEATURE_GARAGE.enabled else {}),
 
         # If cBioPortal is enabled, generate a cBioPortal self-signed certificate as well
         **({"cbioportal": {
@@ -284,11 +292,11 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_DROP_BOX_NETWORK", dict(driver="bridge")),
         ("BENTO_DRS_NETWORK", dict(driver="bridge")),
         ("BENTO_EVENT_RELAY_NETWORK", dict(driver="bridge")),
+        ("BENTO_GARAGE_NETWORK", dict(driver="bridge")),
         ("BENTO_GOHAN_API_NETWORK", dict(driver="bridge")),
         ("BENTO_GOHAN_ES_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
         ("BENTO_KATSU_NETWORK", dict(driver="bridge")),
         ("BENTO_KATSU_DB_NETWORK", dict(driver="bridge", internal=True)),  # Does not need to access the web
-        ("BENTO_MINIO_NETWORK", dict(driver="bridge")),
         ("BENTO_MONITORING_NETWORK", dict(driver="bridge")),
         ("BENTO_NOTIFICATION_NETWORK", dict(driver="bridge")),
         ("BENTO_PUBLIC_NETWORK", dict(driver="bridge")),
@@ -306,6 +314,7 @@ def init_docker(client: docker.DockerClient):
         net_name = os.getenv(net_var)
         if not net_name:
             cprint(f"failed ({net_var} not set).", "red")
+            continue
 
         try:
             client.networks.get(net_name)
@@ -368,7 +377,7 @@ def apply_element_extra_properties(phenopacket: dict, element_name: str, stash: 
             elif idx in element_stash:
                 item[EXTRA_PROPERTIES_KEY] = element_stash[idx]
 
-    else:
+    elif element is not None:
         element[EXTRA_PROPERTIES_KEY] = element_stash
 
 
@@ -393,9 +402,7 @@ def format_biosample_variants(biosample: dict):
     formated_variants = []
     for variant in biosample.get("variants", []):
         if (allele := variant.pop("allele", None)) and (allele_type := variant.pop("allele_type", None)):
-            formated_variants.append({
-                allele_type: allele
-            })
+            formated_variants.append({allele_type: allele})
     biosample["variants"] = formated_variants
     return biosample
 
@@ -671,3 +678,112 @@ def _init_katsu_config(force: bool):
 def clean_logs():
     # TODO
     pass
+
+
+def _validate_garage_rpc_secret(secret: str) -> bool:
+    """Validate that RPC secret is 64 hex characters (32 bytes)"""
+    if len(secret) != 64:
+        return False
+    try:
+        int(secret, 16)  # Validate hex format
+        return True
+    except ValueError:
+        return False
+
+
+def init_garage():
+    """Initialize Garage object storage with single-node layout and create default buckets"""
+
+    task_print("Initializing Garage object storage...")
+
+    root_path = pathlib.Path.cwd()
+
+    # Get environment variables
+    container_name = getenv_or_exit("BENTO_GARAGE_CONTAINER_NAME")
+    admin_token = getenv_or_exit("BENTO_GARAGE_ADMIN_TOKEN")
+    admin_url = getenv_or_exit("BENTO_GARAGE_ADMIN_DOMAIN")
+    rpc_secret = getenv_or_exit("BENTO_GARAGE_RPC_SECRET")
+    config_dir = pathlib.Path(getenv_or_exit("BENTO_GARAGE_CONFIG_DIR"))
+
+    # Validate RPC secret format
+    if not _validate_garage_rpc_secret(rpc_secret):
+        err("BENTO_GARAGE_RPC_SECRET must be exactly 64 hexadecimal characters (32 bytes)")
+        info("Generate a valid secret with: openssl rand -hex 32")
+        exit(1)
+
+    # Create config directory
+    config_dir.mkdir(parents=True, exist_ok=True)
+
+    # Generate garage.toml configuration file from template
+    task_print("  Creating garage.toml configuration...")
+    template_path = (root_path / "etc" / "templates" / "garage" / "template.toml")
+
+    with open(template_path) as f:
+        template_content = f.read()
+
+    garage_config = os.path.expandvars(template_content)
+
+    config_file = (config_dir / "garage.toml")
+    with open(config_file, "w") as f:
+        f.write(garage_config)
+    task_print_done()
+
+    # Ensure container is running
+    task_print("  Checking Garage container status...")
+    dc = get_docker_client()
+    try:
+        container = dc.containers.get(container_name)
+        task_print_done("already running")
+        if container.status not in ["running", "restarting"]:
+            raise docker.errors.NotFound("Same as not running in this situation")
+    except docker.errors.NotFound:
+        task_print_done("not running, starting...")
+        info(f"  Starting {container_name}...")
+        run_service("garage")
+        info("  Restarting gateway...")
+        restart_service("gateway")
+
+    client = GarageAdminClient(f"https://{admin_url}", admin_token)
+
+    task_print("  Waiting for Garage Admin API to be ready...")
+    if not client.wait_until_ready():
+        err("Garage Admin API did not become ready in time")
+        info("Check logs with: ./bentoctl.bash logs garage")
+        exit(1)
+    task_print_done()
+
+    task_print("  Getting Garage node ID...")
+    try:
+        node_id = client.get_node_id()
+        task_print_done()
+    except Exception as e:
+        err(f"Failed to get node ID: {e}")
+        exit(1)
+
+    task_print("  Configuring single-node layout...")
+    try:
+        client.configure_layout(node_id)
+        task_print_done()
+    except Exception as e:
+        err(f"Failed to configure layout: {e}")
+        exit(1)
+
+    task_print("  Creating access key...")
+    try:
+        access_key, secret_key = client.create_access_key()
+        task_print_done(f"Access Key: {access_key} \n Secret Key: {secret_key}")
+        info("IMPORTANT: Save these credentials - they will be needed for DRS and Drop-Box configuration")
+    except Exception as e:
+        err(f"Failed to create access key: {e}")
+        exit(1)
+
+    for bucket_name in ["drs", "drop-box"]:
+        task_print(f"  Creating bucket: {bucket_name}...")
+        try:
+            bucket_id, created = client.create_bucket(bucket_name)
+            client.grant_bucket_access(bucket_id, access_key)
+            task_print_done("created" if created else "already exists.")
+        except Exception as e:
+            warn(f"Failed to configure bucket {bucket_name}: {e}")
+
+    task_print_done("Garage initialization complete!")

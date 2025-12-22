@@ -1,0 +1,268 @@
+# Using Garage Object Storage in Bento
+
+This document covers how to use [Garage](https://garagehq.deuxfleurs.fr/), a lightweight, self-hosted, S3-compatible 
+object storage solution, which replaces MinIO in Bento deployments which use a local S3 API provider.
+
+## Architecture
+
+Garage exposes three ports for different purposes:
+
+| Port     | Purpose        | Used By                              | Protocol                  |
+|----------|----------------|--------------------------------------|---------------------------|
+| **3900** | S3 API         | Services (DRS, Drop-Box)             | HTTP REST (S3-compatible) |
+| **3901** | RPC (Internal) | Garage nodes (cluster communication) | Custom RPC                |
+| **3903** | Admin API      | Administration and management        | HTTP REST                 |
+
+In Bento's single-node configuration (`replication_factor = "1"`), the RPC port is still required for internal 
+operations.
+
+## Quick Start
+
+### 1. Initialize Docker Networks, Directories and Certs
+
+For initialization to work, first modify your local.env to set the Garage feature flag as true.
+```bash
+# local.env
+# Enable Garage profile
+BENTO_GARAGE_ENABLED='true'
+```
+
+Then run the following:
+```bash
+./bentoctl.bash init-docker
+./bentoctl.bash init-dirs
+./bentoctl.bash init-certs  # use -f flag if certs directory already exists
+```
+
+This creates the required `bentov2-garage-net` network.
+
+> **Note**: If you see "all predefined address pools have been fully subnetted", run `docker network prune -f` to clean 
+> up unused networks, then retry.
+
+### 2. Add Garage Domain to /etc/hosts
+
+Add the following entry to your `/etc/hosts` file for local access:
+
+```bash
+127.0.0.1  garage.bentov2.local
+127.0.0.1  admin.garage.bentov2.local
+```
+
+### 3. Configure Garage Variables
+
+Edit your `local.env` file and set the following variables:
+
+```bash
+# local.env
+
+# Generate RPC secret (must be exactly 64 hexadecimal characters)
+# Use: openssl rand -hex 32
+BENTO_GARAGE_RPC_SECRET='<your-64-char-hex-secret>'
+
+# Set admin token (use a secure value for production)
+BENTO_GARAGE_ADMIN_TOKEN='<your-secure-admin-token>'
+```
+
+> ⚠️ **Important**:
+> - The RPC secret must be exactly 64 hexadecimal characters (32 bytes)
+> - For development, you can use the default value from `etc/bento_dev.env`
+> - For production, always generate new secrets and never commit them to git
+
+### 4. Initialize Garage
+
+Initialize the Garage cluster with single-node layout and create default buckets:
+
+```bash
+./bentoctl.bash init-garage
+```
+
+This command will:
+
+1. Validate the RPC secret format (64 hex characters)
+2. Check if the Garage container is running (starts it if needed)
+3. Generate the `garage.toml` configuration file
+4. Wait for the Admin API to be ready (polls https://admin.garage.{BENTO_DOMAIN})
+5. Configure a single-node cluster layout
+6. Create S3 access credentials
+7. Create default buckets: `drs` and `drop-box`
+8. Grant bucket permissions to the access key
+
+**IMPORTANT:** Save the Access Key and Secret Key printed by this command - you'll need them in the next step.
+
+> **Note**: You don't need to manually run `./bentoctl.bash run garage` - the init command will start the container 
+> automatically if it's not running.
+
+### 5. Configure Drop Box Service
+
+Add the following Drop Box configuration to your `local.env` file:
+
+```bash
+# local.env
+
+# Drop Box S3 Configuration
+BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Access via gateway
+BENTO_DROP_BOX_S3_USE_HTTPS=true                        # HTTPS through gateway
+BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Created by init-garage
+BENTO_DROP_BOX_S3_REGION_NAME="garage"                  # Must match garage.toml
+BENTO_DROP_BOX_S3_ACCESS_KEY="<from-init-garage>"       # Save from init-garage output
+BENTO_DROP_BOX_S3_SECRET_KEY="<from-init-garage>"       # Save from init-garage output
+BENTO_DROP_BOX_VALIDATE_SSL=false                       # Set to false for self-signed certs
+```
+
+Restart Drop Box:
+
+```bash
+./bentoctl.bash restart drop-box
+```
+
+### 6. Configure DRS Service
+
+Add the following DRS configuration to your `local.env` file:
+
+```bash
+# local.env
+
+# DRS S3 Configuration
+BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"            # Access via gateway
+BENTO_DRS_S3_USE_HTTPS=true                             # HTTPS through gateway
+BENTO_DRS_S3_BUCKET="drs"                               # Created by init-garage
+BENTO_DRS_S3_REGION_NAME="garage"                       # Must match garage.toml
+BENTO_DRS_S3_ACCESS_KEY="<from-init-garage>"            # Save from init-garage output
+BENTO_DRS_S3_SECRET_KEY="<from-init-garage>"            # Save from init-garage output
+BENTO_DRS_VALIDATE_SSL=false                            # Set to false for self-signed certs
+```
+
+Restart DRS:
+
+```bash
+./bentoctl.bash restart drs
+```
+
+## Configuration Reference
+
+The `garage.toml` file is automatically generated by `init-garage` from the template at 
+`etc/templates/garage/template.toml`. It substitutes environment variables and stores the result at 
+`lib/garage/config/garage.toml`:
+
+All bucket access uses path-style addressing: `https://garage.bentov2.local/bucket/object`
+
+Admin API is published using the `BENTO_GARAGE_ADMIN_DOMAIN`
+
+## Verification
+
+### Verify S3 Integration
+
+Check if services are using S3:
+
+```bash
+# Check DRS logs for S3 activity
+./bentoctl.bash logs drs | grep -i s3
+
+# Check Drop-Box logs for S3 activity
+./bentoctl.bash logs drop-box | grep -i s3
+```
+
+### Using Garage Admin API
+
+You can interact with Garage's Admin API directly:
+
+```bash
+# Set admin token
+ADMIN_TOKEN="<from BENTO_GARAGE_ADMIN_TOKEN>"
+
+# Get cluster status
+curl -H "Authorization: Bearer $ADMIN_TOKEN" \
+  https://admin.garage.bentov2.local/v2/GetClusterLayout
+
+# List buckets
+curl -H "Authorization: Bearer $ADMIN_TOKEN" \
+  https://admin.garage.bentov2.local/v2/ListBuckets
+
+# List keys
+curl -H "Authorization: Bearer $ADMIN_TOKEN" \
+  https://admin.garage.bentov2.local/v2/ListKeys
+```
+
+## Managing Buckets
+
+### Create Additional Buckets
+
+You can create additional buckets using the Admin API:
+
+```bash
+ADMIN_TOKEN="<from BENTO_GARAGE_ADMIN_TOKEN>"
+ACCESS_KEY="<from init-garage>"
+
+# Create bucket
+curl -X POST \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"globalAlias": "my-new-bucket"}' \
+  https://admin.garage.bentov2.local/v2/CreateBucket
+
+# Get bucket ID from response, then grant permissions
+BUCKET_ID="<bucket-id-from-response>"
+
+curl -X POST \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"bucketId\": \"$BUCKET_ID\",
+    \"accessKeyId\": \"$ACCESS_KEY\",
+    \"permissions\": {
+      \"read\": true,
+      \"write\": true,
+      \"owner\": true
+    }
+  }" \
+  https://admin.garage.bentov2.local/v2/UpdateBucket
+```
+
+### Using S3 CLI Tools
+
+Garage is S3-compatible, so you can use standard S3 tools:
+
+```bash
+# Using AWS CLI
+aws configure set aws_access_key_id <ACCESS_KEY>
+aws configure set aws_secret_access_key <SECRET_KEY>
+aws --endpoint-url https://garage.bentov2.local s3 ls
+```
+
+For S3cmd you can create an s3cf with the following template:
+```ini
+# ~/.s3cfg-garage-local
+[default]
+host_base = garage.bentov2.local  
+host_bucket = garage.bentov2.local  
+use_https = True  
+
+# For dev self-signed certs only  
+check_ssl_certificate = False  
+
+# Credentials  
+# Provided by init-garage
+access_key = <REDACTED>  
+secret_key = <REDACTED> 
+```
+
+And then you can do ls with the following command:
+```bash
+s3cmd -c ~/.s3cfg-garage-local ls 
+```
+
+## Data Persistence
+
+Garage stores data in two locations:
+
+- **Metadata**: `${BENTO_FAST_DATA_DIR}/garage/meta` (default: `./data/garage/meta`)
+- **Object data**: `${BENTO_SLOW_DATA_DIR}/garage/data` (default: `./data/garage/data`)
+
+These directories are mounted as Docker volumes and persist across container restarts.
+
+## Resources
+
+- [Garage Documentation](https://garagehq.deuxfleurs.fr/documentation/)
+- [Garage Admin API Reference](https://garagehq.deuxfleurs.fr/documentation/reference-manual/admin-api/)
+- [S3 Compatibility](https://garagehq.deuxfleurs.fr/documentation/reference-manual/s3-compatibility/)
+- [Bento Object Storage Guide](object_storage.md)
