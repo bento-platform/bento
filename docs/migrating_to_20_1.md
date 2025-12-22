@@ -39,17 +39,17 @@ If you do not have a `~/.s3cfg-minio-local` file, you should create one. It shou
 
 ```ini
 [default]
-host_base = minio.bentov2.local  
-host_bucket = minio.bentov2.local  
-use_https = True  
+host_base = minio.bentov2.local
+host_bucket = minio.bentov2.local
+use_https = True
 
-# For dev self-signed certs only  
-check_ssl_certificate = False  
+# For dev self-signed certs only
+check_ssl_certificate = False
 
-# Credentials  
-# Re-use ones in your local.env, or create new ones in the minio UI at minio.bentov2.local  
-access_key = <REDACTED>  
-secret_key = <REDACTED>  
+# Credentials
+# Re-use ones in your local.env, or create new ones in the minio UI at minio.bentov2.local
+access_key = <REDACTED>
+secret_key = <REDACTED>
 ```
 
 For verfication later, you can store the output of the following to check after migration:
