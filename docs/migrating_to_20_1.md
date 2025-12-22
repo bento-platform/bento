@@ -89,7 +89,11 @@ Follow the steps listed [here](./garage.md) to set up Garage.
 
 ### Step 4. Restart other Bento services
 
-TODO
+Start new versions of any services that haven't already been restarted by the Garage setup process:
+
+```bash
+./bentoctl.bash up
+```
 
 
 ### Step 5: Upload data to Garage
