@@ -10,9 +10,11 @@ Bento v20.1 brings two different changes which may require data migration when m
 * The replacement of MinIO with GarageHQ as a local S3 backend, which requires migration of all bucket data.
 
 
-## Re-ingesting Genomic Interpretations
+## Table of Contents
 
-TODO
+* [MinIO to Garage Migration](#minio-to-garage-migration)
+* [Updating `bentoctl` Dependencies and Bento Images](#updating-bentoctl-dependencies-and-bento-images)
+* [Re-Ingesting Genomic Interpretations](#re-ingesting-genomic-interpretations)
 
 
 ## MinIO to Garage Migration
@@ -65,12 +67,25 @@ s3cmd -c ~/.s3cfg-minio-local ls s3://drs/ --recursive | wc -l
 - Consider using `--skip-existing` for incremental syncs
 
 
-### Step 2: Set up Garage
+### Step 2: Update to Bento v20.1
 
-Now you can switch to Bento - v20.1; Follow the steps listed [here](./garage.md) to set up Garage.
+Now you can switch to the Bento `v20.1` tag, update `bentoctl` dependencies, and update images:
+
+```bash
+# make sure your `bentoctl` environment dependencies are up-to-date:
+pip install -r requirements.txt
+
+# update images
+./bentoctl.bash pull
+```
 
 
-### Step 3: Upload data to Garage
+### Step 3. Set up Garage
+
+Follow the steps listed [here](./garage.md) to set up Garage.
+
+
+### Step 4: Upload data to Garage
 
 ```bash
 # Sync local backup to Garage
@@ -95,7 +110,7 @@ secret_key = <GARAGE_SECRET_KEY>
 check_ssl_certificate = False
 ```
 
-### Step 3: Verify migration
+### Step 5: Verify migration
 
 Compare the object counts against the output from Step 1.
 ```bash
@@ -146,3 +161,26 @@ rm ./certs/gateway/minio_privkey1.key
 rm ./certs/gateway/minio_fullchain1.crt
 rm <path-to-your-minio-data-dir> # Default was ${BENTO_SLOW_DATA_DIR}/minio/data
 ```
+
+
+## Updating `bentoctl` Dependencies and Bento Images
+
+If you have not already done so, make sure your `bentoctl` environment dependencies are up-to-date:
+
+```bash
+pip install -r requirements.txt
+```
+
+Then, update Bento images (if you migrated to Garage from MinIO above, you should have already done this!)
+
+```bash
+./bentoctl.bash pull
+./bentoctl.bash up
+```
+
+
+## Re-Ingesting Genomic Interpretations
+
+Version 20.1 fixes a bug with ingesting genomic interpretations, which resulted in some genomic interpretations 
+referencing the wrong biosample/subject. Since this bug was in the ingestion process, any datasets with these incorrect
+genomic interpretations must have their phenopackets re-ingested in v20.1.
