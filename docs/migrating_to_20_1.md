@@ -117,7 +117,7 @@ use_https = True
 access_key = <GARAGE_ACCESS_KEY>
 secret_key = <GARAGE_SECRET_KEY>
 
-# For dev self-signed certs only  
+# For dev self-signed certs only; True if in production
 check_ssl_certificate = False
 ```
 
@@ -188,6 +188,9 @@ Then, update Bento images (if you migrated to Garage from MinIO above, you shoul
 ```bash
 ./bentoctl.bash pull
 ./bentoctl.bash up
+
+# if you want, free some space:
+docker system prune -a
 ```
 
 
