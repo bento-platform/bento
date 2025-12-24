@@ -14,7 +14,7 @@ include:
       - lib/gohan/docker-compose.gohan.yaml  # Optional feature; controlled by a compose profile
       - lib/katsu/docker-compose.katsu.yaml
       - lib/logs/docker-compose.logs.yaml
-      - lib/garage/docker-compose.garage.yaml
+      - lib/garage/docker-compose.garage.yaml  # Optional feature; controlled by a compose profile
       - lib/notification/docker-compose.notification.yaml
       - lib/public/docker-compose.public.yaml  # Optional feature; controlled by a compose profile
       - lib/redis/docker-compose.redis.yaml

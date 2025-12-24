@@ -20,31 +20,58 @@ operations.
 
 ### 1. Initialize Docker Networks, Directories and Certs
 
-For initialization to work, first modify your local.env to set the Garage feature flag as true.
+For initialization to work, first:
+
+1. Modify your `local.env` to set the Garage domain name and admin domain name. This is needed to re-interpolate the 
+   `BENTOV2_DOMAIN` variable.
+2. Set the Garage feature flag to true.
+
 ```bash
 # local.env
-# Enable Garage profile
+
+# ...
+
+# Garage
+BENTO_GARAGE_DOMAIN=garage.${BENTOV2_DOMAIN}
+BENTO_GARAGE_ADMIN_DOMAIN=admin.${BENTO_GARAGE_DOMAIN}
 BENTO_GARAGE_ENABLED='true'
 ```
 
-Then run the following:
+Then run the following (only run the `init-certs` step if on a development instance!):
 ```bash
-./bentoctl.bash init-docker
+./bentoctl.bash init-docker  # This creates the required `bentov2-garage-net` network.
 ./bentoctl.bash init-dirs
+
+# only for local development machines:
 ./bentoctl.bash init-certs  # use -f flag if certs directory already exists
 ```
 
-This creates the required `bentov2-garage-net` network.
+Production TLS certificates should be obtained if needed; production Bento instances behind Bastion do not run in TLS
+mode directly and thus can use the existing wildcard certificate.
 
 > **Note**: If you see "all predefined address pools have been fully subnetted", run `docker network prune -f` to clean 
 > up unused networks, then retry.
 
-### 2. Add Garage Domain to /etc/hosts
+### 2. Add Garage Domains to `/etc/hosts`
 
-Add the following entry to your `/etc/hosts` file for local access:
+#### If in a DEVELOPMENT context:
+
+If you're in a development context, add the following entry to your `/etc/hosts` file for local access, replacing 
+`bentov2.local` with your development Bento domain:
 
 ```bash
 127.0.0.1  garage.bentov2.local
+127.0.0.1  admin.garage.bentov2.local
+```
+
+#### If in a PRODUCTION context:
+
+If you're in a production context, the `garage.${BENTOV2_DOMAIN}` domain name must be added to the DNS and/or SD4H Caddy
+reverse proxy in front of the Bento instance, since it must be globally accessible. The administration API 
+**SHOULD NOT** be globally accessible, and so an entry should be added for the Garage administration API domain *only*
+in `/etc/hosts`:
+
+```bash
 127.0.0.1  admin.garage.bentov2.local
 ```
 
@@ -63,7 +90,7 @@ BENTO_GARAGE_RPC_SECRET='<your-64-char-hex-secret>'
 BENTO_GARAGE_ADMIN_TOKEN='<your-secure-admin-token>'
 ```
 
-> ⚠️ **Important**:
+> [!IMPORTANT]
 > - The RPC secret must be exactly 64 hexadecimal characters (32 bytes)
 > - For development, you can use the default value from `etc/bento_dev.env`
 > - For production, always generate new secrets and never commit them to git
@@ -106,6 +133,9 @@ BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Created by init-garage
 BENTO_DROP_BOX_S3_REGION_NAME="garage"                  # Must match garage.toml
 BENTO_DROP_BOX_S3_ACCESS_KEY="<from-init-garage>"       # Save from init-garage output
 BENTO_DROP_BOX_S3_SECRET_KEY="<from-init-garage>"       # Save from init-garage output
+# One of:
+BENTO_DROP_BOX_VALIDATE_SSL=true                        # For production
+# or
 BENTO_DROP_BOX_VALIDATE_SSL=false                       # Set to false for self-signed certs
 ```
 
@@ -169,18 +199,19 @@ You can interact with Garage's Admin API directly:
 ```bash
 # Set admin token
 ADMIN_TOKEN="<from BENTO_GARAGE_ADMIN_TOKEN>"
+ADMIN_PROTOCOL="https"  # set to http if not using Gateway TLS mode
 
 # Get cluster status
 curl -H "Authorization: Bearer $ADMIN_TOKEN" \
-  https://admin.garage.bentov2.local/v2/GetClusterLayout
+  "${ADMIN_PROTOCOL}://admin.garage.bentov2.local/v2/GetClusterLayout"
 
 # List buckets
 curl -H "Authorization: Bearer $ADMIN_TOKEN" \
-  https://admin.garage.bentov2.local/v2/ListBuckets
+  "${ADMIN_PROTOCOL}://admin.garage.bentov2.local/v2/ListBuckets"
 
 # List keys
 curl -H "Authorization: Bearer $ADMIN_TOKEN" \
-  https://admin.garage.bentov2.local/v2/ListKeys
+  "${ADMIN_PROTOCOL}://admin.garage.bentov2.local/v2/ListKeys"
 ```
 
 ## Managing Buckets
@@ -229,7 +260,7 @@ aws configure set aws_secret_access_key <SECRET_KEY>
 aws --endpoint-url https://garage.bentov2.local s3 ls
 ```
 
-For S3cmd you can create an s3cf with the following template:
+For `s3cmd` you can create a configuration file with the following template:
 ```ini
 # ~/.s3cfg-garage-local
 [default]
