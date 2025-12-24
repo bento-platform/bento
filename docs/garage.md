@@ -199,19 +199,16 @@ You can interact with Garage's Admin API directly:
 ```bash
 # Set admin token
 ADMIN_TOKEN="<from BENTO_GARAGE_ADMIN_TOKEN>"
-ADMIN_PROTOCOL="https"  # set to http if not using Gateway TLS mode
+ADMIN_BASE="https://admin.garage.bentov2.local/v2"  # set to http if not using Gateway TLS mode
 
 # Get cluster status
-curl -H "Authorization: Bearer $ADMIN_TOKEN" \
-  "${ADMIN_PROTOCOL}://admin.garage.bentov2.local/v2/GetClusterLayout"
+curl -H "Authorization: Bearer $ADMIN_TOKEN" "${ADMIN_BASE}/GetClusterLayout"
 
 # List buckets
-curl -H "Authorization: Bearer $ADMIN_TOKEN" \
-  "${ADMIN_PROTOCOL}://admin.garage.bentov2.local/v2/ListBuckets"
+curl -H "Authorization: Bearer $ADMIN_TOKEN" "${ADMIN_BASE}/ListBuckets"
 
 # List keys
-curl -H "Authorization: Bearer $ADMIN_TOKEN" \
-  "${ADMIN_PROTOCOL}://admin.garage.bentov2.local/v2/ListKeys"
+curl -H "Authorization: Bearer $ADMIN_TOKEN" "${ADMIN_BASE}/ListKeys"
 ```
 
 ## Managing Buckets
@@ -223,13 +220,14 @@ You can create additional buckets using the Admin API:
 ```bash
 ADMIN_TOKEN="<from BENTO_GARAGE_ADMIN_TOKEN>"
 ACCESS_KEY="<from init-garage>"
+ADMIN_BASE="https://admin.garage.bentov2.local/v2"  # set to http if not using Gateway TLS mode
 
 # Create bucket
 curl -X POST \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"globalAlias": "my-new-bucket"}' \
-  https://admin.garage.bentov2.local/v2/CreateBucket
+  "${ADMIN_BASE}/CreateBucket"
 
 # Get bucket ID from response, then grant permissions
 BUCKET_ID="<bucket-id-from-response>"
@@ -246,7 +244,7 @@ curl -X POST \
       \"owner\": true
     }
   }" \
-  https://admin.garage.bentov2.local/v2/UpdateBucket
+  "${ADMIN_BASE}/UpdateBucket"
 ```
 
 ### Using S3 CLI Tools
@@ -279,7 +277,7 @@ secret_key = <REDACTED>
 
 And then you can do ls with the following command:
 ```bash
-s3cmd -c ~/.s3cfg-garage-local ls 
+s3cmd -c ~/.s3cfg-garage-local ls
 ```
 
 ## Data Persistence
