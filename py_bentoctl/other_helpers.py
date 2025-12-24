@@ -743,7 +743,7 @@ def init_garage():
         info("  Restarting gateway...")
         restart_service("gateway")
 
-    client = GarageAdminClient(f"https://{admin_url}", admin_token)
+    client = GarageAdminClient(f"{'https' if c.BENTO_GATEWAY_USE_TLS else 'http'}://{admin_url}", admin_token)
 
     task_print("  Waiting for Garage Admin API to be ready...")
     if not client.wait_until_ready():

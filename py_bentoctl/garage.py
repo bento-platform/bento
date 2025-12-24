@@ -1,6 +1,8 @@
 import requests
 import time
 
+__all__ = ["GarageAdminClient"]
+
 
 class GarageAdminClient:
     def __init__(self, base_url: str, token: str):
