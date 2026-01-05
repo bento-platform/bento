@@ -20,7 +20,7 @@ __all__ = [
 
     "DOCKER_COMPOSE_SERVICES",
     "DOCKER_COMPOSE_DEV_SERVICES",
-    
+ 
     "MAX_SERVICE_CHAR_LEN",
 
     "COMPOSE",
