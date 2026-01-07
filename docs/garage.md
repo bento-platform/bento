@@ -119,7 +119,7 @@ This command will:
 > **Note**: You don't need to manually run `./bentoctl.bash run garage` - the init command will start the container 
 > automatically if it's not running.
 
-### 5. Configure Drop Box Service
+### 5. Configure Drop Box Service for S3
 
 Add the following Drop Box configuration to your `local.env` file:
 
@@ -145,13 +145,41 @@ Restart Drop Box:
 ./bentoctl.bash restart drop-box
 ```
 
-### 6. Configure DRS Service
+#### Going back to local storage
+
+If you need to work on the local storage backend with Drop-Box, set the following in your local.env:
+
+
+```bash
+# local.env
+
+# Drop Box S3 Configuration
+#BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Access via gateway
+#BENTO_DROP_BOX_S3_USE_HTTPS=true                        # HTTPS through gateway
+#BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Created by init-garage
+#BENTO_DROP_BOX_S3_REGION_NAME="garage"                  # Must match garage.toml
+#BENTO_DROP_BOX_S3_ACCESS_KEY="<from-init-garage>"       # Save from init-garage output
+#BENTO_DROP_BOX_S3_SECRET_KEY="<from-init-garage>"       # Save from init-garage output
+# One of:
+BENTO_DROP_BOX_VALIDATE_SSL=true                        # For production
+# or
+BENTO_DROP_BOX_VALIDATE_SSL=false                       # Set to false for self-signed certs
+```
+
+Simply commenting out the S3 variables for Drop-Box will tell Drop-Box to start using the local storage backend.
+
+Restart Drop Box:
+
+```bash
+./bentoctl.bash restart drop-box
+```
+
+### 6. Configure DRS Service for S3
 
 Add the following DRS configuration to your `local.env` file:
 
 ```bash
 # local.env
-
 # DRS S3 Configuration
 BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"            # Access via gateway
 BENTO_DRS_S3_USE_HTTPS=true                             # HTTPS through gateway
@@ -159,8 +187,37 @@ BENTO_DRS_S3_BUCKET="drs"                               # Created by init-garage
 BENTO_DRS_S3_REGION_NAME="garage"                       # Must match garage.toml
 BENTO_DRS_S3_ACCESS_KEY="<from-init-garage>"            # Save from init-garage output
 BENTO_DRS_S3_SECRET_KEY="<from-init-garage>"            # Save from init-garage output
+# One of:
+BENTO_DRS_VALIDATE_SSL=true                             # For production
+# or
 BENTO_DRS_VALIDATE_SSL=false                            # Set to false for self-signed certs
 ```
+
+Restart DRS:
+
+```bash
+./bentoctl.bash restart drs
+```
+
+#### Going back to local storage
+
+If you need to work on the local storage backend with DRS, set the following in your local.env:
+```bash
+# local.env
+# DRS S3 Configuration
+# BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"            # Access via gateway
+# BENTO_DRS_S3_USE_HTTPS=true                             # HTTPS through gateway
+# BENTO_DRS_S3_BUCKET="drs"                               # Created by init-garage
+# BENTO_DRS_S3_REGION_NAME="garage"                       # Must match garage.toml
+# BENTO_DRS_S3_ACCESS_KEY="<from-init-garage>"            # Save from init-garage output
+# BENTO_DRS_S3_SECRET_KEY="<from-init-garage>"            # Save from init-garage output
+# One of:
+BENTO_DRS_VALIDATE_SSL=true                             # For production
+# or
+BENTO_DRS_VALIDATE_SSL=false                            # Set to false for self-signed certs
+```
+
+Simply commenting out the S3 variables for DRS will tell DRS to start using the local storage backend.
 
 Restart DRS:
 
