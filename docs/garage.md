@@ -147,7 +147,7 @@ Restart Drop Box:
 
 #### Going back to local storage
 
-If you need to work on the local storage backend with Drop-Box, set the following in your local.env:
+If you need to work on the local storage backend with Drop Box, comment out the following lines in your `local.env`:
 
 
 ```bash
@@ -161,14 +161,13 @@ If you need to work on the local storage backend with Drop-Box, set the followin
 #BENTO_DROP_BOX_S3_ACCESS_KEY="<from-init-garage>"       # Save from init-garage output
 #BENTO_DROP_BOX_S3_SECRET_KEY="<from-init-garage>"       # Save from init-garage output
 # One of:
-BENTO_DROP_BOX_VALIDATE_SSL=true                        # For production
+#BENTO_DROP_BOX_VALIDATE_SSL=true                        # For production
 # or
-BENTO_DROP_BOX_VALIDATE_SSL=false                       # Set to false for self-signed certs
+#BENTO_DROP_BOX_VALIDATE_SSL=false                       # Set to false for self-signed certs
 ```
 
-Simply commenting out the S3 variables for Drop-Box will tell Drop-Box to start using the local storage backend.
-
-Restart Drop Box:
+Simply commenting out the S3 variables for Drop Box will tell it to use the local storage backend. To apply this change,
+restart Drop Box:
 
 ```bash
 ./bentoctl.bash restart drop-box
@@ -201,7 +200,7 @@ Restart DRS:
 
 #### Going back to local storage
 
-If you need to work on the local storage backend with DRS, set the following in your local.env:
+If you need to work on the local storage backend with DRS, comment out the following lines in your `local.env`:
 ```bash
 # local.env
 # DRS S3 Configuration
@@ -212,14 +211,13 @@ If you need to work on the local storage backend with DRS, set the following in 
 # BENTO_DRS_S3_ACCESS_KEY="<from-init-garage>"            # Save from init-garage output
 # BENTO_DRS_S3_SECRET_KEY="<from-init-garage>"            # Save from init-garage output
 # One of:
-BENTO_DRS_VALIDATE_SSL=true                             # For production
+#BENTO_DRS_VALIDATE_SSL=true                             # For production
 # or
-BENTO_DRS_VALIDATE_SSL=false                            # Set to false for self-signed certs
+#BENTO_DRS_VALIDATE_SSL=false                            # Set to false for self-signed certs
 ```
 
-Simply commenting out the S3 variables for DRS will tell DRS to start using the local storage backend.
-
-Restart DRS:
+Simply commenting out the S3 variables for DRS will tell it to use the local storage backend. To apply this change,
+restart DRS:
 
 ```bash
 ./bentoctl.bash restart drs

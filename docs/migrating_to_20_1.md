@@ -87,10 +87,10 @@ pip install -r requirements.txt
 Follow the steps listed [here](./garage.md) to set up Garage.
 
 > [!IMPORTANT] 
-> Don't forget to set the Garage related variables in `local.env`, especially when real domains are used.
+> Don't forget to set the Garage-related variables in `local.env`, especially when real domains are used.
 >
 > If you forget to set `BENTO_GARAGE_DOMAIN` or `BENTO_GARAGE_ADMIN_DOMAIN` and are using real domains, the gateway will
-> not be able to route your garage requests properly.
+> not be able to route your Garage requests properly.
 
 ### Step 4. Restart other Bento services
 
