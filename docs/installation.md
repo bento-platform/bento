@@ -449,23 +449,3 @@ Follow these steps:
    ```
 4. Navigate to `/data/manager/ingestion` in the Bento private portal and ingest the reference FASTA and GFF3 into the
    reference service. This will take some time.
-
-### Set Up Gohan's Gene Catalogue (*Legacy instructions*)
-
-To enable gene querying support in versions of Bento before v16, follow these steps to set up Gohan's gene catalogue:
-
-1. **Access the Services Portal**:
-   - Navigate to the `Services` tab on the portal.
-
-2. **Initiate Gohan Request**:
-   - Click the `Make Request` button for Gohan.
-
-3. **Edit and Trigger Ingestion Endpoint**:
-   - Modify the endpoint to `genes/ingestion/run`.
-   - Click `Get` to initiate Gohan's download and processing of the default GenCode `.gtk` files from the internet.
-
-4. **Monitor the Ingestion Process**:
-   - Use the endpoint `genes/ingestion/requests` to track the progress of the ingestion process.
-
-5. **Access the Gene Catalogue**:
-   - Once the ingestion process is complete, the gene catalogue will be available at `genes/overview`.
