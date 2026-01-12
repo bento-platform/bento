@@ -260,6 +260,13 @@ class InitCBioPortal(SubCommand):
         fh.init_cbioportal()
 
 
+class InitGarage(SubCommand):
+
+    @staticmethod
+    def exec(args):
+        oh.init_garage()
+
+
 class InitAll(SubCommand):
 
     @staticmethod
@@ -374,6 +381,7 @@ def main(args: Optional[list[str]] = None) -> int:
 
     # Feature-specific initialization commands
     _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
+    _add_subparser("init-garage", "Initialize Garage object storage with single-node layout", InitGarage)
 
     # Database commands
     #  - Postgres:

@@ -46,7 +46,7 @@ For now, comment out this diagram since it's outdated and confusing.
 * [Monitoring](./docs/monitoring.md)
 * [Public discovery configuration](./docs/public_discovery.md)
 * [Using a reverse proxy in front of Bento](./docs/reverse-proxy.md)
-* [Batteries-included S3 object storage with MinIO](./docs/minio.md)
+* [Batteries-included S3 object storage with Garage](./docs/garage.md)
 * [Configuring services for object storage](./docs/object_storage.md)
 
 ### Data ingestion and usage
@@ -57,6 +57,7 @@ For now, comment out this diagram since it's outdated and confusing.
 
 ### Migration documents
 
+* [v20 to v20.1](./docs/migrating_to_20_1.md)
 * [v19 to v20](./docs/migrating_to_20.md)
 * [v18 to v19](./docs/migrating_to_19.md)
 * [v17.1 to v18](./docs/migrating_to_18.md)

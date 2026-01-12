@@ -37,6 +37,7 @@ __all__ = [
 
     "BENTOV2_USE_EXTERNAL_IDP",
     "BENTOV2_USE_BENTO_PUBLIC",
+    "BENTO_GATEWAY_USE_TLS",
 
     "BENTO_FEATURE_AUTH",
     "BENTO_FEATURE_BEACON",
@@ -100,6 +101,7 @@ class BentoOptionalFeature:
 
 BENTOV2_USE_EXTERNAL_IDP: bool = _env_get_bool("BENTOV2_USE_EXTERNAL_IDP", default=False)
 BENTOV2_USE_BENTO_PUBLIC: bool = _env_get_bool("BENTOV2_USE_BENTO_PUBLIC", default=True)
+BENTO_GATEWAY_USE_TLS: bool = _env_get_bool("BENTO_GATEWAY_USE_TLS", default=True)
 BENTO_DOMAIN_REDIRECT: str = os.getenv("BENTO_DOMAIN_REDIRECT", default=None)
 
 BENTO_FEATURE_AUTH = BentoOptionalFeature(enabled=not BENTOV2_USE_EXTERNAL_IDP, profile="auth")
@@ -109,8 +111,8 @@ BENTO_FEATURE_CBIOPORTAL = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False), profile="cbioportal")
 BENTO_FEATURE_GOHAN = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_GOHAN_ENABLED", default=False), profile="gohan")
-BENTO_FEATURE_MINIO = BentoOptionalFeature(
-    enabled=_env_get_bool("BENTO_MINIO_ENABLED", default=False), profile="minio")
+BENTO_FEATURE_GARAGE = BentoOptionalFeature(
+    enabled=_env_get_bool("BENTO_GARAGE_ENABLED", default=False), profile="garage")
 BENTO_FEATURE_MONITORING = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_MONITORING_ENABLED", default=False), profile="monitoring")
 
@@ -219,8 +221,9 @@ DATA_DIR_ENV_VARS = {
     **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not BENTOV2_USE_EXTERNAL_IDP else {}),
     #  - cBioPortal
     **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if BENTO_FEATURE_CBIOPORTAL.enabled else {}),
-    #  - MinIO
-    **({"minio": "BENTO_MINIO_DATA_DIR"} if BENTO_FEATURE_MINIO.enabled else {}),
+    #  - Garage
+    **({"garage-meta": "BENTO_GARAGE_META_DIR",
+        "garage-data": "BENTO_GARAGE_DATA_DIR"} if BENTO_FEATURE_GARAGE.enabled else {}),
     #  - Monitoring: Grafana/Loki
     **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if BENTO_FEATURE_MONITORING else {}),
     **({"loki": "BENTO_LOKI_TEMP_DIR"} if BENTO_FEATURE_MONITORING else {}),

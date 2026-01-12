@@ -2,7 +2,7 @@
 
 This document section covers how to configure Bento services to use S3 object storage.
 
-When we refer to S3 here, we mean any S3 compatible implementation (Minio, Ceph, GCP, ...), which is not limited
+When we refer to S3 here, we mean any S3 compatible implementation (Garage, Ceph, GCP, ...), which is not limited
 to AWS.
 
 ## Why object storage?
@@ -29,8 +29,8 @@ To enable S3 on Bento services, you first need to configure the following in you
 1. Create S3 credentials for the service (access and secret key)
 2. Create an S3 bucket for the service
 
-The steps for this depend on which S3 provider you are using. For local development, we recommend 
-using the Minio deployment that comes with Bento.
+The steps for this depend on which S3 provider you are using. For local development, we recommend
+using the Garage deployment that comes with Bento. See [garage.md](garage.md) for setup instructions.
 
 ### Drop Box
 
@@ -42,12 +42,12 @@ Edit your `local.env` file to include the drop box S3 environment variables:
 ```bash
 # local.env
 
-BENTO_DROP_BOX_S3_ENDPOINT="minio.bentov2.local"        # Local Minio S3 endpoint (no protocol)
+BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Local Garage S3 endpoint (no protocol)
 BENTO_DROP_BOX_S3_USE_HTTPS=true                        # Use HTTPS or HTTP on the endpoint
-BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Bucket name (must already exist)
-BENTO_DROP_BOX_S3_REGION_NAME=""                        # Region (not required for Minio or SD4H)
-BENTO_DROP_BOX_S3_ACCESS_KEY="<get from S3 provider>"   # S3 access key (get from Minio console)
-BENTO_DROP_BOX_S3_SECRET_KEY="<get from S3 provider>"   # S3 secret key (get from Minio console)
+BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Bucket name (created by init-garage)
+BENTO_DROP_BOX_S3_REGION_NAME=""                        # Region (required for Garage)
+BENTO_DROP_BOX_S3_ACCESS_KEY="<get from S3 provider>"   # S3 access key (from init-garage output in dev)
+BENTO_DROP_BOX_S3_SECRET_KEY="<get from S3 provider>"   # S3 secret key (from init-garage output in dev)
 BENTO_DROP_BOX_VALIDATE_SSL=false                       # Needs to be 'false' with self signed certs and HTTPS
 ```
 
@@ -66,12 +66,12 @@ Edit your `local.env` file to include the DRS environment variables for S3 stora
 ```bash
 # local.env
 
-BENTO_DRS_S3_ENDPOINT="minio.bentov2.local"         # Local Minio S3 endpoint (no protocol)
+BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"        # Local Garage S3 endpoint (no protocol)
 BENTO_DRS_S3_USE_HTTPS=true                         # Use HTTPS or HTTP on the endpoint
-BENTO_DRS_S3_BUCKET="drs"                           # Bucket name (must already exist)
-BENTO_DRS_S3_REGION_NAME=""                         # Region (not required for Minio or SD4H)
-BENTO_DRS_S3_ACCESS_KEY="<get from S3 provider>"    # S3 access key (get from Minio console)
-BENTO_DRS_S3_SECRET_KEY="<get from S3 provider>"    # S3 secret key (get from Minio console)
+BENTO_DRS_S3_BUCKET="drs"                           # Bucket name (created by init-garage)
+BENTO_DRS_S3_REGION_NAME=""                         # Region (required for Garage)
+BENTO_DRS_S3_ACCESS_KEY="<get from S3 provider>"    # S3 access key (from init-garage output in dev)
+BENTO_DRS_S3_SECRET_KEY="<get from S3 provider>"    # S3 secret key (from init-garage output in dev)
 BENTO_DRS_VALIDATE_SSL=false                        # Needs to be 'false' with self signed certs and HTTPS
 ```
 
@@ -107,7 +107,7 @@ bucket for a seamless transition.
 ### Prepare for S3 uploads
 
 To upload old files to S3 you will need the following:
-- An S3 store (use Bento's Minio if you don't have one)
+- An S3 store (use Bento's Garage if you don't have one)
   - Save the hostname for later
   - Determine if HTTPS or HTTP should be used
     - HTTPS is strongly recommended for security reasons, but some S3 stores are configured to be HTTP only
@@ -116,7 +116,7 @@ To upload old files to S3 you will need the following:
   - Save the `Access Key` string for later
   - Save the `Secret Key` string for later
 - An S3 CLI tool installed on the machine hosting Bento
-  - We detail usage with S3CMD here, but any S3 compatible CLI tool will work (aws, Minio CLI)
+  - We detail usage with S3CMD here, but any S3 compatible CLI tool will work (aws, Garage CLI)
 
 Before performing the uploads, configure your S3 CLI tool (S3CMD here):
 
