@@ -174,7 +174,7 @@ From the project root, run
 > **NOTE:** This command will skip all certificate generation if it detects previously created files. 
 > To force an override, simply add the option `--force` / `-f`.
 
-After creating the three certificates, it is worth ensuring your browser has security exceptions for these
+One the app is running (step 8), it is worth ensuring your browser has security exceptions for these
 certificates and domains. Navigate to each of the three domains mentioned above and add security exceptions
 to ensure cross-origin requests will occur correctly.
 
