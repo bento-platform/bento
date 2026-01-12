@@ -138,7 +138,7 @@ Go through the official Elasticsearch
 for production deployments on Docker.
 
 The following configurations **MUST** be applied to the host machine deploying the Elasticsearch container:
-* [Set `vm.max_map_count`](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_set_vm_max_map_count_to_at_least_262144)
+* [Set `vm.max_map_count`](https://www.elastic.co/docs/deploy-manage/deploy/self-managed/vm-max-map-count)
 * [Disable swapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#swappiness)
 
 
