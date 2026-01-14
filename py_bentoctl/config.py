@@ -21,6 +21,8 @@ __all__ = [
     "DOCKER_COMPOSE_SERVICES",
     "DOCKER_COMPOSE_DEV_SERVICES",
 
+    "MAX_SERVICE_CHAR_LEN",
+
     "COMPOSE",
     "USER",
 
@@ -73,6 +75,7 @@ MODE = os.getenv("MODE")
 DEV_MODE = MODE == "dev"
 
 SERVICE_LITERAL_ALL: str = "all"
+MAX_SERVICE_CHAR_LEN: int = 19
 
 
 def _env_get_bool(var: str, default: bool = False) -> bool:
