@@ -13,7 +13,7 @@ Bento v20.1 brings two different changes which may require data migration when m
 ## Table of Contents
 
 * [MinIO to Garage Migration](#minio-to-garage-migration)
-* [Updating `bentoctl` Dependencies and Bento Images](#updating-bentoctl-dependencies-and-bento-images)
+* [Updating `bentoctl` Dependencies, Bento Images, and Initializing v20.1](#updating-bentoctl-dependencies-bento-images-and-initializing-v201)
 * [Re-Ingesting Genomic Interpretations](#re-ingesting-genomic-interpretations)
 
 
@@ -69,7 +69,7 @@ s3cmd -c ~/.s3cfg-minio-local ls s3://drs/ --recursive | wc -l
 
 ### Step 2: Update to Bento v20.1
 
-Now you can switch to the Bento `v20.1` tag, update `bentoctl` dependencies, and update images:
+Now you can switch to the Bento `v20.1` tag, update `bentoctl` dependencies, update images, and run `init-docker`:
 
 ```bash
 # make sure your `bentoctl` environment dependencies are up-to-date:
@@ -77,6 +77,9 @@ pip install -r requirements.txt
 
 # update images
 ./bentoctl.bash pull
+
+# run init-docker to initialize the new Garage Docker network
+./bentoctl.bash init-docker
 
 # don't start the new versions of services yet, as we need to set up Garage first!
 ```
@@ -180,7 +183,7 @@ rm <path-to-your-minio-data-dir> # Default was ${BENTO_SLOW_DATA_DIR}/minio/data
 ```
 
 
-## Updating `bentoctl` Dependencies and Bento Images
+## Updating `bentoctl` Dependencies, Bento Images, and Initializing v20.1
 
 If you have not already done so, make sure your `bentoctl` environment dependencies are up-to-date:
 
@@ -188,9 +191,14 @@ If you have not already done so, make sure your `bentoctl` environment dependenc
 pip install -r requirements.txt
 ```
 
-Then, update Bento images (if you migrated to Garage from MinIO above, you should have already done this!)
+Then, run `init-docker` and start Bento (if you migrated to Garage from MinIO above, you will have already done some of 
+these steps!)
 
 ```bash
+# initialize the Garage network (even though we aren't using it)
+./bentoctl.bash init-docker
+
+# pull images and start Bento
 ./bentoctl.bash pull
 ./bentoctl.bash up
 
