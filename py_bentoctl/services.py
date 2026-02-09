@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 import subprocess
@@ -20,6 +21,7 @@ __all__ = [
     "run_as_shell_for_service",
     "logs_service",
     "compose_config",
+    "get_services_status",
 ]
 
 BENTO_SERVICES_DATA_BY_KIND = {
@@ -299,7 +301,7 @@ def mode_service(compose_service: str) -> None:
     else:
         mode += "\t(dev)"
 
-    print(f"{compose_service[:18].rjust(18)} ", end="")
+    print(f"{compose_service[:c.MAX_SERVICE_CHAR_LEN].rjust(c.MAX_SERVICE_CHAR_LEN)} ", end="")
     cprint(mode, colour)
 
 
@@ -407,3 +409,165 @@ def logs_service(compose_service: str, follow: bool) -> None:
 
 def compose_config(services_flag: bool) -> None:
     os.execvp(c.COMPOSE[0], (*c.COMPOSE, "config", *(("--services",) if services_flag else ())))
+
+
+def _parse_health_status(status_text: str) -> Literal["healthy", "starting", "unhealthy", "none"]:
+    """
+    Parse health status from Docker status text.
+
+    Examples:
+    - "Up 5 hours (healthy)" → "healthy"
+    - "Up 2 minutes (health: starting)" → "starting"
+    - "Up 10 minutes (unhealthy)" → "unhealthy"
+    - "Up 1 hour" → "none" (no healthcheck configured)
+    """
+    status_lower = status_text.lower()
+
+    if "(healthy)" in status_lower:
+        return "healthy"
+    elif "health: starting" in status_lower or "(starting)" in status_lower:
+        return "starting"
+    elif "(unhealthy)" in status_lower:
+        return "unhealthy"
+    else:
+        return "none"
+
+
+def _fetch_all_service_statuses() -> Dict[str, Tuple[bool, str, str]]:
+    """
+    Fetch status for all services in one docker compose ps call.
+    Returns a dict mapping service name to (is_running, status_text, health_status).
+    """
+    compose_cmd = _get_compose_with_files(dev=c.DEV_MODE)
+    result = subprocess.run(
+        (*compose_cmd, "ps", "--format", "json"),
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        err(f"  Failed to fetch service statuses: {result.stderr.strip()}")
+        exit(1)
+
+    def _load_entry(raw: str):
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            return None
+
+    stdout_str = result.stdout.strip()
+    entries: list = []
+
+    if not stdout_str:
+        return {}
+
+    try:
+        parsed = json.loads(stdout_str)
+    except json.JSONDecodeError:
+        entries = [_load_entry(line) for line in stdout_str.splitlines() if line.strip()]
+        entries = [e for e in entries if e is not None]
+    else:
+        if isinstance(parsed, list):
+            entries = [
+                _load_entry(entry) if isinstance(entry, str) else entry
+                for entry in parsed
+            ]
+            entries = [e for e in entries if e is not None]
+        elif isinstance(parsed, dict):
+            entries = [parsed]
+        else:
+            err("  Unexpected docker compose status output.")
+            exit(1)
+
+    # Build dict mapping service name to status
+    status_dict = {}
+    for entry in entries:
+        service_name = entry.get("Service") or entry.get("Name", "").split("-")[-1]
+        if not service_name:
+            continue
+
+        is_running = entry.get("State") == "running"
+        status_text = entry.get("Status") or entry.get("State") or ""
+        health_status = _parse_health_status(status_text)
+        status_dict[service_name] = (is_running, status_text, health_status)
+
+    return status_dict
+
+
+def _print_service_status(service: str, running: bool, status_text: str, health_status: str) -> bool:
+    """Print service status with color coding. Returns whether service is running."""
+    print(f"{service[:c.MAX_SERVICE_CHAR_LEN].rjust(c.MAX_SERVICE_CHAR_LEN)} ", end="")
+
+    # Determine color and prefix based on health status
+    if not running:
+        colour = "red"
+        prefix = "not running"
+    elif health_status == "unhealthy":
+        colour = "red"
+        prefix = "unhealthy"
+    elif health_status == "starting":
+        colour = "yellow"
+        prefix = "starting"
+    else:  # healthy or none
+        colour = "green"
+        prefix = "running"
+
+    suffix = f" ({status_text})" if status_text else ""
+    cprint(f"{prefix}{suffix}", colour)
+    return running
+
+
+def _get_configured_services() -> list[str]:
+    """Get the list of services that are actually configured in the current compose setup."""
+    result = subprocess.run(
+        (*_get_compose_with_files(dev=c.DEV_MODE), "config", "--services"),
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        err(f"  Failed to get configured services: {result.stderr.strip()}")
+        exit(1)
+    services = [s.strip() for s in result.stdout.strip().split('\n') if s.strip()]
+    return services
+
+
+def get_services_status(compose_service: str) -> None:
+    compose_service = translate_service_aliases(compose_service)
+
+    all_statuses = _fetch_all_service_statuses()
+
+    if compose_service == c.SERVICE_LITERAL_ALL:
+        configured_services = _get_configured_services()
+
+        results = []
+        for service in sorted(configured_services):
+            if service in all_statuses:
+                running, status_text, health_status = all_statuses[service]
+                is_running = _print_service_status(service, running, status_text, health_status)
+                results.append(is_running)
+            else:
+                # Service is configured but not found in docker ps output
+                print(f"{service[:c.MAX_SERVICE_CHAR_LEN].rjust(c.MAX_SERVICE_CHAR_LEN)} ", end="")
+                cprint("not found (No containers)", "red")
+                results.append(False)
+
+        if all(results):
+            info("All services appear to be running.")
+            return
+        err("One or more services are not running.")
+        exit(1)
+
+    # Single service check
+    check_service_is_compose(compose_service)
+
+    if compose_service in all_statuses:
+        running, status_text, health_status = all_statuses[compose_service]
+        is_running = _print_service_status(compose_service, running, status_text, health_status)
+        if not is_running:
+            err(f"{compose_service} is not running.")
+            exit(1)
+    else:
+        print(f"{compose_service[:c.MAX_SERVICE_CHAR_LEN].rjust(c.MAX_SERVICE_CHAR_LEN)} ", end="")
+        cprint("not found (No containers)", "red")
+        err(f"{compose_service} is not running.")
+        exit(1)

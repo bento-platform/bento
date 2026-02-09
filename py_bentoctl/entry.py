@@ -198,6 +198,19 @@ class Logs(SubCommand):
         s.logs_service(args.service, args.follow)
 
 
+class Status(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL, choices=c.DOCKER_COMPOSE_SERVICES_PLUS_ALL,
+            help="Service to check status of, or 'all' to inspect every service.")
+
+    @staticmethod
+    def exec(args):
+        s.get_services_status(args.service)
+
+
 class ComposeConfig(SubCommand):
 
     @staticmethod
@@ -403,11 +416,12 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("prebuilt", "Switch a service back to prebuilt mode.", Prebuilt, aliases=("pre-built", "prod"))
     _add_subparser(
         "mode", "See if a service (or which services) are in production/development mode.", Mode,
-        aliases=("state", "status"))
+        aliases=("state",))
     _add_subparser("pull", "Pull the image for a specific service.", Pull)
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=("sh",))
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)
     _add_subparser("logs", "Check logs for a service.", Logs)
+    _add_subparser("status", "Check runtime status of services.", Status)
     _add_subparser("compose-config", "Generate Compose config YAML.", ComposeConfig)
 
     p_args = parser.parse_args(args)
