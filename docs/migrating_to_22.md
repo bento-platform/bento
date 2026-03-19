@@ -4,6 +4,7 @@ First, source the Bento virtual environment and update `bentoctl` dependencies:
 
 ```bash
 source env/bin/activate
+pip install -U pip
 pip install -r requirements.txt
 ```
 
