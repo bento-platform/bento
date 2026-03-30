@@ -83,14 +83,21 @@ services:
     profiles:
       - monitoring
 
-  promtail:
-    container_name: ${BENTO_PROMTAIL_CONTAINER_NAME}
-    image: ${BENTO_PROMTAIL_IMAGE}:${BENTO_PROMTAIL_IMAGE_VERSION}
+  alloy:
+    container_name: ${BENTO_ALLOY_CONTAINER_NAME}
+    image: ${BENTO_ALLOY_IMAGE}:${BENTO_ALLOY_IMAGE_VERSION}
     volumes:
       - "/var/lib/docker/containers:/var/lib/docker/containers"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "${PWD}/lib/logs/promtail-config.yaml:/etc/promtail/config.yaml"
-    command: "-config.file=/etc/promtail/config.yaml"  
+      - "${PWD}/lib/logs/config.alloy:/etc/alloy/config.alloy"
+    ports:
+      - "${BENTO_ALLOY_PORT}:${BENTO_ALLOY_PORT}"
+    command: [
+      "run",
+      "--server.http.listen-addr=0.0.0.0:${BENTO_ALLOY_PORT}",
+      "--stability.level=public-preview",
+      "/etc/alloy/config.alloy",
+    ]
     networks:
       - monitoring-net
     profiles:
