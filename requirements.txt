@@ -1,7 +1,7 @@
 certifi==2026.2.25
 cffi==2.0.0
 charset-normalizer==3.4.6
-cryptography==46.0.6
+cryptography==46.0.7
 debugpy==1.8.20
 docker==7.1.0
 flake8==7.3.0
