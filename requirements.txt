@@ -7,7 +7,7 @@ docker==7.1.0
 flake8==7.3.0
 idna==3.11
 mccabe==0.7.0
-packaging==26.0
+packaging==26.1
 pycodestyle==2.14.0
 pycparser==2.23
 pyflakes==3.4.0
