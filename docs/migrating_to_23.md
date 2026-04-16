@@ -24,7 +24,9 @@ docker system prune -a
 
 ### a. Describing experiments with new vocabulary terms
 
-TODO
+We have added several new terms for describing experiment types and library source/selection to our experiment schema.
+See [`chord_metadata_service/experiments/schemas.py`](https://github.com/bento-platform/katsu/blob/develop/chord_metadata_service/experiments/schemas.py)
+for the complete schema.
 
 ### b. Adding storage location/server to experiment results
 
