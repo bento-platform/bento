@@ -17,5 +17,5 @@ requests==2.33.1
 termcolor==3.3.0
 tqdm==4.67.3
 typing_extensions==4.15.0
-urllib3==2.6.3
+urllib3==2.7.0
 websocket-client==1.9.0
