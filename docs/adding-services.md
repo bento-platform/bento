@@ -118,20 +118,20 @@ Bento relies on three mechanisms to resolve hostnames to IP addresses:
   - In production, this is taken care of by DNS records
 
 When developing locally, some services may need to be interacted with strictly through the gateway.
-This is the case for Keycloak (auth) and Minio, as both services require a subdomain and HTTPS.
+This is the case for Keycloak (auth) and Garage, as both services require a subdomain and HTTPS.
 
-As such, drop-box cannot use the Docker resolver in order to connect to Minio.
+As such, drop-box cannot use the Docker resolver in order to connect to Garage.
 
-Since we are in local, there is no DNS record to resolve Minio's domain, 
+Since we are in local, there is no DNS record to resolve Garage's domain, 
 and the host's `/etc/hosts` entries will not be of help from the container's perspective.
 
 For these situations, we rely on [Docker network aliases.](https://docs.docker.com/reference/compose-file/services/#aliases)
 
-Taking the Minio example, we need:
-  - Drop-Box to interact with Minio via the gateway
-  - DRS to interact with Minio via the gateway
+Taking the Garage example, we need:
+  - Drop-Box to interact with Garage via the gateway
+  - DRS to interact with Garage via the gateway
 
-Enabling this is done by adding `${BENTO_MINIO_DOMAIN}` to the respective service networks aliases.
+Enabling this is done by adding `${BENTO_GARAGE_S3_DOMAIN}` to the respective service networks aliases.
 
 This snippet comes from [docker-compose.dev.yaml](../docker-compose.dev.yaml):
 ```yaml
@@ -143,13 +143,13 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
-          - ${BENTO_MINIO_DOMAIN}
+          - ${BENTO_GARAGE_S3_DOMAIN}
       drs-net:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
-          - ${BENTO_MINIO_DOMAIN}
+          - ${BENTO_GARAGE_S3_DOMAIN}
 ```
 
-Doing so, we make sure that `${BENTO_MINIO_DOMAIN}` is resolved to the gateway for drop-box and DRS.
+Doing so, we make sure that `${BENTO_GARAGE_S3_DOMAIN}` is resolved to the gateway for drop-box and DRS.

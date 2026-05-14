@@ -3,13 +3,14 @@
 This section details the required steps to deploy Bento on a server and expose it to the internet.
 The instructions assume you have a server with a public IP and DNS records pointing to it for the domains you will use.
 
-A bento deployment usually has up to 4 domains or subdomains, this section uses the following examples:
+A Bento deployment usually has up to 5 domains or subdomains, this section uses the following examples:
 ```bash
 BENTOV2_DOMAIN=bento.example.com
 BENTOV2_PORTAL_DOMAIN=portal.${BENTOV2_DOMAIN}
 BENTOV2_AUTH_DOMAIN=auth.${BENTOV2_DOMAIN}
 BENTOV2_CBIOPORTAL_DOMAIN=cbioportal.${BENTOV2_DOMAIN}
-BENTO_MINIO_DOMAIN=minio.${BENTOV2_DOMAIN}
+BENTO_GARAGE_S3_DOMAIN=garage.${BENTOV2_DOMAIN}
+BENTO_GARAGE_ADMIN_DOMAIN=admin.${BENTO_GARAGE_S3_DOMAIN}
 ```
 
 For a real deployment, make sure that your `local.env` file uses valid domain names for which SSL certificates 

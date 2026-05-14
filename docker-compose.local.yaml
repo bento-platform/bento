@@ -34,6 +34,7 @@ services:
     volumes:
       - ./repos/gateway/src:/gateway/src:ro
       - ./repos/gateway/conf:/gateway/conf:ro
+      - ./repos/gateway/entrypoint.bash:/gateway/entrypoint.bash:ro
     environment:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL

@@ -4,17 +4,17 @@ import subprocess
 import sys
 
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 from .auth_helper import init_auth
 from . import config as c
+from . import db_helpers as dh
 from . import feature_helpers as fh
 from . import services as s
 from . import other_helpers as oh
 from . import utils as u
 
 from typing import Optional, Tuple, Type
-
-__version__ = "0.6.0"
 
 
 class SubCommand(ABC):
@@ -260,6 +260,13 @@ class InitCBioPortal(SubCommand):
         fh.init_cbioportal()
 
 
+class InitGarage(SubCommand):
+
+    @staticmethod
+    def exec(args):
+        oh.init_garage()
+
+
 class InitAll(SubCommand):
 
     @staticmethod
@@ -296,6 +303,28 @@ class InitConfig(SubCommand):
         oh.init_config(args.service, args.force)
 
 
+class PgDump(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument("dir", type=Path, help="Path to a new directory for the database dump files.")
+
+    @staticmethod
+    def exec(args):
+        dh.pg_dump(args.dir)
+
+
+class PgLoad(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument("dir", type=Path, help="Path to a directory to load the database dump files from.")
+
+    @staticmethod
+    def exec(args):
+        dh.pg_load(args.dir)
+
+
 class ConvertPhenopacket(SubCommand):
 
     @staticmethod
@@ -330,7 +359,6 @@ def main(args: Optional[list[str]] = None) -> int:
         description="Tools for managing a Bento deployment (development or production).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("--version", "-v", action="version", version=__version__)
     parser.add_argument("--debug", "-d", action="store_true")
     subparsers = parser.add_subparsers()
 
@@ -353,6 +381,12 @@ def main(args: Optional[list[str]] = None) -> int:
 
     # Feature-specific initialization commands
     _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)
+    _add_subparser("init-garage", "Initialize Garage object storage with single-node layout", InitGarage)
+
+    # Database commands
+    #  - Postgres:
+    _add_subparser("pg-dump", "Dump contents of all Postgres database containers to a directory.", PgDump)
+    _add_subparser("pg-load", "Load contents of all Postgres database containers from a directory.", PgLoad)
 
     # Other commands
     _add_subparser("convert-pheno",

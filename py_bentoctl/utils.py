@@ -1,5 +1,6 @@
 import docker
 import sys
+import os
 
 from termcolor import cprint
 
@@ -9,8 +10,9 @@ __all__ = [
     "info",
     "warn",
     "err",
-
+    "indent_str",
     "get_docker_client",
+    "getenv_or_exit",
 ]
 
 
@@ -34,5 +36,17 @@ def err(msg: str) -> None:
     cprint(msg, "red", file=sys.stderr)
 
 
+def indent_str(msg: str, n: int) -> str:
+    return "\n".join((" " * n) + m for m in msg.split("\n"))
+
+
 def get_docker_client() -> docker.DockerClient:
     return docker.from_env()
+
+
+def getenv_or_exit(var: str) -> str:
+    if val := os.getenv(var):
+        return val
+
+    err(f"{var} is not set")
+    exit(1)

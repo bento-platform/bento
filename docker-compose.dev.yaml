@@ -40,13 +40,13 @@ services:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
-          - ${BENTO_MINIO_DOMAIN}
+          - ${BENTO_GARAGE_DOMAIN}
       drs-net:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
-          - ${BENTO_MINIO_DOMAIN}
+          - ${BENTO_GARAGE_DOMAIN}
       etl-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -129,7 +129,7 @@ services:
     ports:
       - "${BENTOV2_KATSU_DB_EXTERNAL_PORT}:${BENTOV2_KATSU_DB_INTERNAL_PORT}"
     volumes:
-      - ${BENTOV2_KATSU_DB_DEV_VOL_DIR}:/var/lib/postgresql/data
+      - ${BENTOV2_KATSU_DB_DEV_VOL_DIR}:/var/lib/postgresql
 
   adminer:
     image: adminer:4.8.1

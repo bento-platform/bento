@@ -1,0 +1,29 @@
+services:
+  garage:
+    image: ${BENTO_GARAGE_IMAGE}:${BENTO_GARAGE_IMAGE_VERSION}
+    container_name: ${BENTO_GARAGE_CONTAINER_NAME}
+    expose:
+      - ${BENTO_GARAGE_ADMIN_PORT}
+      - ${BENTO_GARAGE_S3_API_PORT}
+      - ${BENTO_GARAGE_RPC_PORT}
+    networks:
+      - garage-net
+    volumes:
+      - ${BENTO_GARAGE_META_DIR}:/var/lib/garage/meta
+      - ${BENTO_GARAGE_DATA_DIR}:/var/lib/garage/data
+      - ${BENTO_GARAGE_CONFIG_DIR}/garage.toml:/etc/garage.toml:ro
+    environment:
+      - RUST_LOG=garage=info
+    profiles:
+      - garage
+    healthcheck:
+      test: [ "CMD", "/garage", "status" ]
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
+
+networks:
+  garage-net:
+    external: true
+    name: ${BENTO_GARAGE_NETWORK}

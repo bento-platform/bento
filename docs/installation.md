@@ -138,7 +138,7 @@ Go through the official Elasticsearch
 for production deployments on Docker.
 
 The following configurations **MUST** be applied to the host machine deploying the Elasticsearch container:
-* [Set `vm.max_map_count`](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_set_vm_max_map_count_to_at_least_262144)
+* [Set `vm.max_map_count`](https://www.elastic.co/docs/deploy-manage/deploy/self-managed/vm-max-map-count)
 * [Disable swapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#swappiness)
 
 
@@ -174,7 +174,7 @@ From the project root, run
 > **NOTE:** This command will skip all certificate generation if it detects previously created files. 
 > To force an override, simply add the option `--force` / `-f`.
 
-After creating the three certificates, it is worth ensuring your browser has security exceptions for these
+Once the app is running (step 8), it is worth ensuring your browser has security exceptions for these
 certificates and domains. Navigate to each of the three domains mentioned above and add security exceptions
 to ensure cross-origin requests will occur correctly.
 
@@ -449,23 +449,3 @@ Follow these steps:
    ```
 4. Navigate to `/data/manager/ingestion` in the Bento private portal and ingest the reference FASTA and GFF3 into the
    reference service. This will take some time.
-
-### Set Up Gohan's Gene Catalogue (*Legacy instructions*)
-
-To enable gene querying support in versions of Bento before v16, follow these steps to set up Gohan's gene catalogue:
-
-1. **Access the Services Portal**:
-   - Navigate to the `Services` tab on the portal.
-
-2. **Initiate Gohan Request**:
-   - Click the `Make Request` button for Gohan.
-
-3. **Edit and Trigger Ingestion Endpoint**:
-   - Modify the endpoint to `genes/ingestion/run`.
-   - Click `Get` to initiate Gohan's download and processing of the default GenCode `.gtk` files from the internet.
-
-4. **Monitor the Ingestion Process**:
-   - Use the endpoint `genes/ingestion/requests` to track the progress of the ingestion process.
-
-5. **Access the Gene Catalogue**:
-   - Once the ingestion process is complete, the gene catalogue will be available at `genes/overview`.

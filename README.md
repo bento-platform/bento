@@ -16,15 +16,21 @@ that make up the Bento platform.
 
 
 
+<!--
+For now, comment out this diagram since it's outdated and confusing.
 <div style="text-align:center">
   <img src="https://github.com/bento-platform/bentoV2/blob/main/diagram.png?raw=true" alt="diagram" style="align:middle;"/>
 </div>
+-->
 
 
 ## Requirements
-- Docker >= 25.0
-- Docker Compose >= 2.25.0 (plugin form: you should have the `docker compose` command available, without a dash)
-- Python >= 3.9 (for `bentoctl`); the services require Python 3.10 but this is included in their Docker images. 
+- Docker >= 27.3
+- Docker Compose >= 2.40.2 (plugin form: you should have the `docker compose` command available, without a dash)
+  - Version 2.40.2 addressed a
+    [major security vulnerability](https://www.cyber.gc.ca/en/alerts-advisories/docker-security-advisory-av25-708)
+    in Compose, and is the minimum required version.
+- Python >= 3.10 (for `bentoctl`); the services require Python 3.12 but this is included in their Docker images.
 
 
 ## Documentation
@@ -40,7 +46,7 @@ that make up the Bento platform.
 * [Monitoring](./docs/monitoring.md)
 * [Public discovery configuration](./docs/public_discovery.md)
 * [Using a reverse proxy in front of Bento](./docs/reverse-proxy.md)
-* [Batteries-included S3 object storage with MinIO](./docs/minio.md)
+* [Batteries-included S3 object storage with Garage](./docs/garage.md)
 * [Configuring services for object storage](./docs/object_storage.md)
 
 ### Data ingestion and usage
@@ -51,6 +57,13 @@ that make up the Bento platform.
 
 ### Migration documents
 
+* [v23 to v24](./docs/migrating_to_24.md)
+* [v22 to v23](./docs/migrating_to_23.md)
+* [v21.1 to v22](./docs/migrating_to_22.md)
+* [v21 to v21.1](./docs/migrating_to_21_1.md)
+* [v20.1 to v21](./docs/migrating_to_21.md)
+* [v20 to v20.1](./docs/migrating_to_20_1.md)
+* [v19 to v20](./docs/migrating_to_20.md)
 * [v18 to v19](./docs/migrating_to_19.md)
 * [v17.1 to v18](./docs/migrating_to_18.md)
 * [v17 to v17.1](./docs/migrating_to_17_1.md)
