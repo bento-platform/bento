@@ -74,7 +74,7 @@ Each sub-repository specifies its own formatter and linter. Use the tool configu
 ### Opening a PR
 
 - Open the PR against the appropriate base branch (usually `main` unless otherwise noted).
-- Use a clear, conventional-commit-style title (e.g., `feat(service): add X`).
+- Use a clear, conventional-commit-style title (e.g., `feat(<scope>): add X` or `fix: handle Y`).
 - In the description, include:
   - A short summary of the change and why it's needed.
   - A link to the relevant Redmine ticket.
