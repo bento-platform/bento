@@ -95,7 +95,7 @@ At least one approval is required before merging. For larger or cross-cutting ch
 
 - All CI checks (tests, linters, builds) **must pass** before a PR can be merged.
 - Address review comments before re-requesting review.
-- **Squash and merge** is the default merge strategy, so that the main branch keeps a clean, conventional-commits history. Use a regular merge commit only when individual commits are meaningful and should be preserved.
+- **Merge commit** is the default merge strategy. Individual commits are preserved in the history.
 
 ## Reporting Bugs and Security Issues
 
