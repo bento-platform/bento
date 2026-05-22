@@ -44,11 +44,6 @@ lib/web/*
 !lib/web/.gitkeep
 !lib/web/docker-compose.web.yaml
 
-# bento_public
-lib/public/*
-!lib/public/.gitkeep
-!lib/public/docker-compose.public.yaml
-
 # gohan_elasticsearch
 lib/gohan/es_jvm_options/*
 !lib/gohan/es_jvm_options/.gitkeep

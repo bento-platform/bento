@@ -35,10 +35,12 @@ services:
 
       - ${PWD}/lib/public/en_about.html:/bento-public/dist/public/en_about.html:ro
       - ${PWD}/lib/public/fr_about.html:/bento-public/dist/public/fr_about.html:ro
-
+      # branding - instance logos and icons
       - ${PWD}/lib/public/branding.png:/bento-public/dist/public/assets/branding.png:ro
       - ${PWD}/lib/public/branding.lightbg.png:/bento-public/dist/public/assets/branding.lightbg.png:ro
       - ${PWD}/lib/public/favicon.png:/bento-public/dist/public/assets/icon_small.png:ro
+      # branding - custom fonts
+      - ${PWD}/lib/public/fonts:/bento-public/dist/public/assets/fonts:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
