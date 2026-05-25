@@ -82,6 +82,9 @@ def _init_web_public(force: bool):
         force=force,
     )
 
+    # Instance stylesheet
+    _file_copy(etc_path / "default.instance.css", public_path / "instance.css", force=force)
+
     # English translations
     _file_copy(
         (etc_path / "templates" / "translations" / "en.example.json"),

@@ -42,6 +42,8 @@ services:
       - ${PWD}/lib/public/favicon.png:/bento-public/dist/public/assets/icon_small.png:ro
       # branding - custom fonts
       - ${PWD}/lib/public/fonts:/bento-public/dist/public/assets/fonts:ro
+      # branding - instance css
+      - ${PWD}/lib/public/instance.css:/bento-public/dist/public/instance.css:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
