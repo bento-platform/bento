@@ -13,6 +13,7 @@ services:
       - BENTO_PUBLIC_CLIENT_NAME
       - BENTO_PUBLIC_PORTAL_URL
       - BENTO_PUBLIC_TRANSLATED
+      - BENTO_PUBLIC_TRANSLATED_LOGO
       - BENTO_PUBLIC_SHOW_HEADER_TITLE
       - BENTO_PUBLIC_SHOW_PORTAL_LINK
       - BENTO_PUBLIC_SHOW_SIGN_IN
@@ -37,7 +38,9 @@ services:
       - ${PWD}/lib/public/fr_about.html:/bento-public/dist/public/fr_about.html:ro
 
       - ${PWD}/lib/public/branding.png:/bento-public/dist/public/assets/branding.png:ro
+      - ${PWD}/lib/public/branding.fr.png:/bento-public/dist/public/assets/branding.fr.png:ro
       - ${PWD}/lib/public/branding.lightbg.png:/bento-public/dist/public/assets/branding.lightbg.png:ro
+      - ${PWD}/lib/public/branding.lightbg.fr.png:/bento-public/dist/public/assets/branding.lightbg.fr.png:ro
       - ${PWD}/lib/public/favicon.png:/bento-public/dist/public/assets/icon_small.png:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
