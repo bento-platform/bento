@@ -138,6 +138,33 @@ class Mode(SubCommand):
         s.mode_service(args.service)
 
 
+class SetVersion(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument("service", type=str, choices=tuple(s.service_image_vars.keys()),
+                        help="Service to pin to a specific version.")
+        sp.add_argument("version", type=str, help="Version tag to use (e.g. 1.2.3 or edge).")
+
+    @staticmethod
+    def exec(args):
+        s.set_version_service(args.service, args.version)
+
+
+class ResetVersion(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "service", type=str, nargs="?", default=c.SERVICE_LITERAL_ALL,
+            choices=(*tuple(s.service_image_vars.keys()), c.SERVICE_LITERAL_ALL),
+            help="Service to reset, or 'all' to reset all version overrides.")
+
+    @staticmethod
+    def exec(args):
+        s.reset_version_service(args.service)
+
+
 class Pull(SubCommand):
 
     @staticmethod
@@ -404,6 +431,10 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser(
         "mode", "See if a service (or which services) are in production/development mode.", Mode,
         aliases=("state", "status"))
+    _add_subparser("set-version", "Pin a service to a specific version via local.env override.", SetVersion,
+                   aliases=("pin-version", "sv"))
+    _add_subparser("reset-version", "Remove a version override from local.env, reverting to bento.env default.",
+                   ResetVersion, aliases=("rv",))
     _add_subparser("pull", "Pull the image for a specific service.", Pull)
     _add_subparser("shell", "Run a shell inside an already-running service container.", Shell, aliases=("sh",))
     _add_subparser("run-as-shell", "Run a shell inside a stopped service container.", RunShell)

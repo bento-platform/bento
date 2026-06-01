@@ -22,6 +22,9 @@ __all__ = [
     "compose_config",
 ]
 
+_LOCAL_ENV_PATH = pathlib.Path("local.env")
+
+
 BENTO_SERVICES_DATA_BY_KIND = {
     v["service_kind"]: {**v, "compose_id": k}
     for k, v in c.BENTO_SERVICES_DATA.items()
@@ -95,6 +98,93 @@ service_image_vars: Dict[str, Tuple[str, str, Optional[str]]] = {
     "web": ("BENTOV2_WEB_IMAGE", "BENTOV2_WEB_VERSION", "BENTOV2_WEB_VERSION_DEV"),
     "wes": ("BENTOV2_WES_IMAGE", "BENTOV2_WES_VERSION", "BENTOV2_WES_VERSION_DEV"),
 }
+
+
+def _set_local_env_var(var: str, value: str) -> None:
+    lines = _LOCAL_ENV_PATH.read_text().splitlines() if _LOCAL_ENV_PATH.exists() else []
+    updated = False
+    new_lines = []
+    for line in lines:
+        stripped = line.lstrip("# ").lstrip("#")
+        if stripped.startswith(f"{var}="):
+            new_lines.append(f"{var}={value}")
+            updated = True
+        else:
+            new_lines.append(line)
+    if not updated:
+        new_lines.append(f"{var}={value}")
+    _LOCAL_ENV_PATH.write_text("\n".join(new_lines) + "\n")
+
+
+def _remove_local_env_var(var: str) -> bool:
+    if not _LOCAL_ENV_PATH.exists():
+        return False
+    lines = _LOCAL_ENV_PATH.read_text().splitlines()
+    new_lines = [line for line in lines if not line.startswith(f"{var}=")]
+    if len(new_lines) == len(lines):
+        return False
+    _LOCAL_ENV_PATH.write_text("\n".join(new_lines) + "\n")
+    return True
+
+
+def _get_bento_env_default(var: str) -> Optional[str]:
+    bento_env_path = pathlib.Path("etc/bento.env")
+    if not bento_env_path.exists():
+        return None
+    for line in bento_env_path.read_text().splitlines():
+        if line.startswith(f"{var}="):
+            return line[len(f"{var}="):]
+    return None
+
+
+def set_version_service(compose_service: str, version: str) -> None:
+    if compose_service not in service_image_vars:
+        err(f"  {compose_service} not in service_image_vars; no version variable to set")
+        exit(1)
+    _, version_var, version_dev_var = service_image_vars[compose_service]
+    _set_local_env_var(version_var, version)
+    os.environ[version_var] = version
+    if version_dev_var:
+        os.environ[version_dev_var] = f"{version}-dev"
+    info(f"Set {compose_service} version to {version} — restarting...")
+    stop_service(compose_service)
+    pull_service(compose_service)
+    run_service(compose_service)
+
+
+def reset_version_service(compose_service: str) -> None:
+    if compose_service == c.SERVICE_LITERAL_ALL:
+        changed: list[str] = []
+        for svc, (_, version_var, version_dev_var) in service_image_vars.items():
+            if _remove_local_env_var(version_var):
+                default = _get_bento_env_default(version_var)
+                if default is not None:
+                    os.environ[version_var] = default
+                    if version_dev_var:
+                        os.environ[version_dev_var] = f"{default}-dev"
+                info(f"Reset {svc} version override from local.env")
+                changed.append(svc)
+        if changed:
+            stop_service(c.SERVICE_LITERAL_ALL)
+            pull_service(c.SERVICE_LITERAL_ALL)
+            run_service(c.SERVICE_LITERAL_ALL)
+        return
+    if compose_service not in service_image_vars:
+        err(f"  {compose_service} not in service_image_vars; no version variable to reset")
+        exit(1)
+    _, version_var, version_dev_var = service_image_vars[compose_service]
+    if _remove_local_env_var(version_var):
+        default = _get_bento_env_default(version_var)
+        if default is not None:
+            os.environ[version_var] = default
+            if version_dev_var:
+                os.environ[version_dev_var] = f"{default}-dev"
+        info(f"Reset {compose_service} to bento.env default — restarting...")
+        stop_service(compose_service)
+        pull_service(compose_service)
+        run_service(compose_service)
+    else:
+        info(f"No version override found for {compose_service} in local.env")
 
 
 def translate_service_aliases(service: str, include_prefixes: bool = True) -> str:
@@ -294,13 +384,19 @@ def mode_service(compose_service: str) -> None:
 
     mode = service_state[compose_service]["mode"]
     colour: Literal["green", "blue"] = "green" if mode == MODE_PREBUILT else "blue"
-    if mode == MODE_PREBUILT and not c.DEV_MODE:
-        mode += "\t(prod)"
+
+    image_t = service_image_vars.get(compose_service)
+    if image_t is not None:
+        _, version_var, version_dev_var = image_t
+        version_var_final = version_dev_var if mode == MODE_LOCAL and version_dev_var else version_var
+        current_version = os.getenv(version_var_final, "N/A")
     else:
-        mode += "\t(dev)"
+        current_version = "N/A"
+
+    mode_label = mode + ("\t(prod)" if mode == MODE_PREBUILT and not c.DEV_MODE else "\t(dev)")
 
     print(f"{compose_service[:18].rjust(18)} ", end="")
-    cprint(mode, colour)
+    cprint(f"{mode_label}\t[{current_version}]", colour)
 
 
 def pull_service(compose_service: str, existing_service_state: Optional[dict] = None) -> None:
