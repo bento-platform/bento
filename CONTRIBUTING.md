@@ -10,11 +10,11 @@ This project and everyone participating in it is expected to abide by a code of 
 
 ## Getting Started
 
-### Setup
+### Development environment
 
-Setup instructions live in each repository's `README.md`. Start there for environment configuration, dependencies, and how to run the service locally.
+To work on Bento or any of its services, start by installing Bento itself — you do not need to clone individual service repositories first. Follow the instructions in this repository's [README](./README.md).
 
-For the main Bento distribution, see the [development docs](https://github.com/bento-platform/bento/blob/main/docs/development.md).
+If you want to work on a specific service, see the [development guide](https://github.com/bento-platform/bento/blob/main/docs/development.md). Then refer to that service repository's `README.md` for further instructions.
 
 ### Running tests and linters
 
@@ -74,7 +74,7 @@ Each sub-repository specifies its own formatter and linter. Use the tool configu
 
 ### Opening a PR
 
-- Open the PR against the appropriate base branch (usually `main` unless otherwise noted).
+- Open the PR against the appropriate base branch (usually `main`). In the main `bento` repository, active development targets the current release branch (e.g., `releases/v24`) — check with your team if unsure.
 - Use a clear, conventional-commit-style title (e.g., `feat(<scope>): add X` or `fix: handle Y`).
 - In the description, include:
   - A short summary of the change and why it's needed.
@@ -92,15 +92,21 @@ Pick reviewers based on context:
 
 At least one approval is required before merging. For larger or cross-cutting changes, get an additional reviewer.
 
+**As a reviewer:**
+
+- Aim to review within 1–2 business days of being assigned.
+- Distinguish blocking from non-blocking comments. Prefix non-blocking suggestions with `nit:` or `optional:` so the author knows they can merge without resolving them.
+- Use "Request changes" for issues that must be fixed before merging. Use "Comment" for questions or non-blocking feedback. Use "Approve" when you're satisfied the PR is ready.
+
 ### CI and merging
 
 - All CI checks (tests, linters, builds) **must pass** before a PR can be merged.
 - Address review comments before re-requesting review.
 - **Merge commit** is the default merge strategy. Individual commits are preserved in the history.
 
-## Reporting Bugs and Security Issues
+## Reporting Bugs, Requesting Changes, and Security Issues
 
-To report a bug or security issue, please use this form:
+To report a bug, request a change, or report a security issue, please use this form:
 
 👉 [Bug/security report form](https://forms.gle/gtihcUDUpa64b14R6)
 
