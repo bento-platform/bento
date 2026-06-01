@@ -26,7 +26,7 @@ Internal contributors track work in **Redmine**. Before starting on something:
 
 1. Find or create a ticket in Redmine that describes the work.
 2. Assign the ticket to yourself.
-3. Keep the status up to date (e.g., *In Progress*, *In Review*, *Closed*) as you progress.
+3. Keep the status and `% completed` up to date (e.g., *In Progress*, *In Review*, *Closed*) as you progress.
 
 This keeps the team aware of who is working on what and avoids duplicated effort.
 
@@ -38,7 +38,8 @@ Use descriptive, prefixed branch names. Recommended conventions:
 
 - `feature/<short-description>` — new functionality
 - `fix/<short-description>` — bug fixes
-- `chore/<short-description>` — tooling, refactors, dependency bumps
+- `refactor/<short-description>` — refactors
+- `chore/<short-description>` — tooling, dependency bumps
 - `docs/<short-description>` — documentation-only changes
 
 Including the Redmine ticket ID is encouraged, e.g. `feature/1234-add-search-endpoint`.
