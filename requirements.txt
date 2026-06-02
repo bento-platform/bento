@@ -2,10 +2,10 @@ certifi==2026.5.20
 cffi==2.0.0
 charset-normalizer==3.4.7
 cryptography==48.0.0
-debugpy==1.8.20
+debugpy==1.8.21
 docker==7.1.0
 flake8==7.3.0
-idna==3.17
+idna==3.18
 mccabe==0.7.0
 packaging==26.2
 pycodestyle==2.14.0
