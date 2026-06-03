@@ -58,12 +58,19 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/). Each com
 
 Common types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `build`, `ci`, `perf`.
 
-Examples:
+Examples — committing in the main `bento` repository, where the scope is the affected service:
 
 ```
 feat(katsu): add phenopacket v2 ingest endpoint
 fix(gohan): handle empty VCF gracefully
 docs: clarify bentoctl installation steps
+```
+
+Examples — committing inside a sub-service repository (e.g. `katsu`), where the scope is the affected internal module or app:
+
+```
+feat(phenopacket): add compound key of individual id and dataset id to support multiple phenopacket imports
+test(chord): add tests for dataset ingestion
 ```
 
 ### Code style
