@@ -291,6 +291,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_CBIOPORTAL_SESSION_NETWORK", dict(driver="bridge")),
         ("BENTO_DROP_BOX_NETWORK", dict(driver="bridge")),
         ("BENTO_DRS_NETWORK", dict(driver="bridge")),
+        ("BENTO_ETL_NETWORK", dict(driver="bridge")),
         ("BENTO_EVENT_RELAY_NETWORK", dict(driver="bridge")),
         ("BENTO_GARAGE_NETWORK", dict(driver="bridge")),
         ("BENTO_GOHAN_API_NETWORK", dict(driver="bridge")),

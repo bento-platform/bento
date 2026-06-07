@@ -1,0 +1,46 @@
+services:
+  etl:
+    image: ${BENTO_ETL_IMAGE}:${BENTO_ETL_VERSION}
+    container_name: ${BENTO_ETL_CONTAINER_NAME}
+    networks:
+      - etl-net
+    expose:
+      - ${BENTO_ETL_INTERNAL_PORT}
+    environment:
+      - BENTO_UID
+      - BENTO_DEBUG=False
+      - BENTO_AUTHZ_ENABLED=True
+      - BENTO_AUTHZ_SERVICE_URL
+      - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
+      - KATSU_URL=${BENTO_KATSU_URL}/
+      - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/etl
+      - BENTO_OPENID_CONFIG_URL
+      - ETL_CLIENT_ID=${BENTO_ETL_CLIENT_ID}
+      - ETL_CLIENT_SECRET=${BENTO_ETL_CLIENT_SECRET}
+      - DB_NAME=${BENTO_ETL_SQLITE_DB_NAME}
+      - DATABASE_PATH=${BENTO_ETL_INTERNAL_DATA_DIR}/{BENTO_ETL_SQLITE_DB_NAME}
+      # S3
+      # TODO: add vars to files
+      - S3_BUCKET=${BENTO_ETL_S3_SOURCE_BUCKET}
+      - AWS_CONFIG_FILE=${BENTO_ETL_S3_AWS_CONFIG_FILE}
+      - AWS_SHARED_CREDENTIALS_FILE=${BENTO_ETL_S3_AWS_SHARED_CREDENTIALS_FILE}
+      - AWS_PROFILE=${BENTO_ETL_S3_AWS_PROFILE}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "http://localhost:${BENTO_ETL_INTERNAL_PORT}/service-info",
+        ]
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
+    volumes:
+      - ${BENTO_ETL_VOL_DATA_DIR}:${BENTO_ETL_INTERNAL_DATA_DIR}
+      # TODO: add vars to files
+      - ${BENTO_ETL_S3_AWS_CONF_DIR}:/.aws
+networks:
+  etl-net:
+    external: true
+    name: ${BENTO_ETL_NETWORK}

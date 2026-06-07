@@ -44,6 +44,7 @@ __all__ = [
     "BENTO_FEATURE_CBIOPORTAL",
     "BENTO_FEATURE_GOHAN",
     "BENTO_FEATURE_PUBLIC",
+    "BENTO_FEATURE_ETL",
 
     "BENTO_GIT_CLONE_HTTPS",
 
@@ -115,6 +116,8 @@ BENTO_FEATURE_GARAGE = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_GARAGE_ENABLED", default=False), profile="garage")
 BENTO_FEATURE_MONITORING = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_MONITORING_ENABLED", default=False), profile="monitoring")
+BENTO_FEATURE_ETL = BentoOptionalFeature(
+    enabled=_env_get_bool("BENTO_ETL_ENABLED", default=False), profile="etl")
 
 BENTO_FEATURE_PUBLIC = BentoOptionalFeature(enabled=BENTOV2_USE_BENTO_PUBLIC, profile="public")
 BENTO_FEATURE_REDIRECT = BentoOptionalFeature(enabled=bool(BENTO_DOMAIN_REDIRECT), profile="redirect")
@@ -227,4 +230,6 @@ DATA_DIR_ENV_VARS = {
     #  - Monitoring: Grafana/Loki
     **({"grafana": "BENTO_GRAFANA_LIB_DIR"} if BENTO_FEATURE_MONITORING else {}),
     **({"loki": "BENTO_LOKI_TEMP_DIR"} if BENTO_FEATURE_MONITORING else {}),
+    #  - ETL Service
+    **({"etl": "BENTO_ETL_VOL_DATA_DIR"} if BENTO_FEATURE_ETL else {})
 }
