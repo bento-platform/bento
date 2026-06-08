@@ -46,4 +46,5 @@ fields.
 Review the new provenance data via the web interface. To update a specific dataset, upload its JSON in the dataset edit 
 view.
 
-If you have a French translation for a dataset — **[TO COME]**
+**NOTE:** Uploading multiple language translations for dataset provenance metadata is not available in the UI yet. 
+This should be available in version 25.
