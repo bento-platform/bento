@@ -22,6 +22,7 @@ services:
       - ${PWD}/lib/public/branding.lightbg.png:/bento-public/src/public/assets/branding.lightbg.png
       - ${PWD}/lib/public/translations/en.json:/bento-public/src/public/locales/en/translation_en.json
       - ${PWD}/lib/public/translations/fr.json:/bento-public/src/public/locales/fr/translation_fr.json
+      - ${PWD}/lib/public/instance.css:/bento-public/src/public/styles/instance.css:ro
     environment:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL

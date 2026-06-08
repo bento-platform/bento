@@ -1,1 +1,10 @@
-/* Instance CSS styles */
+/*
+Instance CSS styles, e.g.:
+
+.default-theme {
+    --ant-color-primary: #2B7AAD;
+	--ant-font-family: "Helvetica", sans-serif;
+}
+
+See https://ant.design/docs/react/customize-theme for more information on available theme tokens.
+*/

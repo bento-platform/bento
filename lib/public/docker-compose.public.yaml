@@ -20,7 +20,6 @@ services:
       - BENTO_PUBLIC_PCGL_MODE
       - BENTO_PUBLIC_CATALOGUE_HEADER_BACKGROUND
       - BENTO_PUBLIC_CATALOGUE_HEADER_TEXT_COLOR
-      - BENTO_PUBLIC_FONT_FAMILY
       - BENTO_BEACON_UI_ENABLED
       - BENTO_BEACON_NETWORK_ENABLED
       - BEACON_URL=${BENTOV2_PUBLIC_URL}/api/beacon
@@ -40,10 +39,8 @@ services:
       - ${PWD}/lib/public/branding.png:/bento-public/dist/public/assets/branding.png:ro
       - ${PWD}/lib/public/branding.lightbg.png:/bento-public/dist/public/assets/branding.lightbg.png:ro
       - ${PWD}/lib/public/favicon.png:/bento-public/dist/public/assets/icon_small.png:ro
-      # branding - custom fonts
-      - ${PWD}/lib/public/fonts:/bento-public/dist/public/assets/fonts:ro
       # branding - instance css
-      - ${PWD}/lib/public/instance.css:/bento-public/dist/public/instance.css:ro
+      - ${PWD}/lib/public/instance.css:/bento-public/dist/public/styles/instance.css:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
