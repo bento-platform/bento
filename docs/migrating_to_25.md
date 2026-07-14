@@ -12,7 +12,8 @@ pip install -r requirements.txt
 
 ## 2. Set up new Bento Public files
 
-Run the following command to generate French logo placeholder files for Bento Public:
+Run the following command to generate French logo placeholder files and the new instance CSS stylesheet for 
+Bento Public:
 
 ```bash
 ./bentoctl.bash init-web public
