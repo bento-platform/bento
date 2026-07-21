@@ -1,0 +1,49 @@
+name: Build and push bentoctl
+on:
+  release:
+    types: [ published ]
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build image for testing
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          load: true
+          tags: bentoctl:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test image (show help output)
+        run: docker run bentoctl:test bentoctl
+
+      - name: Run Bento build action
+        uses: bento-platform/bento_build_action@v1
+        with:
+          registry: ghcr.io
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          image-name: ghcr.io/bento-platform/bentoctl
+          development-dockerfile: dev.Dockerfile
+          dockerfile: Dockerfile
