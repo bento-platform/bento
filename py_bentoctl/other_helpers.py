@@ -63,17 +63,11 @@ def _init_web_public(force: bool):
 
     # Branding image
     # - dark background / default
-    _file_copy(
-        (etc_path / "default.branding.png"),
-        (public_path / "branding.png"),
-        force=force,
-    )
+    _file_copy(etc_path / "default.branding.png", public_path / "branding.png", force=force)
+    _file_copy(etc_path / "default.branding.png", public_path / "branding.fr.png", force=force)
     # - light background
-    _file_copy(
-        (etc_path / "default.branding.lightbg.png"),
-        (public_path / "branding.lightbg.png"),
-        force=force,
-    )
+    _file_copy(etc_path / "default.branding.lightbg.png", public_path / "branding.lightbg.png", force=force)
+    _file_copy(etc_path / "default.branding.lightbg.png", public_path / "branding.lightbg.fr.png", force=force)
 
     # - favicon
     _file_copy(
@@ -81,6 +75,9 @@ def _init_web_public(force: bool):
         (public_path / "favicon.png"),
         force=force,
     )
+
+    # Instance stylesheet
+    _file_copy(etc_path / "default.instance.css", public_path / "instance.css", force=force)
 
     # English translations
     _file_copy(
