@@ -12,13 +12,13 @@ This project and everyone participating in it is expected to abide by a code of 
 
 ### Development environment
 
-To work on Bento or any of its services, start by installing Bento itself — you do not need to clone individual service repositories first. Follow the instructions in this repository's [README](./README.md).
+To work on Bento or any of its services, start by installing Bento itself; You do not need to clone individual service repositories first. Follow the instructions in this repository's [README](./README.md).
 
 If you want to work on a specific service, see the [development guide](https://github.com/bento-platform/bento/blob/main/docs/development.md). Then refer to that service repository's `README.md` for further instructions.
 
 ### Running tests and linters
 
-Each sub-repository defines its own testing and linting setup. Check the relevant `README.md` and the GitHub Actions workflows in `.github/workflows/` to see exactly which commands are run in CI — your local checks should match those.
+Each sub-repository defines its own testing and linting setup. Check the relevant `README.md` and the GitHub Actions workflows in `.github/workflows/` to see exactly which commands are run in CI, your local checks should match those.
 
 ## Finding Something to Work On
 
