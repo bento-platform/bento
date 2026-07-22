@@ -38,6 +38,20 @@ jobs:
       - name: Test image (show help output)
         run: docker run bentoctl:test bentoctl
 
+      - name: Build dev image for testing
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: dev.Dockerfile
+          push: false
+          load: true
+          tags: ghcr.io/bento-platform/bentoctl:test-dev
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test dev image (show help output)
+        run: docker run -v ./py_bentoctl:/bentoctl/py_bentoctl ghcr.io/bento-platform/bentoctl:test-dev bentoctl
+
       - name: Run Bento build action
         uses: bento-platform/bento_build_action@v1
         with:
