@@ -22,7 +22,6 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends docker-ce-cli docker-compose-plugin && \
     rm -rf /var/lib/apt/lists/*
 
-COPY py_bentoctl py_bentoctl
 COPY requirements.txt .
 COPY bentoctl.bash .
 COPY docker-compose.yaml .
