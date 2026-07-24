@@ -23,6 +23,7 @@ __all__ = ["init_auth"]
 urllib3.disable_warnings(InsecureRequestWarning)
 
 USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
+CREATE_TEST_USER = os.getenv("BENTO_AUTH_CREATE_TEST_USER") in ("1", "true")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 
 PUBLIC_URL = os.getenv("BENTOV2_PUBLIC_URL")
@@ -334,7 +335,7 @@ def create_client_and_secret_for_service(
     )
 
 
-def init_auth(docker_client: docker.DockerClient):
+def init_auth(docker_client: Optional[docker.DockerClient] = None):
     target_realm = AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM
 
     # Capture admin credentials from the function
@@ -586,14 +587,15 @@ def init_auth(docker_client: docker.DockerClient):
     idp_type = "external" if USE_EXTERNAL_IDP else "internal"
     info(f"[bentoctl] Using {idp_type} IdP, setting up Keycloak... (DEV_MODE={c.DEV_MODE})")
 
-    try:
-        docker_client.containers.get(GATEWAY_CONTAINER_NAME)  # Needed to access Keycloak through the proper channel
-        docker_client.containers.get(AUTH_CONTAINER_NAME)
-    except requests.exceptions.HTTPError:
-        info(f"  Starting {AUTH_CONTAINER_NAME}...")
-        # Not found, so we need to start it
-        subprocess.check_call((*c.COMPOSE, "up", "--wait", "-d", "auth", "gateway"))
-        success()
+    if docker_client is not None:
+        try:
+            docker_client.containers.get(GATEWAY_CONTAINER_NAME)  # Needed to access Keycloak through the proper channel
+            docker_client.containers.get(AUTH_CONTAINER_NAME)
+        except requests.exceptions.HTTPError:
+            info(f"  Starting {AUTH_CONTAINER_NAME}...")
+            # Not found, so we need to start it
+            subprocess.check_call((*c.COMPOSE, "up", "--wait", "-d", "auth", "gateway"))
+            success()
 
     info(f"   Signing into {target_realm} realm as {AUTH_ADMIN_USER}...")
     session = get_session()
@@ -640,22 +642,23 @@ def init_auth(docker_client: docker.DockerClient):
         )
         success()
 
-    if not USE_EXTERNAL_IDP:
+    if CREATE_TEST_USER:
         info(f"  Creating user: {AUTH_TEST_USER}")
         create_test_user_if_needed(access_token)
         success()
     else:
-        warn("  Skipping test user creation as we are using an external Keycloak instance.")
+        warn("  Skipping test user creation, set BENTO_AUTH_CREATE_TEST_USER=true to enable it.")
 
     if not USE_EXTERNAL_IDP:
-        info("  Restarting the Keycloak container")
-        try:
-            kc = docker_client.containers.get(AUTH_CONTAINER_NAME)
-            kc.restart()
-            success()
-        except requests.exceptions.HTTPError:
-            # Not found
-            err(f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?")
+        if docker_client is not None:
+            info("  Restarting the Keycloak container")
+            try:
+                kc = docker_client.containers.get(AUTH_CONTAINER_NAME)
+                kc.restart()
+                success()
+            except requests.exceptions.HTTPError:
+                # Not found
+                err(f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?")
 
     if not USE_EXTERNAL_IDP:
         # Copy branding file from cwd/etc/default.branding.lightbg.png
