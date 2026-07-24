@@ -23,7 +23,7 @@ __all__ = ["init_auth"]
 urllib3.disable_warnings(InsecureRequestWarning)
 
 USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
-CREATE_TEST_USER = os.getenv("BENTOV2_AUTH_CREATE_TEST_USER") in ("1", "true")
+CREATE_TEST_USER = os.getenv("BENTO_AUTH_CREATE_TEST_USER") in ("1", "true")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 
 PUBLIC_URL = os.getenv("BENTOV2_PUBLIC_URL")
@@ -642,12 +642,12 @@ def init_auth(docker_client: Optional[docker.DockerClient] = None):
         )
         success()
 
-    if not USE_EXTERNAL_IDP or CREATE_TEST_USER:
+    if CREATE_TEST_USER:
         info(f"  Creating user: {AUTH_TEST_USER}")
         create_test_user_if_needed(access_token)
         success()
     else:
-        warn("  Skipping test user creation as we are using an external Keycloak instance.")
+        warn("  Skipping test user creation, set BENTO_AUTH_CREATE_TEST_USER=true to enable it.")
 
     if not USE_EXTERNAL_IDP:
         if docker_client is not None:
