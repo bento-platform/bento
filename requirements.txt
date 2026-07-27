@@ -1,4 +1,4 @@
-certifi==2026.6.17
+certifi==2026.7.22
 cffi==2.1.0
 charset-normalizer==3.4.9
 cryptography==49.0.0
@@ -15,7 +15,7 @@ pyhumps==3.8.0
 PyYAML==6.0.3
 requests==2.34.2
 termcolor==3.3.0
-tqdm==4.69.0
+tqdm==4.70.0
 typing_extensions==4.16.0
 urllib3==2.7.0
 websocket-client==1.9.0
