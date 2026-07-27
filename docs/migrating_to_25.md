@@ -19,6 +19,17 @@ Bento Public:
 ./bentoctl.bash init-web public
 ```
 
-## 3. TODO
+## 3. Configure new environment variables
 
-TODO
+If you have a translated logo you're adding after the above command, set `BENTO_PUBLIC_TRANSLATED_LOGO=true` in
+`local.env`. Otherwise, set `BENTO_PUBLIC_TRANSLATED_LOGO=false` (optional).
+
+## 4. Update Bento services
+
+Update and restart Bento services using the following commands:
+
+```bash
+./bentoctl.bash pull
+./bentoctl.bash up
+docker system prune -a
+```
