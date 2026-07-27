@@ -24,6 +24,7 @@ urllib3.disable_warnings(InsecureRequestWarning)
 
 USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
 CREATE_TEST_USER = os.getenv("BENTO_AUTH_CREATE_TEST_USER") in ("1", "true")
+AUTH_ADMIN_REALM = os.getenv("BENTO_AUTH_ADMIN_REALM", "")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 
 PUBLIC_URL = os.getenv("BENTOV2_PUBLIC_URL")
@@ -336,7 +337,7 @@ def create_client_and_secret_for_service(
 
 
 def init_auth(docker_client: Optional[docker.DockerClient] = None):
-    target_realm = AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM
+    target_realm = AUTH_ADMIN_REALM or (AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM)
 
     # Capture admin credentials from the function
     admin_user, admin_password = get_admin_credentials()
