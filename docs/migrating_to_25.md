@@ -24,6 +24,9 @@ Bento Public:
 If you have a translated logo you're adding after the above command, set `BENTO_PUBLIC_TRANSLATED_LOGO=true` in
 `local.env`. Otherwise, set `BENTO_PUBLIC_TRANSLATED_LOGO=false` (optional).
 
+If you want to adjust the height of the branding logo in Bento Public, set `BENTO_PUBLIC_LOGO_HEIGHT` to your 
+desired pixel value. Otherwise, set `BENTO_PUBLIC_LOGO_HEIGHT=32` (optional).
+
 ## 4. (OPTIONAL) Add new instance styling
 
 With the new instance CSS file in `lib/public/instance.css`, instance-specific styling can be added.
