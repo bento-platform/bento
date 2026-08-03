@@ -339,6 +339,11 @@ def create_client_and_secret_for_service(
 
     if k8s_client is not None:
         secret_name = f"{client_id}-oidc-secret"
+        try:
+            k8s_client.delete_namespaced_secret(name=secret_name, namespace="default")
+        except client.exceptions.ApiException as e:
+            if e.status != 404:
+                raise
         k8s_client.create_namespaced_secret(
             namespace="default",
             body=client.V1Secret(
