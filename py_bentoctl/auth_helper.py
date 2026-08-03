@@ -120,11 +120,11 @@ def fetch_existing_client_id(token: str, client_id: str, verbose: bool = True) -
         err(f"    Failed to fetch existing clients: {existing_clients}")
         exit(1)
 
-    for client in existing_clients:
-        if client["clientId"] == client_id:
+    for kc_client in existing_clients:
+        if kc_client["clientId"] == client_id:
             if verbose:
                 warn(f"    Found existing client: {client_id}; using that.")
-            return client["id"]
+            return kc_client["id"]
 
     return None
 
