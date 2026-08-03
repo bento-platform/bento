@@ -2,6 +2,7 @@
 
 import docker
 import json
+from kubernetes import client, config as k8s_config
 import os
 import requests
 import subprocess
@@ -300,6 +301,7 @@ def create_client_and_secret_for_service(
     to_restart: str = "the gateway",
     token_lifespan: int = 900,    # default access token lifespan: 15 minutes
     use_refresh_tokens: bool = False,  # by default, don't use refresh tokens! (they're less secure)
+    k8s_client: Optional[client.CoreV1Api] = None,
 ):
     client_kc_id: Optional[str] = fetch_existing_client_id(token, client_id)
 
@@ -335,9 +337,25 @@ def create_client_and_secret_for_service(
         attrs=["bold"],
     )
 
+    if k8s_client is not None:
+        secret_name = f"{client_id}-oidc-secret"
+        k8s_client.create_namespaced_secret(
+            namespace="default",
+            body=client.V1Secret(
+                metadata=client.V1ObjectMeta(name=secret_name),
+                string_data={"id": client_kc_id, "secret": client_secret},
+            ),
+        )
+        info(f"    Created Kubernetes secret: {secret_name}")
+
 
 def init_auth(docker_client: Optional[docker.DockerClient] = None):
     target_realm = AUTH_ADMIN_REALM or (AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM)
+
+    k8s_client = None
+    if c.BENTO_PLATFORM == "kubernetes":
+        k8s_config.load_incluster_config()
+        k8s_client = client.CoreV1Api()
 
     # Capture admin credentials from the function
     admin_user, admin_password = get_admin_credentials()
@@ -445,7 +463,8 @@ def init_auth(docker_client: Optional[docker.DockerClient] = None):
 
     def create_grafana_client_if_needed(token: str) -> None:
         create_client_and_secret_for_service(
-            GRAFANA_CLIENT_ID, "BENTO_GRAFANA_CLIENT_SECRET", GRAFANA_PRIVATE_URL, token, to_restart="Grafana"
+            GRAFANA_CLIENT_ID, "BENTO_GRAFANA_CLIENT_SECRET", GRAFANA_PRIVATE_URL, token, to_restart="Grafana",
+            k8s_client=k8s_client,
         )
 
     def create_grafana_client_roles_if_needed(token: str, client_id: str) -> Optional[dict]:
@@ -519,12 +538,14 @@ def init_auth(docker_client: Optional[docker.DockerClient] = None):
             token,
             is_service_account=True,
             to_restart="Aggregation and Beacon",
+            k8s_client=k8s_client,
         )
 
     # noinspection PyUnusedLocal
     def create_cbioportal_client_if_needed(token: str) -> None:
         create_client_and_secret_for_service(
-            CBIOPORTAL_CLIENT_ID, "BENTO_CBIOPORTAL_CLIENT_SECRET", CBIOPORTAL_URL, token, use_refresh_tokens=True
+            CBIOPORTAL_CLIENT_ID, "BENTO_CBIOPORTAL_CLIENT_SECRET", CBIOPORTAL_URL, token, use_refresh_tokens=True,
+            k8s_client=k8s_client,
         )
 
     def create_wes_client_if_needed(token: str) -> None:
@@ -536,6 +557,7 @@ def init_auth(docker_client: Optional[docker.DockerClient] = None):
             is_service_account=True,
             to_restart="WES",
             token_lifespan=WES_WORKFLOW_TIMEOUT,
+            k8s_client=k8s_client,
         )
 
     def create_test_user_if_needed(token: str) -> None:
