@@ -5,6 +5,7 @@ import subprocess
 import sys
 
 from abc import ABC, abstractmethod
+from kubernetes import client, config as k8s_config
 from pathlib import Path
 
 from .auth_helper import init_auth
@@ -35,7 +36,16 @@ class InitAuth(SubCommand):
     @staticmethod
     def exec(args):
         use_external_idp = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
-        init_auth(docker_client=None if use_external_idp else u.get_docker_client())
+        use_kubernetes = c.BENTO_PLATFORM == "kubernetes"
+
+        docker_client = None if (use_external_idp or use_kubernetes) else u.get_docker_client()
+
+        k8s_client = None
+        if use_kubernetes:
+            k8s_config.load_incluster_config()
+            k8s_client = client.CoreV1Api()
+
+        init_auth(docker_client=docker_client, k8s_client=k8s_client)
 
 
 class Run(SubCommand):

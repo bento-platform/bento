@@ -2,7 +2,7 @@
 
 import docker
 import json
-from kubernetes import client, config as k8s_config
+from kubernetes import client
 import os
 import requests
 import subprocess
@@ -342,6 +342,8 @@ def create_client_and_secret_for_service(
         try:
             k8s_client.delete_namespaced_secret(name=secret_name, namespace="default")
         except client.exceptions.ApiException as e:
+            # 404 means the secret doesn't exist yet (first run) — nothing to delete, safe to continue.
+            # Any other error is unexpected and should propagate.
             if e.status != 404:
                 raise
         k8s_client.create_namespaced_secret(
@@ -354,13 +356,14 @@ def create_client_and_secret_for_service(
         info(f"    Created Kubernetes secret: {secret_name}")
 
 
-def init_auth(docker_client: Optional[docker.DockerClient] = None):
-    target_realm = AUTH_ADMIN_REALM or (AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM)
+def init_auth(
+    docker_client: Optional[docker.DockerClient] = None,
+    k8s_client: Optional[client.CoreV1Api] = None,
+):
+    if docker_client is not None and k8s_client is not None:
+        raise ValueError("init_auth: only one of docker_client or k8s_client may be provided, not both")
 
-    k8s_client = None
-    if c.BENTO_PLATFORM == "kubernetes":
-        k8s_config.load_incluster_config()
-        k8s_client = client.CoreV1Api()
+    target_realm = AUTH_ADMIN_REALM or (AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM)
 
     # Capture admin credentials from the function
     admin_user, admin_password = get_admin_credentials()
