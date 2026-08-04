@@ -35,7 +35,8 @@ class InitAuth(SubCommand):
     @staticmethod
     def exec(args):
         use_external_idp = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
-        init_auth(docker_client=None if use_external_idp else u.get_docker_client())
+        use_kubernetes = c.BENTO_PLATFORM == "kubernetes"
+        init_auth(docker_client=None if use_external_idp or use_kubernetes else u.get_docker_client())
 
 
 class Run(SubCommand):
