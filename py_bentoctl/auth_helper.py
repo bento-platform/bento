@@ -25,6 +25,7 @@ urllib3.disable_warnings(InsecureRequestWarning)
 
 USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
 CREATE_TEST_USER = os.getenv("BENTO_AUTH_CREATE_TEST_USER") in ("1", "true")
+CREATE_REALM = os.getenv("BENTO_AUTH_CREATE_REALM") in ("1", "true")
 AUTH_ADMIN_REALM = os.getenv("BENTO_AUTH_ADMIN_REALM", "")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 
@@ -633,12 +634,12 @@ def init_auth(
     access_token = session["access_token"]
     success()
 
-    if not USE_EXTERNAL_IDP:
+    if CREATE_REALM:
         info(f"  Creating realm: {AUTH_REALM}")
         create_realm_if_needed(access_token, login_theme="bento-theme")
         success()
     else:
-        warn("  Skipping realm creation as we are using an external Keycloak instance.")
+        warn("  Skipping realm creation, set BENTO_AUTH_CREATE_REALM=true to enable it.")
 
     info(f"  Creating web client: {AUTH_CLIENT_ID}")
     create_web_client_if_needed(access_token)
