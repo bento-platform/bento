@@ -5,7 +5,6 @@ import subprocess
 import sys
 
 from abc import ABC, abstractmethod
-from kubernetes import client, config as k8s_config
 from pathlib import Path
 
 from .auth_helper import init_auth
@@ -40,10 +39,7 @@ class InitAuth(SubCommand):
 
         docker_client = None if (use_external_idp or use_kubernetes) else u.get_docker_client()
 
-        k8s_client = None
-        if use_kubernetes:
-            k8s_config.load_incluster_config()
-            k8s_client = client.CoreV1Api()
+        k8s_client = u.get_k8s_client() if use_kubernetes else None
 
         init_auth(docker_client=docker_client, k8s_client=k8s_client)
 
