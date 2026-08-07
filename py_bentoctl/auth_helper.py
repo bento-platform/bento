@@ -27,6 +27,7 @@ USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
 CREATE_TEST_USER = os.getenv("BENTO_AUTH_CREATE_TEST_USER") in ("1", "true")
 CREATE_REALM = os.getenv("BENTO_AUTH_CREATE_REALM") in ("1", "true")
 AUTH_ADMIN_REALM = os.getenv("BENTO_AUTH_ADMIN_REALM", "")
+K8S_NAMESPACE = os.getenv("BENTO_K8S_NAMESPACE", "default")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 
 PUBLIC_URL = os.getenv("BENTOV2_PUBLIC_URL")
@@ -341,14 +342,14 @@ def create_client_and_secret_for_service(
     if k8s_client is not None:
         secret_name = f"{client_id}-oidc-secret"
         try:
-            k8s_client.delete_namespaced_secret(name=secret_name, namespace="default")
+            k8s_client.delete_namespaced_secret(name=secret_name, namespace=K8S_NAMESPACE)
         except client.exceptions.ApiException as e:
             # 404 means the secret doesn't exist yet (first run) — nothing to delete, safe to continue.
             # Any other error is unexpected and should propagate.
             if e.status != 404:
                 raise
         k8s_client.create_namespaced_secret(
-            namespace="default",
+            namespace=K8S_NAMESPACE,
             body=client.V1Secret(
                 metadata=client.V1ObjectMeta(name=secret_name),
                 string_data={"id": client_kc_id, "secret": client_secret},
