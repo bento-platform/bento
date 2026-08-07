@@ -1,5 +1,6 @@
 from __future__ import annotations
 import argparse
+import os
 import subprocess
 import sys
 
@@ -33,7 +34,14 @@ class InitAuth(SubCommand):
 
     @staticmethod
     def exec(args):
-        init_auth(docker_client=u.get_docker_client())
+        use_external_idp = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
+        use_kubernetes = c.BENTO_PLATFORM == "kubernetes"
+
+        docker_client = None if (use_external_idp or use_kubernetes) else u.get_docker_client()
+
+        k8s_client = u.get_k8s_client() if use_kubernetes else None
+
+        init_auth(docker_client=docker_client, k8s_client=k8s_client)
 
 
 class Run(SubCommand):

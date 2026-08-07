@@ -2,6 +2,7 @@
 
 import docker
 import json
+from kubernetes import client
 import os
 import requests
 import subprocess
@@ -23,6 +24,10 @@ __all__ = ["init_auth"]
 urllib3.disable_warnings(InsecureRequestWarning)
 
 USE_EXTERNAL_IDP = os.getenv("BENTOV2_USE_EXTERNAL_IDP") in ("1", "true")
+CREATE_TEST_USER = os.getenv("BENTO_AUTH_CREATE_TEST_USER") in ("1", "true")
+CREATE_REALM = os.getenv("BENTO_AUTH_CREATE_REALM") in ("1", "true")
+AUTH_ADMIN_REALM = os.getenv("BENTO_AUTH_ADMIN_REALM", "")
+K8S_NAMESPACE = os.getenv("BENTO_K8S_NAMESPACE", "default")
 CLIENT_ID = os.getenv("BENTOV2_AUTH_CLIENT_ID")
 
 PUBLIC_URL = os.getenv("BENTOV2_PUBLIC_URL")
@@ -117,11 +122,11 @@ def fetch_existing_client_id(token: str, client_id: str, verbose: bool = True) -
         err(f"    Failed to fetch existing clients: {existing_clients}")
         exit(1)
 
-    for client in existing_clients:
-        if client["clientId"] == client_id:
+    for kc_client in existing_clients:
+        if kc_client["clientId"] == client_id:
             if verbose:
                 warn(f"    Found existing client: {client_id}; using that.")
-            return client["id"]
+            return kc_client["id"]
 
     return None
 
@@ -298,6 +303,7 @@ def create_client_and_secret_for_service(
     to_restart: str = "the gateway",
     token_lifespan: int = 900,    # default access token lifespan: 15 minutes
     use_refresh_tokens: bool = False,  # by default, don't use refresh tokens! (they're less secure)
+    k8s_client: Optional[client.CoreV1Api] = None,
 ):
     client_kc_id: Optional[str] = fetch_existing_client_id(token, client_id)
 
@@ -333,9 +339,33 @@ def create_client_and_secret_for_service(
         attrs=["bold"],
     )
 
+    if k8s_client is not None:
+        secret_name = f"{client_id}-oidc-secret"
+        try:
+            k8s_client.delete_namespaced_secret(name=secret_name, namespace=K8S_NAMESPACE)
+        except client.exceptions.ApiException as e:
+            # 404 means the secret doesn't exist yet (first run) — nothing to delete, safe to continue.
+            # Any other error is unexpected and should propagate.
+            if e.status != 404:
+                raise
+        k8s_client.create_namespaced_secret(
+            namespace=K8S_NAMESPACE,
+            body=client.V1Secret(
+                metadata=client.V1ObjectMeta(name=secret_name),
+                string_data={"id": client_kc_id, "secret": client_secret},
+            ),
+        )
+        info(f"    Created Kubernetes secret: {secret_name}")
 
-def init_auth(docker_client: docker.DockerClient):
-    target_realm = AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM
+
+def init_auth(
+    docker_client: Optional[docker.DockerClient] = None,
+    k8s_client: Optional[client.CoreV1Api] = None,
+):
+    if docker_client is not None and k8s_client is not None:
+        raise ValueError("init_auth: only one of docker_client or k8s_client may be provided, not both")
+
+    target_realm = AUTH_ADMIN_REALM or (AUTH_REALM if USE_EXTERNAL_IDP else MASTER_REALM)
 
     # Capture admin credentials from the function
     admin_user, admin_password = get_admin_credentials()
@@ -443,7 +473,8 @@ def init_auth(docker_client: docker.DockerClient):
 
     def create_grafana_client_if_needed(token: str) -> None:
         create_client_and_secret_for_service(
-            GRAFANA_CLIENT_ID, "BENTO_GRAFANA_CLIENT_SECRET", GRAFANA_PRIVATE_URL, token, to_restart="Grafana"
+            GRAFANA_CLIENT_ID, "BENTO_GRAFANA_CLIENT_SECRET", GRAFANA_PRIVATE_URL, token, to_restart="Grafana",
+            k8s_client=k8s_client,
         )
 
     def create_grafana_client_roles_if_needed(token: str, client_id: str) -> Optional[dict]:
@@ -517,12 +548,14 @@ def init_auth(docker_client: docker.DockerClient):
             token,
             is_service_account=True,
             to_restart="Aggregation and Beacon",
+            k8s_client=k8s_client,
         )
 
     # noinspection PyUnusedLocal
     def create_cbioportal_client_if_needed(token: str) -> None:
         create_client_and_secret_for_service(
-            CBIOPORTAL_CLIENT_ID, "BENTO_CBIOPORTAL_CLIENT_SECRET", CBIOPORTAL_URL, token, use_refresh_tokens=True
+            CBIOPORTAL_CLIENT_ID, "BENTO_CBIOPORTAL_CLIENT_SECRET", CBIOPORTAL_URL, token, use_refresh_tokens=True,
+            k8s_client=k8s_client,
         )
 
     def create_wes_client_if_needed(token: str) -> None:
@@ -534,6 +567,7 @@ def init_auth(docker_client: docker.DockerClient):
             is_service_account=True,
             to_restart="WES",
             token_lifespan=WES_WORKFLOW_TIMEOUT,
+            k8s_client=k8s_client,
         )
 
     def create_test_user_if_needed(token: str) -> None:
@@ -586,26 +620,27 @@ def init_auth(docker_client: docker.DockerClient):
     idp_type = "external" if USE_EXTERNAL_IDP else "internal"
     info(f"[bentoctl] Using {idp_type} IdP, setting up Keycloak... (DEV_MODE={c.DEV_MODE})")
 
-    try:
-        docker_client.containers.get(GATEWAY_CONTAINER_NAME)  # Needed to access Keycloak through the proper channel
-        docker_client.containers.get(AUTH_CONTAINER_NAME)
-    except requests.exceptions.HTTPError:
-        info(f"  Starting {AUTH_CONTAINER_NAME}...")
-        # Not found, so we need to start it
-        subprocess.check_call((*c.COMPOSE, "up", "--wait", "-d", "auth", "gateway"))
-        success()
+    if docker_client is not None:
+        try:
+            docker_client.containers.get(GATEWAY_CONTAINER_NAME)  # Needed to access Keycloak through the proper channel
+            docker_client.containers.get(AUTH_CONTAINER_NAME)
+        except requests.exceptions.HTTPError:
+            info(f"  Starting {AUTH_CONTAINER_NAME}...")
+            # Not found, so we need to start it
+            subprocess.check_call((*c.COMPOSE, "up", "--wait", "-d", "auth", "gateway"))
+            success()
 
     info(f"   Signing into {target_realm} realm as {AUTH_ADMIN_USER}...")
     session = get_session()
     access_token = session["access_token"]
     success()
 
-    if not USE_EXTERNAL_IDP:
+    if CREATE_REALM:
         info(f"  Creating realm: {AUTH_REALM}")
         create_realm_if_needed(access_token, login_theme="bento-theme")
         success()
     else:
-        warn("  Skipping realm creation as we are using an external Keycloak instance.")
+        warn("  Skipping realm creation, set BENTO_AUTH_CREATE_REALM=true to enable it.")
 
     info(f"  Creating web client: {AUTH_CLIENT_ID}")
     create_web_client_if_needed(access_token)
@@ -640,22 +675,23 @@ def init_auth(docker_client: docker.DockerClient):
         )
         success()
 
-    if not USE_EXTERNAL_IDP:
+    if CREATE_TEST_USER:
         info(f"  Creating user: {AUTH_TEST_USER}")
         create_test_user_if_needed(access_token)
         success()
     else:
-        warn("  Skipping test user creation as we are using an external Keycloak instance.")
+        warn("  Skipping test user creation, set BENTO_AUTH_CREATE_TEST_USER=true to enable it.")
 
     if not USE_EXTERNAL_IDP:
-        info("  Restarting the Keycloak container")
-        try:
-            kc = docker_client.containers.get(AUTH_CONTAINER_NAME)
-            kc.restart()
-            success()
-        except requests.exceptions.HTTPError:
-            # Not found
-            err(f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?")
+        if docker_client is not None:
+            info("  Restarting the Keycloak container")
+            try:
+                kc = docker_client.containers.get(AUTH_CONTAINER_NAME)
+                kc.restart()
+                success()
+            except requests.exceptions.HTTPError:
+                # Not found
+                err(f"    Could not find container: {AUTH_CONTAINER_NAME}. Is it running?")
 
     if not USE_EXTERNAL_IDP:
         # Copy branding file from cwd/etc/default.branding.lightbg.png
