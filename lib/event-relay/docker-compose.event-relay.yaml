@@ -23,7 +23,7 @@ services:
       - SOCKET_IO_PATH=${BENTOV2_EVENT_RELAY_SOCKET_IO_PATH}
 
       # CORS origins for connecting to the socket
-      - CORS_ORIGINS=${BENTOV2_PUBLIC_URL};${BENTOV2_PORTAL_PUBLIC_URL}
+      - CORS_ORIGINS=${BENTOV2_PUBLIC_URL};${BENTO_ADMIN_PUBLIC_URL}
 
       # Connection string (URL or path to UNIX socket file) for the Redis instance.
       - REDIS_CONNECTION=redis://${BENTOV2_REDIS_CONTAINER_NAME}:${BENTOV2_REDIS_INTERNAL_PORT}
