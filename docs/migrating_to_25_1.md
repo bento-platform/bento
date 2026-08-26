@@ -1,4 +1,4 @@
-# Migrating to Bento v25
+# Migrating to Bento v25.1
 
 ## 1. Update the Bento environment 
 
