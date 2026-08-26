@@ -1,16 +1,8 @@
 # Migrating to Bento v25.1
 
-## 1. Update the Bento environment 
+This patch release only includes changes to the Keycloak version for security fixes.
 
-Source the Bento virtual environment and update `bentoctl` dependencies:
-
-```bash
-source env/bin/activate
-pip install -U pip
-pip install -r requirements.txt
-```
-
-## 2. Update Bento services
+## 1. Update Bento services
 
 Update and restart Bento services using the following commands:
 
