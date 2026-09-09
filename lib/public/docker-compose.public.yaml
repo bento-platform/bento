@@ -34,19 +34,19 @@ services:
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
     volumes:
-      - ${PWD}/lib/public/translations/en.json:/bento-public/dist/public/locales/en/translation_en.json:ro
-      - ${PWD}/lib/public/translations/fr.json:/bento-public/dist/public/locales/fr/translation_fr.json:ro
+      # branding 
+      - ${PWD}/lib/public/en_about.html:/bento-public/public/public/en_about.html
+      - ${PWD}/lib/public/fr_about.html:/bento-public/public/public/fr_about.html
+      
+      - ${PWD}/lib/public/branding.png:/bento-public/public/public/assets/branding.png
+      - ${PWD}/lib/public/branding.fr.png:/bento-public/public/public/assets/branding.fr.png
+      - ${PWD}/lib/public/branding.lightbg.png:/bento-public/public/public/assets/branding.lightbg.png
+      - ${PWD}/lib/public/branding.lightbg.fr.png:/bento-public/public/public/assets/branding.lightbg.fr.png
 
-      - ${PWD}/lib/public/en_about.html:/bento-public/dist/public/en_about.html:ro
-      - ${PWD}/lib/public/fr_about.html:/bento-public/dist/public/fr_about.html:ro
-      # branding - instance logos and icons
-      - ${PWD}/lib/public/branding.png:/bento-public/dist/public/assets/branding.png:ro
-      - ${PWD}/lib/public/branding.fr.png:/bento-public/dist/public/assets/branding.fr.png:ro
-      - ${PWD}/lib/public/branding.lightbg.png:/bento-public/dist/public/assets/branding.lightbg.png:ro
-      - ${PWD}/lib/public/branding.lightbg.fr.png:/bento-public/dist/public/assets/branding.lightbg.fr.png:ro
-      - ${PWD}/lib/public/favicon.png:/bento-public/dist/public/assets/icon_small.png:ro
-      # branding - instance css
-      - ${PWD}/lib/public/instance.css:/bento-public/dist/public/styles/instance.css:ro
+      - ${PWD}/lib/public/instance.css:/bento-public/public/public/styles/instance.css:ro
+      # i18n
+      - ${PWD}/lib/public/translations/en.json:/bento-public/public/public/locales/en/translation_en.json
+      - ${PWD}/lib/public/translations/fr.json:/bento-public/public/public/locales/fr/translation_fr.json
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
