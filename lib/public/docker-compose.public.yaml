@@ -45,8 +45,8 @@ services:
 
       - ${PWD}/lib/public/instance.css:/bento-public/public/public/styles/instance.css:ro
       # i18n
-      - ${PWD}/lib/public/translations/en.json:/bento-public/public/public/locales/en/translation_en.json
-      - ${PWD}/lib/public/translations/fr.json:/bento-public/public/public/locales/fr/translation_fr.json
+      - ${PWD}/lib/public/translations/en.json:/bento-public/src/app/i18n/locales/en/translation_en.json
+      - ${PWD}/lib/public/translations/fr.json:/bento-public/src/app/i18n/locales/fr/translation_fr.json
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
