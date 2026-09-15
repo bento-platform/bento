@@ -9,6 +9,7 @@ services:
   public:
     environment:
       - NODE_ENV=development
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
     ports:
       - "${BENTO_PUBLIC_EXTERNAL_PORT}:${BENTO_PUBLIC_INTERNAL_PORT}"
     profiles:
