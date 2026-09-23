@@ -31,6 +31,7 @@ def create_cert(path: pathlib.Path, pkey: rsa.RSAPrivateKey, crt_name: str, comm
         .not_valid_before(datetime.datetime.utcnow())
         .not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=365))
         .add_extension(
+            # common_name must be in the SAN too, since modern clients ignore the subject CN for validation
             x509.SubjectAlternativeName([x509.DNSName(common_name), x509.DNSName(u"localhost")]),
             critical=False,
         )
