@@ -9,6 +9,7 @@ services:
       - BENTO_PUBLIC_SERVICE_ID
       - BENTO_PUBLIC_CLIENT_NAME
       - BENTO_PUBLIC_ADMIN_URL
+      - BENTO_PUBLIC_SESSION_REFETCH_INTERVAL_SECONDS
       # backwards compatibility; can be removed in future version
       - BENTO_PUBLIC_PORTAL_URL=${BENTO_PUBLIC_ADMIN_URL}
       - BENTO_PUBLIC_TRANSLATED
