@@ -60,6 +60,8 @@ KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 
 MASTER_REALM = "master"
 
+PROFILE_OPTIONAL_ATTRIBUTES = ("email", "firstName", "lastName")
+
 
 def get_admin_credentials() -> Tuple[str, str]:
     admin_user = AUTH_ADMIN_USER or input("Enter admin username: ").strip()
@@ -420,6 +422,35 @@ def init_auth(docker_client: docker.DockerClient):
         cprint(f"    Created realm {AUTH_REALM} with login theme '{login_theme}' and internationalization settings.",
                "green")
 
+    def make_profile_fields_optional_if_needed(token: str) -> None:
+        # By default, Keycloak requires email/first name/last name, and forces users missing them through an
+        # "Update Account Information" step on login. Make them optional instead.
+        profile_endpoint = f"{KC_ADMIN_API_ENDPOINT}/users/profile"
+
+        profile_res = keycloak_req(profile_endpoint, bearer_token=token)
+        if not profile_res.ok:
+            err(f"    Failed to fetch user profile config: {profile_res.status_code} {profile_res.content}")
+            exit(1)
+        profile = profile_res.json()
+
+        updated_attrs = []
+        for attr in profile.get("attributes", []):
+            if attr["name"] in PROFILE_OPTIONAL_ATTRIBUTES and "required" in attr:
+                del attr["required"]
+                updated_attrs.append(attr["name"])
+
+        if not updated_attrs:
+            warn(f"    Profile attributes {', '.join(PROFILE_OPTIONAL_ATTRIBUTES)} are already optional.")
+            return
+
+        update_profile_res = keycloak_req(profile_endpoint, method="put", bearer_token=token, json_=profile)
+        if not update_profile_res.ok:
+            err(f"    Failed to update user profile config: {update_profile_res.status_code} "
+                f"{update_profile_res.content}")
+            exit(1)
+
+        cprint(f"    Made profile attributes optional: {', '.join(updated_attrs)}.", "green")
+
     def create_web_client_if_needed(token: str) -> None:
         web_client_kc_id: Optional[str] = fetch_existing_client_id(token, AUTH_CLIENT_ID)
         if web_client_kc_id is not None:
@@ -603,6 +634,10 @@ def init_auth(docker_client: docker.DockerClient):
     if not USE_EXTERNAL_IDP:
         info(f"  Creating realm: {AUTH_REALM}")
         create_realm_if_needed(access_token, login_theme="bento-theme")
+        success()
+
+        info(f"  Making user profile fields optional in realm: {AUTH_REALM}")
+        make_profile_fields_optional_if_needed(access_token)
         success()
     else:
         warn("  Skipping realm creation as we are using an external Keycloak instance.")
