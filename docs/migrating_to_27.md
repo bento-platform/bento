@@ -41,3 +41,20 @@ Update and restart Bento services using the following commands:
 ./bentoctl.bash up
 docker system prune -a
 ```
+
+## 4. (If using the internal Keycloak) Re-run `init-auth`
+
+Keycloak requires email, first name and last name by default, so users missing them are sent to an
+"Update Account Information" page on every login. `init-auth` now makes these fields optional in the Bento
+realm. It is safe to run on an existing realm; it skips anything already set up:
+
+```bash
+./bentoctl.bash init-auth
+```
+
+Note that `init-auth` restarts the Keycloak container, and copies `etc/default.branding.lightbg.png` over
+`lib/auth/bento-theme/login/resources/img/branding.png`. If you use a custom login branding image, put it
+back afterwards.
+
+Skip this step if you use an external IdP (`BENTOV2_USE_EXTERNAL_IDP=true`); in that case, make these fields
+optional in your IdP's realm settings under *Realm settings > User profile* if needed.
