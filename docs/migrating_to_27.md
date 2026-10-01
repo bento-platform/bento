@@ -32,7 +32,24 @@ BENTO_GARAGE_SECRET_KEY='<your-secret-key>'
   new bootstrap flags line up with the access key already in use. Your existing single-node layout and
   buckets are unaffected by the version bump; there's no need to re-run `init-garage`.
 
-## 3. Update Bento services
+## 3. Set a Bento Public auth secret
+
+Bento Public now uses Auth.js for sign-in, which needs a secret to encrypt its session cookies. Generate one:
+
+```bash
+openssl rand -base64 32
+```
+
+and add it to `local.env`:
+
+```bash
+# local.env
+BENTO_PUBLIC_AUTH_SECRET='<your-generated-secret>'
+```
+
+Keep this value stable for each environment; changing it invalidates existing Bento Public sessions.
+
+## 4. Update Bento services
 
 Update and restart Bento services using the following commands:
 
