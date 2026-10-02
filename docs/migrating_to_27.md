@@ -49,7 +49,18 @@ BENTO_PUBLIC_AUTH_SECRET='<your-generated-secret>'
 
 Keep this value stable for each environment; changing it invalidates existing Bento Public sessions.
 
-## 4. Update Bento services
+## 4. (Optional) Show Bento Public developer settings
+
+A new feature switch, `BENTO_PUBLIC_SHOW_DEV_SETTINGS` (default `false`), shows developer settings in Bento Public.
+This allows easy switching between the default and PCGL Bento Public modes via the UI. To enable it, add the
+following to `local.env`:
+
+```bash
+# local.env
+BENTO_PUBLIC_SHOW_DEV_SETTINGS='true'
+```
+
+## 5. Update Bento services
 
 Update and restart Bento services using the following commands:
 
@@ -59,7 +70,7 @@ Update and restart Bento services using the following commands:
 docker system prune -a
 ```
 
-## 4. (If using the internal Keycloak) Re-run `init-auth`
+## 6. (If using the internal Keycloak) Re-run `init-auth`
 
 Keycloak requires email, first name and last name by default, so users missing them are sent to an
 "Update Account Information" page on every login. `init-auth` now makes these fields optional in the Bento
