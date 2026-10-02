@@ -32,7 +32,24 @@ BENTO_GARAGE_SECRET_KEY='<your-secret-key>'
   new bootstrap flags line up with the access key already in use. Your existing single-node layout and
   buckets are unaffected by the version bump; there's no need to re-run `init-garage`.
 
-## 3. Update Bento services
+## 3. Set a Bento Public auth secret
+
+Bento Public now uses Auth.js for sign-in, which needs a secret to encrypt its session cookies. Generate one:
+
+```bash
+openssl rand -base64 32
+```
+
+and add it to `local.env`:
+
+```bash
+# local.env
+BENTO_PUBLIC_AUTH_SECRET='<your-generated-secret>'
+```
+
+Keep this value stable for each environment; changing it invalidates existing Bento Public sessions.
+
+## 4. Update Bento services
 
 Update and restart Bento services using the following commands:
 
@@ -41,3 +58,20 @@ Update and restart Bento services using the following commands:
 ./bentoctl.bash up
 docker system prune -a
 ```
+
+## 4. (If using the internal Keycloak) Re-run `init-auth`
+
+Keycloak requires email, first name and last name by default, so users missing them are sent to an
+"Update Account Information" page on every login. `init-auth` now makes these fields optional in the Bento
+realm. It is safe to run on an existing realm; it skips anything already set up:
+
+```bash
+./bentoctl.bash init-auth
+```
+
+Note that `init-auth` restarts the Keycloak container, and copies `etc/default.branding.lightbg.png` over
+`lib/auth/bento-theme/login/resources/img/branding.png`. If you use a custom login branding image, put it
+back afterwards.
+
+Skip this step if you use an external IdP (`BENTOV2_USE_EXTERNAL_IDP=true`); in that case, make these fields
+optional in your IdP's realm settings under *Realm settings > User profile* if needed.
