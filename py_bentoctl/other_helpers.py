@@ -700,6 +700,7 @@ def init_garage():
     admin_token = getenv_or_exit("BENTO_GARAGE_ADMIN_TOKEN")
     admin_url = getenv_or_exit("BENTO_GARAGE_ADMIN_DOMAIN")
     rpc_secret = getenv_or_exit("BENTO_GARAGE_RPC_SECRET")
+    access_key = getenv_or_exit("BENTO_GARAGE_ACCESS_KEY")
     config_dir = pathlib.Path(getenv_or_exit("BENTO_GARAGE_CONFIG_DIR"))
 
     # Validate RPC secret format
@@ -749,30 +750,9 @@ def init_garage():
         exit(1)
     task_print_done()
 
-    task_print("  Getting Garage node ID...")
-    try:
-        node_id = client.get_node_id()
-        task_print_done()
-    except Exception as e:
-        err(f"Failed to get node ID: {e}")
-        exit(1)
-
-    task_print("  Configuring single-node layout...")
-    try:
-        client.configure_layout(node_id)
-        task_print_done()
-    except Exception as e:
-        err(f"Failed to configure layout: {e}")
-        exit(1)
-
-    task_print("  Creating access key...")
-    try:
-        access_key, secret_key = client.create_access_key()
-        task_print_done(f"Access Key: {access_key} \n Secret Key: {secret_key}")
-        info("IMPORTANT: Save these credentials - they will be needed for DRS and Drop-Box configuration")
-    except Exception as e:
-        err(f"Failed to create access key: {e}")
-        exit(1)
+    # Single-node layout and the access key are bootstrapped automatically on container startup
+    # via the `--single-node`/`--default-access-key` server flags (see docker-compose.garage.yaml),
+    # using BENTO_GARAGE_ACCESS_KEY/BENTO_GARAGE_SECRET_KEY - no separate admin-API calls needed here.
 
     for bucket_name in ["drs", "drop-box"]:
         task_print(f"  Creating bucket: {bucket_name}...")

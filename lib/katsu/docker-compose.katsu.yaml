@@ -6,6 +6,7 @@ services:
     expose:
       - ${BENTOV2_KATSU_INTERNAL_PORT}
     networks:
+      - authz-net
       - drs-net
       - katsu-net
       - katsu-db-net
@@ -32,7 +33,7 @@ services:
       - KATSU_ALLOWED_HOSTS=${BENTOV2_DOMAIN},${BENTOV2_KATSU_CONTAINER_NAME},localhost
         # Authz
       - BENTO_AUTHZ_ENABLED=True
-      - BENTO_AUTHZ_SERVICE_URL
+      - BENTO_AUTHZ_SERVICE_URL=http://${BENTO_AUTHZ_CONTAINER_NAME}:${BENTO_AUTHZ_INTERNAL_PORT}/
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
     # configs:
     #   - source: chord-metadata-settings
@@ -92,6 +93,9 @@ services:
       start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
 
 networks:
+  authz-net:
+    external: true
+    name: ${BENTO_AUTHZ_NETWORK}
   drs-net:
     external: true
     name: ${BENTO_DRS_NETWORK}

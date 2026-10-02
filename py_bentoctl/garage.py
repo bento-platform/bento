@@ -36,33 +36,6 @@ class GarageAdminClient:
             elapsed += poll_interval
         return False
 
-    def get_node_id(self) -> str:
-        status = self.get("/v2/GetClusterStatus").json()
-        return status["nodes"][0]["id"]
-
-    def configure_layout(
-        self, node_id: str, capacity_bytes: int = 10_000_000_000  # TODO: make capacity configurable
-    ) -> None:
-        layout = self.get("/v2/GetClusterLayout").json()
-
-        for role in layout.get("roles", []):
-            if role["id"] == node_id:
-                # Layout already configured, skip
-                return
-
-        # Layout needs configuration - use UpdateClusterLayout
-        layout_update = {
-            "roles": [{"id": node_id, "capacity": capacity_bytes, "tags": [], "zone": "garage"}]
-        }
-        resp = self.post("/v2/UpdateClusterLayout", layout_update)
-        current_version = resp.json()["version"]
-        self.post("/v2/ApplyClusterLayout", {"version": current_version + 1})
-
-    def create_access_key(self) -> tuple[str, str]:
-        """Returns (access_key_id, secret_access_key)."""
-        key_info = self.post("/v2/CreateKey").json()
-        return key_info["accessKeyId"], key_info["secretAccessKey"]
-
     def list_buckets(self) -> list[dict]:
         return self.get("/v2/ListBuckets").json()
 
