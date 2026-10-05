@@ -11,3 +11,11 @@ else
   KC_HTTP_ENABLED='true'      # Required for TLS termination at the proxy
   KC_PROXY_HEADERS=xforwarded # xforwarded (non-standard) instead of forwarded (RFC7239) for NGINX compatibility
 fi
+
+# Bento Public (Node): in dev, disable TLS certificate validation since dev uses self-signed certs.
+# Outside dev, validation stays on (Node's default).
+if [[ "$MODE" == 'dev' ]]; then
+  BENTO_PUBLIC_NODE_TLS_REJECT_UNAUTHORIZED=0
+else
+  BENTO_PUBLIC_NODE_TLS_REJECT_UNAUTHORIZED=1
+fi
