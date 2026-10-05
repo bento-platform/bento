@@ -18,6 +18,8 @@ services:
       - BENTO_GIT_NAME
       - BENTO_GIT_EMAIL
       - BENTO_GIT_REPOSITORY_DIR=/bento-public
+      # disables Node's TLS certificate validation, since dev uses self-signed certs
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
     profiles:
       - public
 

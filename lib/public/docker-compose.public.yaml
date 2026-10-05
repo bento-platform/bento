@@ -33,8 +33,6 @@ services:
       - CLIENT_ID=${BENTOV2_AUTH_CLIENT_ID}
       - AUTH_SECRET=${BENTO_PUBLIC_AUTH_SECRET}
       - AUTH_URL=${BENTOV2_PUBLIC_URL}
-      # set from MODE in etc/bento_post_config.bash (0 in dev, since dev uses self-signed certs)
-      - NODE_TLS_REJECT_UNAUTHORIZED=${BENTO_PUBLIC_NODE_TLS_REJECT_UNAUTHORIZED}
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
     volumes:
