@@ -10,7 +10,7 @@ mccabe==0.7.0
 packaging==26.3
 pycodestyle==2.15.0
 pycparser==3.0
-pyflakes==4.0.2
+pyflakes==4.0.3
 pyhumps==3.8.0
 PyYAML==6.0.3
 requests==2.34.2
