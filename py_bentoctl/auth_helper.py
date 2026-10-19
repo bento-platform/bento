@@ -46,6 +46,8 @@ AGGREGATION_CLIENT_ID = os.getenv("BENTO_AGGREGATION_CLIENT_ID")
 
 CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
 
+PUBLIC_CLIENT_ID = os.getenv("BENTO_PUBLIC_CLIENT_ID")
+
 WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
 WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT"))
 
@@ -59,6 +61,8 @@ KC_ADMIN_API_CLIENTS_ENDPOINT = f"{KC_ADMIN_API_ENDPOINT}/clients"
 KC_ADMIN_API_CLIENT_SCOPES = f"{KC_ADMIN_API_ENDPOINT}/client-scopes"
 
 MASTER_REALM = "master"
+
+PROFILE_OPTIONAL_ATTRIBUTES = ("email", "firstName", "lastName")
 
 
 def get_admin_credentials() -> Tuple[str, str]:
@@ -420,23 +424,49 @@ def init_auth(docker_client: docker.DockerClient):
         cprint(f"    Created realm {AUTH_REALM} with login theme '{login_theme}' and internationalization settings.",
                "green")
 
+    def make_profile_fields_optional_if_needed(token: str) -> None:
+        # By default, Keycloak requires email/first name/last name, and forces users missing them through an
+        # "Update Account Information" step on login. Make them optional instead.
+        profile_endpoint = f"{KC_ADMIN_API_ENDPOINT}/users/profile"
+
+        profile_res = keycloak_req(profile_endpoint, bearer_token=token)
+        if not profile_res.ok:
+            err(f"    Failed to fetch user profile config: {profile_res.status_code} {profile_res.content}")
+            exit(1)
+        profile = profile_res.json()
+
+        updated_attrs = []
+        for attr in profile.get("attributes", []):
+            if attr["name"] in PROFILE_OPTIONAL_ATTRIBUTES and "required" in attr:
+                del attr["required"]
+                updated_attrs.append(attr["name"])
+
+        if not updated_attrs:
+            warn(f"    Profile attributes {', '.join(PROFILE_OPTIONAL_ATTRIBUTES)} are already optional.")
+            return
+
+        update_profile_res = keycloak_req(profile_endpoint, method="put", bearer_token=token, json_=profile)
+        if not update_profile_res.ok:
+            err(f"    Failed to update user profile config: {update_profile_res.status_code} "
+                f"{update_profile_res.content}")
+            exit(1)
+
+        cprint(f"    Made profile attributes optional: {', '.join(updated_attrs)}.", "green")
+
     def create_web_client_if_needed(token: str) -> None:
         web_client_kc_id: Optional[str] = fetch_existing_client_id(token, AUTH_CLIENT_ID)
         if web_client_kc_id is not None:
             return
 
-        # Create the Bento public/web client
+        # Create the Bento web (portal) client; Bento Public has its own confidential client
         create_keycloak_client_or_exit(
             token,
             AUTH_CLIENT_ID,
             public_client=True,
             standard_flow_enabled=True,
             service_accounts_enabled=False,
-            redirect_uris=[
-                f"{PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
-                f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
-            ],
-            web_origins=[PUBLIC_URL, PORTAL_PUBLIC_URL],
+            redirect_uris=[f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}"],
+            web_origins=[PORTAL_PUBLIC_URL],
             access_token_lifespan=900,  # default access token lifespan: 15 minutes
             use_refresh_tokens=True,
         )
@@ -525,6 +555,16 @@ def init_auth(docker_client: docker.DockerClient):
             CBIOPORTAL_CLIENT_ID, "BENTO_CBIOPORTAL_CLIENT_SECRET", CBIOPORTAL_URL, token, use_refresh_tokens=True
         )
 
+    def create_public_client_if_needed(token: str) -> None:
+        create_client_and_secret_for_service(
+            PUBLIC_CLIENT_ID,
+            "BENTO_PUBLIC_CLIENT_SECRET",
+            PUBLIC_URL,
+            token,
+            to_restart="Public",
+            use_refresh_tokens=True,
+        )
+
     def create_wes_client_if_needed(token: str) -> None:
         create_client_and_secret_for_service(
             WES_CLIENT_ID,
@@ -604,6 +644,10 @@ def init_auth(docker_client: docker.DockerClient):
         info(f"  Creating realm: {AUTH_REALM}")
         create_realm_if_needed(access_token, login_theme="bento-theme")
         success()
+
+        info(f"  Making user profile fields optional in realm: {AUTH_REALM}")
+        make_profile_fields_optional_if_needed(access_token)
+        success()
     else:
         warn("  Skipping realm creation as we are using an external Keycloak instance.")
 
@@ -622,6 +666,10 @@ def init_auth(docker_client: docker.DockerClient):
     #     info(f"  Creating cBioPortal client: {CBIOPORTAL_CLIENT_ID}")
     #     create_cbioportal_client_if_needed(access_token)
     #     success()
+
+    info(f"  Creating Public client: {PUBLIC_CLIENT_ID}")
+    create_public_client_if_needed(access_token)
+    success()
 
     info(f"  Creating WES client: {WES_CLIENT_ID}")
     create_wes_client_if_needed(access_token)
