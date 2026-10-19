@@ -458,18 +458,15 @@ def init_auth(docker_client: docker.DockerClient):
         if web_client_kc_id is not None:
             return
 
-        # Create the Bento public/web client
+        # Create the Bento web (portal) client; Bento Public has its own confidential client
         create_keycloak_client_or_exit(
             token,
             AUTH_CLIENT_ID,
             public_client=True,
             standard_flow_enabled=True,
             service_accounts_enabled=False,
-            redirect_uris=[
-                f"{PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
-                f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}",
-            ],
-            web_origins=[PUBLIC_URL, PORTAL_PUBLIC_URL],
+            redirect_uris=[f"{PORTAL_PUBLIC_URL}{AUTH_LOGIN_REDIRECT_PATH}"],
+            web_origins=[PORTAL_PUBLIC_URL],
             access_token_lifespan=900,  # default access token lifespan: 15 minutes
             use_refresh_tokens=True,
         )
@@ -562,10 +559,10 @@ def init_auth(docker_client: docker.DockerClient):
         create_client_and_secret_for_service(
             PUBLIC_CLIENT_ID,
             "BENTO_PUBLIC_CLIENT_SECRET",
-            None,
+            PUBLIC_URL,
             token,
-            is_service_account=True,
             to_restart="Public",
+            use_refresh_tokens=True,
         )
 
     def create_wes_client_if_needed(token: str) -> None:
