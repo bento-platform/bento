@@ -46,6 +46,8 @@ AGGREGATION_CLIENT_ID = os.getenv("BENTO_AGGREGATION_CLIENT_ID")
 
 CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
 
+PUBLIC_CLIENT_ID = os.getenv("BENTO_PUBLIC_CLIENT_ID")
+
 WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
 WES_WORKFLOW_TIMEOUT = int(os.getenv("BENTOV2_WES_WORKFLOW_TIMEOUT"))
 
@@ -556,6 +558,16 @@ def init_auth(docker_client: docker.DockerClient):
             CBIOPORTAL_CLIENT_ID, "BENTO_CBIOPORTAL_CLIENT_SECRET", CBIOPORTAL_URL, token, use_refresh_tokens=True
         )
 
+    def create_public_client_if_needed(token: str) -> None:
+        create_client_and_secret_for_service(
+            PUBLIC_CLIENT_ID,
+            "BENTO_PUBLIC_CLIENT_SECRET",
+            None,
+            token,
+            is_service_account=True,
+            to_restart="Public",
+        )
+
     def create_wes_client_if_needed(token: str) -> None:
         create_client_and_secret_for_service(
             WES_CLIENT_ID,
@@ -657,6 +669,10 @@ def init_auth(docker_client: docker.DockerClient):
     #     info(f"  Creating cBioPortal client: {CBIOPORTAL_CLIENT_ID}")
     #     create_cbioportal_client_if_needed(access_token)
     #     success()
+
+    info(f"  Creating Public client: {PUBLIC_CLIENT_ID}")
+    create_public_client_if_needed(access_token)
+    success()
 
     info(f"  Creating WES client: {WES_CLIENT_ID}")
     create_wes_client_if_needed(access_token)
