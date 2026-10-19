@@ -4,6 +4,7 @@ local.env
 .idea/*
 claude*
 .claude/*
+*.swp
 
 env
 .bentoctl.state.db
