@@ -14,6 +14,9 @@ services:
       - ${BENTO_GARAGE_CONFIG_DIR}/garage.toml:/etc/garage.toml:ro
     environment:
       - RUST_LOG=garage=info
+      - GARAGE_DEFAULT_ACCESS_KEY=${BENTO_GARAGE_ACCESS_KEY}
+      - GARAGE_DEFAULT_SECRET_KEY=${BENTO_GARAGE_SECRET_KEY}
+    command: [ "/garage", "server", "--single-node", "--default-access-key" ]
     profiles:
       - garage
     healthcheck:

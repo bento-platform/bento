@@ -9,6 +9,7 @@ services:
       - BENTO_PUBLIC_SERVICE_ID
       - BENTO_PUBLIC_CLIENT_NAME
       - BENTO_PUBLIC_ADMIN_URL
+      - BENTO_PUBLIC_SESSION_REFETCH_INTERVAL_SECONDS
       # backwards compatibility; can be removed in future version
       - BENTO_PUBLIC_PORTAL_URL=${BENTO_PUBLIC_ADMIN_URL}
       - BENTO_PUBLIC_TRANSLATED
@@ -20,6 +21,7 @@ services:
       - BENTO_PUBLIC_SHOW_SIGN_IN
       - BENTO_PUBLIC_FORCE_CATALOGUE
       - BENTO_PUBLIC_PCGL_MODE
+      - BENTO_PUBLIC_SHOW_DEV_SETTINGS
       - BENTO_PUBLIC_CATALOGUE_HEADER_BACKGROUND
       - BENTO_PUBLIC_CATALOGUE_HEADER_TEXT_COLOR
       - BENTO_BEACON_UI_ENABLED
@@ -29,22 +31,24 @@ services:
       - BENTO_PUBLIC_PORT=${BENTO_PUBLIC_INTERNAL_PORT}
       - OPENID_CONFIG_URL=${BENTOV2_AUTH_PUBLIC_URL}${BENTOV2_AUTH_WELLKNOWN_PATH}
       - CLIENT_ID=${BENTOV2_AUTH_CLIENT_ID}
+      - AUTH_SECRET=${BENTO_PUBLIC_AUTH_SECRET}
+      - AUTH_URL=${BENTOV2_PUBLIC_URL}
     expose:
       - "${BENTO_PUBLIC_INTERNAL_PORT}"
     volumes:
-      - ${PWD}/lib/public/translations/en.json:/bento-public/dist/public/locales/en/translation_en.json:ro
-      - ${PWD}/lib/public/translations/fr.json:/bento-public/dist/public/locales/fr/translation_fr.json:ro
+      # branding 
+      - ${PWD}/lib/public/en_about.html:/bento-public/public/public/en_about.html
+      - ${PWD}/lib/public/fr_about.html:/bento-public/public/public/fr_about.html
+      
+      - ${PWD}/lib/public/branding.png:/bento-public/public/public/assets/branding.png
+      - ${PWD}/lib/public/branding.fr.png:/bento-public/public/public/assets/branding.fr.png
+      - ${PWD}/lib/public/branding.lightbg.png:/bento-public/public/public/assets/branding.lightbg.png
+      - ${PWD}/lib/public/branding.lightbg.fr.png:/bento-public/public/public/assets/branding.lightbg.fr.png
 
-      - ${PWD}/lib/public/en_about.html:/bento-public/dist/public/en_about.html:ro
-      - ${PWD}/lib/public/fr_about.html:/bento-public/dist/public/fr_about.html:ro
-      # branding - instance logos and icons
-      - ${PWD}/lib/public/branding.png:/bento-public/dist/public/assets/branding.png:ro
-      - ${PWD}/lib/public/branding.fr.png:/bento-public/dist/public/assets/branding.fr.png:ro
-      - ${PWD}/lib/public/branding.lightbg.png:/bento-public/dist/public/assets/branding.lightbg.png:ro
-      - ${PWD}/lib/public/branding.lightbg.fr.png:/bento-public/dist/public/assets/branding.lightbg.fr.png:ro
-      - ${PWD}/lib/public/favicon.png:/bento-public/dist/public/assets/icon_small.png:ro
-      # branding - instance css
-      - ${PWD}/lib/public/instance.css:/bento-public/dist/public/styles/instance.css:ro
+      - ${PWD}/lib/public/instance.css:/bento-public/public/public/styles/instance.css:ro
+      # i18n
+      - ${PWD}/lib/public/translations/en.json:/bento-public/public/public/locales/en/translation_en.json
+      - ${PWD}/lib/public/translations/fr.json:/bento-public/public/public/locales/fr/translation_fr.json
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_PUBLIC_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
