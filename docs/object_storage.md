@@ -42,13 +42,12 @@ Edit your `local.env` file to include the drop box S3 environment variables:
 ```bash
 # local.env
 
-BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Local Garage S3 endpoint (no protocol)
-BENTO_DROP_BOX_S3_USE_HTTPS=true                        # Use HTTPS or HTTP on the endpoint
-BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Bucket name (created by init-garage)
-BENTO_DROP_BOX_S3_REGION_NAME=""                        # Region (required for Garage)
-BENTO_DROP_BOX_S3_ACCESS_KEY="<get from S3 provider>"   # S3 access key (from init-garage output in dev)
-BENTO_DROP_BOX_S3_SECRET_KEY="<get from S3 provider>"   # S3 secret key (from init-garage output in dev)
-BENTO_DROP_BOX_VALIDATE_SSL=false                       # Needs to be 'false' with self signed certs and HTTPS
+BENTO_DROP_BOX_AWS_ENDPOINT_URL_S3="https://garage.bentov2.local" # Local Garage S3 endpoint (no protocol)
+BENTO_DROP_BOX_AWS_DEFAULT_REGION=""                              # Region (required for Garage)
+BENTO_DROP_BOX_AWS_ACCESS_KEY_ID="<get from S3 provider>"         # S3 access key (from init-garage output in dev)
+BENTO_DROP_BOX_AWS_SECRET_KEY="<get from S3 provider>"            # S3 secret key (from init-garage output in dev)
+BENTO_DROP_BOX_S3_BUCKET="drop-box"                               # Bucket name (created by init-garage)
+BENTO_DROP_BOX_VALIDATE_SSL=false                                 # Needs to be 'false' with self signed certs and HTTPS
 ```
 
 Restart the drop box service for the changes to take effect:
@@ -66,13 +65,12 @@ Edit your `local.env` file to include the DRS environment variables for S3 stora
 ```bash
 # local.env
 
-BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"        # Local Garage S3 endpoint (no protocol)
-BENTO_DRS_S3_USE_HTTPS=true                         # Use HTTPS or HTTP on the endpoint
-BENTO_DRS_S3_BUCKET="drs"                           # Bucket name (created by init-garage)
-BENTO_DRS_S3_REGION_NAME=""                         # Region (required for Garage)
-BENTO_DRS_S3_ACCESS_KEY="<get from S3 provider>"    # S3 access key (from init-garage output in dev)
-BENTO_DRS_S3_SECRET_KEY="<get from S3 provider>"    # S3 secret key (from init-garage output in dev)
-BENTO_DRS_VALIDATE_SSL=false                        # Needs to be 'false' with self signed certs and HTTPS
+BENTO_DRS_AWS_ENDPOINT_URL_S3="https://garage.bentov2.local" # Local Garage S3 endpoint (no protocol)
+BENTO_DRS_AWS_DEFAULT_REGION=""                              # Region (required for Garage)
+BENTO_DRS_AWS_ACCESS_KEY_ID="<get from S3 provider>"         # S3 access key (from init-garage output in dev)
+BENTO_DRS_AWS_SECRET_KEY="<get from S3 provider>"            # S3 secret key (from init-garage output in dev)
+BENTO_DRS_S3_BUCKET="drs"                                    # Bucket name (created by init-garage)
+BENTO_DRS_VALIDATE_SSL=false                                 # Needs to be 'false' with self signed certs and HTTPS
 ```
 
 Restart the DRS service for the changes to take effect:
