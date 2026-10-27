@@ -38,6 +38,7 @@ in the example file:
 * `BENTO_AUTH_DB_PASSWORD`
 * `BENTO_AUTHZ_DB_PASSWORD`
 * `BENTO_AGGREGATION_CLIENT_SECRET`
+* `BENTO_PUBLIC_CLIENT_SECRET`
 * `BENTO_WES_CLIENT_SECRET`
 
 If the internal OIDC identity provider (IdP) is being used (by default, Keycloak), variables specifying default 
