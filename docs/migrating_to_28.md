@@ -47,7 +47,13 @@ redirect URI and web origin it was created with. These are no longer needed. To 
 Keycloak admin console or the corresponding IdP admin console. New instances only register the portal's redirect URI and web origin.
 
 
-## 4. Restart Bento
+## 4. Add 'apply for access' URL to `local.env` (for PCGL instance or developers)
+
+If you want 'apply for access' buttons to show up in the data catalogue / provenance modal, you will need to set the
+`BENTO_PUBLIC_APPLY_FOR_ACCESS_URL` environment variable in your `local.env`.
+
+
+## 5. Restart Bento
 
 ```bash
 ./bentoctl.bash start
