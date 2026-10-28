@@ -5,6 +5,9 @@
 * Bento Public now has its own OAuth2 client (`bento_public`) with a client secret, separate from the web/portal client
   (`local_bentov2` by default). Bento Public's `CLIENT_ID` changes accordingly, so sign-in on Bento Public will not work
   until the new client is created and its secret is set.
+* The S3 configuration for DRS and Drop-Box has changed: `BENTO_{DRS,DROP_BOX}_S3_ENDPOINT` and
+  `BENTO_{DRS,DROP_BOX}_S3_USE_HTTPS` are replaced by a single `BENTO_{DRS,DROP_BOX}_S3_ENDPOINT_URL`. Instances using
+  S3 for either service must update their `local.env` (see [step 4](#4-update-the-s3-configuration-for-drs-and-drop-box-if-using-s3)).
 
 
 ## 1. Pull latest Docker containers and stop Bento
@@ -47,13 +50,45 @@ redirect URI and web origin it was created with. These are no longer needed. To 
 Keycloak admin console or the corresponding IdP admin console. New instances only register the portal's redirect URI and web origin.
 
 
-## 4. Add 'apply for access' URL to `local.env` (for PCGL instance or developers)
+## 4. Update the S3 configuration for DRS and Drop-Box (if using S3)
+
+Skip this step if neither DRS nor Drop-Box uses S3, i.e. `BENTO_DRS_S3_BUCKET` and `BENTO_DROP_BOX_S3_BUCKET` are
+empty or unset.
+
+DRS and Drop-Box now take their S3 endpoint as a single URL, including the protocol. In your `local.env`, replace each
+service's `S3_ENDPOINT` and `S3_USE_HTTPS` variables with `S3_ENDPOINT_URL`:
+
+```bash
+# Before
+BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"
+BENTO_DRS_S3_USE_HTTPS=true
+
+# After
+BENTO_DRS_S3_ENDPOINT_URL="https://garage.bentov2.local"
+```
+
+Do the same for Drop-Box (`BENTO_DROP_BOX_S3_ENDPOINT` and `BENTO_DROP_BOX_S3_USE_HTTPS` become
+`BENTO_DROP_BOX_S3_ENDPOINT_URL`). Use `http://` if the endpoint does not use HTTPS. If the endpoint URL is missing, the
+services will try to reach AWS S3 instead of your S3 provider.
+
+The other S3 variables (`_S3_BUCKET`, `_S3_ACCESS_KEY`, `_S3_SECRET_KEY`, `_S3_REGION_NAME` and `_VALIDATE_SSL`) keep
+their names. Two behaviours have changed:
+
+* The S3 backend is now turned on by setting `BENTO_{DRS,DROP_BOX}_S3_BUCKET` instead of the endpoint. Leave the bucket
+  empty to use local storage.
+* DRS used to skip TLS certificate verification for S3, whatever `BENTO_DRS_VALIDATE_SSL` was set to. It now follows
+  this setting, so if your S3 endpoint uses a self-signed certificate, set `BENTO_DRS_VALIDATE_SSL=false`.
+
+See [Object Storage in Bento](./object_storage.md) for the full list of S3 variables.
+
+
+## 5. Add 'apply for access' URL to `local.env` (for PCGL instance or developers)
 
 If you want 'apply for access' buttons to show up in the data catalogue / provenance modal, you will need to set the
 `BENTO_PUBLIC_APPLY_FOR_ACCESS_URL` environment variable in your `local.env`.
 
 
-## 5. Restart Bento
+## 6. Restart Bento
 
 ```bash
 ./bentoctl.bash start
