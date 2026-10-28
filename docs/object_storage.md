@@ -37,18 +37,18 @@ using the Garage deployment that comes with Bento. See [garage.md](garage.md) fo
 The drop box service in Bento acts as a deposit location for Bento.
 Files accessible to drop box can be ingested in Bento's various data services (Phenopackets, experiments, VCFs).
 
-Edit your `local.env` file to include the drop box S3 environment variables:
+Edit your `local.env` file to include the drop box S3 environment variables. Setting `BENTO_DROP_BOX_S3_BUCKET` is
+what turns on the S3 backend; leave it empty to keep using local storage.
 
 ```bash
 # local.env
 
-BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Local Garage S3 endpoint (no protocol)
-BENTO_DROP_BOX_S3_USE_HTTPS=true                        # Use HTTPS or HTTP on the endpoint
-BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Bucket name (created by init-garage)
-BENTO_DROP_BOX_S3_REGION_NAME=""                        # Region (required for Garage)
-BENTO_DROP_BOX_S3_ACCESS_KEY="<get from S3 provider>"   # S3 access key (from init-garage output in dev)
-BENTO_DROP_BOX_S3_SECRET_KEY="<get from S3 provider>"   # S3 secret key (from init-garage output in dev)
-BENTO_DROP_BOX_VALIDATE_SSL=false                       # Needs to be 'false' with self signed certs and HTTPS
+BENTO_DROP_BOX_S3_ENDPOINT_URL="https://garage.bentov2.local"  # S3 endpoint URL, including protocol
+BENTO_DROP_BOX_S3_BUCKET="drop-box"                             # Bucket name (created by init-garage)
+BENTO_DROP_BOX_S3_REGION_NAME="garage"                          # Region (must match garage.toml for Garage)
+BENTO_DROP_BOX_S3_ACCESS_KEY="<get from S3 provider>"           # S3 access key (from init-garage output in dev)
+BENTO_DROP_BOX_S3_SECRET_KEY="<get from S3 provider>"           # S3 secret key (from init-garage output in dev)
+BENTO_DROP_BOX_VALIDATE_SSL=false                               # Needs to be 'false' with self signed certs and HTTPS
 ```
 
 Restart the drop box service for the changes to take effect:
@@ -61,18 +61,18 @@ Restart the drop box service for the changes to take effect:
 
 The DRS service is the Bento implementation of the DRS GA4GH standard.
 
-Edit your `local.env` file to include the DRS environment variables for S3 storage.
+Edit your `local.env` file to include the DRS environment variables for S3 storage. Setting `BENTO_DRS_S3_BUCKET` is 
+what turns on the S3 backend; leave it empty to keep using local storage.
 
 ```bash
 # local.env
 
-BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"        # Local Garage S3 endpoint (no protocol)
-BENTO_DRS_S3_USE_HTTPS=true                         # Use HTTPS or HTTP on the endpoint
-BENTO_DRS_S3_BUCKET="drs"                           # Bucket name (created by init-garage)
-BENTO_DRS_S3_REGION_NAME=""                         # Region (required for Garage)
-BENTO_DRS_S3_ACCESS_KEY="<get from S3 provider>"    # S3 access key (from init-garage output in dev)
-BENTO_DRS_S3_SECRET_KEY="<get from S3 provider>"    # S3 secret key (from init-garage output in dev)
-BENTO_DRS_VALIDATE_SSL=false                        # Needs to be 'false' with self signed certs and HTTPS
+BENTO_DRS_S3_ENDPOINT_URL="https://garage.bentov2.local"  # S3 endpoint URL, including protocol
+BENTO_DRS_S3_BUCKET="drs"                                  # Bucket name (created by init-garage)
+BENTO_DRS_S3_REGION_NAME="garage"                          # Region (must match garage.toml for Garage)
+BENTO_DRS_S3_ACCESS_KEY="<get from S3 provider>"           # S3 access key (from init-garage output in dev)
+BENTO_DRS_S3_SECRET_KEY="<get from S3 provider>"           # S3 secret key (from init-garage output in dev)
+BENTO_DRS_VALIDATE_SSL=false                               # Needs to be 'false' with self signed certs and HTTPS
 ```
 
 Restart the DRS service for the changes to take effect:
@@ -84,7 +84,7 @@ Restart the DRS service for the changes to take effect:
 
 ## Verify that services are using the S3 backend
 
-You can verify that DRS and Dop-Box are using the S3 backend by checking their logs:
+You can verify that DRS and Drop-Box are using the S3 backend by checking their logs:
 
 Look for S3 logs in DRS:
 ```bash
