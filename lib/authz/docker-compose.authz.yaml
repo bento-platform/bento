@@ -20,6 +20,8 @@ services:
     networks:
       - authz-net
       - authz-db-net
+    volumes:
+      - ${PWD}/lib/authz/static_data.json:/static_data.json:ro
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:${BENTO_AUTHZ_INTERNAL_PORT}/service-info" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
@@ -39,7 +41,6 @@ services:
       - authz-db-net
     volumes:
       - ${BENTO_AUTHZ_DB_VOL_DIR}:/var/lib/postgresql
-      - ${PWD}/lib/authz/static_data.json:/static_data.json:ro
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${BENTO_AUTHZ_DB_NAME}", "-U", "${BENTO_AUTHZ_DB_USER}" ]
       timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
