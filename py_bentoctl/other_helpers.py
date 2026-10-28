@@ -18,6 +18,7 @@ from .garage import GarageAdminClient
 from .utils import info, task_print, task_print_done, warn, err, getenv_or_exit, get_docker_client
 
 __all__ = [
+    "INIT_STATIC_SERVICES",
     "init_static",
     "init_docker",
     "init_dirs",
