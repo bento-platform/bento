@@ -82,7 +82,13 @@ their names. Two behaviours have changed:
 See [Object Storage in Bento](./object_storage.md) for the full list of S3 variables.
 
 
-## 5. Restart Bento
+## 5. Add 'apply for access' URL to `local.env` (for PCGL instance or developers)
+
+If you want 'apply for access' buttons to show up in the data catalogue / provenance modal, you will need to set the
+`BENTO_PUBLIC_APPLY_FOR_ACCESS_URL` environment variable in your `local.env`.
+
+
+## 6. Restart Bento
 
 ```bash
 ./bentoctl.bash start
