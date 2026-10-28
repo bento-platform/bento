@@ -5,6 +5,7 @@
 * Bento Public now has its own OAuth2 client (`bento_public`) with a client secret, separate from the web/portal client
   (`local_bentov2` by default). Bento Public's `CLIENT_ID` changes accordingly, so sign-in on Bento Public will not work
   until the new client is created and its secret is set.
+* The `init-static` command replaces `init-web` (with the same syntax).
 
 
 ## 1. Pull latest Docker containers and stop Bento
