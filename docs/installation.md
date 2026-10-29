@@ -359,6 +359,23 @@ this is set to `local_bentov2` by default.
 
 ## 7. *Production only:* set up translations and branding
 
+### Using a `bento_assets` image
+
+If the instance has assets in [bento_assets](https://github.com/bento-platform/bento_assets), copy them into `lib/` 
+instead of editing the files by hand:
+
+```bash
+./bentoctl.bash init-assets                                  # bento-assets-${BENTO_ASSETS_INSTANCE}:${BENTO_ASSETS_VERSION}
+./bentoctl.bash init-assets pcgl --version edge              # bento-assets-pcgl:edge
+./bentoctl.bash init-assets pcgl --version pr-12 --service public   # only Bento Public's files
+```
+
+This overwrites the branding, translations and configuration files of the given services (`public`, `web`, `katsu`, 
+`beacon`, `auth`; all of them by default). Set `BENTO_ASSETS_INSTANCE` and `BENTO_ASSETS_VERSION` in `local.env` to 
+change the defaults, then restart the affected services to apply the changes.
+
+### Configuring files manually
+
 Now that Bento Public and Web have been initialized by either `./bentoctl.bash init-all` or 
 `./bentoctl.bash init-web <public|web>`, translation files and branding (logos) can be configured as necessary.
 
