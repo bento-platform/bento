@@ -18,7 +18,8 @@ from .garage import GarageAdminClient
 from .utils import info, task_print, task_print_done, warn, err, getenv_or_exit, get_docker_client
 
 __all__ = [
-    "init_web",
+    "INIT_STATIC_SERVICES",
+    "init_static",
     "init_docker",
     "init_dirs",
     "init_self_signed_certs",
@@ -27,15 +28,33 @@ __all__ = [
 ]
 
 
-def init_web(service: str, force: bool):
-    if service not in ("public", "private"):
-        err("You must specify the service type (public or private)")
+INIT_STATIC_SERVICES = ("authz", "public", "private")
+
+
+def init_static(service: str, force: bool):
+    if service not in INIT_STATIC_SERVICES:
+        err(f"You must specify the service type ({', '.join(INIT_STATIC_SERVICES)})")
         exit(1)
 
+    if service == "authz":
+        _init_static_authz(force)
     if service == "public":
         _init_web_public(force)
     else:  # private
         _init_web_private(force)
+
+
+def _init_static_authz(force: bool):
+    root_path = pathlib.Path.cwd()
+    etc_path = root_path / "etc" / "authz"
+    authz_path = (root_path / "lib" / "authz")
+
+    # Static authz data
+    _file_copy(
+        (etc_path / "default.static_data.json"),
+        (authz_path / "static_data.json"),
+        force=force,
+    )
 
 
 def _init_web_public(force: bool):

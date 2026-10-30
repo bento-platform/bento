@@ -226,9 +226,10 @@ specified in the step above.
 #   ./bentoctl.bash init-docker
 #   ./bentoctl.bash init-secrets
 #   
-#   # Initialize bento_web and bento_public
-#   ./bentoctl.bash init-web private
-#   ./bentoctl.bash init-web public
+#   # Initialize authorization static data, bento_web, and bento_public
+#   ./bentoctl.bash init-static authz
+#   ./bentoctl.bash init-static private
+#   ./bentoctl.bash init-static public
 
 # If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), 
 # i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
@@ -357,6 +358,13 @@ value in the `BENTOV2_AUTH_CLIENT_ID` environment variable. On local instances,
 this is set to `local_bentov2` by default.
 
 
+### f. *Optional:* set up static authorization resources
+
+Following the structure set by the 
+[Bento Authorization Service](https://github.com/bento-platform/bento_authorization_service), optionally edit 
+`lib/authz/static_data.json` (after its creation by `./bentoctl.bash init-static authz`) to add static grants/groups.
+
+
 ## 7. *Production only:* set up translations and branding
 
 ### Using a `bento_assets` image
@@ -377,7 +385,7 @@ change the defaults, then restart the affected services to apply the changes.
 ### Configuring files manually
 
 Now that Bento Public and Web have been initialized by either `./bentoctl.bash init-all` or 
-`./bentoctl.bash init-web <public|web>`, translation files and branding (logos) can be configured as necessary.
+`./bentoctl.bash init-static <public|web>`, translation files and branding (logos) can be configured as necessary.
 
 **For branding (logos)**, copy files to the following paths:
 
