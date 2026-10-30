@@ -38,7 +38,7 @@ def init_static(service: str, force: bool):
 
     if service == "authz":
         _init_static_authz(force)
-    if service == "public":
+    elif service == "public":
         _init_web_public(force)
     else:  # private
         _init_web_private(force)
