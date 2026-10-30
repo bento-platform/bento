@@ -80,12 +80,21 @@ class Restart(SubCommand):
         sp.add_argument(
             "--pull", "-p", action="store_true",
             help="Try to pull the corresponding service image first.")
+        sp.add_argument(
+            "--clean", "-c", action="store_true",
+            help="Clean (remove containers and anonymous volumes) after stopping, for a clean restart.")
+        sp.add_argument(
+            "--follow", "-f", action="store_true",
+            help="Follow the service logs after starting.")
 
     @staticmethod
     def exec(args):
         if args.pull:
             s.pull_service(args.service)
-        s.restart_service(args.service)
+        s.restart_service(args.service, clean=args.clean)
+        if args.follow:
+            # logs_service replaces the current process, so it must come last
+            s.logs_service(args.service, True)
 
 
 class Clean(SubCommand):
