@@ -6,6 +6,7 @@ import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+from .assets import init_assets
 from .auth_helper import init_auth
 from . import config as c
 from . import db_helpers as dh
@@ -265,19 +266,41 @@ class InitDocker(SubCommand):
         oh.init_docker(client=u.get_docker_client())
 
 
-class InitWeb(SubCommand):
+class InitStatic(SubCommand):
 
     @staticmethod
     def add_args(sp):
         sp.add_argument(
-            "service", type=str, choices=["public", "private"], help="Prepares the web applications for deployment.")
+            "service",
+            type=str,
+            choices=list(oh.INIT_STATIC_SERVICES),
+            help="Prepares the web applications for deployment.")
         sp.add_argument(
             "--force", "-f", action="store_true",
             help="Overwrites any existing branding/translation/etc.")
 
     @staticmethod
     def exec(args):
-        oh.init_web(args.service, args.force)
+        oh.init_static(args.service, args.force)
+
+
+class InitAssets(SubCommand):
+
+    @staticmethod
+    def add_args(sp):
+        sp.add_argument(
+            "instance", type=str, nargs="?", default=None,
+            help="bento_assets instance to copy assets from (default: $BENTO_ASSETS_INSTANCE).")
+        sp.add_argument(
+            "--version", "-v", type=str, default=None,
+            help="Assets image tag, e.g. edge, pr-12 or 28 (default: $BENTO_ASSETS_VERSION).")
+        sp.add_argument(
+            "--service", "-s", type=str, action="extend", nargs="+", dest="services", default=None,
+            help="Service(s) to copy assets for, e.g. public, web, katsu, beacon, auth (default: all).")
+
+    @staticmethod
+    def exec(args):
+        init_assets(args.instance, args.version, args.services)
 
 
 class InitCBioPortal(SubCommand):
@@ -305,8 +328,9 @@ class InitAll(SubCommand):
         oh.init_self_signed_certs(force=False)
         oh.init_dirs()
         oh.init_docker(client=u.get_docker_client())
-        oh.init_web("private", force=False)
-        oh.init_web("public", force=False)
+        oh.init_static("authz", force=False)
+        oh.init_static("private", force=False)
+        oh.init_static("public", force=False)
         if c.BENTO_FEATURE_CBIOPORTAL.enabled:
             fh.init_cbioportal()
 
@@ -399,12 +423,15 @@ def main(args: Optional[list[str]] = None) -> int:
     _add_subparser("init-auth", "Configure authentication for BentoV2 with a local Keycloak instance.", InitAuth)
     _add_subparser("init-certs", "Initialize ssl certificates for BentoV2 gateway domains.", InitCerts)
     _add_subparser("init-docker", "Initialize Docker configuration & networks.", InitDocker)
-    _add_subparser("init-web", "Init web app (public or private) files", InitWeb)
+    _add_subparser("init-static", "Init static / web app (authz, public, private) files", InitStatic)
     _add_subparser(
         "init-all",
         "Initialize certs, directories, Docker networks, secrets, and web portals. DOES NOT initialize Keycloak.",
         InitAll)
     _add_subparser("init-config", "Initialize configuration files for specific services.", InitConfig)
+    _add_subparser(
+        "init-assets", "Copy instance branding, translations and config from a bento_assets image into lib/.",
+        InitAssets)
 
     # Feature-specific initialization commands
     _add_subparser("init-cbioportal", "Initialize cBioPortal if enabled", InitCBioPortal)

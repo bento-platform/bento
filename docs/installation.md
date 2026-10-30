@@ -38,6 +38,7 @@ in the example file:
 * `BENTO_AUTH_DB_PASSWORD`
 * `BENTO_AUTHZ_DB_PASSWORD`
 * `BENTO_AGGREGATION_CLIENT_SECRET`
+* `BENTO_PUBLIC_CLIENT_SECRET`
 * `BENTO_WES_CLIENT_SECRET`
 
 If the internal OIDC identity provider (IdP) is being used (by default, Keycloak), variables specifying default 
@@ -225,9 +226,10 @@ specified in the step above.
 #   ./bentoctl.bash init-docker
 #   ./bentoctl.bash init-secrets
 #   
-#   # Initialize bento_web and bento_public
-#   ./bentoctl.bash init-web private
-#   ./bentoctl.bash init-web public
+#   # Initialize authorization static data, bento_web, and bento_public
+#   ./bentoctl.bash init-static authz
+#   ./bentoctl.bash init-static private
+#   ./bentoctl.bash init-static public
 
 # If you are running the bentoV2 with the use of an internal identity provider (defaults to Keycloak), 
 # i.e setting BENTOV2_USE_EXTERNAL_IDP=0, run both
@@ -356,10 +358,34 @@ value in the `BENTOV2_AUTH_CLIENT_ID` environment variable. On local instances,
 this is set to `local_bentov2` by default.
 
 
+### f. *Optional:* set up static authorization resources
+
+Following the structure set by the 
+[Bento Authorization Service](https://github.com/bento-platform/bento_authorization_service), optionally edit 
+`lib/authz/static_data.json` (after its creation by `./bentoctl.bash init-static authz`) to add static grants/groups.
+
+
 ## 7. *Production only:* set up translations and branding
 
+### Using a `bento_assets` image
+
+If the instance has assets in [bento_assets](https://github.com/bento-platform/bento_assets), copy them into `lib/` 
+instead of editing the files by hand:
+
+```bash
+./bentoctl.bash init-assets                                  # bento-assets-${BENTO_ASSETS_INSTANCE}:${BENTO_ASSETS_VERSION}
+./bentoctl.bash init-assets pcgl --version edge              # bento-assets-pcgl:edge
+./bentoctl.bash init-assets pcgl --version pr-12 --service public   # only Bento Public's files
+```
+
+This overwrites the branding, translations and configuration files of the given services (`public`, `web`, `katsu`, 
+`beacon`, `auth`; all of them by default). Set `BENTO_ASSETS_INSTANCE` and `BENTO_ASSETS_VERSION` in `local.env` to 
+change the defaults, then restart the affected services to apply the changes.
+
+### Configuring files manually
+
 Now that Bento Public and Web have been initialized by either `./bentoctl.bash init-all` or 
-`./bentoctl.bash init-web <public|web>`, translation files and branding (logos) can be configured as necessary.
+`./bentoctl.bash init-static <public|web>`, translation files and branding (logos) can be configured as necessary.
 
 **For branding (logos)**, copy files to the following paths:
 
