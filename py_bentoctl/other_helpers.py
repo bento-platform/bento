@@ -18,7 +18,8 @@ from .garage import GarageAdminClient
 from .utils import info, task_print, task_print_done, warn, err, getenv_or_exit, get_docker_client
 
 __all__ = [
-    "init_web",
+    "INIT_STATIC_SERVICES",
+    "init_static",
     "init_docker",
     "init_dirs",
     "init_self_signed_certs",
@@ -27,15 +28,33 @@ __all__ = [
 ]
 
 
-def init_web(service: str, force: bool):
-    if service not in ("public", "private"):
-        err("You must specify the service type (public or private)")
+INIT_STATIC_SERVICES = ("authz", "public", "private")
+
+
+def init_static(service: str, force: bool):
+    if service not in INIT_STATIC_SERVICES:
+        err(f"You must specify the service type ({', '.join(INIT_STATIC_SERVICES)})")
         exit(1)
 
-    if service == "public":
+    if service == "authz":
+        _init_static_authz(force)
+    elif service == "public":
         _init_web_public(force)
     else:  # private
         _init_web_private(force)
+
+
+def _init_static_authz(force: bool):
+    root_path = pathlib.Path.cwd()
+    etc_path = root_path / "etc" / "authz"
+    authz_path = (root_path / "lib" / "authz")
+
+    # Static authz data
+    _file_copy(
+        (etc_path / "default.static_data.json"),
+        (authz_path / "static_data.json"),
+        force=force,
+    )
 
 
 def _init_web_public(force: bool):
@@ -63,17 +82,11 @@ def _init_web_public(force: bool):
 
     # Branding image
     # - dark background / default
-    _file_copy(
-        (etc_path / "default.branding.png"),
-        (public_path / "branding.png"),
-        force=force,
-    )
+    _file_copy(etc_path / "default.branding.png", public_path / "branding.png", force=force)
+    _file_copy(etc_path / "default.branding.png", public_path / "branding.fr.png", force=force)
     # - light background
-    _file_copy(
-        (etc_path / "default.branding.lightbg.png"),
-        (public_path / "branding.lightbg.png"),
-        force=force,
-    )
+    _file_copy(etc_path / "default.branding.lightbg.png", public_path / "branding.lightbg.png", force=force)
+    _file_copy(etc_path / "default.branding.lightbg.png", public_path / "branding.lightbg.fr.png", force=force)
 
     # - favicon
     _file_copy(
@@ -81,6 +94,9 @@ def _init_web_public(force: bool):
         (public_path / "favicon.png"),
         force=force,
     )
+
+    # Instance stylesheet
+    _file_copy(etc_path / "default.instance.css", public_path / "instance.css", force=force)
 
     # English translations
     _file_copy(
@@ -703,6 +719,7 @@ def init_garage():
     admin_token = getenv_or_exit("BENTO_GARAGE_ADMIN_TOKEN")
     admin_url = getenv_or_exit("BENTO_GARAGE_ADMIN_DOMAIN")
     rpc_secret = getenv_or_exit("BENTO_GARAGE_RPC_SECRET")
+    access_key = getenv_or_exit("BENTO_GARAGE_ACCESS_KEY")
     config_dir = pathlib.Path(getenv_or_exit("BENTO_GARAGE_CONFIG_DIR"))
 
     # Validate RPC secret format
@@ -752,30 +769,9 @@ def init_garage():
         exit(1)
     task_print_done()
 
-    task_print("  Getting Garage node ID...")
-    try:
-        node_id = client.get_node_id()
-        task_print_done()
-    except Exception as e:
-        err(f"Failed to get node ID: {e}")
-        exit(1)
-
-    task_print("  Configuring single-node layout...")
-    try:
-        client.configure_layout(node_id)
-        task_print_done()
-    except Exception as e:
-        err(f"Failed to configure layout: {e}")
-        exit(1)
-
-    task_print("  Creating access key...")
-    try:
-        access_key, secret_key = client.create_access_key()
-        task_print_done(f"Access Key: {access_key} \n Secret Key: {secret_key}")
-        info("IMPORTANT: Save these credentials - they will be needed for DRS and Drop-Box configuration")
-    except Exception as e:
-        err(f"Failed to create access key: {e}")
-        exit(1)
+    # Single-node layout and the access key are bootstrapped automatically on container startup
+    # via the `--single-node`/`--default-access-key` server flags (see docker-compose.garage.yaml),
+    # using BENTO_GARAGE_ACCESS_KEY/BENTO_GARAGE_SECRET_KEY - no separate admin-API calls needed here.
 
     for bucket_name in ["drs", "drop-box"]:
         task_print(f"  Creating bucket: {bucket_name}...")

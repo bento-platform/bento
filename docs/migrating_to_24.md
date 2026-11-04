@@ -37,7 +37,7 @@ After restarting Bento, open a shell in Katsu:
 Then, run the dataset migration command:
 
 ```sh
-python manage.py migrate_to_datasets_v2
+python manage.py migrate_datasets_to_v2
 ```
 
 This migrates datasets from the old format to the new provenance format. Placeholder values will be created for missing 

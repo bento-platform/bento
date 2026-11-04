@@ -1,0 +1,11 @@
+/*
+Instance CSS styles, e.g., configuring your own webfont or overriding Bento CSS variables.
+Some theme tokens from Ant Design can also be overridden here as desired (with the exception of primary color, which
+should not be set via CSS):
+
+.bento-theme {
+  --ant-font-family: "Helvetica", sans-serif;
+}
+
+See https://ant.design/docs/react/customize-theme for more information on available theme tokens.
+*/

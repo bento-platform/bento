@@ -88,16 +88,20 @@ BENTO_GARAGE_RPC_SECRET='<your-64-char-hex-secret>'
 
 # Set admin token (use a secure value for production)
 BENTO_GARAGE_ADMIN_TOKEN='<your-secure-admin-token>'
+
+# Choose the S3 access key pair Garage will bootstrap on startup (use secure values for production)
+BENTO_GARAGE_ACCESS_KEY='<your-access-key>'
+BENTO_GARAGE_SECRET_KEY='<your-secret-key>'
 ```
 
 > [!IMPORTANT]
 > - The RPC secret must be exactly 64 hexadecimal characters (32 bytes)
-> - For development, you can use the default value from `etc/bento_dev.env`
+> - For development, you can use the default values from `etc/bento_dev.env`
 > - For production, always generate new secrets and never commit them to git
 
 ### 4. Initialize Garage
 
-Initialize the Garage cluster with single-node layout and create default buckets:
+Initialize the Garage cluster and create default buckets:
 
 ```bash
 ./bentoctl.bash init-garage
@@ -106,15 +110,12 @@ Initialize the Garage cluster with single-node layout and create default buckets
 This command will:
 
 1. Validate the RPC secret format (64 hex characters)
-2. Check if the Garage container is running (starts it if needed)
+2. Check if the Garage container is running (starts it if needed) - on startup, Garage bootstraps its own
+   single-node cluster layout and the `BENTO_GARAGE_ACCESS_KEY`/`BENTO_GARAGE_SECRET_KEY` access key
 3. Generate the `garage.toml` configuration file
 4. Wait for the Admin API to be ready (polls https://admin.garage.{BENTO_DOMAIN})
-5. Configure a single-node cluster layout
-6. Create S3 access credentials
-7. Create default buckets: `drs` and `drop-box`
-8. Grant bucket permissions to the access key
-
-**IMPORTANT:** Save the Access Key and Secret Key printed by this command - you'll need them in the next step.
+5. Create default buckets: `drs` and `drop-box`
+6. Grant bucket permissions to the access key
 
 > **Note**: You don't need to manually run `./bentoctl.bash run garage` - the init command will start the container 
 > automatically if it's not running.
@@ -127,16 +128,15 @@ Add the following Drop Box configuration to your `local.env` file:
 # local.env
 
 # Drop Box S3 Configuration
-BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Access via gateway
-BENTO_DROP_BOX_S3_USE_HTTPS=true                        # HTTPS through gateway
-BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Created by init-garage
-BENTO_DROP_BOX_S3_REGION_NAME="garage"                  # Must match garage.toml
-BENTO_DROP_BOX_S3_ACCESS_KEY="<from-init-garage>"       # Save from init-garage output
-BENTO_DROP_BOX_S3_SECRET_KEY="<from-init-garage>"       # Save from init-garage output
+BENTO_DROP_BOX_S3_ENDPOINT_URL="https://garage.bentov2.local"  # Access via gateway (HTTPS)
+BENTO_DROP_BOX_S3_BUCKET="drop-box"                             # Created by init-garage; enables S3
+BENTO_DROP_BOX_S3_REGION_NAME="garage"                          # Must match garage.toml
+BENTO_DROP_BOX_S3_ACCESS_KEY="<same-as-BENTO_GARAGE_ACCESS_KEY>"
+BENTO_DROP_BOX_S3_SECRET_KEY="<same-as-BENTO_GARAGE_SECRET_KEY>"
 # One of:
-BENTO_DROP_BOX_VALIDATE_SSL=true                        # For production
+BENTO_DROP_BOX_VALIDATE_SSL=true                                # For production
 # or
-BENTO_DROP_BOX_VALIDATE_SSL=false                       # Set to false for self-signed certs
+BENTO_DROP_BOX_VALIDATE_SSL=false                               # Set to false for self-signed certs
 ```
 
 Restart Drop Box:
@@ -147,27 +147,17 @@ Restart Drop Box:
 
 #### Going back to local storage
 
-If you need to work on the local storage backend with Drop Box, comment out the following lines in your `local.env`:
-
+The S3 backend is only used when a bucket is set. To go back to the local storage backend with Drop Box, comment out
+(or empty) the bucket line in your `local.env`; the other S3 variables can stay as they are:
 
 ```bash
 # local.env
 
 # Drop Box S3 Configuration
-#BENTO_DROP_BOX_S3_ENDPOINT="garage.bentov2.local"       # Access via gateway
-#BENTO_DROP_BOX_S3_USE_HTTPS=true                        # HTTPS through gateway
-#BENTO_DROP_BOX_S3_BUCKET="drop-box"                     # Created by init-garage
-#BENTO_DROP_BOX_S3_REGION_NAME="garage"                  # Must match garage.toml
-#BENTO_DROP_BOX_S3_ACCESS_KEY="<from-init-garage>"       # Save from init-garage output
-#BENTO_DROP_BOX_S3_SECRET_KEY="<from-init-garage>"       # Save from init-garage output
-# One of:
-#BENTO_DROP_BOX_VALIDATE_SSL=true                        # For production
-# or
-#BENTO_DROP_BOX_VALIDATE_SSL=false                       # Set to false for self-signed certs
+#BENTO_DROP_BOX_S3_BUCKET="drop-box"
 ```
 
-Simply commenting out the S3 variables for Drop Box will tell it to use the local storage backend. To apply this change,
-restart Drop Box:
+To apply this change, restart Drop Box:
 
 ```bash
 ./bentoctl.bash restart drop-box
@@ -180,16 +170,15 @@ Add the following DRS configuration to your `local.env` file:
 ```bash
 # local.env
 # DRS S3 Configuration
-BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"            # Access via gateway
-BENTO_DRS_S3_USE_HTTPS=true                             # HTTPS through gateway
-BENTO_DRS_S3_BUCKET="drs"                               # Created by init-garage
-BENTO_DRS_S3_REGION_NAME="garage"                       # Must match garage.toml
-BENTO_DRS_S3_ACCESS_KEY="<from-init-garage>"            # Save from init-garage output
-BENTO_DRS_S3_SECRET_KEY="<from-init-garage>"            # Save from init-garage output
+BENTO_DRS_S3_ENDPOINT_URL="https://garage.bentov2.local"  # Access via gateway (HTTPS)
+BENTO_DRS_S3_BUCKET="drs"                                  # Created by init-garage; enables S3
+BENTO_DRS_S3_REGION_NAME="garage"                          # Must match garage.toml
+BENTO_DRS_S3_ACCESS_KEY="<same-as-BENTO_GARAGE_ACCESS_KEY>"
+BENTO_DRS_S3_SECRET_KEY="<same-as-BENTO_GARAGE_SECRET_KEY>"
 # One of:
-BENTO_DRS_VALIDATE_SSL=true                             # For production
+BENTO_DRS_VALIDATE_SSL=true                                # For production
 # or
-BENTO_DRS_VALIDATE_SSL=false                            # Set to false for self-signed certs
+BENTO_DRS_VALIDATE_SSL=false                               # Set to false for self-signed certs
 ```
 
 Restart DRS:
@@ -200,24 +189,16 @@ Restart DRS:
 
 #### Going back to local storage
 
-If you need to work on the local storage backend with DRS, comment out the following lines in your `local.env`:
+The S3 backend is only used when a bucket is set. To go back to the local storage backend with DRS, comment out
+(or empty) the bucket line in your `local.env`; the other S3 variables can stay as they are:
+
 ```bash
 # local.env
 # DRS S3 Configuration
-# BENTO_DRS_S3_ENDPOINT="garage.bentov2.local"            # Access via gateway
-# BENTO_DRS_S3_USE_HTTPS=true                             # HTTPS through gateway
-# BENTO_DRS_S3_BUCKET="drs"                               # Created by init-garage
-# BENTO_DRS_S3_REGION_NAME="garage"                       # Must match garage.toml
-# BENTO_DRS_S3_ACCESS_KEY="<from-init-garage>"            # Save from init-garage output
-# BENTO_DRS_S3_SECRET_KEY="<from-init-garage>"            # Save from init-garage output
-# One of:
-#BENTO_DRS_VALIDATE_SSL=true                             # For production
-# or
-#BENTO_DRS_VALIDATE_SSL=false                            # Set to false for self-signed certs
+#BENTO_DRS_S3_BUCKET="drs"
 ```
 
-Simply commenting out the S3 variables for DRS will tell it to use the local storage backend. To apply this change,
-restart DRS:
+To apply this change, restart DRS:
 
 ```bash
 ./bentoctl.bash restart drs
