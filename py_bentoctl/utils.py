@@ -2,6 +2,7 @@ import docker
 import sys
 import os
 
+from kubernetes import client, config as k8s_config
 from termcolor import cprint
 
 __all__ = [
@@ -12,6 +13,7 @@ __all__ = [
     "err",
     "indent_str",
     "get_docker_client",
+    "get_k8s_client",
     "getenv_or_exit",
 ]
 
@@ -42,6 +44,11 @@ def indent_str(msg: str, n: int) -> str:
 
 def get_docker_client() -> docker.DockerClient:
     return docker.from_env()
+
+
+def get_k8s_client() -> client.CoreV1Api:
+    k8s_config.load_incluster_config()
+    return client.CoreV1Api()
 
 
 def getenv_or_exit(var: str) -> str:

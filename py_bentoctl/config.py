@@ -29,6 +29,7 @@ __all__ = [
 
     "MODE",
     "DEV_MODE",
+    "BENTO_PLATFORM",
 
     "BENTO_OPTIONAL_FEATURES",
     "BENTO_OPTIONAL_FEATURES_BY_PROFILE",
@@ -71,6 +72,8 @@ BENTO_USERNAME: str = pwd.getpwuid(BENTO_UID).pw_name
 
 MODE = os.getenv("MODE")
 DEV_MODE = MODE == "dev"
+
+BENTO_PLATFORM = os.getenv("BENTO_PLATFORM", "docker")
 
 SERVICE_LITERAL_ALL: str = "all"
 
@@ -165,16 +168,23 @@ def _get_enabled_services(
                 break  # escape profile loop, we found one which enables this service
 
 
-BASE_SERVICES: Tuple[str, ...] = tuple(_get_enabled_services((DOCKER_COMPOSE_FILE_BASE,), ()))
+if BENTO_PLATFORM == "docker":
+    BASE_SERVICES: Tuple[str, ...] = tuple(_get_enabled_services((DOCKER_COMPOSE_FILE_BASE,), ()))
 
-# Load dev docker-compose services list if in DEV_MODE
-DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = tuple(
-    _get_enabled_services((DOCKER_COMPOSE_FILE_BASE, DOCKER_COMPOSE_FILE_DEV), BASE_SERVICES)) if DEV_MODE else ()
+    # Load dev docker-compose services list if in DEV_MODE
+    DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = tuple(
+        _get_enabled_services((DOCKER_COMPOSE_FILE_BASE, DOCKER_COMPOSE_FILE_DEV), BASE_SERVICES)) if DEV_MODE else ()
 
-# Final amalgamation of services for Bento taking into account dev/prod mode + profiles
-DOCKER_COMPOSE_SERVICES: Tuple[str, ...] = BASE_SERVICES + DOCKER_COMPOSE_DEV_SERVICES
-# For use by CLI service arguments: adds in an `all` option, meaning all services:
-DOCKER_COMPOSE_SERVICES_PLUS_ALL: Tuple[str, ...] = (*DOCKER_COMPOSE_SERVICES, SERVICE_LITERAL_ALL)
+    # Final amalgamation of services for Bento taking into account dev/prod mode + profiles
+    DOCKER_COMPOSE_SERVICES: Tuple[str, ...] = BASE_SERVICES + DOCKER_COMPOSE_DEV_SERVICES
+    # For use by CLI service arguments: adds in an `all` option, meaning all services:
+    DOCKER_COMPOSE_SERVICES_PLUS_ALL: Tuple[str, ...] = (*DOCKER_COMPOSE_SERVICES, SERVICE_LITERAL_ALL)
+else:
+    # Not a Docker Compose deployment (e.g. Kubernetes) - Compose services aren't applicable.
+    BASE_SERVICES: Tuple[str, ...] = ()
+    DOCKER_COMPOSE_DEV_SERVICES: Tuple[str, ...] = ()
+    DOCKER_COMPOSE_SERVICES: Tuple[str, ...] = ()
+    DOCKER_COMPOSE_SERVICES_PLUS_ALL: Tuple[str, ...] = (SERVICE_LITERAL_ALL,)
 
 
 BENTO_SERVICES_PATH = os.getenv("BENTO_SERVICES", pathlib.Path(__file__).parent.parent / "etc" / "bento_services.json")
