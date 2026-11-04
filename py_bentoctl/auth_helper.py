@@ -596,6 +596,7 @@ def init_auth(
             token,
             to_restart="Public",
             use_refresh_tokens=True,
+            k8s_client=k8s_client,
         )
 
     def create_wes_client_if_needed(token: str) -> None:
