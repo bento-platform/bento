@@ -268,8 +268,10 @@ def stop_service(compose_service: str) -> None:
     subprocess.check_call((*_get_service_specific_compose(compose_service), "stop", compose_service))
 
 
-def restart_service(compose_service: str) -> None:
+def restart_service(compose_service: str, clean: bool = False) -> None:
     stop_service(compose_service)
+    if clean:
+        clean_service(compose_service)
     run_service(compose_service)
 
 
