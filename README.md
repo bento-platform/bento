@@ -57,6 +57,7 @@ For now, comment out this diagram since it's outdated and confusing.
 
 ### Migration documents
 
+* [v28 to v29](./docs/migrating_to_29.md)
 * [v27 to v28](./docs/migrating_to_28.md)
 * [v26 to v27](./docs/migrating_to_27.md)
 * [v25.1 to v26](./docs/migrating_to_26.md)
