@@ -110,6 +110,7 @@ services:
   authz:
     environment:
       - BENTO_DEBUG=True
+      - BENTO_VALIDATE_SSL=False
 
   katsu:
     volumes:
