@@ -44,6 +44,9 @@
     "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
     "repository": "git@github.com:bento-platform/bento_drs.git"
   },
+  "etl": {
+    "repository": "git@github.com:bento-platform/bento_etl.git"
+  },
   "gohan-api": {
     "service_kind": "gohan",
     "url_template": "{BENTO_PORTAL_PUBLIC_URL}/api/{service_kind}",

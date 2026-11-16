@@ -307,6 +307,7 @@ def init_docker(client: docker.DockerClient):
         ("BENTO_CBIOPORTAL_SESSION_NETWORK", dict(driver="bridge")),
         ("BENTO_DROP_BOX_NETWORK", dict(driver="bridge")),
         ("BENTO_DRS_NETWORK", dict(driver="bridge")),
+        ("BENTO_ETL_NETWORK", dict(driver="bridge")),
         ("BENTO_EVENT_RELAY_NETWORK", dict(driver="bridge")),
         ("BENTO_GARAGE_NETWORK", dict(driver="bridge")),
         ("BENTO_GOHAN_API_NETWORK", dict(driver="bridge")),
@@ -773,7 +774,10 @@ def init_garage():
     # via the `--single-node`/`--default-access-key` server flags (see docker-compose.garage.yaml),
     # using BENTO_GARAGE_ACCESS_KEY/BENTO_GARAGE_SECRET_KEY - no separate admin-API calls needed here.
 
-    for bucket_name in ["drs", "drop-box"]:
+    # The ETL bucket is only needed if the ETL feature is enabled
+    bucket_names = ["drs", "drop-box", *(("etl",) if c.BENTO_FEATURE_ETL.enabled else ())]
+
+    for bucket_name in bucket_names:
         task_print(f"  Creating bucket: {bucket_name}...")
         try:
             bucket_id, created = client.create_bucket(bucket_name)

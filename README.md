@@ -53,6 +53,7 @@ For now, comment out this diagram since it's outdated and confusing.
 ### Data ingestion and usage
 
 * [Guide to genomic reference material in Bento](./docs/reference_material.md)
+* [Bento ETL: ingesting external data (optional service)](./docs/etl.md)
 * [Converting Phenopackets from V1 to V2 using `bentoctl`](./docs/phenopackets_v1_to_v2.md)
 * [JSON Schemas for data types and discovery configuration](./docs/json-schemas.md)
 

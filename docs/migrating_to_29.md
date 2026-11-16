@@ -18,6 +18,9 @@
   * shows "Get manifest" or "Apply for access" on a dataset page depending on `download:metadata` on the dataset's
     `experiment` data type, and no longer on `download:data`
   * reads the DAC ID of a dataset from its `pcgl_dac_id` field, and no longer from `extra_properties.dac_id`.
+* There is a new optional service, [Bento ETL](./etl.md), disabled by default (`BENTO_ETL_ENABLED='false'`). It is
+  not routed by the gateway. It adds a Docker network, which development instances must create
+  (see [step 4](#4-create-the-etl-docker-network)).
 
 TODO: other v29 changes.
 
@@ -74,7 +77,19 @@ Then check the datasets:
 See [PCGL authorization delegation](./pcgl_authorization.md) for the requirements, all settings and troubleshooting.
 
 
-## 4. Restart Bento
+## 4. Create the ETL Docker network
+
+This step is needed on development instances (`MODE=dev`), where the gateway joins the ETL network even if ETL is
+disabled, and on instances that enable ETL. Other instances can skip it.
+
+```bash
+./bentoctl.bash init-docker
+```
+
+To enable ETL, follow [Setting up ETL](./etl.md#setting-up-etl).
+
+
+## 5. Restart Bento
 
 ```bash
 ./bentoctl.bash start

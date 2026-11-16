@@ -51,6 +51,8 @@ AGGREGATION_CLIENT_ID = os.getenv("BENTO_AGGREGATION_CLIENT_ID")
 
 CBIOPORTAL_CLIENT_ID = os.getenv("BENTO_CBIOPORTAL_CLIENT_ID")
 
+ETL_CLIENT_ID = os.getenv("BENTO_ETL_CLIENT_ID")
+
 PUBLIC_CLIENT_ID = os.getenv("BENTO_PUBLIC_CLIENT_ID")
 
 WES_CLIENT_ID = os.getenv("BENTO_WES_CLIENT_ID")
@@ -611,6 +613,17 @@ def init_auth(
             k8s_client=k8s_client,
         )
 
+    def create_etl_client_if_needed(token: str) -> None:
+        create_client_and_secret_for_service(
+            ETL_CLIENT_ID,
+            "BENTO_ETL_CLIENT_SECRET",
+            None,
+            token,
+            is_service_account=True,
+            to_restart="ETL",
+            k8s_client=k8s_client,
+        )
+
     def create_test_user_if_needed(token: str) -> None:
         p = f"admin/realms/{AUTH_REALM}/users"
 
@@ -710,6 +723,11 @@ def init_auth(
     info(f"  Creating WES client: {WES_CLIENT_ID}")
     create_wes_client_if_needed(access_token)
     success()
+
+    if c.BENTO_FEATURE_ETL.enabled:
+        info(f"  Creating ETL client: {ETL_CLIENT_ID}")
+        create_etl_client_if_needed(access_token)
+        success()
 
     if c.BENTO_FEATURE_MONITORING.enabled:
         info(f"  Creating Grafana client: {GRAFANA_CLIENT_ID}")

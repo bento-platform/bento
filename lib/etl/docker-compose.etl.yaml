@@ -1,0 +1,52 @@
+services:
+  etl:
+    image: ${BENTO_ETL_IMAGE}:${BENTO_ETL_VERSION}
+    container_name: ${BENTO_ETL_CONTAINER_NAME}
+    environment:
+      - BENTO_UID
+      - BENTO_DEBUG=False
+      - INTERNAL_PORT=${BENTO_ETL_INTERNAL_PORT}
+      - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
+
+      # Authz
+      - BENTO_AUTHZ_ENABLED=True
+      - BENTO_AUTHZ_SERVICE_URL
+      - BENTO_OPENID_CONFIG_URL
+      - ETL_CLIENT_ID=${BENTO_ETL_CLIENT_ID}
+      - ETL_CLIENT_SECRET=${BENTO_ETL_CLIENT_SECRET}
+
+      # Loader target
+      - KATSU_URL=${BENTO_KATSU_URL}/
+
+      # Job status database (SQLite file in the data volume)
+      - DB_NAME=${BENTO_ETL_INTERNAL_DATA_DIR}/${BENTO_ETL_SQLITE_DB_NAME}
+
+      # S3 - credentials are only given through the environment; no AWS config/credentials file is mounted
+      - S3_BUCKET=${BENTO_ETL_S3_BUCKET}
+      - AWS_ENDPOINT_URL_S3=${BENTO_ETL_S3_ENDPOINT_URL}
+      - AWS_ACCESS_KEY_ID=${BENTO_ETL_S3_ACCESS_KEY}
+      - AWS_SECRET_ACCESS_KEY=${BENTO_ETL_S3_SECRET_KEY}
+      - AWS_DEFAULT_REGION=${BENTO_ETL_S3_REGION_NAME}
+    networks:
+      - etl-net
+      - garage-net  # Talks to Garage directly (plain HTTP): the S3 client used by ETL always validates certificates
+    expose:
+      - ${BENTO_ETL_INTERNAL_PORT}
+    volumes:
+      - ${BENTO_ETL_VOL_DATA_DIR}:${BENTO_ETL_INTERNAL_DATA_DIR}
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:${BENTO_ETL_INTERNAL_PORT}/service-info" ]
+      timeout: ${BENTO_HEALTHCHECK_TIMEOUT}
+      interval: ${BENTO_HEALTHCHECK_INTERVAL}
+      start_period: ${BENTO_HEALTHCHECK_START_PERIOD}
+      start_interval: ${BENTO_HEALTHCHECK_START_INTERVAL}
+    profiles:
+      - etl
+
+networks:
+  etl-net:
+    external: true
+    name: ${BENTO_ETL_NETWORK}
+  garage-net:
+    external: true
+    name: ${BENTO_GARAGE_NETWORK}

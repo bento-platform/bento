@@ -131,6 +131,7 @@ The following is a list of all host port allocations for Bento services in devel
 | Drop Box         | 6000 | Unimplemented |
 | DRS              | 7007 | 5682          |
 | Elasticvue       | 8081 | `N/A`         |
+| ETL              | 6400 | 6456          |
 | Event relay      | 8750 | Unimplemented |
 | Katsu            | 8000 | 5678          |
 | Katsu DB         | 5432 | `N/A`         |
@@ -141,6 +142,9 @@ The following is a list of all host port allocations for Bento services in devel
 | Reference DB     | 9512 | `N/A`         |
 | Service Registry | 5010 | Unimplemented |
 | WES              | 9250 | 5680          |
+
+The ETL ports are only bound to the loopback interface (`127.0.0.1`), since ETL is not routed by the gateway and
+its job submission is not authenticated yet. See [Bento ETL](./etl.md).
 
 
 ## Local NPM package development

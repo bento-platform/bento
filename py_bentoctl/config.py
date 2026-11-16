@@ -43,6 +43,7 @@ __all__ = [
     "BENTO_FEATURE_AUTH",
     "BENTO_FEATURE_BEACON",
     "BENTO_FEATURE_CBIOPORTAL",
+    "BENTO_FEATURE_ETL",
     "BENTO_FEATURE_GOHAN",
     "BENTO_FEATURE_PUBLIC",
 
@@ -112,6 +113,8 @@ BENTO_FEATURE_BEACON = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_BEACON_ENABLED", default=False), profile="beacon")
 BENTO_FEATURE_CBIOPORTAL = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_CBIOPORTAL_ENABLED", default=False), profile="cbioportal")
+BENTO_FEATURE_ETL = BentoOptionalFeature(
+    enabled=_env_get_bool("BENTO_ETL_ENABLED", default=False), profile="etl")
 BENTO_FEATURE_GOHAN = BentoOptionalFeature(
     enabled=_env_get_bool("BENTO_GOHAN_ENABLED", default=False), profile="gohan")
 BENTO_FEATURE_GARAGE = BentoOptionalFeature(
@@ -231,6 +234,8 @@ DATA_DIR_ENV_VARS = {
     **({"auth": "BENTOV2_AUTH_VOL_DIR"} if not BENTOV2_USE_EXTERNAL_IDP else {}),
     #  - cBioPortal
     **({"cbioportal": "BENTO_CBIOPORTAL_STUDY_DIR"} if BENTO_FEATURE_CBIOPORTAL.enabled else {}),
+    #  - ETL
+    **({"etl": "BENTO_ETL_VOL_DATA_DIR"} if BENTO_FEATURE_ETL.enabled else {}),
     #  - Garage
     **({"garage-meta": "BENTO_GARAGE_META_DIR",
         "garage-data": "BENTO_GARAGE_DATA_DIR"} if BENTO_FEATURE_GARAGE.enabled else {}),

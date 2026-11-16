@@ -114,7 +114,7 @@ This command will:
    single-node cluster layout and the `BENTO_GARAGE_ACCESS_KEY`/`BENTO_GARAGE_SECRET_KEY` access key
 3. Generate the `garage.toml` configuration file
 4. Wait for the Admin API to be ready (polls https://admin.garage.{BENTO_DOMAIN})
-5. Create default buckets: `drs` and `drop-box`
+5. Create default buckets: `drs` and `drop-box`, plus `etl` if ETL is enabled (`BENTO_ETL_ENABLED='true'`)
 6. Grant bucket permissions to the access key
 
 > **Note**: You don't need to manually run `./bentoctl.bash run garage` - the init command will start the container 
@@ -203,6 +203,32 @@ To apply this change, restart DRS:
 ```bash
 ./bentoctl.bash restart drs
 ```
+
+### 7. Configure ETL for S3 (if ETL is enabled)
+
+With `BENTO_ETL_ENABLED='true'`, `init-garage` also creates the `etl` bucket. Add the following ETL configuration
+to your `local.env` file, after the Garage variables:
+
+```bash
+# local.env
+# ETL S3 Configuration
+BENTO_ETL_S3_ENDPOINT_URL="http://${BENTO_GARAGE_CONTAINER_NAME}:${BENTO_GARAGE_S3_API_PORT}"  # Direct, plain HTTP
+BENTO_ETL_S3_BUCKET="etl"                                # Created by init-garage when ETL is enabled
+BENTO_ETL_S3_REGION_NAME="garage"                        # Must match garage.toml
+BENTO_ETL_S3_ACCESS_KEY="${BENTO_GARAGE_ACCESS_KEY}"
+BENTO_ETL_S3_SECRET_KEY="${BENTO_GARAGE_SECRET_KEY}"
+```
+
+Unlike DRS and Drop-Box, ETL does not go through the gateway: it has no setting to skip TLS certificate
+validation, so it talks to the Garage container directly inside the Docker network.
+
+Restart ETL:
+
+```bash
+./bentoctl.bash restart etl
+```
+
+See [Bento ETL](./etl.md) for the rest of the ETL setup.
 
 ## Configuration Reference
 
