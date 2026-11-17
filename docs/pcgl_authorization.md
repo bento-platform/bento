@@ -23,7 +23,7 @@ manifest of a study. Every other decision still comes from Bento grants.
 
 ## Requirements
 
-* Bento is registered as a service in the PCGL authorization service
+* Bento is registered as a service in the PCGL authorization service.
 * User access tokens are issued by the same IdP as the one the PCGL authorization service uses. The OAuth2 client
   can be different.
 * Each dataset's `identifier` is its PCGL study ID. Set it when creating the dataset: Katsu generates a UUID if it
@@ -67,8 +67,7 @@ All settings, with their defaults from `etc/default_config.env`:
 | `BENTO_AUTHZ_PCGL_REQUEST_TIMEOUT`        | `10`            | Timeout, in seconds, of each request to PCGL.          |
 | `BENTO_AUTHZ_JWT_ACCESS_TOKENS`           | `true`          | Whether bearer tokens are JWTs. See [Limits](#limits). |
 
-The TLS certificate of the PCGL authorization service is verified, except when `MODE=dev`
-(`BENTO_VALIDATE_SSL=False` in `docker-compose.dev.yaml`).
+The TLS certificate of the PCGL authorization service is verified by default, except when `BENTO_VALIDATE_SSL=False`.
 
 
 ## Bento Public
@@ -97,17 +96,3 @@ manifest" button.
 * Keep `BENTO_AUTHZ_JWT_ACCESS_TOKENS=true`. With `false`, the authorization service does not decode bearer tokens,
   so Bento grants treat every request as anonymous. Only the PCGL check still receives the token. Support for
   non-JWT access tokens is not finished at time of writing.
-
-
-## Future work
-
-**Idea to explore: permissions hardening.**
-
-A Bento `query:data` grant gives record-level access and the manifest, without delegating checks.
-The authorization service could take a configurable list of denied permissions (e.g.
-`query:data`), ignored at evaluation and refused when creating grants, with an exemption for service clients.
-
-The purpose of this is to reduce the risk of misconfigurations in the authorization service's grants, by 
-systematically denying permissions that pose risks.
-
-Not settled, to be discussed.
