@@ -1,5 +1,16 @@
 # Migrating to Bento v29
 
+**BREAKING CHANGES:**
+
+* WES (v0.17.0) now requires the user who starts a workflow run to have the `view:drop_box` permission on the whole
+  instance if any of the run's file or directory inputs are set, since these are downloaded from the Drop-Box. Users
+  with only project- or dataset-level grants (e.g. `ingest:data`) can no longer start these runs until they are given
+  `view:drop_box` (see [step 5](#5-grant-drop-box-access-to-users-who-run-workflows)).
+* WES only runs workflows from a workflow provider registered in the service registry (e.g. Katsu or Gohan), fetched
+  over HTTP(S). `file://` workflow URLs are rejected, and so are parameters that the workflow does not declare.
+  Workflow attachments are refused unless `BENTO_WES_WORKFLOW_ATTACHMENTS_ENABLED=true`. The Bento web portal does not
+  use any of these, so only custom scripts or clients that submit runs are affected.
+
 **Noteworthy changes:**
 
 * PCGL instances can delegate file manifest access to the PCGL authorization service
@@ -18,11 +29,7 @@
   * shows "Get manifest" or "Apply for access" on a dataset page depending on `download:metadata` on the dataset's
     `experiment` data type, and no longer on `download:data`
   * reads the DAC ID of a dataset from its `pcgl_dac_id` field, and no longer from `extra_properties.dac_id`.
-* There is a new optional service, [Bento ETL](./etl.md), disabled by default (`BENTO_ETL_ENABLED='false'`). It is
-  not routed by the gateway. It adds a Docker network, which development instances must create
-  (see [step 4](#4-create-the-etl-docker-network)).
-
-TODO: other v29 changes.
+* The other services only have dependency and base image updates (security fixes).
 
 
 ## 1. Update the Bento environment
@@ -48,33 +55,21 @@ pip install -r requirements.txt
 
 Skip this step if the instance does not use the PCGL authorization service.
 
-Bento must first be registered as a service in the PCGL authorization service, meaning that the following values must 
-be obtained in the registration process and configured as env vars:
-- `BENTO_AUTHZ_PCGL_SERVICE_ID`
-- `BENTO_AUTHZ_PCGL_SERVICE_SECRET`
-
-The authorization check delegated to PCGL authz can be configured with env vars:
-- `BENTO_AUTHZ_PCGL_ACTION_METHOD` (default `GET`)
-- `BENTO_AUTHZ_PCGL_ACTION_ENDPOINT` (default `/export/study`)
-
-Add the following to your `local.env`:
+Bento must be registered as a service in the PCGL authorization service, which gives it a service ID and a service
+secret. Add them to your `local.env`, along with the policy engine and the URL of the PCGL authorization service:
 
 ```bash
+# local.env
 BENTO_AUTHZ_POLICY_ENGINE=pcgl
 BENTO_AUTHZ_PCGL_SERVICE_URL="https://<pcgl-authz-host>"  # Base URL of the PCGL authorization service
 BENTO_AUTHZ_PCGL_SERVICE_ID="<service ID>"                # Bento's service ID in the PCGL authorization service
 BENTO_AUTHZ_PCGL_SERVICE_SECRET="<service secret>"        # Bento's service secret (UUID)
 ```
 
-Then check the datasets:
+By default, Bento asks PCGL about the `GET /export/study` action. If Bento delegates authz checks to another action, 
+set `BENTO_AUTHZ_PCGL_ACTION_METHOD` and `BENTO_AUTHZ_PCGL_ACTION_ENDPOINT` to the appropriate values.
 
-* Each dataset's `identifier` must be its PCGL study ID. It is set when the dataset is created and cannot be changed
-  afterwards, so datasets created with a generated UUID must be re-created.
-* Study IDs must follow the dataset ID format: letters, digits, `_` and `-` only, starting with a letter or a digit,
-  128 characters at most.
-* If a dataset has its DAC ID in `extra_properties.dac_id`, set it in the `pcgl_dac_id` field instead.
-
-See [PCGL authorization delegation](./pcgl_authorization.md) for the requirements, all settings and troubleshooting.
+See [PCGL authorization delegation](./pcgl_authorization.md) for the requirements and all settings.
 
 
 ## 4. Create the ETL Docker network
@@ -95,11 +90,23 @@ To enable ETL, follow [Setting up ETL](./etl.md#setting-up-etl).
 ./bentoctl.bash start
 ```
 
-On PCGL instances, check that the delegation works:
 
-* the authorization service has started (`./bentoctl.bash logs authz`): it refuses to start if a required PCGL
-  setting is empty;
-* a user approved for a study in PCGL sees the "Get manifest" button on the page of the dataset, and can download
-  the manifest.
+## 5. Grant drop-box access to users who run workflows
 
-If not, see [Troubleshooting](./pcgl_authorization.md#troubleshooting).
+WES now requires `view:drop_box` on the whole instance to start a workflow run with file or directory inputs.
+Superusers (`bento_authz assign-all-to-user`) and the WES client grant created during installation already have it.
+
+For each other user or group who ingests or analyzes Drop-Box files, add a `view:drop_box` grant on everything. Note
+that this lets them see all the files in the Drop-Box. Use the **Access Management** page of the private portal
+(`/data/manager/access`), or the authorization service container:
+
+```bash
+./bentoctl.bash shell authz
+bento_authz create grant \
+  '{"iss": "<ISSUER_HERE>", "sub": "<USER_ID_HERE>"}' \
+  '{"everything": true}' \
+  'view:drop_box'
+```
+
+Where `<ISSUER_HERE>` is the issuer (for example, `https://bentov2auth.local/realms/bentov2`) and `<USER_ID_HERE>`
+is the user (subject) ID.
