@@ -5,6 +5,8 @@ services:
     networks:
       - public-net  # Bento Public, not a public network!
     environment:
+      # Default to production NODE_ENV; overridden in docker-compose.dev.yaml
+      - NODE_ENV=production
       - BENTO_UID
       - BENTO_PUBLIC_SERVICE_ID
       - BENTO_PUBLIC_CLIENT_NAME
