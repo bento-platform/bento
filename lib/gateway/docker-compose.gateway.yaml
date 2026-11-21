@@ -21,6 +21,7 @@ services:
       - BENTO_GATEWAY_USE_TLS
       - BENTO_BEACON_ENABLED
       - BENTO_CBIOPORTAL_ENABLED
+      - BENTO_ETL_ENABLED
       - BENTO_GOHAN_ENABLED
       - BENTO_GARAGE_ENABLED
       - BENTO_MONITORING_ENABLED
@@ -59,6 +60,8 @@ services:
       - BENTOV2_KATSU_DB_INTERNAL_PORT
       - BENTOV2_DRS_CONTAINER_NAME
       - BENTOV2_DRS_INTERNAL_PORT
+      - BENTO_ETL_CONTAINER_NAME
+      - BENTO_ETL_INTERNAL_PORT
       - BENTOV2_NOTIFICATION_CONTAINER_NAME
       - BENTOV2_NOTIFICATION_INTERNAL_PORT
       - BENTOV2_AGGREGATION_CONTAINER_NAME
@@ -96,6 +99,7 @@ services:
       - cbioportal-net
       - drop-box-net
       - drs-net
+      - etl-net
       - event-relay-net
       - gohan-api-net
       - katsu-net
@@ -173,6 +177,9 @@ networks:
   drs-net:
     external: true
     name: ${BENTO_DRS_NETWORK}
+  etl-net:
+    external: true
+    name: ${BENTO_ETL_NETWORK}
   event-relay-net:
     external: true
     name: ${BENTO_EVENT_RELAY_NETWORK}

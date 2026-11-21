@@ -143,9 +143,6 @@ The following is a list of all host port allocations for Bento services in devel
 | Service Registry | 5010 | Unimplemented |
 | WES              | 9250 | 5680          |
 
-The ETL ports are only bound to the loopback interface (`127.0.0.1`), since ETL is not routed by the gateway and
-its job submission is not authenticated yet. See [Bento ETL](./etl.md).
-
 
 ## Local NPM package development
 

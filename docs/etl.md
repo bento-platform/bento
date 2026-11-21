@@ -4,28 +4,24 @@
 services. A job extracts raw data from an S3 store, transforms it into Bento data types, and loads the result into
 Katsu.
 
-ETL is an optional service, disabled by default. It is at an early stage:
-
-* It is **not routed by the gateway**, so it cannot be reached from outside the instance. Jobs are submitted
-  from the machine that runs Bento (see [Submitting jobs](#submitting-jobs)). Job submission is not authenticated
-  yet, so do not publish its port.
-* The version in `etc/bento.env` is a pull request image.
+ETL is optional and disabled by default. The version in `etc/bento.env` is a pull request image.
 
 
 ## How it is connected
 
-| ETL talks to            | Through                                                           | For                              |
-|-------------------------|-------------------------------------------------------------------|----------------------------------|
-| Katsu                   | the public URL (`/api/metadata/`), via the gateway                | loading data                     |
-| The identity provider   | the public URL, via the gateway                                   | getting its own access token     |
-| The authorization service | the public URL, via the gateway                                 | checking who deletes job records |
-| The S3 store            | the URL in `BENTO_ETL_S3_ENDPOINT_URL`                            | reading inputs, writing outputs  |
+The gateway routes ETL at `https://<BENTOV2_DOMAIN>/api/etl`.
 
-ETL signs in as its own OAuth2 client (`etl`, client credentials flow), and Katsu accepts its requests based on the
+| ETL talks to              | Through                                            | For                                      |
+|---------------------------|----------------------------------------------------|------------------------------------------|
+| Katsu                     | the public URL (`/api/metadata/`), via the gateway | loading data                             |
+| The identity provider     | the public URL, via the gateway                    | getting its own access token             |
+| The authorization service | the public URL, via the gateway                    | checking the permissions of job requests |
+| The S3 store              | the URL in `BENTO_ETL_S3_ENDPOINT_URL`             | reading inputs, writing outputs          |
+
+ETL signs in as its own OIDC client (`etl`, client credentials flow), and Katsu accepts its requests based on the
 grants this client has in the authorization service.
 
-S3 credentials are only given to the container as environment variables. No AWS configuration or credentials file
-from the host is mounted.
+S3 credentials are passed as environment variables only; no host AWS configuration is mounted.
 
 
 ## Setting up ETL
@@ -45,14 +41,13 @@ BENTO_ETL_ENABLED='true'
 ./bentoctl.bash init-dirs    # Creates the ETL data directory (job status database)
 ```
 
-On a development instance, the gateway joins the ETL network so that ETL can resolve the Bento domains. Recreate
-the gateway once the network exists:
+Recreate the gateway so that it joins the ETL network and routes `/api/etl`:
 
 ```bash
 ./bentoctl.bash restart gateway
 ```
 
-### 3. Create the OAuth2 client
+### 3. Create the OIDC client
 
 ```bash
 ./bentoctl.bash init-auth
@@ -61,7 +56,6 @@ the gateway once the network exists:
 With ETL enabled, this creates the `etl` client if it does not exist, and prints its secret. Set it in `local.env`:
 
 ```bash
-BENTO_ETL_CLIENT_ID=etl
 BENTO_ETL_CLIENT_SECRET=<the secret printed by init-auth>
 ```
 
@@ -69,15 +63,16 @@ BENTO_ETL_CLIENT_SECRET=<the secret printed by init-auth>
 
 ETL needs three permissions to load data into Katsu:
 
-| Permission       | Used for                                                     |
-|------------------|--------------------------------------------------------------|
-| `ingest:data`    | Ingesting phenopackets, experiments and experiment results   |
-| `create:dataset` | Creating datasets (the `datasets` loader)                    |
-| `delete:dataset` | Deleting existing datasets (the `datasets` loader)           |
+| Permission       | Used for                                                   |
+|------------------|------------------------------------------------------------|
+| `ingest:data`    | Ingesting phenopackets, experiments and experiment results |
+| `create:dataset` | Creating datasets (the `datasets` loader)                  |
+| `delete:dataset` | Deleting existing datasets (the `datasets` loader)         |
 
-The `datasets` loader replaces each dataset: it deletes the dataset **and all the data it contains**, then creates
-it again, empty, ready for the next ingestion jobs. Datasets are never updated in place, so `edit:dataset` is not
-needed.
+The `datasets` loader deletes each dataset **with all the data it contains**, then creates it again, empty.
+Datasets are never updated in place, so `edit:dataset` is not needed.
+
+Submitting a job requires the same permissions (see [Authorization](#authorization)).
 
 Create the grant in the authorization service container (`./bentoctl.bash shell authz`), replacing `<ISSUER_HERE>`
 with the issuer URL, for example `https://bentov2auth.local/realms/bentov2`:
@@ -117,24 +112,21 @@ also creates the `etl` bucket:
 ./bentoctl.bash init-garage
 ```
 
-Then, in `local.env`, after the Garage variables:
+Then, in `local.env` (already set in `etc/bento_dev.env`):
 
 ```bash
-BENTO_ETL_S3_ENDPOINT_URL="http://${BENTO_GARAGE_CONTAINER_NAME}:${BENTO_GARAGE_S3_API_PORT}"
-BENTO_ETL_S3_BUCKET="etl"            # Created by init-garage when ETL is enabled
+BENTO_ETL_S3_ENDPOINT_URL="https://${BENTO_GARAGE_DOMAIN}"
+BENTO_ETL_S3_BUCKET="etl"
 BENTO_ETL_S3_REGION_NAME="garage"    # Must match garage.toml
 BENTO_ETL_S3_ACCESS_KEY="${BENTO_GARAGE_ACCESS_KEY}"
 BENTO_ETL_S3_SECRET_KEY="${BENTO_GARAGE_SECRET_KEY}"
+BENTO_ETL_S3_VALIDATE_SSL=False      # Development only: self-signed certificate
 ```
-
-ETL talks to Garage directly inside the Docker network, over plain HTTP, instead of going through the gateway like
-DRS and Drop-Box do. Its S3 client always validates TLS certificates, so it would reject the self-signed
-certificate of a development gateway.
 
 #### With another S3 provider
 
-Set the same five variables to the endpoint URL (including the protocol), bucket, region and credentials given by
-the provider. The endpoint must have a certificate that validates.
+Set the same variables to the endpoint URL (including the protocol), bucket, region and credentials given by the
+provider, with `BENTO_ETL_S3_VALIDATE_SSL=True`.
 
 ### 6. Start ETL
 
@@ -148,43 +140,36 @@ the provider. The endpoint must have a certificate that validates.
 A job is a JSON object with an `extractor`, a `transformer` and a `loader`. See the
 [Bento ETL documentation](https://github.com/bento-platform/bento_etl#readme) for all the options.
 
-On a development instance (`MODE=dev`), the ETL API is published on the loopback interface of the host, port 6400:
+The OpenAPI UI at `https://<BENTOV2_DOMAIN>/api/etl/docs` lists the endpoints and job schemas.
 
-```bash
-curl -X POST http://localhost:6400/jobs \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "extractor": {"object_key": "path/in/the/bucket/data.jsonl"},
-    "transformer": {"type": "none"},
-    "loader": {"data_type": "print"}
-  }'
+### Authorization
 
-curl http://localhost:6400/jobs            # All jobs
-curl http://localhost:6400/jobs/<job_id>   # One job; the status ends at 'success' or 'error'
-```
+| Endpoints                                  | Required permissions, on everything               |
+|--------------------------------------------|---------------------------------------------------|
+| `POST /jobs`, `POST /jobs/pipeline/<name>` | `ingest:data`, `create:dataset`, `delete:dataset` |
+| `DELETE /jobs/<job_id>`                    | `delete:data`                                     |
+| `GET /jobs`, `GET /jobs/<job_id>`          | `view:runs`                                       |
 
-The interactive API documentation is at `http://localhost:6400/docs`.
+Jobs run as the `etl` client, so submitting one requires that client's permissions; the `etl` client itself can
+submit jobs, but not read their statuses or delete them.
 
-In production mode no port is published. Run the same requests from inside the container, where the service
-listens on port 5000:
+In the OpenAPI UI, give an access token to the **Authorize** button. For the `etl` client, get one with the client
+credentials grant from `https://<BENTOV2_AUTH_DOMAIN>/realms/<BENTOV2_AUTH_REALM>/protocol/openid-connect/token`
+(see [Bento ETL authorization](https://github.com/bento-platform/bento_etl#authorization)).
 
-```bash
-docker exec bentov2-etl curl -X POST http://localhost:5000/jobs -H 'Content-Type: application/json' -d '...'
-```
+### Pipelines and mapping files
 
-Two things to know about the pre-built image:
+The pre-built image has neither the `pipelines/` nor the `mappings/` directory; both are only available when
+[working on ETL locally](#working-on-etl-locally). Otherwise:
 
-* It does not contain the `pipelines/` directory of the ETL repository, so `POST /jobs/pipeline/<name>` has
-  nothing to run. Send the job definition in the request body instead.
-* It does not contain the `mappings/` directory either. Upload the mapping files to the bucket and give them as
-  `s3://<bucket>/<key>` in the transformer's `mappings_path` and `ontology_mappings_path`.
-
-Both directories are available in local development mode, since the repository is mounted in the container.
+* `POST /jobs/pipeline/<name>` has nothing to run: send the job definition in the request body instead.
+* Upload the mapping files to the bucket, and give them as `s3://<bucket>/<key>` in the transformer's
+  `mappings_path` and `ontology_mappings_path`.
 
 ### Uploading mapping files to Bento's Garage
 
-The AWS CLI container can upload them over the Garage network. It only uses the Garage keys given in the
-command, and no AWS configuration from the host. For example, the PCGL mappings of the ETL repository:
+The AWS CLI container can upload them over the Garage network, using only the Garage keys given in the command.
+For example, the PCGL mappings:
 
 ```bash
 docker run --rm --network bentov2-garage-net \
@@ -200,18 +185,16 @@ The jobs then use, for example, `"mappings_path": "s3://etl/mappings/phenopacket
 
 ### Submitting jobs from an external workflow
 
-A workflow that runs outside Bento can write its inputs to the bucket and submit the jobs itself, for example the
-PCGL research portal's `submission-snapshot` workflow. It needs:
+A workflow outside Bento, such as the PCGL `submission-snapshot` workflow, can write its inputs to the bucket and
+submit the jobs itself. It needs:
 
-* **The ETL URL.** On a development instance it is `http://localhost:6400`. ETL has no `/api/etl` route on
-  the gateway until its job submission is authenticated, so a workflow that defaults to
-  `https://<BENTOV2_DOMAIN>/api/etl` must be pointed at the local port instead.
-* **The same bucket as ETL** (`BENTO_ETL_S3_BUCKET`). The object keys given in the jobs are relative to this
-  bucket.
-* **Access to that bucket.** With Bento's Garage, a workflow running on the host reaches it through the gateway
-  at `https://<BENTO_GARAGE_DOMAIN>` with the Garage keys and region `garage`. On a development instance the
-  certificate is self-signed, so the workflow's S3 client must skip certificate validation.
-* **Mapping files in the bucket**, given as `s3://` URIs (see above).
+* **The ETL URL**: `https://<BENTOV2_DOMAIN>/api/etl`.
+* **A token per request**, from the `etl` client or a dedicated client with the
+  [step 4](#4-give-the-client-its-permissions) grant. Either needs `view:runs` to read job statuses.
+* **The same bucket as ETL** (`BENTO_ETL_S3_BUCKET`): job object keys are relative to it.
+* **Access to that bucket**: with Bento's Garage, `https://<BENTO_GARAGE_DOMAIN>` with the Garage keys and region
+  `garage` (skipping certificate validation on a development instance).
+* **Mapping files in the bucket**, as `s3://` URIs.
 
 
 ## Working on ETL locally
@@ -220,6 +203,5 @@ PCGL research portal's `submission-snapshot` workflow. It needs:
 ./bentoctl.bash work-on etl
 ```
 
-This clones the repository into `repos/etl` if needed and runs the development image with the repository mounted
-at `/etl`. The code that runs is the branch checked out in `repos/etl`. The debugger listens on port 6456 of the
-host (loopback interface).
+This clones the repository into `repos/etl` if needed and runs the development image with it mounted at `/etl`.
+The debugger listens on host port 6456.

@@ -49,13 +49,12 @@ services:
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
           - ${BENTO_GARAGE_DOMAIN}
-      # ETL is not routed by the gateway; the gateway only joins its network (in dev) so that ETL can resolve the
-      # Bento domains when it calls Katsu, the IdP and the authorization service.
       etl-net:
         aliases:
           - ${BENTOV2_DOMAIN}
           - ${BENTOV2_PORTAL_DOMAIN}
           - ${BENTOV2_AUTH_DOMAIN}
+          - ${BENTO_GARAGE_DOMAIN}
       event-relay-net:
         aliases:
           - ${BENTOV2_DOMAIN}
@@ -186,10 +185,9 @@ services:
     environment:
       - BENTO_DEBUG=True
       - BENTO_VALIDATE_SSL=False
-    # Bound to the loopback interface only: job submission is not authenticated yet
     ports:
-      - "127.0.0.1:${BENTO_ETL_EXTERNAL_PORT}:${BENTO_ETL_INTERNAL_PORT}"
-      - "127.0.0.1:${BENTO_ETL_DEBUGGER_EXTERNAL_PORT}:${BENTO_ETL_DEBUGGER_INTERNAL_PORT}"
+      - "${BENTO_ETL_EXTERNAL_PORT}:${BENTO_ETL_INTERNAL_PORT}"
+      - "${BENTO_ETL_DEBUGGER_EXTERNAL_PORT}:${BENTO_ETL_DEBUGGER_INTERNAL_PORT}"
     profiles:
       - etl
 

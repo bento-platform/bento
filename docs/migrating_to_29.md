@@ -74,8 +74,7 @@ See [PCGL authorization delegation](./pcgl_authorization.md) for the requirement
 
 ## 4. Create the ETL Docker network
 
-This step is needed on development instances (`MODE=dev`), where the gateway joins the ETL network even if ETL is
-disabled, and on instances that enable ETL. Other instances can skip it.
+The gateway joins the ETL network even if ETL is disabled, so this step is needed on every instance.
 
 ```bash
 ./bentoctl.bash init-docker

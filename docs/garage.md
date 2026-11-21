@@ -212,15 +212,13 @@ to your `local.env` file, after the Garage variables:
 ```bash
 # local.env
 # ETL S3 Configuration
-BENTO_ETL_S3_ENDPOINT_URL="http://${BENTO_GARAGE_CONTAINER_NAME}:${BENTO_GARAGE_S3_API_PORT}"  # Direct, plain HTTP
-BENTO_ETL_S3_BUCKET="etl"                                # Created by init-garage when ETL is enabled
-BENTO_ETL_S3_REGION_NAME="garage"                        # Must match garage.toml
+BENTO_ETL_S3_ENDPOINT_URL="https://${BENTO_GARAGE_DOMAIN}"
+BENTO_ETL_S3_BUCKET="etl"            # Created by init-garage when ETL is enabled
+BENTO_ETL_S3_REGION_NAME="garage"    # Must match garage.toml
 BENTO_ETL_S3_ACCESS_KEY="${BENTO_GARAGE_ACCESS_KEY}"
 BENTO_ETL_S3_SECRET_KEY="${BENTO_GARAGE_SECRET_KEY}"
+BENTO_ETL_S3_VALIDATE_SSL=False      # Development only: self-signed certificate
 ```
-
-Unlike DRS and Drop-Box, ETL does not go through the gateway: it has no setting to skip TLS certificate
-validation, so it talks to the Garage container directly inside the Docker network.
 
 Restart ETL:
 

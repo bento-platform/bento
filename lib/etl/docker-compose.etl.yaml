@@ -6,6 +6,7 @@ services:
       - BENTO_UID
       - BENTO_DEBUG=False
       - INTERNAL_PORT=${BENTO_ETL_INTERNAL_PORT}
+      - SERVICE_URL_BASE_PATH=${BENTOV2_PUBLIC_URL}/api/etl
       - CORS_ORIGINS=${BENTO_CORS_ORIGINS}
 
       # Authz
@@ -23,13 +24,13 @@ services:
 
       # S3 - credentials are only given through the environment; no AWS config/credentials file is mounted
       - S3_BUCKET=${BENTO_ETL_S3_BUCKET}
+      - S3_VALIDATE_SSL=${BENTO_ETL_S3_VALIDATE_SSL}
       - AWS_ENDPOINT_URL_S3=${BENTO_ETL_S3_ENDPOINT_URL}
       - AWS_ACCESS_KEY_ID=${BENTO_ETL_S3_ACCESS_KEY}
       - AWS_SECRET_ACCESS_KEY=${BENTO_ETL_S3_SECRET_KEY}
       - AWS_DEFAULT_REGION=${BENTO_ETL_S3_REGION_NAME}
     networks:
       - etl-net
-      - garage-net  # Talks to Garage directly (plain HTTP): the S3 client used by ETL always validates certificates
     expose:
       - ${BENTO_ETL_INTERNAL_PORT}
     volumes:
@@ -47,6 +48,3 @@ networks:
   etl-net:
     external: true
     name: ${BENTO_ETL_NETWORK}
-  garage-net:
-    external: true
-    name: ${BENTO_GARAGE_NETWORK}
