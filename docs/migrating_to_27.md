@@ -37,7 +37,7 @@ BENTO_GARAGE_SECRET_KEY='<your-secret-key>'
 Bento Public now uses Auth.js for sign-in, which needs a secret to encrypt its session cookies. Generate one:
 
 ```bash
-openssl rand -base64 32
+openssl rand -hex 32
 ```
 
 and add it to `local.env`:
