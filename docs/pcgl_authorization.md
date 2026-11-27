@@ -53,7 +53,8 @@ Then restart the authorization service:
 With the `pcgl` policy engine, the service refuses to start if the service URL, service ID, service secret, action
 endpoint or action method is empty, or if the token lifespan or the request timeout is not greater than 0.
 
-All settings, with their defaults from `etc/default_config.env`:
+All settings, with their defaults from `etc/default_config.env` (first 5 variables) or `etc/bento.env` 
+(last 4 variables):
 
 | Variable                                  | Default         | Description                                            |
 | ----------------------------------------- | --------------- | ------------------------------------------------------ |
@@ -61,11 +62,11 @@ All settings, with their defaults from `etc/default_config.env`:
 | `BENTO_AUTHZ_PCGL_SERVICE_URL`            |                 | Base URL of the PCGL authorization service.            |
 | `BENTO_AUTHZ_PCGL_SERVICE_ID`             |                 | Bento's service ID in the PCGL authorization service.  |
 | `BENTO_AUTHZ_PCGL_SERVICE_SECRET`         |                 | Bento's service secret (UUID).                         |
+| `BENTO_AUTHZ_JWT_ACCESS_TOKENS`           | `true`          | Whether bearer tokens are JWTs. See [Limits](#limits). |
 | `BENTO_AUTHZ_PCGL_ACTION_ENDPOINT`        | `/export/study` | Action endpoint sent to `/allowed`, as registered.     |
 | `BENTO_AUTHZ_PCGL_ACTION_METHOD`          | `GET`           | Action method sent to `/allowed`, as registered.       |
 | `BENTO_AUTHZ_PCGL_SERVICE_TOKEN_LIFESPAN` | `1500`          | Seconds the PCGL service token is cached for.          |
 | `BENTO_AUTHZ_PCGL_REQUEST_TIMEOUT`        | `10`            | Timeout, in seconds, of each request to PCGL.          |
-| `BENTO_AUTHZ_JWT_ACCESS_TOKENS`           | `true`          | Whether bearer tokens are JWTs. See [Limits](#limits). |
 
 The TLS certificate of the PCGL authorization service is verified by default, except when `BENTO_VALIDATE_SSL=False`.
 
